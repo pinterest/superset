@@ -43,3 +43,9 @@ def version() -> FlaskResponse:
     from superset.utils.version import get_version_metadata
 
     return jsonify(get_version_metadata())
+
+
+@talisman(force_https=False)
+@app.route("/_/_/health/")
+def health_pinterest_only() -> FlaskResponse:
+    return "OK"
