@@ -34,3 +34,8 @@ def healthcheck() -> FlaskResponse:
 @app.route("/health")
 def health() -> FlaskResponse:
     return "OK"
+
+@talisman(force_https=False)
+@app.route("/_/_/health/")
+def health_pinterest_only() -> FlaskResponse:
+    return "OK"
