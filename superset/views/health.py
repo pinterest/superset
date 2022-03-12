@@ -27,3 +27,8 @@ def health() -> FlaskResponse:
     stats_logger: BaseStatsLogger = app.config["STATS_LOGGER"]
     stats_logger.incr("health")
     return "OK"
+
+@talisman(force_https=False)
+@app.route("/_/_/health/")
+def health_pinterest_only() -> FlaskResponse:
+    return "OK"
