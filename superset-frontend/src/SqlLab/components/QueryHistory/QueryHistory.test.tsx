@@ -16,16 +16,35 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-export default function isEqualArray<T extends unknown[] | undefined | null>(
-  arrA: T,
-  arrB: T,
-) {
-  return (
-    arrA === arrB ||
-    (!arrA && !arrB) ||
-    (arrA &&
-      arrB &&
-      arrA.length === arrB.length &&
-      arrA.every((x, i) => x === arrB[i]))
-  );
-}
+import React from 'react';
+import { render, screen } from 'spec/helpers/testing-library';
+import QueryHistory from 'src/SqlLab/components/QueryHistory';
+
+const NOOP = () => {};
+const mockedProps = {
+  queries: [],
+  actions: {
+    queryEditorSetSql: NOOP,
+    cloneQueryToNewTab: NOOP,
+    fetchQueryResults: NOOP,
+    clearQueryResults: NOOP,
+    removeQuery: NOOP,
+  },
+  displayLimit: 1000,
+};
+
+const setup = (overrides = {}) => (
+  <QueryHistory {...mockedProps} {...overrides} />
+);
+
+describe('QueryHistory', () => {
+  it('Renders an empty state for query history', () => {
+    render(setup());
+
+    const emptyStateText = screen.getByText(
+      /run a query to display query history/i,
+    );
+
+    expect(emptyStateText).toBeVisible();
+  });
+});

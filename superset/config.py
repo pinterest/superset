@@ -44,6 +44,7 @@ from werkzeug.local import LocalProxy
 
 from superset.constants import CHANGE_ME_SECRET_KEY
 from superset.jinja_context import BaseTemplateProcessor
+from superset.key_value.types import KeyType
 from superset.stats_logger import DummyStatsLogger
 from superset.typing import CacheConfig
 from superset.utils.core import is_test, parse_boolean_string
@@ -374,6 +375,11 @@ DEFAULT_FEATURE_FLAGS: Dict[str, bool] = {
     "ENABLE_EXPLORE_JSON_CSRF_PROTECTION": False,
     "ENABLE_TEMPLATE_PROCESSING": False,
     "ENABLE_TEMPLATE_REMOVE_FILTERS": False,
+    # Allow for javascript controls components
+    # this enables programmers to customize certain charts (like the
+    # geospatial ones) by inputing javascript in controls. This exposes
+    # an XSS security vulnerability
+    "ENABLE_JAVASCRIPT_CONTROLS": False,
     "KV_STORE": False,
     # When this feature is enabled, nested types in Presto will be
     # expanded into extra columns and/or arrays. This is experimental,
@@ -605,6 +611,8 @@ EXPLORE_FORM_DATA_CACHE_CONFIG: CacheConfig = {
 
 # store cache keys by datasource UID (via CacheKey) for custom processing/invalidation
 STORE_CACHE_KEYS_IN_METADATA_DB = False
+
+PERMALINK_KEY_TYPE: KeyType = "uuid"
 
 # CORS Options
 ENABLE_CORS = False
@@ -1020,12 +1028,6 @@ PRESTO_POLL_INTERVAL = int(timedelta(seconds=1).total_seconds())
 #     },
 # }
 ALLOWED_EXTRA_AUTHENTICATIONS: Dict[str, Dict[str, Callable[..., Any]]] = {}
-
-# Allow for javascript controls components
-# this enables programmers to customize certain charts (like the
-# geospatial ones) by inputing javascript in controls. This exposes
-# an XSS security vulnerability
-ENABLE_JAVASCRIPT_CONTROLS = False
 
 # The id of a template dashboard that should be copied to every new user
 DASHBOARD_TEMPLATE_ID = None
