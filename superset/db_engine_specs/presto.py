@@ -28,7 +28,6 @@ from datetime import datetime
 from distutils.version import StrictVersion
 from typing import Any, cast, Dict, List, Optional, Pattern, Tuple, TYPE_CHECKING, Union
 from urllib import parse
-from requests.auth import HTTPBasicAuth, HTTPProxyAuth
 
 import pandas as pd
 import simplejson as json
@@ -41,6 +40,7 @@ from sqlalchemy.engine.result import Row as ResultRow
 from sqlalchemy.engine.url import URL
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.expression import ColumnClause, Select
+from requests.auth import HTTPBasicAuth, HTTPProxyAuth
 
 from superset import cache_manager, is_feature_enabled
 from superset.common.db_query_status import QueryStatus
@@ -151,7 +151,6 @@ def get_children(column: ResultSetColumnType) -> List[ResultSetColumnType]:
     raise Exception(f"Unknown type {type_}!")
 
 # from: https://stackoverflow.com/questions/9026016/python-requests-library-combine-httpproxyauth-with-httpbasicauth
-
 class HTTPBasicAndProxyAuth:
     def __init__(self, basic_up, proxy_up):
         # basic_up is a tuple with username, password
@@ -410,15 +409,7 @@ class PrestoEngineSpec(PrestoBaseEngineSpec):
         # auth=LDAP|KERBEROS
         # Set principal_username=$effective_username
         if backend_name == "presto" and username is not None:
-            # This is Pinterest custom code that passes the proxy user
-            # via a custom HTTPProxyAuth header
-            connect_args["requests_kwargs"] = {
-                "auth": HTTPBasicAndProxyAuth(
-                    (connect_args['username'], connect_args['password']),
-                    (username, "no pass")
-                )
-            }
-            del connect_args['password']
+            connect_args["principal_username"] = username
 
     @classmethod
     def get_table_names(
