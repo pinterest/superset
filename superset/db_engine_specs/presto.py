@@ -25,7 +25,6 @@ from datetime import datetime
 from distutils.version import StrictVersion
 from typing import Any, cast, Dict, List, Optional, Pattern, Tuple, TYPE_CHECKING, Union
 from urllib import parse
-from requests.auth import HTTPBasicAuth, HTTPProxyAuth
 
 import pandas as pd
 import simplejson as json
@@ -143,23 +142,6 @@ def get_children(column: ResultSetColumnType) -> List[ResultSetColumnType]:
     raise Exception(f"Unknown type {type_}!")
 
 
-# from: https://stackoverflow.com/questions/9026016/python-requests-library-combine-httpproxyauth-with-httpbasicauth
-class HTTPBasicAndProxyAuth:
-    def __init__(self, basic_up, proxy_up):
-        # basic_up is a tuple with username, password
-        self.basic_auth = HTTPBasicAuth(*basic_up)
-        # proxy_up is a tuple with proxy username, password
-        self.proxy_auth = HTTPProxyAuth(*proxy_up)
-
-    def __call__(self, r):
-        # this emulates what basicauth and proxyauth do in their __call__()
-        # first add r.headers['Authorization']
-        r = self.basic_auth(r)
-        # then add r.headers['Proxy-Authorization']
-        r = self.proxy_auth(r)
-        # and return the request, as the auth object should do
-        return r
-
 class PrestoEngineSpec(BaseEngineSpec):  # pylint: disable=too-many-public-methods
     engine = "presto"
     engine_name = "Presto"
@@ -263,15 +245,7 @@ class PrestoEngineSpec(BaseEngineSpec):  # pylint: disable=too-many-public-metho
         # auth=LDAP|KERBEROS
         # Set principal_username=$effective_username
         if backend_name == "presto" and username is not None:
-            # This is Pinterest custom code that passes the proxy user
-            # via a custom HTTPProxyAuth header
-            connect_args["requests_kwargs"] = {
-                "auth": HTTPBasicAndProxyAuth(
-                    (connect_args['username'], connect_args['password']),
-                    (username, "no pass")
-                )
-            }
-            del connect_args['password']
+            connect_args["principal_username"] = username
 
     @classmethod
     def get_table_names(
