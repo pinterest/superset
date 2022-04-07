@@ -133,6 +133,9 @@ class DashboardJSONMetadataSchema(Schema):
     # used for v0 import/export
     import_time = fields.Integer()
     remote_id = fields.Integer()
+    # used to configure dashboard_metadata cache strategy
+    # (will be deprecated once TAGGING_SYSTEM feature is complete)
+    cache_warmup_schedule = fields.Str(allow_none=True)
 
 
 class UserSchema(Schema):

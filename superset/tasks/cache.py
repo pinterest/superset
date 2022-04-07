@@ -39,8 +39,9 @@ logger.setLevel(logging.INFO)
 def get_url(chart: Slice, dashboard: Optional[Dashboard] = None) -> str:
     """Return external URL for warming up a given chart/table cache."""
     with app.test_request_context():
+        public_url = app.config.get("SUPERSET_PUBLIC_URL")
         baseurl = "{WEBDRIVER_BASEURL}".format(**app.config)
-        url = f"{baseurl}superset/warm_up_cache/?slice_id={chart.id}"
+        url = f"{public_url or baseurl}superset/warm_up_cache/?slice_id={chart.id}"
         if dashboard:
             url += f"&dashboard_id={dashboard.id}"
         return url
@@ -212,7 +213,51 @@ class DashboardTagsStrategy(Strategy):  # pylint: disable=too-few-public-methods
         return urls
 
 
-strategies = [DummyStrategy, TopNDashboardsStrategy, DashboardTagsStrategy]
+class DashboardMetadataStrategy(Strategy):  # pylint: disable=too-few-public-methods
+    """
+    Warm up charts in dashboards with json_metadata field containing matching
+    `cache_warmup_schedule` value
+
+    Note: This strategy can be deprecated once TAGGING_SYSTEM is a completed production feature.
+    Then, we can use DashboardTagsStrategy in place of this strategy.
+
+        CELERYBEAT_SCHEDULE = {
+            'cache-warmup-hourly': {
+                'task': 'cache-warmup',
+                'schedule': crontab(minute=1, hour='*'),  # @hourly
+                'kwargs': {
+                    'strategy_name': 'dashboard_metadata',
+                    'schedule': 'hourly',
+                },
+            },
+        }
+    """
+    name = "dashboard_metadata"
+
+    def __init__(self, schedule: str) -> None:
+        super().__init__()
+        self.schedule = schedule  # "hourly" or "daily"
+
+    def get_urls(self) -> List[str]:
+        urls = []
+        session = db.create_scoped_session()
+
+        # add dashboards that have cache warmup configured
+        cache_configured_dashboards = (
+            session.query(Dashboard)
+            .filter(Dashboard.json_metadata.like(f'%"cache_warmup_schedule"%'))
+            .all()
+        )
+        cache_configured_dashboards = [dashboard for dashboard in cache_configured_dashboards if json.loads(
+            dashboard.json_metadata).get("cache_warmup_schedule") == self.schedule]
+        for dashboard in cache_configured_dashboards:
+            for chart in dashboard.slices:
+                urls.append(get_url(chart))
+        return urls
+
+
+strategies = [DummyStrategy, TopNDashboardsStrategy,
+              DashboardTagsStrategy, DashboardMetadataStrategy]
 
 
 @celery_app.task(name="fetch_url")

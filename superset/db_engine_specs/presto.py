@@ -409,7 +409,15 @@ class PrestoEngineSpec(PrestoBaseEngineSpec):
         # auth=LDAP|KERBEROS
         # Set principal_username=$effective_username
         if backend_name == "presto" and username is not None:
-            connect_args["principal_username"] = username
+            # This is Pinterest custom code that passes the proxy user
+            # via a custom HTTPProxyAuth header
+            connect_args["requests_kwargs"] = {
+                "auth": HTTPBasicAndProxyAuth(
+                    (connect_args['username'], connect_args['password']),
+                    (username, "no pass")
+                )
+            }
+            del connect_args['password']
 
     @classmethod
     def get_table_names(
