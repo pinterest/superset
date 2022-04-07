@@ -75,12 +75,13 @@ def get_form_data(
 def get_url(chart: Slice, extra_filters: Optional[Dict[str, Any]] = None) -> str:
     """Return external URL for warming up a given chart/table cache."""
     with app.test_request_context():
+        public_url = app.config.get("SUPERSET_PUBLIC_URL")
         baseurl = (
             "{SUPERSET_WEBSERVER_PROTOCOL}://"
             "{SUPERSET_WEBSERVER_ADDRESS}:"
             "{SUPERSET_WEBSERVER_PORT}".format(**app.config)
         )
-        return f"{baseurl}{chart.get_explore_url(overrides=extra_filters)}"
+        return f"{public_url or baseurl}{chart.get_explore_url(overrides=extra_filters)}"
 
 
 class Strategy:  # pylint: disable=too-few-public-methods
