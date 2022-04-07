@@ -224,7 +224,60 @@ class DashboardTagsStrategy(Strategy):  # pylint: disable=too-few-public-methods
         return payloads
 
 
-strategies = [DummyStrategy, TopNDashboardsStrategy, DashboardTagsStrategy]
+class DashboardMetadataStrategy(Strategy):  # pylint: disable=too-few-public-methods
+    """
+    Warm up charts in dashboards with json_metadata field containing matching
+    `cache_warmup_schedule` value
+
+    Note: This strategy can be deprecated once TAGGING_SYSTEM is a completed production feature.
+    Then, we can use DashboardTagsStrategy in place of this strategy.
+
+        CELERYBEAT_SCHEDULE = {
+            'cache-warmup-hourly': {
+                'task': 'cache-warmup',
+                'schedule': crontab(minute=1, hour='*'),  # @hourly
+                'kwargs': {
+                    'strategy_name': 'dashboard_metadata',
+                    'schedule': 'hourly',
+                },
+            },
+        }
+    """
+
+    name = "dashboard_metadata"
+
+    def __init__(self, schedule: str) -> None:
+        super().__init__()
+        self.schedule = schedule  # "hourly" or "daily"
+
+    def get_payloads(self) -> list[dict[str, int]]:
+        payloads = []
+        session = db.create_scoped_session()
+
+        # add dashboards that have cache warmup configured
+        cache_configured_dashboards = (
+            session.query(Dashboard)
+            .filter(Dashboard.json_metadata.like(f'%"cache_warmup_schedule"%'))
+            .all()
+        )
+        cache_configured_dashboards = [
+            dashboard
+            for dashboard in cache_configured_dashboards
+            if json.loads(dashboard.json_metadata).get("cache_warmup_schedule")
+            == self.schedule
+        ]
+        for dashboard in cache_configured_dashboards:
+            for chart in dashboard.slices:
+                payloads.append(get_payload(chart))
+        return payloads
+
+
+strategies = [
+    DummyStrategy,
+    TopNDashboardsStrategy,
+    DashboardTagsStrategy,
+    DashboardMetadataStrategy,
+]
 
 
 @celery_app.task(name="fetch_url")
