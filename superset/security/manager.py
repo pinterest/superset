@@ -1222,11 +1222,8 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
         return [f.get("clause", "") for f in self.get_guest_rls_filters(table)]
 
     def get_rls_cache_key(self, datasource: "BaseDatasource") -> List[str]:
-        # pylint: disable=import-outside-toplevel
-        from superset import is_feature_enabled
-
         rls_ids = []
-        if is_feature_enabled("ROW_LEVEL_SECURITY") and datasource.is_rls_supported:
+        if datasource.is_rls_supported:
             rls_ids = self.get_rls_ids(datasource)
         rls_str = [str(rls_id) for rls_id in rls_ids]
         guest_rls = self.get_guest_rls_filters_str(datasource)
@@ -1315,6 +1312,24 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
         if callable(audience):
             audience = audience()
         return audience
+
+    @staticmethod
+    def validate_guest_token_resources(resources: GuestTokenResources) -> None:
+        # pylint: disable=import-outside-toplevel
+        from superset.embedded.dao import EmbeddedDAO
+        from superset.embedded_dashboard.commands.exceptions import (
+            EmbeddedDashboardNotFoundError,
+        )
+        from superset.models.dashboard import Dashboard
+
+        for resource in resources:
+            if resource["type"] == GuestTokenResourceType.DASHBOARD.value:
+                # TODO (embedded): remove this check once uuids are rolled out
+                dashboard = Dashboard.get(str(resource["id"]))
+                if not dashboard:
+                    embedded = EmbeddedDAO.find_by_id(str(resource["id"]))
+                    if not embedded:
+                        raise EmbeddedDashboardNotFoundError()
 
     def create_guest_access_token(
         self,
