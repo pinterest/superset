@@ -61,6 +61,7 @@ from superset.extensions import cache_manager, encrypted_field_factory, security
 from superset.models.helpers import AuditMixinNullable, ImportExportMixin
 from superset.models.tags import FavStarUpdater
 from superset.result_set import SupersetResultSet
+from superset.superset_typing import QueryObjectDict
 from superset.utils import cache as cache_util, core as utils
 from superset.utils.core import get_username
 from superset.utils.memoized import memoized
@@ -417,6 +418,9 @@ class Database(
         sql: str,
         schema: Optional[str] = None,
         mutator: Optional[Callable[[pd.DataFrame], None]] = None,
+        query_obj: Optional[QueryObjectDict] = None,
+        table_name: Optional[str] = None,
+        columns: Optional[List[Any]] = None,
     ) -> pd.DataFrame:
         sqls = self.db_engine_spec.parse_sql(sql)
         engine = self.get_sqla_engine(schema)
@@ -443,11 +447,11 @@ class Database(
             cursor = conn.cursor()
             for sql_ in sqls[:-1]:
                 _log_query(sql_)
-                self.db_engine_spec.execute(cursor, sql_)
+                self.db_engine_spec.execute(cursor, sql_, query_obj=query_obj, table_name=table_name, columns=columns)
                 cursor.fetchall()
 
             _log_query(sqls[-1])
-            self.db_engine_spec.execute(cursor, sqls[-1])
+            self.db_engine_spec.execute(cursor, sqls[-1], query_obj=query_obj, table_name=table_name, columns=columns)
 
             data = self.db_engine_spec.fetch_data(cursor)
             result_set = SupersetResultSet(

@@ -69,6 +69,11 @@ setup(
         "sqlalchemy.dialects": [
             "postgres.psycopg2 = sqlalchemy.dialects.postgresql:dialect",
             "postgres = sqlalchemy.dialects.postgresql:dialect",
+            "trinonative = sqlalchemy_trino.dialect:TrinoDialect",
+            "pinalytics = pinalytics_db.sqlalchemy_pinalytics:PinalyticsDialect",
+        ],
+        "superset.db_engine_specs": [
+            "pinalytics = pinalytics_db.pinalytics_engine_spec:PinalyticsEngineSpec"
         ],
     },
     install_requires=[
