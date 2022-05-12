@@ -1895,7 +1895,7 @@ class SqlaTable(Model, BaseDatasource):  # pylint: disable=too-many-public-metho
             return df
 
         try:
-            df = self.database.get_df(sql, self.schema, mutator=assign_column_label)
+            df = self.database.get_df(sql, self.schema, mutator=assign_column_label, query_obj=query_obj, table_name=self.table_name, columns=self.columns)
         except Exception as ex:  # pylint: disable=broad-except
             df = pd.DataFrame()
             status = QueryStatus.FAILED

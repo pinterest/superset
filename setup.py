@@ -64,6 +64,13 @@ setup(
     zip_safe=False,
     entry_points={
         "console_scripts": ["superset=superset.cli.main:superset"],
+        "sqlalchemy.dialects": [
+            "trinonative = sqlalchemy_trino.dialect:TrinoDialect",
+            "pinalytics = pinalytics_db.sqlalchemy_pinalytics:PinalyticsDialect",
+        ],
+        "superset.db_engine_specs": [
+            "pinalytics = pinalytics_db.pinalytics_engine_spec:PinalyticsEngineSpec"
+        ],
     },
     install_requires=[
         "backoff>=1.8.0",
