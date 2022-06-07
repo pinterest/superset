@@ -57,12 +57,14 @@ class DefaultLoggingConfigurator(  # pylint: disable=too-few-public-methods
 
         if app_config["ENABLE_TIME_ROTATE"]:
             logging.getLogger().setLevel(app_config["TIME_ROTATE_LOG_LEVEL"])
+            formatter = logging.Formatter(fmt=app_config["LOG_FORMAT"])
             handler = TimedRotatingFileHandler(
                 app_config["FILENAME"],
                 when=app_config["ROLLOVER"],
                 interval=app_config["INTERVAL"],
                 backupCount=app_config["BACKUP_COUNT"],
             )
+            handler.setFormatter(formatter)
             logging.getLogger().addHandler(handler)
 
         logger.info("logging was configured successfully")

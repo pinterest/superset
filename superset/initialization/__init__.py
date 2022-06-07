@@ -527,7 +527,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
 
         # This is Pinterest custom code, the envoy https forwarding
         # becomes http internally and it breaks HTTPs requirement for OAuth
-        if self.config['ENABLE_HTTPS_OVERRIDE']:
+        if 'ENABLE_HTTPS_OVERRIDE' in self.config and self.config['ENABLE_HTTPS_OVERRIDE']:
             self.superset_app.wsgi_app = ForceHttps(  # type: ignore
                 self.superset_app.wsgi_app
             )
