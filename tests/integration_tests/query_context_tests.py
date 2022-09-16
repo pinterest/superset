@@ -18,6 +18,8 @@ import re
 import time
 from typing import Any, Dict
 
+import numpy as np
+import pandas as pd
 import pytest
 from pandas import DateOffset
 
@@ -25,12 +27,15 @@ from superset import db
 from superset.charts.schemas import ChartDataQueryContextSchema
 from superset.common.chart_data import ChartDataResultFormat, ChartDataResultType
 from superset.common.query_context import QueryContext
+from superset.common.query_context_factory import QueryContextFactory
 from superset.common.query_object import QueryObject
 from superset.connectors.connector_registry import ConnectorRegistry
 from superset.connectors.sqla.models import SqlMetric
 from superset.extensions import cache_manager
+from superset.superset_typing import AdhocColumn
 from superset.utils.core import AdhocMetricExpressionType, backend, QueryStatus
 from tests.integration_tests.base_tests import SupersetTestCase
+from tests.integration_tests.conftest import only_sqlite
 from tests.integration_tests.fixtures.birth_names_dashboard import (
     load_birth_names_dashboard_with_slices,
     load_birth_names_data,
@@ -679,3 +684,109 @@ class TestQueryContext(SupersetTestCase):
                     row["sum__num__3 years later"]
                     == df_3_years_later.loc[index]["sum__num"]
                 )
+
+
+@only_sqlite
+def test_time_grain_and_time_offset_with_base_axis(app_context, physical_dataset):
+    column_on_axis: AdhocColumn = {
+        "label": "col6",
+        "sqlExpression": "col6",
+        "columnType": "BASE_AXIS",
+        "timeGrain": "P3M",
+    }
+    qc = QueryContextFactory().create(
+        datasource={
+            "type": physical_dataset.type,
+            "id": physical_dataset.id,
+        },
+        queries=[
+            {
+                "columns": [column_on_axis],
+                "metrics": [
+                    {
+                        "label": "SUM(col1)",
+                        "expressionType": "SQL",
+                        "sqlExpression": "SUM(col1)",
+                    }
+                ],
+                "time_offsets": ["3 month ago"],
+                "granularity": "col6",
+                "time_range": "2002-01 : 2003-01",
+            }
+        ],
+        result_type=ChartDataResultType.FULL,
+        force=True,
+    )
+    query_object = qc.queries[0]
+    df = qc.get_df_payload(query_object)["df"]
+    # todo: MySQL returns integer and float column as object type
+    """
+        col6  SUM(col1)  SUM(col1)__3 month ago
+0 2002-01-01          3                     NaN
+1 2002-04-01         12                     3.0
+2 2002-07-01         21                    12.0
+3 2002-10-01          9                    21.0
+    """
+    assert df.equals(
+        pd.DataFrame(
+            data={
+                "col6": pd.to_datetime(
+                    ["2002-01-01", "2002-04-01", "2002-07-01", "2002-10-01"]
+                ),
+                "SUM(col1)": [3, 12, 21, 9],
+                "SUM(col1)__3 month ago": [np.nan, 3, 12, 21],
+            }
+        )
+    )
+
+
+@only_sqlite
+def test_time_grain_and_time_offset_on_legacy_query(app_context, physical_dataset):
+    qc = QueryContextFactory().create(
+        datasource={
+            "type": physical_dataset.type,
+            "id": physical_dataset.id,
+        },
+        queries=[
+            {
+                "columns": [],
+                "extras": {
+                    "time_grain_sqla": "P3M",
+                },
+                "metrics": [
+                    {
+                        "label": "SUM(col1)",
+                        "expressionType": "SQL",
+                        "sqlExpression": "SUM(col1)",
+                    }
+                ],
+                "time_offsets": ["3 month ago"],
+                "granularity": "col6",
+                "time_range": "2002-01 : 2003-01",
+                "is_timeseries": True,
+            }
+        ],
+        result_type=ChartDataResultType.FULL,
+        force=True,
+    )
+    query_object = qc.queries[0]
+    df = qc.get_df_payload(query_object)["df"]
+    # todo: MySQL returns integer and float column as object type
+    """
+  __timestamp  SUM(col1)  SUM(col1)__3 month ago
+0  2002-01-01          3                     NaN
+1  2002-04-01         12                     3.0
+2  2002-07-01         21                    12.0
+3  2002-10-01          9                    21.0
+    """
+    assert df.equals(
+        pd.DataFrame(
+            data={
+                "__timestamp": pd.to_datetime(
+                    ["2002-01-01", "2002-04-01", "2002-07-01", "2002-10-01"]
+                ),
+                "SUM(col1)": [3, 12, 21, 9],
+                "SUM(col1)__3 month ago": [np.nan, 3, 12, 21],
+            }
+        )
+    )
