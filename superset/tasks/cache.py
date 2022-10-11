@@ -272,9 +272,13 @@ class DashboardMetadataStrategy(Strategy):  # pylint: disable=too-few-public-met
     """
     name = "dashboard_metadata"
 
+    HOURLY_CACHE_TIMEOUT = 3600
+    DAILY_CACHE_TIMEOUT = 86400
+
     def __init__(self, schedule: str) -> None:
         super().__init__()
         self.schedule = schedule  # "hourly" or "daily"
+        self.cache_timeout = self.DAILY_CACHE_TIMEOUT if schedule == "daily" else self.HOURLY_CACHE_TIMEOUT
 
     def get_urls(self) -> List[str]:
         urls = []
@@ -290,7 +294,8 @@ class DashboardMetadataStrategy(Strategy):  # pylint: disable=too-few-public-met
             dashboard.json_metadata).get("cache_warmup_schedule") == self.schedule]
         for dashboard in cache_configured_dashboards:
             for chart in dashboard.slices:
-                urls.append(get_url(chart))
+                urls.append(get_url(chart, extra_filters={
+                            "cache_timeout": self.cache_timeout}))
         return urls
 
 
