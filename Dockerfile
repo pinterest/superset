@@ -88,6 +88,8 @@ RUN cd /app \
         && pip install -e . \
         && flask fab babel-compile --target superset/translations
 
+RUN pip install --force-reinstall git+https://github.com/benoitc/gunicorn.git@master
+
 COPY ./docker/run-server.sh /usr/bin/
 
 RUN chmod a+x /usr/bin/run-server.sh
