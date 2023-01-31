@@ -228,6 +228,7 @@ class QueryContextProcessor:
             timestamp_format=timestamp_format,
             offset=datasource.offset,
             time_shift=query_object.time_shift,
+            dttm_col_name=dttm_col.column_name,
         )
 
         if self.enforce_numerical_metrics:
