@@ -35,7 +35,6 @@ from superset.extensions import cache_manager
 from superset.superset_typing import AdhocColumn
 from superset.utils.core import AdhocMetricExpressionType, backend, QueryStatus
 from tests.integration_tests.base_tests import SupersetTestCase
-from tests.integration_tests.conftest import only_sqlite
 from tests.integration_tests.fixtures.birth_names_dashboard import (
     load_birth_names_dashboard_with_slices,
     load_birth_names_data,
@@ -686,7 +685,6 @@ class TestQueryContext(SupersetTestCase):
                 )
 
 
-@only_sqlite
 def test_time_grain_and_time_offset_with_base_axis(app_context, physical_dataset):
     column_on_axis: AdhocColumn = {
         "label": "col6",
@@ -740,7 +738,6 @@ def test_time_grain_and_time_offset_with_base_axis(app_context, physical_dataset
     )
 
 
-@only_sqlite
 def test_time_grain_and_time_offset_on_legacy_query(app_context, physical_dataset):
     qc = QueryContextFactory().create(
         datasource={
