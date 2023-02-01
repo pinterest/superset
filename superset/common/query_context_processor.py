@@ -218,6 +218,7 @@ class QueryContextProcessor:
     def normalize_df(self, df: pd.DataFrame, query_object: QueryObject) -> pd.DataFrame:
         datasource = self._qc_datasource
         timestamp_format = None
+        dttm_col = None
         if datasource.type == "table":
             dttm_col = datasource.get_column(query_object.granularity)
             if dttm_col:
@@ -228,6 +229,7 @@ class QueryContextProcessor:
             timestamp_format=timestamp_format,
             offset=datasource.offset,
             time_shift=query_object.time_shift,
+            dttm_col_name=(dttm_col.column_name if dttm_col else DTTM_ALIAS),
         )
 
         if self.enforce_numerical_metrics:
