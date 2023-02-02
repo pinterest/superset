@@ -16,6 +16,8 @@
 # under the License.
 """Utility functions used across Superset"""
 # pylint: disable=too-many-lines
+from __future__ import annotations
+
 import _thread
 import collections
 import decimal
@@ -34,6 +36,7 @@ import traceback
 import uuid
 import zlib
 from contextlib import contextmanager
+from dataclasses import dataclass
 from datetime import date, datetime, time, timedelta
 from distutils.util import strtobool
 from email.mime.application import MIMEApplication
@@ -1286,9 +1289,12 @@ def get_column_name(
         expr = column.get("sqlExpression")
         if expr:
             return expr
-        raise ValueError("Missing label")
-    verbose_map = verbose_map or {}
-    return verbose_map.get(column, column)
+
+    if isinstance(column, str):
+        verbose_map = verbose_map or {}
+        return verbose_map.get(column, column)
+
+    raise ValueError("Missing label")
 
 
 def get_metric_name(
@@ -1804,33 +1810,64 @@ def remove_duplicates(
     return result
 
 
+@dataclass
+class DateColumn:
+    col_label: str
+    timestamp_format: Optional[str] = None
+    offset: Optional[int] = None
+    time_shift: Optional[timedelta] = None
+
+    def __hash__(self) -> int:
+        return hash(self.col_label)
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, DateColumn) and hash(self) == hash(other)
+
+    @classmethod
+    def get_legacy_time_column(
+        cls,
+        timestamp_format: Optional[str],
+        offset: Optional[int],
+        time_shift: Optional[timedelta],
+    ) -> DateColumn:
+        return cls(
+            timestamp_format=timestamp_format,
+            offset=offset,
+            time_shift=time_shift,
+            col_label=DTTM_ALIAS,
+        )
+
+
 def normalize_dttm_col(
     df: pd.DataFrame,
-    timestamp_format: Optional[str],
-    offset: int,
-    time_shift: Optional[timedelta],
+    dttm_cols: Tuple[DateColumn, ...] = tuple(),
 ) -> None:
-    if DTTM_ALIAS not in df.columns:
-        return
-    if timestamp_format in ("epoch_s", "epoch_ms"):
-        dttm_col = df[DTTM_ALIAS]
-        if is_numeric_dtype(dttm_col):
-            # Column is formatted as a numeric value
-            unit = timestamp_format.replace("epoch_", "")
-            df[DTTM_ALIAS] = pd.to_datetime(
-                dttm_col, utc=False, unit=unit, origin="unix", errors="coerce"
-            )
+    for _col in dttm_cols:
+        if _col.col_label not in df.columns:
+            continue
+
+        if _col.timestamp_format in ("epoch_s", "epoch_ms"):
+            dttm_series = df[_col.col_label]
+            if is_numeric_dtype(dttm_series):
+                # Column is formatted as a numeric value
+                unit = _col.timestamp_format.replace("epoch_", "")
+                df[_col.col_label] = pd.to_datetime(
+                    dttm_series, utc=False, unit=unit, origin="unix", errors="coerce"
+                )
+            else:
+                # Column has already been formatted as a timestamp.
+                df[_col.col_label] = dttm_series.apply(pd.Timestamp)
         else:
-            # Column has already been formatted as a timestamp.
-            df[DTTM_ALIAS] = dttm_col.apply(pd.Timestamp)
-    else:
-        df[DTTM_ALIAS] = pd.to_datetime(
-            df[DTTM_ALIAS], utc=False, format=timestamp_format, errors="coerce"
-        )
-    if offset:
-        df[DTTM_ALIAS] += timedelta(hours=offset)
-    if time_shift is not None:
-        df[DTTM_ALIAS] += time_shift
+            df[_col.col_label] = pd.to_datetime(
+                df[_col.col_label],
+                utc=False,
+                format=_col.timestamp_format,
+                errors="coerce",
+            )
+        if _col.offset:
+            df[_col.col_label] += timedelta(hours=_col.offset)
+        if _col.time_shift is not None:
+            df[_col.col_label] += _col.time_shift
 
 
 def parse_boolean_string(bool_str: Optional[str]) -> bool:
