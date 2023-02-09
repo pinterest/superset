@@ -58,6 +58,7 @@ import {
   EchartsTimeseriesChartPlugin,
   EchartsTimeseriesBarChartPlugin,
   EchartsTimeseriesLineChartPlugin,
+  EchartsTimeseriesPinterestLineChartPlugin,
   EchartsTimeseriesScatterChartPlugin,
   EchartsTimeseriesSmoothLineChartPlugin,
   EchartsTimeseriesStepChartPlugin,
@@ -149,6 +150,9 @@ export default class MainPreset extends Preset {
         }),
         new EchartsTimeseriesLineChartPlugin().configure({
           key: 'echarts_timeseries_line',
+        }),
+        new EchartsTimeseriesPinterestLineChartPlugin().configure({
+          key: 'pinalytics_timeseries_line',
         }),
         new EchartsTimeseriesSmoothLineChartPlugin().configure({
           key: 'echarts_timeseries_smooth',
