@@ -8,6 +8,11 @@ import {
   TimeseriesDataRecord,
 } from '@superset-ui/core';
 import { orderBy } from 'lodash';
+import {
+  CallbackDataParams,
+  TooltipPositionCallbackParams,
+} from 'echarts/types/src/util/types';
+import { TooltipOption } from 'echarts/types/src/component/tooltip/TooltipModel';
 import { getColtypesMapping } from '../../../utils/series';
 import escape from 'escape-html';
 import {
@@ -151,7 +156,7 @@ class DeltaTableTooltipFormatter {
     };
   };
 
-  getDeltaTableRows(params: any, xIndex: number) {
+  getDeltaTableRows(params: CallbackDataParams[], xIndex: number) {
     const rows = [
       this.deltaTableColumns.map(column => ({
         element: 'th',
@@ -159,7 +164,7 @@ class DeltaTableTooltipFormatter {
         data: column.toString(),
       })),
     ];
-    params.forEach((param: any) => {
+    params.forEach((param) => {
       const deltaTableData = this.getDeltaTableData(
         param.value[xIndex],
         param.seriesName,
@@ -171,7 +176,7 @@ class DeltaTableTooltipFormatter {
         if (column === DeltaTableColumn.METRIC) {
           data = param.marker + escape(columnData);
         }
-        if (PERCENT_CHANGE_COLUMNS.includes(column) && columnData != null) {
+        else if (PERCENT_CHANGE_COLUMNS.includes(column) && columnData != null) {
           data += '%';
           if (columnData > 0) {
             color = this.theme.colors.success.dark1;
@@ -197,24 +202,22 @@ class DeltaTableTooltipFormatter {
 
     const [xIndex, yIndex] =
       orientation === OrientationType.horizontal ? [1, 0] : [0, 1];
-    return {
+
+    let tooltipConfig: TooltipOption = {
       ...defaultTooltip,
       appendToBody: true,
       trigger: richTooltip ? 'axis' : 'item',
       // eslint-disable-next-line theme-colors/no-literal-colors
       backgroundColor: 'rgba(255, 255, 255, 0.90)',
-      position(pos: any, _params: any, _el: any, _elRect: any, size: any) {
-        const obj = { top: 10 };
-        obj[['left', 'right'][+(pos[0] < size.viewSize[0] / 2)]] = 30;
-        return obj;
-      },
-      formatter: (initialParams: any) => {
-        let params = richTooltip ? initialParams : [initialParams];
+      formatter: (initialParams: TooltipPositionCallbackParams) => {
+        let params: CallbackDataParams[] = richTooltip
+          ? (initialParams as CallbackDataParams[])
+          : [initialParams as CallbackDataParams];
         if (tooltipSortByMetric) {
           params = orderBy(params, [
             ({ value }) => -1 * value[yIndex],
             ['desc'],
-          ]);
+          ]) as CallbackDataParams[];
         }
         const deltaTableRows = this.getDeltaTableRows(params, xIndex);
         const xValue = params[0].value[xIndex];
@@ -236,6 +239,24 @@ class DeltaTableTooltipFormatter {
         </table>`;
       },
     };
+
+    if (richTooltip) {
+      tooltipConfig = {
+        ...tooltipConfig,
+        position: (
+          pos: [number, number],
+          _params: any,
+          _el: any,
+          _elRect: any,
+          size: { viewSize: [number, number] },
+        ) => {
+          const obj = { top: 10 };
+          obj[['left', 'right'][+(pos[0] < size.viewSize[0] / 2)]] = 30;
+          return obj;
+        },
+      };
+    }
+    return tooltipConfig;
   }
 }
 
