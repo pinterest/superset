@@ -5,21 +5,22 @@ export const TIME_OFFSET_BY_COLUMN = {
   [DeltaTableColumn.WEEK_OVER_WEEK]: 7,
   [DeltaTableColumn.MONTH_OVER_MONTH]: 28,
   [DeltaTableColumn.YEAR_OVER_YEAR]: 365,
-}
+};
 
 const getPreviousDate = (date: Date, offsetDays: number) => {
   const previousDate = new Date(date);
   previousDate.setDate(date.getDate() - offsetDays);
   return previousDate;
-}
+};
 
 export const getDateByTimeDelta = {
   [DeltaTableColumn.DAY_OVER_DAY]: (date: Date) => getPreviousDate(date, 1),
   [DeltaTableColumn.WEEK_OVER_WEEK]: (date: Date) => getPreviousDate(date, 7),
-  [DeltaTableColumn.MONTH_OVER_MONTH]:  (date: Date) => getPreviousDate(date, 28),
-  [DeltaTableColumn.YEAR_OVER_YEAR]:  (date: Date) => {
+  [DeltaTableColumn.MONTH_OVER_MONTH]: (date: Date) =>
+    getPreviousDate(date, 28),
+  [DeltaTableColumn.YEAR_OVER_YEAR]: (date: Date) => {
     const previousDate = new Date(date);
-    previousDate.setFullYear(date.getFullYear() - 1 );
+    previousDate.setFullYear(date.getFullYear() - 1);
     return previousDate;
   },
 };

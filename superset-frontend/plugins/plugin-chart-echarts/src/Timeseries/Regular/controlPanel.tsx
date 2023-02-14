@@ -48,7 +48,9 @@ const {
   zoomable,
   xAxisLabelRotation,
 } = DEFAULT_FORM_DATA;
-export const getControlPanelConfig = (overrideRichTooltipSection?: ControlSetRow[]): ControlPanelConfig => ({
+export const getControlPanelConfig = (
+  overrideRichTooltipSection?: ControlSetRow[],
+): ControlPanelConfig => ({
   controlPanelSections: [
     sections.legacyTimeseriesTime,
     {

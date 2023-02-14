@@ -13,8 +13,8 @@ import {
   TooltipPositionCallbackParams,
 } from 'echarts/types/src/util/types';
 import { TooltipOption } from 'echarts/types/src/component/tooltip/TooltipModel';
-import { getColtypesMapping } from '../../../utils/series';
 import escape from 'escape-html';
+import { getColtypesMapping } from '../../../utils/series';
 import {
   DEFAULT_FORM_DATA,
   EchartsTimeseriesChartProps,
@@ -117,8 +117,13 @@ class DeltaTableTooltipFormatter {
     return seriesName;
   };
 
-  getDeltaTableData = (timestamp: number, seriesName: string, overrideDeltaTableColumns?: Array<DeltaTableColumn>) => {
-    const deltaTableColumns = overrideDeltaTableColumns ?? this.deltaTableColumns;
+  getDeltaTableData = (
+    timestamp: number,
+    seriesName: string,
+    overrideDeltaTableColumns?: Array<DeltaTableColumn>,
+  ) => {
+    const deltaTableColumns =
+      overrideDeltaTableColumns ?? this.deltaTableColumns;
     const columnName = this.getDataColumn(seriesName);
     const currentValue = this.dataByTimestamp[timestamp][columnName];
     const currentDate = new Date(timestamp);
@@ -140,17 +145,14 @@ class DeltaTableTooltipFormatter {
       return Number(percentChange.toFixed(2));
     };
 
-    const percentChangeByKey = deltaTableColumns.reduce(
-      (accum, column) => {
-        if (PERCENT_CHANGE_COLUMNS.includes(column)) {
-          const previousDate = getDateByTimeDelta[column](currentDate);
-          // eslint-disable-next-line no-param-reassign
-          accum[column] = getDataPercentChange(previousDate);
-        }
-        return accum;
-      },
-      {},
-    );
+    const percentChangeByKey = deltaTableColumns.reduce((accum, column) => {
+      if (PERCENT_CHANGE_COLUMNS.includes(column)) {
+        const previousDate = getDateByTimeDelta[column](currentDate);
+        // eslint-disable-next-line no-param-reassign
+        accum[column] = getDataPercentChange(previousDate);
+      }
+      return accum;
+    }, {});
 
     return {
       ...percentChangeByKey,
@@ -161,7 +163,11 @@ class DeltaTableTooltipFormatter {
 
   getDeltaTableRows(params: CallbackDataParams[], xIndex: number) {
     const { tooltipDeltaColumns } = this.formData;
-    const deltaTableColumns = this.deltaTableColumns.filter(column => !PERCENT_CHANGE_COLUMNS.includes(column) ||  tooltipDeltaColumns.includes(column));
+    const deltaTableColumns = this.deltaTableColumns.filter(
+      column =>
+        !PERCENT_CHANGE_COLUMNS.includes(column) ||
+        tooltipDeltaColumns.includes(column),
+    );
     const rows = [
       deltaTableColumns.map(column => ({
         element: 'th',
@@ -169,7 +175,7 @@ class DeltaTableTooltipFormatter {
         data: column,
       })),
     ];
-    params.forEach((param) => {
+    params.forEach(param => {
       const deltaTableData = this.getDeltaTableData(
         param.value[xIndex],
         param.seriesName,
@@ -181,8 +187,10 @@ class DeltaTableTooltipFormatter {
         let data = columnData ?? '-';
         if (column === DeltaTableColumn.METRIC) {
           data = param.marker + escape(columnData);
-        }
-        else if (PERCENT_CHANGE_COLUMNS.includes(column) && columnData != null) {
+        } else if (
+          PERCENT_CHANGE_COLUMNS.includes(column) &&
+          columnData != null
+        ) {
           data += '%';
           if (columnData > 0) {
             color = this.theme.colors.success.dark1;
