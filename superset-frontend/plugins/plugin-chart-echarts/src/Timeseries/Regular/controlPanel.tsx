@@ -21,6 +21,7 @@ import { FeatureFlag, isFeatureEnabled, t } from '@superset-ui/core';
 import {
   ControlPanelConfig,
   ControlPanelsContainerProps,
+  ControlSetRow,
   D3_TIME_FORMAT_DOCS,
   emitFilterControl,
   sections,
@@ -47,7 +48,7 @@ const {
   zoomable,
   xAxisLabelRotation,
 } = DEFAULT_FORM_DATA;
-const config: ControlPanelConfig = {
+export const getControlPanelConfig = (overrideRichTooltipSection?: ControlSetRow[]): ControlPanelConfig => ({
   controlPanelSections: [
     sections.legacyTimeseriesTime,
     {
@@ -171,7 +172,7 @@ const config: ControlPanelConfig = {
           },
         ],
         // eslint-disable-next-line react/jsx-key
-        ...richTooltipSection,
+        ...(overrideRichTooltipSection ?? richTooltipSection),
         // eslint-disable-next-line react/jsx-key
         [<div className="section-header">{t('Y Axis')}</div>],
 
@@ -246,6 +247,6 @@ const config: ControlPanelConfig = {
     metrics: formData.standardizedFormData.standardizedState.metrics,
     groupby: formData.standardizedFormData.standardizedState.columns,
   }),
-};
+});
 
-export default config;
+export default getControlPanelConfig();

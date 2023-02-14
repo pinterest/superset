@@ -9,7 +9,7 @@ import {
   t,
 } from '@superset-ui/core';
 import buildQuery from '../../buildQuery';
-import controlPanel from '../../Regular/controlPanel';
+import controlPanel from './controlPanel';
 import thumbnail from './images/thumbnail.png';
 import {
   EchartsTimeseriesChartProps,

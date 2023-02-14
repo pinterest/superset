@@ -24,6 +24,7 @@ import {
 import {
   DELTA_TABLE_COLUMNS,
   DIRECTION_SYMBOL,
+  getDateByTimeDelta,
   MILLISECONDS_IN_DAY,
   PERCENT_CHANGE_COLUMNS,
   TIME_OFFSET_BY_COLUMN,
@@ -116,12 +117,14 @@ class DeltaTableTooltipFormatter {
     return seriesName;
   };
 
-  getDeltaTableData = (timestamp: number, seriesName: string) => {
+  getDeltaTableData = (timestamp: number, seriesName: string, overrideDeltaTableColumns?: Array<DeltaTableColumn>) => {
+    const deltaTableColumns = overrideDeltaTableColumns ?? this.deltaTableColumns;
     const columnName = this.getDataColumn(seriesName);
     const currentValue = this.dataByTimestamp[timestamp][columnName];
+    const currentDate = new Date(timestamp);
 
-    const getDataPercentChange = (timeOffset: number) => {
-      const originalTimestamp = timestamp - timeOffset * MILLISECONDS_IN_DAY;
+    const getDataPercentChange = (previousDate: Date) => {
+      const originalTimestamp = previousDate.valueOf();
       if (!(originalTimestamp in this.dataByTimestamp)) {
         return null;
       }
@@ -137,12 +140,12 @@ class DeltaTableTooltipFormatter {
       return Number(percentChange.toFixed(2));
     };
 
-    const percentChangeByKey = this.deltaTableColumns.reduce(
+    const percentChangeByKey = deltaTableColumns.reduce(
       (accum, column) => {
         if (PERCENT_CHANGE_COLUMNS.includes(column)) {
-          const timeOffset = TIME_OFFSET_BY_COLUMN[column];
+          const previousDate = getDateByTimeDelta[column](currentDate);
           // eslint-disable-next-line no-param-reassign
-          accum[column] = getDataPercentChange(timeOffset);
+          accum[column] = getDataPercentChange(previousDate);
         }
         return accum;
       },
@@ -157,22 +160,25 @@ class DeltaTableTooltipFormatter {
   };
 
   getDeltaTableRows(params: CallbackDataParams[], xIndex: number) {
+    const { tooltipDeltaColumns } = this.formData;
+    const deltaTableColumns = this.deltaTableColumns.filter(column => !PERCENT_CHANGE_COLUMNS.includes(column) ||  tooltipDeltaColumns.includes(column));
     const rows = [
-      this.deltaTableColumns.map(column => ({
+      deltaTableColumns.map(column => ({
         element: 'th',
         style: this.getCellStyle(column),
-        data: column.toString(),
+        data: column,
       })),
     ];
     params.forEach((param) => {
       const deltaTableData = this.getDeltaTableData(
         param.value[xIndex],
         param.seriesName,
+        deltaTableColumns,
       );
-      const newRow = this.deltaTableColumns.map(column => {
+      const newRow = deltaTableColumns.map(column => {
         const columnData = deltaTableData[column];
         let color;
-        let data = columnData ?? 'N/A';
+        let data = columnData ?? '-';
         if (column === DeltaTableColumn.METRIC) {
           data = param.marker + escape(columnData);
         }
