@@ -178,7 +178,7 @@ class DeltaTableTooltipFormatter {
     params.forEach(param => {
       const deltaTableData = this.getDeltaTableData(
         param.value[xIndex],
-        param.seriesName,
+        param.seriesName!,
         deltaTableColumns,
       );
       const newRow = deltaTableColumns.map(column => {
@@ -229,7 +229,7 @@ class DeltaTableTooltipFormatter {
           : [initialParams as CallbackDataParams];
         if (tooltipSortByMetric) {
           params = orderBy(params, [
-            ({ value }) => -1 * value[yIndex],
+            ({ value }: CallbackDataParams) => -1 * value[yIndex],
             ['desc'],
           ]) as CallbackDataParams[];
         }
