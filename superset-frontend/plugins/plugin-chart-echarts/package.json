@@ -26,6 +26,7 @@
     "access": "public"
   },
   "dependencies": {
+    "@types/escape-html": "^1.0.2",
     "d3-array": "^1.2.0",
     "echarts": "^5.3.2",
     "lodash": "^4.17.15",
