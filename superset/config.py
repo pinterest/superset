@@ -1326,7 +1326,7 @@ ADVANCED_DATA_TYPES: Dict[str, AdvancedDataType] = {
     "port": internet_port,
 }
 
-PINTEREST_MENU_ITEMS = None
+PINTEREST_MENU_ITEMS: List[Dict[str, str]] = None
 
 
 # -------------------------------------------------------------------
