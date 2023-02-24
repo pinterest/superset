@@ -202,7 +202,7 @@ export const showValueSectionWithoutStack: ControlSetRow[] = [
   [onlyTotalControl],
 ];
 
-export const richTooltipControl: ControlSetItem = {
+const richTooltipControl: ControlSetItem = {
   name: 'rich_tooltip',
   config: {
     type: 'CheckboxControl',
@@ -215,7 +215,7 @@ export const richTooltipControl: ControlSetItem = {
   },
 };
 
-export const tooltipTimeFormatControl: ControlSetItem = {
+const tooltipTimeFormatControl: ControlSetItem = {
   name: 'tooltipTimeFormat',
   config: {
     ...sharedControls.x_axis_time_format,
@@ -225,7 +225,7 @@ export const tooltipTimeFormatControl: ControlSetItem = {
   },
 };
 
-export const tooltipSortByMetricControl: ControlSetItem = {
+const tooltipSortByMetricControl: ControlSetItem = {
   name: 'tooltipSortByMetric',
   config: {
     type: 'CheckboxControl',
