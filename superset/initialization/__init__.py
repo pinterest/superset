@@ -367,6 +367,19 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
             category_label=__("SQL"),
         )
 
+        if self.config["PINTEREST_MENU_ITEMS"]:
+            for menu_item in self.config["PINTEREST_MENU_ITEMS"]:
+                appbuilder.add_link(
+                    menu_item["name"],
+                    label=__(menu_item["name"]),
+                    href=menu_item["href"],
+                    icon=menu_item["icon"],
+                    category="Pinterest",
+                    category_label=__("Pinterest"),
+                    category_icon=menu_item["icon"],
+                )
+            appbuilder.add_separator("Pinterest")
+
         appbuilder.add_api(LogRestApi)
         appbuilder.add_view(
             LogModelView,
