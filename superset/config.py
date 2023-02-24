@@ -55,6 +55,7 @@ from superset.advanced_data_type.plugins.internet_port import internet_port
 from superset.advanced_data_type.types import AdvancedDataType
 from superset.constants import CHANGE_ME_SECRET_KEY
 from superset.jinja_context import BaseTemplateProcessor
+from superset.pinterest.types import PinterestMenuItems
 from superset.stats_logger import DummyStatsLogger
 from superset.superset_typing import CacheConfig
 from superset.utils.core import is_test, parse_boolean_string
@@ -1326,7 +1327,7 @@ ADVANCED_DATA_TYPES: Dict[str, AdvancedDataType] = {
     "port": internet_port,
 }
 
-PINTEREST_MENU_ITEMS: List[Dict[str, str]] = None
+PINTEREST_MENU_ITEMS: List[PinterestMenuItems] = None
 
 
 # -------------------------------------------------------------------
