@@ -61,6 +61,7 @@ RUN mkdir -p ${PYTHONPATH} \
             build-essential \
             curl \
             default-libmysqlclient-dev \
+            git \
             libsasl2-dev \
             libsasl2-modules-gssapi-mit \
             libpq-dev \
