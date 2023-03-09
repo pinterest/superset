@@ -507,6 +507,22 @@ class QueryContextProcessor:
                 # 2. rename extra query columns
                 offset_metrics_df = offset_metrics_df.rename(columns=metrics_mapping)
 
+                # 3. set time offset for index
+                index = (
+                    [
+                        *get_base_axis_labels(query_object.columns),
+                        query_object.granularity,
+                    ]
+                    or [DTTM_ALIAS]
+                )[0]
+                if not dataframe_utils.is_datetime_series(offset_metrics_df.get(index)):
+                    raise QueryObjectValidationError(
+                        _(
+                            "A time column must be specified "
+                            "when using a Time Comparison."
+                        )
+                    )
+
             # cache df and query
             value = {
                 "df": offset_metrics_df,
