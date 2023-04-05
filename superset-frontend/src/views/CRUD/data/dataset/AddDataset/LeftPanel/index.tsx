@@ -24,17 +24,8 @@ import React, {
   useCallback,
 } from 'react';
 import rison from 'rison';
-import {
-  SupersetClient,
-  t,
-  styled,
-  css,
-  useTheme,
-  logging,
-} from '@superset-ui/core';
-import { Input } from 'src/components/Input';
+import { SupersetClient, t, styled, logging } from '@superset-ui/core';
 import { Form } from 'src/components/Form';
-import Icons from 'src/components/Icons';
 import { TableOption } from 'src/components/TableSelector';
 import RefreshLabel from 'src/components/RefreshLabel';
 import { Table } from 'src/hooks/apiResources';
@@ -47,6 +38,7 @@ import {
   emptyStateComponent,
 } from 'src/components/EmptyState';
 import { useToasts } from 'src/components/MessageToasts/withToasts';
+import { Select } from 'src/components';
 import { LocalStorageKeys, getItem } from 'src/utils/localStorageHelpers';
 import {
   DatasetActionType,
@@ -58,10 +50,6 @@ interface LeftPanelProps {
   dataset?: Partial<DatasetObject> | null;
   datasetNames?: (string | null | undefined)[] | undefined;
 }
-
-const SearchIcon = styled(Icons.Search)`
-  color: ${({ theme }) => theme.colors.grayscale.light1};
-`;
 
 const LeftPanelStyle = styled.div`
   ${({ theme }) => `
@@ -158,28 +146,22 @@ export default function LeftPanel({
   dataset,
   datasetNames,
 }: LeftPanelProps) {
-  const theme = useTheme();
-
   const [tableOptions, setTableOptions] = useState<Array<TableOption>>([]);
   const [resetTables, setResetTables] = useState(false);
   const [loadTables, setLoadTables] = useState(false);
-  const [searchVal, setSearchVal] = useState('');
   const [refresh, setRefresh] = useState(false);
-  const [selectedTable, setSelectedTable] = useState<number | null>(null);
 
   const { addDangerToast } = useToasts();
 
   const setDatabase = useCallback(
     (db: Partial<DatabaseObject>) => {
       setDataset({ type: DatasetActionType.selectDatabase, payload: { db } });
-      setSelectedTable(null);
       setResetTables(true);
     },
     [setDataset],
   );
 
-  const setTable = (tableName: string, index: number) => {
-    setSelectedTable(index);
+  const setTable = (tableName: string) => {
     setDataset({
       type: DatasetActionType.selectTable,
       payload: { name: 'table_name', value: tableName },
@@ -190,15 +172,27 @@ export default function LeftPanel({
     (url: string) => {
       SupersetClient.get({ url })
         .then(({ json }) => {
-          const options: TableOption[] = json.result.map((table: Table) => {
-            const option: TableOption = {
-              value: table.value,
-              label: <TableOption table={table} />,
-              text: table.label,
-            };
+          const options: TableOption[] = json.result.map(
+            (originalTable: Table) => {
+              const table = originalTable;
+              if (
+                datasetNames?.includes(table.value) &&
+                !table?.extra?.warning_markdown
+              ) {
+                table.extra = table.extra ?? {};
+                table.extra.warning_markdown = t(
+                  'This table already has a dataset',
+                );
+              }
+              const option: TableOption = {
+                value: table.value,
+                label: <TableOption table={table} />,
+                text: table.label,
+              };
 
-            return option;
-          });
+              return option;
+            },
+          );
 
           setTableOptions(options);
           setLoadTables(false);
@@ -210,7 +204,7 @@ export default function LeftPanel({
           logging.error(t('There was an error fetching tables'), error);
         });
     },
-    [addDangerToast],
+    [addDangerToast, datasetNames],
   );
 
   const setSchema = (schema: string) => {
@@ -221,7 +215,6 @@ export default function LeftPanel({
       });
       setLoadTables(true);
     }
-    setSelectedTable(null);
     setResetTables(true);
   };
 
@@ -258,10 +251,6 @@ export default function LeftPanel({
     }
   }, [resetTables]);
 
-  const filteredOptions = tableOptions.filter(option =>
-    option?.value?.toLowerCase().includes(searchVal.toLowerCase()),
-  );
-
   const Loader = (inline: string) => (
     <div className="loading-container">
       <Loading position="inline" />
@@ -278,9 +267,6 @@ export default function LeftPanel({
   const REFRESH_TABLES_TEXT = t('Refresh tables');
   const SEARCH_TABLES_PLACEHOLDER_TEXT = t('Search tables');
 
-  const optionsList = document.getElementsByClassName('options-list');
-  const scrollableOptionsList =
-    optionsList[0]?.scrollHeight > optionsList[0]?.clientHeight;
   const [emptyResultsWithSearch, setEmptyResultsWithSearch] = useState(false);
 
   const onEmptyResults = (searchText?: string) => {
@@ -301,7 +287,7 @@ export default function LeftPanel({
         onEmptyResults={onEmptyResults}
       />
       {loadTables && !refresh && Loader(TABLE_LOADING_TEXT)}
-      {dataset?.schema && !loadTables && !tableOptions.length && !searchVal && (
+      {dataset?.schema && !loadTables && !tableOptions.length && (
         <div className="emptystate">
           <EmptyStateMedium
             image="empty-table.svg"
@@ -311,7 +297,7 @@ export default function LeftPanel({
         </div>
       )}
 
-      {dataset?.schema && (tableOptions.length > 0 || searchVal.length > 0) && (
+      {dataset?.schema && tableOptions.length > 0 && (
         <>
           <Form>
             <p className="table-title">{SELECT_DATABASE_TABLE_TEXT}</p>
@@ -324,53 +310,15 @@ export default function LeftPanel({
             />
             {refresh && Loader(REFRESH_TABLES_TEXT)}
             {!refresh && (
-              <Input
-                value={searchVal}
-                prefix={<SearchIcon iconSize="l" />}
-                onChange={evt => {
-                  setSearchVal(evt.target.value);
-                }}
-                className="table-form"
+              <Select
+                ariaLabel={SEARCH_TABLES_PLACEHOLDER_TEXT}
                 placeholder={SEARCH_TABLES_PLACEHOLDER_TEXT}
-                allowClear
+                name="select-table"
+                options={tableOptions}
+                onChange={item => setTable(item as string)}
               />
             )}
           </Form>
-          <div className="options-list" data-test="options-list">
-            {!refresh &&
-              filteredOptions.map((option, i) => (
-                <div
-                  className={
-                    selectedTable === i
-                      ? scrollableOptionsList
-                        ? 'options-highlighted'
-                        : 'options-highlighted no-scrollbar'
-                      : scrollableOptionsList
-                      ? 'options'
-                      : 'options no-scrollbar'
-                  }
-                  key={i}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => setTable(option.value, i)}
-                >
-                  {option.label}
-                  {datasetNames?.includes(option.value) && (
-                    <Icons.Warning
-                      iconColor={
-                        selectedTable === i
-                          ? theme.colors.grayscale.light5
-                          : theme.colors.info.base
-                      }
-                      iconSize="m"
-                      css={css`
-                        margin-right: ${theme.gridUnit * 2}px;
-                      `}
-                    />
-                  )}
-                </div>
-              ))}
-          </div>
         </>
       )}
     </LeftPanelStyle>
