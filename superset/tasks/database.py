@@ -26,12 +26,14 @@ def db_tables_cache_warm_up(database_id: str, schema_name: str):
     """
     session = db.create_scoped_session()
     logger.info(
-        f"Warming up database table cache for database_id: {database_id}, schema_name: {schema_name}"
+        "Warming up database table cache for database_id: %i, schema_name: %s",
+        database_id,
+        schema_name,
     )
     try:
         database = session.query(Database).filter_by(id=database_id).one_or_none()
         if not database:
-            logger.error(f"Database not found, database_id: {database_id}")
+            logger.error("Database not found, database_id: %i", database_id)
 
         database.get_all_table_names_in_schema(
             schema=schema_name,
@@ -46,9 +48,14 @@ def db_tables_cache_warm_up(database_id: str, schema_name: str):
             cache_timeout=database.table_cache_timeout,
         )
         logger.info(
-            f"Database tables cache warm up succeeded for database_id: {database_id}, schema_name: {schema_name}"
+            "Database tables cache warm up succeeded for database_id: %i, schema_name: %s",
+            database_id,
+            schema_name,
         )
     except SupersetException as ex:
         logger.exception(
-            f"Superset exception for db_tables_cache_warm_up job database_id: {database_id}, schema_name: {schema_name}, message: {ex.message}"
+            "Superset exception for db_tables_cache_warm_up job database_id: %i, schema_name: %s, message: %s",
+            database_id,
+            schema_name,
+            ex.message,
         )

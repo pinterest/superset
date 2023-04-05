@@ -218,8 +218,8 @@ class DashboardMetadataStrategy(Strategy):  # pylint: disable=too-few-public-met
     Warm up charts in dashboards with json_metadata field containing matching
     `cache_warmup_schedule` value
 
-    Note: This strategy can be deprecated once TAGGING_SYSTEM is a completed production feature.
-    Then, we can use DashboardTagsStrategy in place of this strategy.
+    Note: This strategy can be deprecated once TAGGING_SYSTEM is a completed production
+    feature. Then, we can use DashboardTagsStrategy in place of this strategy.
 
         CELERYBEAT_SCHEDULE = {
             'cache-warmup-hourly': {
@@ -246,7 +246,7 @@ class DashboardMetadataStrategy(Strategy):  # pylint: disable=too-few-public-met
         # add dashboards that have cache warmup configured
         cache_configured_dashboards = (
             session.query(Dashboard)
-            .filter(Dashboard.json_metadata.like(f'%"cache_warmup_schedule"%'))
+            .filter(Dashboard.json_metadata.like('%"cache_warmup_schedule"%'))
             .all()
         )
         cache_configured_dashboards = [
