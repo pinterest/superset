@@ -489,6 +489,8 @@ DEFAULT_FEATURE_FLAGS: Dict[str, bool] = {
     # Users must check whether the DB engine supports SSH Tunnels
     # otherwise enabling this flag won't have any effect on the DB.
     "SSH_TUNNELING": False,
+    # Flag to use antd select for dataset tables selection list
+    "PINTEREST_UI_TABLE_SELECT": False,
 }
 
 # ------------------------------

@@ -14,7 +14,6 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-import json
 import logging
 from typing import Any, Dict, List, Optional, Union
 from urllib import request
@@ -240,6 +239,8 @@ class DashboardMetadataStrategy(Strategy):  # pylint: disable=too-few-public-met
         self.schedule = schedule  # "hourly" or "daily"
 
     def get_urls(self) -> List[str]:
+        import json
+
         urls = []
         session = db.create_scoped_session()
 
