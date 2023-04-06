@@ -32,6 +32,7 @@ import {
   useTheme,
   logging,
 } from '@superset-ui/core';
+import DatasetTableSelector from 'src/components/DatasetTableSelector';
 import { Input } from 'src/components/Input';
 import { Form } from 'src/components/Form';
 import Icons from 'src/components/Icons';
@@ -47,6 +48,7 @@ import {
   emptyStateComponent,
 } from 'src/components/EmptyState';
 import { useToasts } from 'src/components/MessageToasts/withToasts';
+import { isFeatureEnabled, FeatureFlag } from 'src/featureFlags';
 import { LocalStorageKeys, getItem } from 'src/utils/localStorageHelpers';
 import {
   DatasetActionType,
@@ -161,6 +163,7 @@ export default function LeftPanel({
   const theme = useTheme();
 
   const [tableOptions, setTableOptions] = useState<Array<TableOption>>([]);
+  const [tableList, setTableList] = useState<Array<Table>>([]);
   const [resetTables, setResetTables] = useState(false);
   const [loadTables, setLoadTables] = useState(false);
   const [searchVal, setSearchVal] = useState('');
@@ -190,6 +193,7 @@ export default function LeftPanel({
     (url: string) => {
       SupersetClient.get({ url })
         .then(({ json }) => {
+          setTableList(json.result);
           const options: TableOption[] = json.result.map((table: Table) => {
             const option: TableOption = {
               value: table.value,
@@ -323,54 +327,64 @@ export default function LeftPanel({
               tooltipContent={REFRESH_TABLE_LIST_TOOLTIP}
             />
             {refresh && Loader(REFRESH_TABLES_TEXT)}
-            {!refresh && (
-              <Input
-                value={searchVal}
-                prefix={<SearchIcon iconSize="l" />}
-                onChange={evt => {
-                  setSearchVal(evt.target.value);
-                }}
-                className="table-form"
-                placeholder={SEARCH_TABLES_PLACEHOLDER_TEXT}
-                allowClear
-              />
-            )}
+            {!isFeatureEnabled(FeatureFlag.PINTEREST_UI_TABLE_SELECT) &&
+              !refresh && (
+                <Input
+                  value={searchVal}
+                  prefix={<SearchIcon iconSize="l" />}
+                  onChange={evt => {
+                    setSearchVal(evt.target.value);
+                  }}
+                  className="table-form"
+                  placeholder={SEARCH_TABLES_PLACEHOLDER_TEXT}
+                  allowClear
+                />
+              )}
           </Form>
-          <div className="options-list" data-test="options-list">
-            {!refresh &&
-              filteredOptions.map((option, i) => (
-                <div
-                  className={
-                    selectedTable === i
-                      ? scrollableOptionsList
-                        ? 'options-highlighted'
-                        : 'options-highlighted no-scrollbar'
-                      : scrollableOptionsList
-                      ? 'options'
-                      : 'options no-scrollbar'
-                  }
-                  key={i}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => setTable(option.value, i)}
-                >
-                  {option.label}
-                  {datasetNames?.includes(option.value) && (
-                    <Icons.Warning
-                      iconColor={
-                        selectedTable === i
-                          ? theme.colors.grayscale.light5
-                          : theme.colors.info.base
-                      }
-                      iconSize="m"
-                      css={css`
-                        margin-right: ${theme.gridUnit * 2}px;
-                      `}
-                    />
-                  )}
-                </div>
-              ))}
-          </div>
+
+          {isFeatureEnabled(FeatureFlag.PINTEREST_UI_TABLE_SELECT) ? (
+            <DatasetTableSelector
+              tableList={tableList}
+              datasetNames={datasetNames}
+              setDataset={setDataset}
+            />
+          ) : (
+            <div className="options-list" data-test="options-list">
+              {!refresh &&
+                filteredOptions.map((option, i) => (
+                  <div
+                    className={
+                      selectedTable === i
+                        ? scrollableOptionsList
+                          ? 'options-highlighted'
+                          : 'options-highlighted no-scrollbar'
+                        : scrollableOptionsList
+                        ? 'options'
+                        : 'options no-scrollbar'
+                    }
+                    key={i}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => setTable(option.value, i)}
+                  >
+                    {option.label}
+                    {datasetNames?.includes(option.value) && (
+                      <Icons.Warning
+                        iconColor={
+                          selectedTable === i
+                            ? theme.colors.grayscale.light5
+                            : theme.colors.info.base
+                        }
+                        iconSize="m"
+                        css={css`
+                          margin-right: ${theme.gridUnit * 2}px;
+                        `}
+                      />
+                    )}
+                  </div>
+                ))}
+            </div>
+          )}
         </>
       )}
     </LeftPanelStyle>
