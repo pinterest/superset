@@ -33,11 +33,12 @@ import {
   logging,
 } from '@superset-ui/core';
 import DatasetTableSelector from 'src/components/DatasetTableSelector';
-import { Form } from 'src/components/Form';
 import { Input } from 'src/components/Input';
+import { Form } from 'src/components/Form';
 import Icons from 'src/components/Icons';
 import { TableOption } from 'src/components/TableSelector';
 import RefreshLabel from 'src/components/RefreshLabel';
+import { Table } from 'src/hooks/apiResources';
 import Loading from 'src/components/Loading';
 import DatabaseSelector, {
   DatabaseObject,
@@ -48,7 +49,6 @@ import {
 } from 'src/components/EmptyState';
 import { useToasts } from 'src/components/MessageToasts/withToasts';
 import { isFeatureEnabled, FeatureFlag } from 'src/featureFlags';
-import { Table } from 'src/hooks/apiResources';
 import { LocalStorageKeys, getItem } from 'src/utils/localStorageHelpers';
 import {
   DatasetActionType,
