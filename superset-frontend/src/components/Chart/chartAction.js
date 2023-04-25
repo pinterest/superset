@@ -370,7 +370,6 @@ export function exploreJSON(
   dashboardId,
   ownState,
 ) {
-  console.log("exploreJSON!")
   return async dispatch => {
     const logStart = Logger.getTimestamp();
     const controller = new AbortController();
