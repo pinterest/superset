@@ -262,9 +262,6 @@ export function runAnnotationQuery({
       return Promise.resolve();
     }
 
-    const granularity = fd.time_grain_sqla || fd.granularity;
-    fd.time_grain_sqla = granularity;
-    fd.granularity = granularity;
     const overridesKeys = Object.keys(annotation.overrides);
     if (overridesKeys.includes('since') || overridesKeys.includes('until')) {
       annotation.overrides = {
@@ -373,6 +370,7 @@ export function exploreJSON(
   dashboardId,
   ownState,
 ) {
+  console.log("exploreJSON!")
   return async dispatch => {
     const logStart = Logger.getTimestamp();
     const controller = new AbortController();
