@@ -31,6 +31,7 @@ import {
   getColumnLabel,
   withTheme,
 } from '@superset-ui/core';
+import rison from 'rison';
 
 import SelectControl from 'src/explore/components/controls/SelectControl';
 import TextControl from 'src/explore/components/controls/TextControl';
@@ -301,7 +302,9 @@ class AnnotationLayer extends React.PureComponent {
     if (isLoadingOptions) {
       if (sourceType === ANNOTATION_SOURCE_TYPES.NATIVE) {
         SupersetClient.get({
-          endpoint: '/api/v1/annotation_layer/',
+          endpoint: `/api/v1/annotation_layer/?q=${rison.encode({
+            page_size: -1,
+          })}`,
         }).then(({ json }) => {
           const layers = json
             ? json.result.map(layer => ({
