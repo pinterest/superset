@@ -236,7 +236,7 @@ class DashboardScreenshot(BaseScreenshot):
         # should always capture in standalone
         url = modify_url_query(
             url,
-            standalone=DashboardStandaloneMode.REPORT.value,
+            standalone=DashboardStandaloneMode.HIDE_NAV_AND_TITLE.value,  # TODO: temp fix for report mode error
         )
 
         super().__init__(url, digest)
