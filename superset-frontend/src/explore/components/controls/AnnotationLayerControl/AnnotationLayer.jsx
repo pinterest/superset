@@ -303,6 +303,9 @@ class AnnotationLayer extends React.PureComponent {
       if (sourceType === ANNOTATION_SOURCE_TYPES.NATIVE) {
         SupersetClient.get({
           endpoint: `/api/v1/annotation_layer/?q=${rison.encode({
+            order_column: 'created_on',
+            order_direction: 'desc',
+            page: 0,
             page_size: -1,
           })}`,
         }).then(({ json }) => {
