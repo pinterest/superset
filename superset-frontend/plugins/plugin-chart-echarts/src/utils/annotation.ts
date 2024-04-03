@@ -120,6 +120,26 @@ export function formatAnnotationLabel(
   return labels.join('\n\n');
 }
 
+export function formatAnnotationTooltipLabel(
+  name?: string,
+  title?: string,
+  descriptions: string[] = [],
+): string {
+  const tooltipParts: string[] = [];
+
+  const titleParts = [name, title].filter(val => !!val);
+  if (titleParts.length) {
+    const titleSection = `<strong>${titleParts.join(' - ')}</strong>`;
+    tooltipParts.push(titleSection);
+  }
+
+  const filteredDescriptions: string[] = descriptions.filter(
+    description => !!description,
+  );
+  tooltipParts.push(...filteredDescriptions);
+
+  return `<div>${tooltipParts.join('<br/>')}</div>`;
+}
 export function extractAnnotationLabels(
   layers: AnnotationLayer[],
   data: AnnotationData,
