@@ -325,7 +325,9 @@ export function transformIntervalAnnotation(
             backgroundColor: theme.colors.grayscale.light5,
           },
         }
-      : {};
+      : {
+          show: false,
+        };
 
     series.push({
       id: `Interval - ${label}`,
@@ -398,7 +400,9 @@ export function transformEventAnnotation(
             backgroundColor: theme.colors.grayscale.light5,
           },
         }
-      : {};
+      : {
+          show: false,
+        };
 
     series.push({
       id: `Event - ${label}`,
