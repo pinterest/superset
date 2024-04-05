@@ -583,7 +583,10 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
 
         # This is Pinterest custom code, the envoy https forwarding
         # becomes http internally and it breaks HTTPs requirement for OAuth
-        if 'ENABLE_HTTPS_OVERRIDE' in self.config and self.config['ENABLE_HTTPS_OVERRIDE']:
+        if (
+            "ENABLE_HTTPS_OVERRIDE" in self.config
+            and self.config["ENABLE_HTTPS_OVERRIDE"]
+        ):
             self.superset_app.wsgi_app = ForceHttps(  # type: ignore
                 self.superset_app.wsgi_app
             )
@@ -700,6 +703,7 @@ class SupersetIndexView(IndexView):
     def index(self) -> FlaskResponse:
         return redirect("/superset/welcome/")
 
+
 class ForceHttps(object):
     """
     wrapper class forces the html schema to be "https"
@@ -709,5 +713,5 @@ class ForceHttps(object):
         self.app = app
 
     def __call__(self, environ, start_response):
-        environ['wsgi.url_scheme'] = 'https'
+        environ["wsgi.url_scheme"] = "https"
         return self.app(environ, start_response)

@@ -231,7 +231,6 @@ class AnnotationDatasource(BaseDatasource):
 
 
 class TableColumn(Model, BaseColumn, CertificationMixin):
-
     """ORM object for table columns, each table can have multiple columns"""
 
     __tablename__ = "table_columns"
@@ -446,7 +445,6 @@ class TableColumn(Model, BaseColumn, CertificationMixin):
 
 
 class SqlMetric(Model, BaseMetric, CertificationMixin):
-
     """ORM object for metrics, each table can have multiple metrics"""
 
     __tablename__ = "sql_metrics"
@@ -1935,7 +1933,14 @@ class SqlaTable(Model, BaseDatasource):  # pylint: disable=too-many-public-metho
             return df
 
         try:
-            df = self.database.get_df(sql, self.schema, mutator=assign_column_label, query_obj=query_obj, table_name=self.table_name, columns=self.columns)
+            df = self.database.get_df(
+                sql,
+                self.schema,
+                mutator=assign_column_label,
+                query_obj=query_obj,
+                table_name=self.table_name,
+                columns=self.columns,
+            )
         except Exception as ex:  # pylint: disable=broad-except
             df = pd.DataFrame()
             status = QueryStatus.FAILED
