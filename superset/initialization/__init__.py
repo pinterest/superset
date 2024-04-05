@@ -704,14 +704,16 @@ class SupersetIndexView(IndexView):
         return redirect("/superset/welcome/")
 
 
-class ForceHttps(object):
+class ForceHttps:  # pylint: disable=too-few-public-methods
     """
     wrapper class forces the html schema to be "https"
     """
 
-    def __init__(self, app):
+    def __init__(self, app: Callable[[Dict[str, Any], Callable[..., Any]], Any]):
         self.app = app
 
-    def __call__(self, environ, start_response):
+    def __call__(
+        self, environ: Dict[str, Any], start_response: Callable[..., Any]
+    ) -> Any:
         environ["wsgi.url_scheme"] = "https"
         return self.app(environ, start_response)

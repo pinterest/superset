@@ -239,7 +239,7 @@ class DashboardMetadataStrategy(Strategy):  # pylint: disable=too-few-public-met
         self.schedule = schedule  # "hourly" or "daily"
 
     def get_urls(self) -> List[str]:
-        import json
+        import json  # pylint: disable=import-outside-toplevel
 
         urls = []
         session = db.create_scoped_session()
