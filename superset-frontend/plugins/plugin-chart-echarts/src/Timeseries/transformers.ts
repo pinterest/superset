@@ -60,6 +60,7 @@ import {
   evalFormula,
   extractRecordAnnotations,
   formatAnnotationLabel,
+  formatAnnotationTooltipLabel,
   parseAnnotationOpacity,
 } from '../utils/annotation';
 import { getChartPadding, getTimeCompareStackId } from '../utils/series';
@@ -414,16 +415,8 @@ export function transformIntervalAnnotation(
         }
       : {
           show: false,
-          color: theme.colors.grayscale.dark2,
-          // @ts-ignore
-          emphasis: {
-            fontWeight: 'bold',
-            show: true,
-            position: 'insideTop',
-            verticalAlign: 'top',
-            backgroundColor: theme.colors.grayscale.light5,
-          },
         };
+
     series.push({
       id: `Interval - ${label}`,
       type: 'line',
@@ -439,6 +432,12 @@ export function transformIntervalAnnotation(
         } as ItemStyleOption,
         label: intervalLabel,
         data: intervalData,
+        tooltip: {
+          show: !showLabel,
+          trigger: 'item',
+          formatter: () =>
+            formatAnnotationTooltipLabel(name, title, descriptions),
+        },
       },
     });
   });
@@ -491,15 +490,6 @@ export function transformEventAnnotation(
         }
       : {
           show: false,
-          color: theme.colors.grayscale.dark2,
-          position: 'insideEndTop',
-          // @ts-ignore
-          emphasis: {
-            formatter: (params: CallbackDataParams) => params.name,
-            fontWeight: 'bold',
-            show: true,
-            backgroundColor: theme.colors.grayscale.light5,
-          },
         };
 
     series.push({
@@ -512,6 +502,12 @@ export function transformEventAnnotation(
         lineStyle,
         label: eventLabel,
         data: eventData,
+        tooltip: {
+          show: !showLabel,
+          trigger: 'item',
+          formatter: () =>
+            formatAnnotationTooltipLabel(name, title, descriptions),
+        },
       },
     });
   });
