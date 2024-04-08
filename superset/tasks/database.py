@@ -12,7 +12,7 @@ logger.setLevel(logging.INFO)
 
 
 @celery_app.task(name="db_tables_cache_warm_up")
-def db_tables_cache_warm_up(database_id: str, schema_name: str):
+def db_tables_cache_warm_up(database_id: str, schema_name: str) -> None:
     """
     Warm up tables in a database schema
 

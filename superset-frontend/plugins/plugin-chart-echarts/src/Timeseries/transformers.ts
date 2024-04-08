@@ -573,6 +573,12 @@ export function transformIntervalAnnotation(
       } as ItemStyleOption,
       label: intervalLabel,
       data: allIntervalData,
+      tooltip: {
+        show: !showLabel,
+        trigger: 'item',
+        formatter: (params: CallbackDataParams) =>
+          `<div>${String(params.name).split('\n').join('<br/>')}</div>`,
+      },
     },
   });
 
@@ -663,6 +669,12 @@ export function transformEventAnnotation(
       lineStyle,
       label: eventLabel,
       data: allEventData,
+      tooltip: {
+        show: !showLabel,
+        trigger: 'item',
+        formatter: (params: CallbackDataParams) =>
+          `<div>${String(params.name).split('\n').join('<br/>')}</div>`,
+      },
     },
   });
 
