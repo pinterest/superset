@@ -92,7 +92,6 @@ class Url(Model, AuditMixinNullable):
 
 
 class KeyValue(Model):  # pylint: disable=too-few-public-methods
-
     """Used for any type of key-value store"""
 
     __tablename__ = "keyvalue"
@@ -117,7 +116,6 @@ class ConfigurationMethod(str, enum.Enum):
 class Database(
     Model, AuditMixinNullable, ImportExportMixin
 ):  # pylint: disable=too-many-public-methods
-
     """An ORM object that stores Database related information"""
 
     __tablename__ = "dbs"
@@ -539,7 +537,13 @@ class Database(
                         database=None,
                     )
                 _log_query(sql_)
-                self.db_engine_spec.execute(cursor, sql_, query_obj=query_obj, table_name=table_name, columns=columns)
+                self.db_engine_spec.execute(
+                    cursor,
+                    sql_,
+                    query_obj=query_obj,
+                    table_name=table_name,
+                    columns=columns,
+                )
                 cursor.fetchall()
 
             if mutate_after_split:
@@ -550,11 +554,23 @@ class Database(
                     database=None,
                 )
                 _log_query(last_sql)
-                self.db_engine_spec.execute(cursor, last_sql, query_obj=query_obj, table_name=table_name, columns=columns)
+                self.db_engine_spec.execute(
+                    cursor,
+                    last_sql,
+                    query_obj=query_obj,
+                    table_name=table_name,
+                    columns=columns,
+                )
             else:
                 _log_query(sqls[-1])
-                self.db_engine_spec.execute(cursor, sqls[-1], query_obj=query_obj, table_name=table_name, columns=columns)
-            
+                self.db_engine_spec.execute(
+                    cursor,
+                    sqls[-1],
+                    query_obj=query_obj,
+                    table_name=table_name,
+                    columns=columns,
+                )
+
             data = self.db_engine_spec.fetch_data(cursor)
             result_set = SupersetResultSet(
                 data, cursor.description, self.db_engine_spec
@@ -917,7 +933,6 @@ sqla.event.listen(Database, "after_delete", security_manager.database_after_dele
 
 
 class Log(Model):  # pylint: disable=too-few-public-methods
-
     """ORM object used to log Superset actions to the database"""
 
     __tablename__ = "logs"
