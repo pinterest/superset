@@ -48,13 +48,13 @@ def db_tables_cache_warm_up(database_id: str, schema_name: str) -> None:
             cache_timeout=database.table_cache_timeout,
         )
         logger.info(
-            "Database tables cache warm up succeeded for database_id: %i, schema_name: %s",
+            "Database tables cache warm up succeeded for database_id: %i, schema_name: %s", # pylint: disable=line-too-long
             database_id,
             schema_name,
         )
     except SupersetException as ex:
         logger.exception(
-            "Superset exception for db_tables_cache_warm_up job database_id: %i, schema_name: %s, message: %s",
+            "Superset exception for db_tables_cache_warm_up job database_id: %i, schema_name: %s, message: %s", # pylint: disable=line-too-long
             database_id,
             schema_name,
             ex.message,
