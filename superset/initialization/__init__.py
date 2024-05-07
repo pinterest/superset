@@ -607,9 +607,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
             "ENABLE_HTTPS_OVERRIDE" in self.config
             and self.config["ENABLE_HTTPS_OVERRIDE"]
         ):
-            self.superset_app.wsgi_app = ForceHttps(  # type: ignore
-                self.superset_app.wsgi_app
-            )
+            self.superset_app.wsgi_app = ForceHttps(self.superset_app.wsgi_app)
 
         if self.config["ENABLE_CHUNK_ENCODING"]:
 
