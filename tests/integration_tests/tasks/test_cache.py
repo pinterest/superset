@@ -49,7 +49,7 @@ def test_fetch_url(mock_urlopen, mock_request_cls, base_url):
 
     assert data == result["success"]
     mock_request_cls.assert_called_once_with(
-        "http://base-url/superset/warm_up_cache/",
+        "http://base-url/api/v1/chart/warm_up_cache",
         data=data_encoded,
         headers=headers,
         method="PUT",
