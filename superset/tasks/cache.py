@@ -25,7 +25,7 @@ from celery.utils.log import get_task_logger
 from sqlalchemy import and_, func
 
 from superset import app, db, security_manager
-from superset.extensions import celery_app
+from superset.extensions import celery_app, machine_auth_provider_factory
 from superset.models.core import Log
 from superset.models.dashboard import Dashboard
 from superset.models.slice import Slice
@@ -329,9 +329,10 @@ def cache_warmup(
         return message
 
     user = security_manager.get_user_by_username(app.config["THUMBNAIL_SELENIUM_USER"])
-    cookies = MachineAuthProvider.get_auth_cookies(user)
+    cookies = machine_auth_provider_factory.instance.get_auth_cookies(user)
+    cookie_str = ";".join([f"{key}={val}" for key, val in cookies.items()])
     headers = {
-        "Cookie": f"session={cookies.get('session', '')}",
+        "Cookie": cookie_str,
         "Content-Type": "application/json",
     }
 
