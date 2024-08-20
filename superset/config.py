@@ -1666,6 +1666,7 @@ class ExtraRelatedQueryFilters(TypedDict, total=False):
 EXTRA_RELATED_QUERY_FILTERS: ExtraRelatedQueryFilters = {}
 
 PINTEREST_MENU_ITEMS: list[PinterestMenuItems] | None = None
+PINTEREST_HELP_LINK: str | None = None
 
 
 # Extra dynamic query filters make it possible to limit which objects are shown
