@@ -373,6 +373,15 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
                 )
             appbuilder.add_separator("Pinterest")
 
+        if self.config["PINTEREST_HELP_LINK"]:
+            appbuilder.add_link(
+                "Help",
+                href=self.config["PINTEREST_HELP_LINK"],
+                category="",
+                category_icon="",
+                icon="fa-question",
+            )
+
         appbuilder.add_api(LogRestApi)
         appbuilder.add_view(
             LogModelView,
