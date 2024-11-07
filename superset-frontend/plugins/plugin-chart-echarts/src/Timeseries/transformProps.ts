@@ -530,7 +530,7 @@ export default function transformProps(
       show: !inContextMenu,
       trigger: richTooltip ? 'axis' : 'item',
       formatter: pinterestDeltaTable
-        ? getDeltaTableTooltipFormatter(chartProps)
+        ? getDeltaTableTooltipFormatter(chartProps, () => focusedSeries)
         : (params: any) => {
             const [xIndex, yIndex] = isHorizontal ? [1, 0] : [0, 1];
             const xValue: number = richTooltip

@@ -48,7 +48,21 @@ export const getDateByTimeDelta = {
   },
 } as Record<DeltaTableColumn, (date: Date) => Date>;
 
+type DeltaTableTooltipColumn = {
+  element: string;
+  style: string;
+  data: string | number;
+  key: string;
+};
+
+type DeltaTableTooltipRow = {
+  seriesId: string;
+  columns: DeltaTableTooltipColumn[];
+};
+
 class DeltaTableTooltipFormatter {
+  getFocusedSeries: () => string | null;
+
   formData: EchartsTimeseriesFormData;
 
   dataByTimestamp: Record<number, TimeseriesDataRecord>;
@@ -63,7 +77,10 @@ class DeltaTableTooltipFormatter {
 
   constructor(
     chartProps: EchartsTimeseriesChartProps | EchartsMixedTimeseriesProps,
+    getFocusedSeries: () => string | null,
+    primarySeriesKeys?: Set<string>,
   ) {
+    this.getFocusedSeries = getFocusedSeries;
     const { datasource, queriesData, theme } = chartProps;
     this.theme = theme;
 
@@ -80,16 +97,22 @@ class DeltaTableTooltipFormatter {
 
     const [queryData] = queriesData;
     this.dataByTimestamp = {} as Record<number, TimeseriesDataRecord>;
-    queriesData.forEach(queryData => {
+    queriesData.forEach((queryData, queryIdx) => {
       const { data = [] } = queryData as TimeseriesChartDataResponseResult;
       this.dataByTimestamp = data.reduce((accum, curr) => {
         const timestamp = (curr[xAxisColName] as Date).valueOf();
-        if (!(timestamp in accum)) {
+        if (queryIdx === 0) {
           // eslint-disable-next-line no-param-reassign
-          accum[timestamp] = curr;
+          accum[timestamp] = { ...curr };
+        } else {
+          Object.entries(curr).forEach(([key, value]) => {
+            const currKey = primarySeriesKeys?.has(key)
+              ? `${key} (${queryIdx})`
+              : key;
+            // eslint-disable-next-line no-param-reassign
+            accum[timestamp][currKey] = curr[key];
+          });
         }
-        // Merge data from multiple queries
-        Object.assign(accum[timestamp], curr);
         return accum;
       }, this.dataByTimestamp);
     });
@@ -188,7 +211,10 @@ class DeltaTableTooltipFormatter {
     };
   };
 
-  getDeltaTableRows(params: CallbackDataParams[], xIndex: number) {
+  getDeltaTableRows(
+    params: CallbackDataParams[],
+    xIndex: number,
+  ): DeltaTableTooltipRow[] {
     const { pinterestDeltaTableColumns } = this.formData;
     const deltaTableColumns = this.deltaTableColumns.filter(
       column =>
@@ -196,21 +222,23 @@ class DeltaTableTooltipFormatter {
         pinterestDeltaTableColumns.includes(column),
     );
     const rows = [
-      deltaTableColumns.map(column => ({
-        element: 'th',
-        style: this.getCellStyle(column),
-        data: column,
-      })),
-    ] as Array<
-      Array<{ element: string; style: string; data: string | number }>
-    >;
+      {
+        seriesId: 'delta-table-header',
+        columns: deltaTableColumns.map(column => ({
+          element: 'th',
+          style: this.getCellStyle(column),
+          data: column,
+          key: column,
+        })),
+      },
+    ] as DeltaTableTooltipRow[];
     params.forEach(param => {
       const deltaTableData = this.getDeltaTableData(
         (param.value as number[])[xIndex],
-        param.seriesName!,
+        param.seriesId!,
         deltaTableColumns,
       );
-      const newRow = deltaTableColumns.map(column => {
+      const newRowColumns = deltaTableColumns.map(column => {
         const columnData = deltaTableData[column];
         let color;
         let data = columnData ?? '-';
@@ -233,8 +261,13 @@ class DeltaTableTooltipFormatter {
           element: 'td',
           style: this.getCellStyle(column, color),
           data,
+          key: column,
         };
       });
+      const newRow = {
+        seriesId: param.seriesId!,
+        columns: newRowColumns,
+      };
       rows.push(newRow);
     });
     return rows;
@@ -247,6 +280,7 @@ class DeltaTableTooltipFormatter {
       orientation === OrientationType.Horizontal ? [1, 0] : [0, 1];
 
     return (initialParams: TooltipPositionCallbackParams) => {
+      const focusedSeries = this.getFocusedSeries();
       let params: CallbackDataParams[] = richTooltip
         ? (initialParams as CallbackDataParams[])
         : [initialParams as CallbackDataParams];
@@ -264,15 +298,18 @@ class DeltaTableTooltipFormatter {
         <br />
         <table>
           ${deltaTableRows
-            .map(
-              columns =>
-                `<tr>${columns
-                  .map(
-                    ({ element, style, data }) =>
-                      `<${element} style=${style}>${data}</${element}>`,
-                  )
-                  .join('')}</tr>`,
-            )
+            .map(({ seriesId, columns }) => {
+              const contentStyle =
+                seriesId === focusedSeries
+                  ? 'font-weight: 700'
+                  : 'opacity: 0.7';
+              return `<tr key={${seriesId}} style="${contentStyle}">${columns
+                .map(
+                  ({ element, style, data, key }) =>
+                    `<${element} key={${key}} style=${style}>${data}</${element}>`,
+                )
+                .join('')}</tr>`;
+            })
             .join('')}
         </table>`;
     };
@@ -281,7 +318,13 @@ class DeltaTableTooltipFormatter {
 
 export const getDeltaTableTooltipFormatter = (
   chartProps: EchartsTimeseriesChartProps | EchartsMixedTimeseriesProps,
+  getFocusedSeries: () => string | null,
+  primarySeriesKeys?: Set<string>,
 ) => {
-  const tooltipFormatter = new DeltaTableTooltipFormatter(chartProps);
+  const tooltipFormatter = new DeltaTableTooltipFormatter(
+    chartProps,
+    getFocusedSeries,
+    primarySeriesKeys,
+  );
   return tooltipFormatter.getTooltipFormatter();
 };
