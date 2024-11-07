@@ -43,6 +43,7 @@ import {
   minorTicks,
 } from '../../controls';
 import { AreaChartStackControlOptions } from '../../constants';
+import { pinterestCustomConfig } from '../../pinterest-utils/controls';
 
 const {
   logAxis,
@@ -259,6 +260,7 @@ const config: ControlPanelConfig = {
             },
           },
         ],
+        ...pinterestCustomConfig,
       ],
     },
   ],

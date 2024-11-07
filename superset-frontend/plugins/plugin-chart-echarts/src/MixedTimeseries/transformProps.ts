@@ -93,6 +93,7 @@ import {
   getXAxisFormatter,
   getYAxisFormatter,
 } from '../utils/formatters';
+import { getDeltaTableTooltipFormatter } from '../pinterest-utils/tooltip';
 
 const getFormatter = (
   customFormatters: Record<string, ValueFormatter>,
@@ -201,6 +202,7 @@ export default function transformProps(
     percentageThreshold,
     metrics = [],
     metricsB = [],
+    pinterestDeltaTable,
   }: EchartsMixedTimeseriesFormData = { ...DEFAULT_FORM_DATA, ...formData };
 
   const refs: Refs = {};
@@ -573,59 +575,61 @@ export default function transformProps(
       ...getDefaultTooltip(refs),
       show: !inContextMenu,
       trigger: richTooltip ? 'axis' : 'item',
-      formatter: (params: any) => {
-        const xValue: number = richTooltip
-          ? params[0].value[0]
-          : params.value[0];
-        const forecastValue: any[] = richTooltip ? params : [params];
+      formatter: pinterestDeltaTable
+        ? getDeltaTableTooltipFormatter(chartProps)
+        : (params: any) => {
+            const xValue: number = richTooltip
+              ? params[0].value[0]
+              : params.value[0];
+            const forecastValue: any[] = richTooltip ? params : [params];
 
-        if (richTooltip && tooltipSortByMetric) {
-          forecastValue.sort((a, b) => b.data[1] - a.data[1]);
-        }
+            if (richTooltip && tooltipSortByMetric) {
+              forecastValue.sort((a, b) => b.data[1] - a.data[1]);
+            }
 
-        const rows: Array<string> = [`${tooltipFormatter(xValue)}`];
-        const forecastValues =
-          extractForecastValuesFromTooltipParams(forecastValue);
+            const rows: Array<string> = [`${tooltipFormatter(xValue)}`];
+            const forecastValues =
+              extractForecastValuesFromTooltipParams(forecastValue);
 
-        Object.keys(forecastValues).forEach(key => {
-          const value = forecastValues[key];
-          // if there are no dimensions, key is a verbose name of a metric,
-          // otherwise it is a comma separated string where the first part is metric name
-          let formatterKey;
-          if (primarySeries.has(key)) {
-            formatterKey =
-              groupby.length === 0 ? inverted[key] : labelMap[key]?.[0];
-          } else {
-            formatterKey =
-              groupbyB.length === 0 ? inverted[key] : labelMapB[key]?.[0];
-          }
-          const tooltipFormatter = getFormatter(
-            customFormatters,
-            formatter,
-            metrics,
-            formatterKey,
-            !!contributionMode,
-          );
-          const tooltipFormatterSecondary = getFormatter(
-            customFormattersSecondary,
-            formatterSecondary,
-            metricsB,
-            formatterKey,
-            !!contributionMode,
-          );
-          const content = formatForecastTooltipSeries({
-            ...value,
-            seriesName: key,
-            formatter: primarySeries.has(key)
-              ? tooltipFormatter
-              : tooltipFormatterSecondary,
-          });
-          const contentStyle =
-            key === focusedSeries ? 'font-weight: 700' : 'opacity: 0.7';
-          rows.push(`<span style="${contentStyle}">${content}</span>`);
-        });
-        return rows.join('<br />');
-      },
+            Object.keys(forecastValues).forEach(key => {
+              const value = forecastValues[key];
+              // if there are no dimensions, key is a verbose name of a metric,
+              // otherwise it is a comma separated string where the first part is metric name
+              let formatterKey;
+              if (primarySeries.has(key)) {
+                formatterKey =
+                  groupby.length === 0 ? inverted[key] : labelMap[key]?.[0];
+              } else {
+                formatterKey =
+                  groupbyB.length === 0 ? inverted[key] : labelMapB[key]?.[0];
+              }
+              const tooltipFormatter = getFormatter(
+                customFormatters,
+                formatter,
+                metrics,
+                formatterKey,
+                !!contributionMode,
+              );
+              const tooltipFormatterSecondary = getFormatter(
+                customFormattersSecondary,
+                formatterSecondary,
+                metricsB,
+                formatterKey,
+                !!contributionMode,
+              );
+              const content = formatForecastTooltipSeries({
+                ...value,
+                seriesName: key,
+                formatter: primarySeries.has(key)
+                  ? tooltipFormatter
+                  : tooltipFormatterSecondary,
+              });
+              const contentStyle =
+                key === focusedSeries ? 'font-weight: 700' : 'opacity: 0.7';
+              rows.push(`<span style="${contentStyle}">${content}</span>`);
+            });
+            return rows.join('<br />');
+          },
     },
     legend: {
       ...getLegendProps(
