@@ -1,4 +1,5 @@
 import {
+  DataRecordValue,
   DTTM_ALIAS,
   GenericDataType,
   getColumnLabel,
@@ -95,7 +96,6 @@ class DeltaTableTooltipFormatter {
     const xAxisColName =
       verboseMap[xAxisOrig] || getColumnLabel(xAxisOrig || DTTM_ALIAS);
 
-    const [queryData] = queriesData;
     this.dataByTimestamp = {} as Record<number, TimeseriesDataRecord>;
     queriesData.forEach((queryData, queryIdx) => {
       const { data = [] } = queryData as TimeseriesChartDataResponseResult;
@@ -126,7 +126,8 @@ class DeltaTableTooltipFormatter {
       {} as Record<string, string>,
     );
 
-    const dataTypes = getColtypesMapping(queryData);
+    const queryDataA = queriesData[0];
+    const dataTypes = getColtypesMapping(queryDataA);
     const xAxisDataType = dataTypes?.[xAxisColName] ?? dataTypes?.[xAxisOrig];
     this.timeFormatter =
       xAxisDataType === GenericDataType.Temporal
@@ -164,6 +165,27 @@ class DeltaTableTooltipFormatter {
     return seriesName;
   };
 
+  getDataPercentChange(
+    columnName: string,
+    currentValue: DataRecordValue,
+    previousDate: Date,
+  ) {
+    const originalTimestamp = previousDate.valueOf();
+    if (!(originalTimestamp in this.dataByTimestamp)) {
+      return null;
+    }
+    const originalValue = this.dataByTimestamp[originalTimestamp][columnName];
+    if (currentValue == null || !originalValue) {
+      // Check to not divide by zero or use null values
+      return null;
+    }
+    const proportionalChange =
+      ((currentValue as number) - (originalValue as number)) /
+      (originalValue as number);
+    const percentChange = proportionalChange * 100;
+    return Number(percentChange.toFixed(2));
+  }
+
   getDeltaTableData = (
     timestamp: number,
     seriesName: string,
@@ -175,29 +197,16 @@ class DeltaTableTooltipFormatter {
     const currentValue = this.dataByTimestamp[timestamp][columnName];
     const currentDate = new Date(timestamp);
 
-    const getDataPercentChange = (previousDate: Date) => {
-      const originalTimestamp = previousDate.valueOf();
-      if (!(originalTimestamp in this.dataByTimestamp)) {
-        return null;
-      }
-      const originalValue = this.dataByTimestamp[originalTimestamp][columnName];
-      if (currentValue == null || !originalValue) {
-        // Check to not divide by zero or use null values
-        return null;
-      }
-      const proportionalChange =
-        ((currentValue as number) - (originalValue as number)) /
-        (originalValue as number);
-      const percentChange = proportionalChange * 100;
-      return Number(percentChange.toFixed(2));
-    };
-
     const percentChangeByKey = deltaTableColumns.reduce(
       (accum, column) => {
         if (PERCENT_CHANGE_COLUMNS.includes(column)) {
           const previousDate = getDateByTimeDelta[column](currentDate);
           // eslint-disable-next-line no-param-reassign
-          accum[column] = getDataPercentChange(previousDate);
+          accum[column] = this.getDataPercentChange(
+            columnName,
+            currentValue,
+            previousDate,
+          );
         }
         return accum;
       },
@@ -273,6 +282,30 @@ class DeltaTableTooltipFormatter {
     return rows;
   }
 
+  createTableColumns(deltaTableColumns: DeltaTableTooltipColumn[]) {
+    return deltaTableColumns
+      .map(
+        ({ element, style, data, key }) =>
+          `<${element} key={${key}} style=${style}>${data}</${element}>`,
+      )
+      .join('');
+  }
+
+  createTableRow(
+    deltaTableRows: DeltaTableTooltipRow[],
+    focusedSeries: string | null,
+  ) {
+    return deltaTableRows
+      .map(({ seriesId, columns }) => {
+        const contentStyle =
+          seriesId === focusedSeries ? 'font-weight: 700' : 'opacity: 0.7';
+        return `<tr key={${seriesId}} style="${contentStyle}">${this.createTableColumns(
+          columns,
+        )}</tr>`;
+      })
+      .join('');
+  }
+
   getTooltipFormatter() {
     const { richTooltip, tooltipSortByMetric, orientation } = this.formData;
 
@@ -297,20 +330,7 @@ class DeltaTableTooltipFormatter {
         <span style="font-weight: 700">${this.timeFormatter(xValue)}</span>
         <br />
         <table>
-          ${deltaTableRows
-            .map(({ seriesId, columns }) => {
-              const contentStyle =
-                seriesId === focusedSeries
-                  ? 'font-weight: 700'
-                  : 'opacity: 0.7';
-              return `<tr key={${seriesId}} style="${contentStyle}">${columns
-                .map(
-                  ({ element, style, data, key }) =>
-                    `<${element} key={${key}} style=${style}>${data}</${element}>`,
-                )
-                .join('')}</tr>`;
-            })
-            .join('')}
+          ${this.createTableRow(deltaTableRows, focusedSeries)}
         </table>`;
     };
   }
