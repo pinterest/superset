@@ -40,6 +40,7 @@ import {
   DEFAULT_TITLE_FORM_DATA,
   DEFAULT_FORM_DATA as TIMESERIES_DEFAULTS,
 } from '../constants';
+import { PinterestFormData } from '../pinterest-utils/types';
 
 export type EchartsMixedTimeseriesFormData = QueryFormData & {
   annotationLayers: AnnotationLayer[];
@@ -88,7 +89,8 @@ export type EchartsMixedTimeseriesFormData = QueryFormData & {
   groupby: QueryFormColumn[];
   groupbyB: QueryFormColumn[];
 } & LegendFormData &
-  TitleFormData;
+  TitleFormData &
+  PinterestFormData;
 
 // @ts-ignore
 export const DEFAULT_FORM_DATA: EchartsMixedTimeseriesFormData = {

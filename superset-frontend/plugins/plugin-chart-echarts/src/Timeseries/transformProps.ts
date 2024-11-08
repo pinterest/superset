@@ -105,6 +105,7 @@ import {
   getXAxisFormatter,
   getYAxisFormatter,
 } from '../utils/formatters';
+import { getDeltaTableTooltipFormatter } from '../pinterest-utils/tooltip';
 
 export default function transformProps(
   chartProps: EchartsTimeseriesChartProps,
@@ -187,6 +188,7 @@ export default function transformProps(
     yAxisTitleMargin,
     yAxisTitlePosition,
     zoomable,
+    pinterestDeltaTable,
   }: EchartsTimeseriesFormData = { ...DEFAULT_FORM_DATA, ...formData };
   const refs: Refs = {};
   const groupBy = ensureIsArray(groupby);
@@ -534,77 +536,86 @@ export default function transformProps(
       ...getDefaultTooltip(refs),
       show: !inContextMenu,
       trigger: richTooltip ? 'axis' : 'item',
-      formatter: (params: any) => {
-        const [xIndex, yIndex] = isHorizontal ? [1, 0] : [0, 1];
-        const xValue: number = richTooltip
-          ? params[0].value[xIndex]
-          : params.value[xIndex];
-        const forecastValue: any[] = richTooltip ? params : [params];
-        const sortedKeys = extractTooltipKeys(
-          forecastValue,
-          yIndex,
-          richTooltip,
-          tooltipSortByMetric,
-        );
-        const forecastValues: Record<string, ForecastValue> =
-          extractForecastValuesFromTooltipParams(forecastValue, isHorizontal);
-
-        const isForecast = Object.values(forecastValues).some(
-          value =>
-            value.forecastTrend || value.forecastLower || value.forecastUpper,
-        );
-
-        const formatter = forcePercentFormatter
-          ? percentFormatter
-          : getCustomFormatter(customFormatters, metrics) ?? defaultFormatter;
-
-        const rows: string[][] = [];
-        const total = Object.values(forecastValues).reduce(
-          (acc, value) =>
-            value.observation !== undefined ? acc + value.observation : acc,
-          0,
-        );
-        const showTotal = Boolean(isMultiSeries) && richTooltip && !isForecast;
-        const showPercentage = showTotal && !forcePercentFormatter;
-        const keys = Object.keys(forecastValues);
-        let focusedRow;
-        sortedKeys
-          .filter(key => keys.includes(key))
-          .forEach(key => {
-            const value = forecastValues[key];
-            if (value.observation === 0 && stack) {
-              return;
-            }
-            const row = formatForecastTooltipSeries({
-              ...value,
-              seriesName: key,
-              formatter,
-            });
-            if (showPercentage && value.observation !== undefined) {
-              row.push(
-                percentFormatter.format(value.observation / (total || 1)),
+      formatter: pinterestDeltaTable
+        ? getDeltaTableTooltipFormatter(chartProps, () => focusedSeries)
+        : (params: any) => {
+            const [xIndex, yIndex] = isHorizontal ? [1, 0] : [0, 1];
+            const xValue: number = richTooltip
+              ? params[0].value[xIndex]
+              : params.value[xIndex];
+            const forecastValue: any[] = richTooltip ? params : [params];
+            const sortedKeys = extractTooltipKeys(
+              forecastValue,
+              yIndex,
+              richTooltip,
+              tooltipSortByMetric,
+            );
+            const forecastValues: Record<string, ForecastValue> =
+              extractForecastValuesFromTooltipParams(
+                forecastValue,
+                isHorizontal,
               );
+
+            const isForecast = Object.values(forecastValues).some(
+              value =>
+                value.forecastTrend ||
+                value.forecastLower ||
+                value.forecastUpper,
+            );
+
+            const formatter = forcePercentFormatter
+              ? percentFormatter
+              : getCustomFormatter(customFormatters, metrics) ??
+                defaultFormatter;
+
+            const rows: string[][] = [];
+            const total = Object.values(forecastValues).reduce(
+              (acc, value) =>
+                value.observation !== undefined ? acc + value.observation : acc,
+              0,
+            );
+            const showTotal =
+              Boolean(isMultiSeries) && richTooltip && !isForecast;
+            const showPercentage = showTotal && !forcePercentFormatter;
+            const keys = Object.keys(forecastValues);
+            let focusedRow;
+            sortedKeys
+              .filter(key => keys.includes(key))
+              .forEach(key => {
+                const value = forecastValues[key];
+                if (value.observation === 0 && stack) {
+                  return;
+                }
+                const row = formatForecastTooltipSeries({
+                  ...value,
+                  seriesName: key,
+                  formatter,
+                });
+                if (showPercentage && value.observation !== undefined) {
+                  row.push(
+                    percentFormatter.format(value.observation / (total || 1)),
+                  );
+                }
+                rows.push(row);
+                if (key === focusedSeries) {
+                  focusedRow = rows.length - 1;
+                }
+              });
+            if (stack) {
+              rows.reverse();
+              if (focusedRow !== undefined) {
+                focusedRow = rows.length - focusedRow - 1;
+              }
             }
-            rows.push(row);
-            if (key === focusedSeries) {
-              focusedRow = rows.length - 1;
+            if (showTotal) {
+              const totalRow = ['Total', formatter.format(total)];
+              if (showPercentage) {
+                totalRow.push(percentFormatter.format(1));
+              }
+              rows.push(totalRow);
             }
-          });
-        if (stack) {
-          rows.reverse();
-          if (focusedRow !== undefined) {
-            focusedRow = rows.length - focusedRow - 1;
-          }
-        }
-        if (showTotal) {
-          const totalRow = ['Total', formatter.format(total)];
-          if (showPercentage) {
-            totalRow.push(percentFormatter.format(1));
-          }
-          rows.push(totalRow);
-        }
-        return tooltipHtml(rows, tooltipFormatter(xValue), focusedRow);
-      },
+            return tooltipHtml(rows, tooltipFormatter(xValue), focusedRow);
+          },
     },
     legend: {
       ...getLegendProps(

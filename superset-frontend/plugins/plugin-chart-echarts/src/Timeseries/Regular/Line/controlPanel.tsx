@@ -27,6 +27,7 @@ import {
   sharedControls,
 } from '@superset-ui/chart-controls';
 
+import { pinterestCustomConfig } from '../../../pinterest-utils/controls';
 import { EchartsTimeseriesSeriesType } from '../../types';
 import {
   DEFAULT_FORM_DATA,
@@ -246,6 +247,7 @@ const config: ControlPanelConfig = {
             },
           },
         ],
+        ...pinterestCustomConfig,
       ],
     },
   ],
