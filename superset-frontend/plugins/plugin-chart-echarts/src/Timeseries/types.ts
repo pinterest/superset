@@ -35,6 +35,7 @@ import {
   StackType,
   TitleFormData,
 } from '../types';
+import { PinterestFormData } from '../pinterest-utils/types';
 
 export enum OrientationType {
   Vertical = 'vertical',
@@ -97,7 +98,8 @@ export type EchartsTimeseriesFormData = QueryFormData & {
   percentageThreshold: number;
   orientation?: OrientationType;
 } & LegendFormData &
-  TitleFormData;
+  TitleFormData &
+  PinterestFormData;
 
 export interface EchartsTimeseriesChartProps
   extends BaseChartProps<EchartsTimeseriesFormData> {
