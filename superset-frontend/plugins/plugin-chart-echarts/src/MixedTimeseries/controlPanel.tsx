@@ -45,6 +45,7 @@ import {
   xAxisLabelInterval,
   forceMaxInterval,
 } from '../controls';
+import { pinterestCustomConfig } from '../pinterest-utils/controls';
 
 const {
   area,
@@ -506,6 +507,7 @@ const config: ControlPanelConfig = {
           },
         ],
         ['echart_options'],
+        ...pinterestCustomConfig,
       ],
     },
   ],
