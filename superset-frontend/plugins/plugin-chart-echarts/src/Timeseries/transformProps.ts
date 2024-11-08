@@ -101,6 +101,7 @@ import {
   getXAxisFormatter,
   getYAxisFormatter,
 } from '../utils/formatters';
+import { getDeltaTableTooltipFormatter } from '../pinterest-utils/tooltip';
 
 export default function transformProps(
   chartProps: EchartsTimeseriesChartProps,
@@ -183,6 +184,7 @@ export default function transformProps(
     yAxisTitleMargin,
     yAxisTitlePosition,
     zoomable,
+    pinterestDeltaTable,
   }: EchartsTimeseriesFormData = { ...DEFAULT_FORM_DATA, ...formData };
   const refs: Refs = {};
   const groupBy = ensureIsArray(groupby);
@@ -527,48 +529,56 @@ export default function transformProps(
       ...getDefaultTooltip(refs),
       show: !inContextMenu,
       trigger: richTooltip ? 'axis' : 'item',
-      formatter: (params: any) => {
-        const [xIndex, yIndex] = isHorizontal ? [1, 0] : [0, 1];
-        const xValue: number = richTooltip
-          ? params[0].value[xIndex]
-          : params.value[xIndex];
-        const forecastValue: any[] = richTooltip ? params : [params];
+      formatter: pinterestDeltaTable
+        ? getDeltaTableTooltipFormatter(chartProps, () => focusedSeries)
+        : (params: any) => {
+            const [xIndex, yIndex] = isHorizontal ? [1, 0] : [0, 1];
+            const xValue: number = richTooltip
+              ? params[0].value[xIndex]
+              : params.value[xIndex];
+            const forecastValue: any[] = richTooltip ? params : [params];
 
-        if (richTooltip && tooltipSortByMetric) {
-          forecastValue.sort((a, b) => b.data[yIndex] - a.data[yIndex]);
-        }
+            if (richTooltip && tooltipSortByMetric) {
+              forecastValue.sort((a, b) => b.data[yIndex] - a.data[yIndex]);
+            }
 
-        const rows: string[] = [];
-        const forecastValues: Record<string, ForecastValue> =
-          extractForecastValuesFromTooltipParams(forecastValue, isHorizontal);
+            const rows: string[] = [];
+            const forecastValues: Record<string, ForecastValue> =
+              extractForecastValuesFromTooltipParams(
+                forecastValue,
+                isHorizontal,
+              );
 
-        Object.keys(forecastValues).forEach(key => {
-          const value = forecastValues[key];
-          if (value.observation === 0 && stack) {
-            return;
-          }
-          // if there are no dimensions, key is a verbose name of a metric,
-          // otherwise it is a comma separated string where the first part is metric name
-          const formatterKey =
-            groupBy.length === 0 ? inverted[key] : labelMap[key]?.[0];
-          const content = formatForecastTooltipSeries({
-            ...value,
-            seriesName: key,
-            formatter: forcePercentFormatter
-              ? percentFormatter
-              : getCustomFormatter(customFormatters, metrics, formatterKey) ??
-                defaultFormatter,
-          });
-          const contentStyle =
-            key === focusedSeries ? 'font-weight: 700' : 'opacity: 0.7';
-          rows.push(`<span style="${contentStyle}">${content}</span>`);
-        });
-        if (stack) {
-          rows.reverse();
-        }
-        rows.unshift(`${tooltipFormatter(xValue)}`);
-        return rows.join('<br />');
-      },
+            Object.keys(forecastValues).forEach(key => {
+              const value = forecastValues[key];
+              if (value.observation === 0 && stack) {
+                return;
+              }
+              // if there are no dimensions, key is a verbose name of a metric,
+              // otherwise it is a comma separated string where the first part is metric name
+              const formatterKey =
+                groupBy.length === 0 ? inverted[key] : labelMap[key]?.[0];
+              const content = formatForecastTooltipSeries({
+                ...value,
+                seriesName: key,
+                formatter: forcePercentFormatter
+                  ? percentFormatter
+                  : getCustomFormatter(
+                      customFormatters,
+                      metrics,
+                      formatterKey,
+                    ) ?? defaultFormatter,
+              });
+              const contentStyle =
+                key === focusedSeries ? 'font-weight: 700' : 'opacity: 0.7';
+              rows.push(`<span style="${contentStyle}">${content}</span>`);
+            });
+            if (stack) {
+              rows.reverse();
+            }
+            rows.unshift(`${tooltipFormatter(xValue)}`);
+            return rows.join('<br />');
+          },
     },
     legend: {
       ...getLegendProps(

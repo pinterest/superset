@@ -40,6 +40,7 @@ import {
   xAxisBounds,
   xAxisLabelRotation,
 } from '../controls';
+import { pinterestCustomConfig } from '../pinterest-utils/controls';
 
 const {
   area,
@@ -448,6 +449,7 @@ const config: ControlPanelConfig = {
             },
           },
         ],
+        ...pinterestCustomConfig,
       ],
     },
   ],
