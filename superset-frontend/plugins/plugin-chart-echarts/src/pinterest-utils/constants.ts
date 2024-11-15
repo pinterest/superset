@@ -4,7 +4,8 @@ export const TIME_OFFSET_BY_COLUMN = {
   [DeltaTableColumn.DayOverDay]: 1,
   [DeltaTableColumn.WeekOverWeek]: 7,
   [DeltaTableColumn.MonthOverMonth]: 28,
-  [DeltaTableColumn.YearOverYear]: 365,
+  [DeltaTableColumn.YearOverYear364]: 364,
+  [DeltaTableColumn.YearOverYear365]: 365,
 } as Record<DeltaTableColumn, number>;
 
 export const DELTA_TABLE_COLUMNS = [
@@ -13,14 +14,16 @@ export const DELTA_TABLE_COLUMNS = [
   DeltaTableColumn.DayOverDay,
   DeltaTableColumn.WeekOverWeek,
   DeltaTableColumn.MonthOverMonth,
-  DeltaTableColumn.YearOverYear,
+  DeltaTableColumn.YearOverYear364,
+  DeltaTableColumn.YearOverYear365,
 ];
 
 export const PERCENT_CHANGE_COLUMNS = [
   DeltaTableColumn.DayOverDay,
   DeltaTableColumn.WeekOverWeek,
   DeltaTableColumn.MonthOverMonth,
-  DeltaTableColumn.YearOverYear,
+  DeltaTableColumn.YearOverYear364,
+  DeltaTableColumn.YearOverYear365,
 ];
 
 export const MILLISECONDS_IN_DAY = 1000 * 60 * 60 * 24;
@@ -36,6 +39,7 @@ export const PINTEREST_DEFAULT_FORM_DATA = {
     DeltaTableColumn.DayOverDay,
     DeltaTableColumn.WeekOverWeek,
     DeltaTableColumn.MonthOverMonth,
-    DeltaTableColumn.YearOverYear,
+    DeltaTableColumn.YearOverYear364,
+    DeltaTableColumn.YearOverYear365,
   ],
 };
