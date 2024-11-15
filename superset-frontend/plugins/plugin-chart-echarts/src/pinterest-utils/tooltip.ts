@@ -42,11 +42,10 @@ export const getDateByTimeDelta = {
   [DeltaTableColumn.DayOverDay]: (date: Date) => getPreviousDate(date, 1),
   [DeltaTableColumn.WeekOverWeek]: (date: Date) => getPreviousDate(date, 7),
   [DeltaTableColumn.MonthOverMonth]: (date: Date) => getPreviousDate(date, 28),
-  [DeltaTableColumn.YearOverYear]: (date: Date) => {
-    const previousDate = new Date(date);
-    previousDate.setFullYear(date.getFullYear() - 1);
-    return previousDate;
-  },
+  [DeltaTableColumn.YearOverYear364]: (date: Date) =>
+    getPreviousDate(date, 364),
+  [DeltaTableColumn.YearOverYear365]: (date: Date) =>
+    getPreviousDate(date, 365),
 } as Record<DeltaTableColumn, (date: Date) => Date>;
 
 type DeltaTableTooltipColumn = {
