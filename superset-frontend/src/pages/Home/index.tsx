@@ -41,6 +41,7 @@ import withToasts from 'src/components/MessageToasts/withToasts';
 import {
   CardContainer,
   createErrorHandler,
+  getGoldenDashboards,
   getRecentActivityObjs,
   getUserOwnedObjects,
   loadingCardCount,
@@ -176,6 +177,8 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
   const [dashboardData, setDashboardData] = useState<Array<object> | null>(
     null,
   );
+  const [goldenDashboardData, setGoldenDashboardData] =
+    useState<Array<object> | null>(null);
   const [isFetchingActivityData, setIsFetchingActivityData] = useState(true);
 
   const collapseState = getItem(LocalStorageKeys.HomepageCollapseState, []);
@@ -298,6 +301,18 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
     ]).then(() => {
       setIsFetchingActivityData(false);
     });
+    getGoldenDashboards()
+      .then(r => {
+        setGoldenDashboardData(r);
+        return Promise.resolve();
+      })
+      .catch((err: unknown) => {
+        setGoldenDashboardData([]);
+        addDangerToast(
+          t('There was an issue fetching golden dashboards: %s', err),
+        );
+        return Promise.resolve();
+      });
   }, [otherTabFilters]);
 
   const handleToggle = () => {
@@ -365,6 +380,21 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
               ghost
               bigger
             >
+              <Collapse.Panel header={t('Dashboards')} key="2">
+                {!dashboardData || isRecentActivityLoading ? (
+                  <LoadingCards cover={checked} />
+                ) : (
+                  <DashboardTable
+                    user={user}
+                    mine={dashboardData}
+                    golden={goldenDashboardData}
+                    showThumbnails={checked}
+                    otherTabData={activityData?.[TableTab.Other]}
+                    otherTabFilters={otherTabFilters}
+                    otherTabTitle={otherTabTitle}
+                  />
+                )}
+              </Collapse.Panel>
               <Collapse.Panel header={t('Recents')} key="1">
                 {activityData &&
                 (activityData[TableTab.Viewed] ||
@@ -380,20 +410,6 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
                   />
                 ) : (
                   <LoadingCards />
-                )}
-              </Collapse.Panel>
-              <Collapse.Panel header={t('Dashboards')} key="2">
-                {!dashboardData || isRecentActivityLoading ? (
-                  <LoadingCards cover={checked} />
-                ) : (
-                  <DashboardTable
-                    user={user}
-                    mine={dashboardData}
-                    showThumbnails={checked}
-                    otherTabData={activityData?.[TableTab.Other]}
-                    otherTabFilters={otherTabFilters}
-                    otherTabTitle={otherTabTitle}
-                  />
                 )}
               </Collapse.Panel>
               <Collapse.Panel header={t('Charts')} key="3">

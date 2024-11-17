@@ -50,6 +50,7 @@ function DashboardTable({
   addDangerToast,
   addSuccessToast,
   mine,
+  golden,
   showThumbnails,
   otherTabData,
   otherTabFilters,
@@ -58,7 +59,7 @@ function DashboardTable({
   const history = useHistory();
   const defaultTab = getItem(
     LocalStorageKeys.HomepageDashboardFilter,
-    TableTab.Other,
+    TableTab.Golden,
   );
 
   const filteredOtherTabData = filter(
@@ -77,7 +78,11 @@ function DashboardTable({
     t('dashboard'),
     addDangerToast,
     true,
-    defaultTab === TableTab.Mine ? mine : filteredOtherTabData,
+    defaultTab === TableTab.Mine
+      ? mine
+      : defaultTab === TableTab.Golden
+        ? golden
+        : filteredOtherTabData,
     [],
     false,
   );
@@ -151,6 +156,14 @@ function DashboardTable({
     );
 
   const menuTabs = [
+    {
+      name: TableTab.Golden,
+      label: t('Golden'),
+      onClick: () => {
+        setActiveTab(TableTab.Golden);
+        setItem(LocalStorageKeys.HomepageDashboardFilter, TableTab.Golden);
+      },
+    },
     {
       name: TableTab.Favorite,
       label: t('Favorite'),

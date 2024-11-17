@@ -167,6 +167,19 @@ export const getEditedObjects = (userId: string | number) => {
     .catch(err => err);
 };
 
+export const getGoldenDashboards = (
+  filters: Filter[] = [
+    {
+      col: 'tags',
+      opr: 'dashboard_tags',
+      value: 'Golden',
+    },
+  ],
+) =>
+  SupersetClient.get({
+    endpoint: `/api/v1/dashboard/?q=${getParams(filters)}`,
+  }).then(res => res.json?.result);
+
 export const getUserOwnedObjects = (
   userId: string | number,
   resource: string,
