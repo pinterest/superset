@@ -32,7 +32,7 @@ export enum TableTab {
   Viewed = 'Viewed',
   Created = 'Created',
   Edited = 'Edited',
-  Golden = 'Golden',
+  Top = 'Top',
 }
 
 export type Filter = {
@@ -46,7 +46,7 @@ export interface DashboardTableProps {
   addSuccessToast: (message: string) => void;
   user?: User;
   mine: Array<Dashboard>;
-  golden: Array<Dashboard>;
+  top: Array<Dashboard>;
   showThumbnails?: boolean;
   otherTabData: Array<Dashboard>;
   otherTabFilters: Filter[];

@@ -167,12 +167,12 @@ export const getEditedObjects = (userId: string | number) => {
     .catch(err => err);
 };
 
-export const getGoldenDashboards = (
+export const getTopDashboards = (
   filters: Filter[] = [
     {
       col: 'tags',
       opr: 'dashboard_tags',
-      value: 'Golden',
+      value: 'Top',
     },
   ],
 ) =>

@@ -128,7 +128,7 @@ export default function EmptyState({
     tab === TableTab.Mine ||
     tableName === WelcomeTable.Recents ||
     tab === TableTab.Other ||
-    tab === TableTab.Golden
+    tab === TableTab.Top
   ) {
     return (
       <EmptyContainer>
