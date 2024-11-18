@@ -574,5 +574,14 @@ export function getFilterValues(
       value: flt.value,
     }));
   }
+  if (tab === TableTab.Top) {
+    return [
+      {
+        id: 'tags',
+        operator: 'dashboard_tags',
+        value: 'Top',
+      },
+    ];
+  }
   return [];
 }

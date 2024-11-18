@@ -221,7 +221,9 @@ function DashboardTable({
                   ? `/dashboard/list/?filters=(favorite:(label:${t(
                       'Yes',
                     )},value:!t))`
-                  : '/dashboard/list/';
+                  : activeTab === TableTab.Top
+                    ? `/dashboard/list/?filters=(tags:(label:Top,value:Top))`
+                    : '/dashboard/list/';
               history.push(target);
             },
           },

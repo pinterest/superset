@@ -298,21 +298,21 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
               return Promise.resolve();
             })
         : Promise.resolve(),
+      getTopDashboards()
+        .then(r => {
+          setTopDashboardData(r);
+          return Promise.resolve();
+        })
+        .catch((err: unknown) => {
+          setTopDashboardData([]);
+          addDangerToast(
+            t('There was an issue fetching top dashboards: %s', err),
+          );
+          return Promise.resolve();
+        }),
     ]).then(() => {
       setIsFetchingActivityData(false);
     });
-    getTopDashboards()
-      .then(r => {
-        setTopDashboardData(r);
-        return Promise.resolve();
-      })
-      .catch((err: unknown) => {
-        setTopDashboardData([]);
-        addDangerToast(
-          t('There was an issue fetching top dashboards: %s', err),
-        );
-        return Promise.resolve();
-      });
   }, [otherTabFilters]);
 
   const handleToggle = () => {
