@@ -169,6 +169,19 @@ export const getEditedObjects = (userId: string | number) => {
     .catch(err => err);
 };
 
+export const getTopDashboards = (
+  filters: Filter[] = [
+    {
+      col: 'tags',
+      opr: 'dashboard_tags',
+      value: 'Top',
+    },
+  ],
+) =>
+  SupersetClient.get({
+    endpoint: `/api/v1/dashboard/?q=${getParams(filters)}`,
+  }).then(res => res.json?.result);
+
 export const getUserOwnedObjects = (
   userId: string | number,
   resource: string,
@@ -580,6 +593,15 @@ export function getFilterValues(
       operator: flt.opr,
       value: flt.value,
     }));
+  }
+  if (tab === TableTab.Top) {
+    return [
+      {
+        id: 'tags',
+        operator: 'dashboard_tags',
+        value: 'Top',
+      },
+    ];
   }
   return [];
 }
