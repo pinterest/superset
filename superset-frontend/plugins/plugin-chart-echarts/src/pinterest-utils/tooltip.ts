@@ -33,9 +33,17 @@ import { getTooltipTimeFormatter } from '../utils/formatters';
 import { DeltaDirection, DeltaTableColumn } from './types';
 
 const getPreviousDate = (date: Date, offsetDays: number) => {
-  const previousDate = new Date(date);
-  previousDate.setDate(date.getDate() - offsetDays);
-  return previousDate;
+  // Convert the date to UTC time in milliseconds, subtract the offsetDays,
+  // and return the new date. (UTC conversion is needed to avoid daylight savings issues)
+  const time = Date.UTC(
+    date.getUTCFullYear(),
+    date.getUTCMonth(),
+    date.getUTCDate(),
+  );
+  // subtract offsetDays from the time in milliseconds
+  const newTime = time - offsetDays * 24 * 60 * 60 * 1000;
+  const newDate = new Date(newTime);
+  return newDate;
 };
 
 export const getDateByTimeDelta = {
