@@ -95,8 +95,8 @@ class EmbeddedView(BaseSupersetView):
         add_extra_log_payload(
             embedded_dashboard_id=uuid,
             dashboard_version="v2",
-            # [pinterest-specific]
-            embedded_by_id_or_slug=uuid is None,
+            # [pinterest-specific] Only add extra log payload if uuid is None.
+            **({"embedded_by_id_or_slug": True} if uuid is None else {}),
         )
 
         bootstrap_data = {
