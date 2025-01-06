@@ -693,6 +693,7 @@ class Header extends React.PureComponent {
             colorScheme={this.props.colorScheme}
             onSubmit={handleOnPropertiesChange}
             onlyApply
+            user={user}
           />
         )}
 

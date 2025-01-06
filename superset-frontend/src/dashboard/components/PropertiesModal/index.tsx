@@ -44,6 +44,7 @@ import FilterScopeModal from 'src/dashboard/components/filterscope/FilterScopeMo
 import { getClientErrorObject } from 'src/utils/getClientErrorObject';
 import withToasts from 'src/components/MessageToasts/withToasts';
 import TagType from 'src/types/TagType';
+import { userHasPermission } from 'src/dashboard/util/permissionUtils';
 import {
   addTag,
   deleteTaggedObjects,
@@ -51,6 +52,10 @@ import {
   OBJECT_TYPES,
 } from 'src/features/tags/tags';
 import { loadTags } from 'src/components/Tags/utils';
+import {
+  UndefinedUser,
+  UserWithPermissionsAndRoles,
+} from 'src/types/bootstrapTypes';
 
 const StyledFormItem = styled(FormItem)`
   margin-bottom: 0;
@@ -72,6 +77,7 @@ type PropertiesModalProps = {
   addSuccessToast: (message: string) => void;
   addDangerToast: (message: string) => void;
   onlyApply?: boolean;
+  user: UserWithPermissionsAndRoles | UndefinedUser;
 };
 
 type Roles = { id: number; name: string }[];
@@ -97,6 +103,7 @@ const PropertiesModal = ({
   dashboardId,
   dashboardInfo: currentDashboardInfo,
   dashboardTitle,
+  user,
   onHide = () => {},
   onlyApply = false,
   onSubmit = () => {},
@@ -113,6 +120,11 @@ const PropertiesModal = ({
   const saveLabel = onlyApply ? t('Apply') : t('Save');
   const [tags, setTags] = useState<TagType[]>([]);
   const categoricalSchemeRegistry = getCategoricalSchemeRegistry();
+  const canAccessRoles = userHasPermission(
+    user,
+    'PinterestDashboardRoles',
+    'can_edit',
+  );
 
   const tagsAsSelectValues = useMemo(() => {
     const selectTags = tags.map(tag => ({
@@ -698,7 +710,7 @@ const PropertiesModal = ({
             </p>
           </Col>
         </Row>
-        {isFeatureEnabled(FeatureFlag.DashboardRbac)
+        {isFeatureEnabled(FeatureFlag.DashboardRbac) && canAccessRoles
           ? getRowsWithRoles()
           : getRowsWithoutRoles()}
         <Row>

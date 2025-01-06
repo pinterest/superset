@@ -96,9 +96,17 @@ class UpdateDashboardCommand(UpdateMixin, BaseCommand):
         if exceptions:
             raise DashboardInvalidError(exceptions=exceptions)
 
-        # Validate/Populate role
+        # Validate whether user can edit dashboard's roles
+        model_roles_ids = [role.id for role in self._model.roles]
+        if roles_ids is not None and set(model_roles_ids) != set(roles_ids):
+            if not security_manager.is_admin() and not security_manager.can_access(
+                "can_edit",
+                "PinterestDashboardRoles",
+            ):
+                raise DashboardForbiddenError("User does not have access to edit roles")
+
         if roles_ids is None:
-            roles_ids = [role.id for role in self._model.roles]
+            roles_ids = model_roles_ids
         try:
             roles = populate_roles(roles_ids)
             self._properties["roles"] = roles
