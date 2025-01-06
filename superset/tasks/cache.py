@@ -31,7 +31,6 @@ from superset.models.dashboard import Dashboard
 from superset.models.slice import Slice
 from superset.tags.models import Tag, TaggedObject
 from superset.utils.date_parser import parse_human_datetime
-from superset.utils.machine_auth import MachineAuthProvider
 from superset.utils.urls import get_url_path
 
 logger = get_task_logger(__name__)
@@ -237,11 +236,10 @@ class DashboardMetadataStrategy(Strategy):  # pylint: disable=too-few-public-met
 
     def get_payloads(self) -> list[dict[str, int]]:
         payloads = []
-        session = db.create_scoped_session()
 
         # add dashboards that have cache warmup configured
         cache_configured_dashboards = (
-            session.query(Dashboard)
+            db.session.query(Dashboard)
             .filter(Dashboard.json_metadata.like('%"cache_warmup_schedule"%'))
             .all()
         )
