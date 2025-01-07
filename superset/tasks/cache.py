@@ -36,8 +36,7 @@ from superset.tasks.exceptions import ExecutorNotFoundError, InvalidExecutorErro
 from superset.tasks.utils import fetch_csrf_token, get_executor
 from superset.utils import json
 from superset.utils.date_parser import parse_human_datetime
-from superset.utils.machine_auth import MachineAuthProvider
-from superset.utils.urls import get_url_path, is_secure_url
+from superset.utils.urls import get_url_path
 
 logger = get_task_logger(__name__)
 logger.setLevel(logging.INFO)
@@ -261,11 +260,10 @@ class DashboardMetadataStrategy(Strategy):  # pylint: disable=too-few-public-met
 
     def get_payloads(self) -> list[dict[str, int]]:
         payloads = []
-        session = db.create_scoped_session()
 
         # add dashboards that have cache warmup configured
         cache_configured_dashboards = (
-            session.query(Dashboard)
+            db.session.query(Dashboard)
             .filter(Dashboard.json_metadata.like('%"cache_warmup_schedule"%'))
             .all()
         )
