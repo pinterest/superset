@@ -24,14 +24,13 @@ def db_tables_cache_warm_up(database_id: str, schema_name: str) -> None:
         },
     }
     """
-    session = db.create_scoped_session()
     logger.info(
         "Warming up database table cache for database_id: %i, schema_name: %s",
         database_id,
         schema_name,
     )
     try:
-        database = session.query(Database).filter_by(id=database_id).one_or_none()
+        database = db.session.query(Database).filter_by(id=database_id).one_or_none()
         if not database:
             logger.error("Database not found, database_id: %i", database_id)
 
