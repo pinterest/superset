@@ -26,6 +26,7 @@ import fetchMock from 'fetch-mock';
 import * as ColorSchemeControlWrapper from 'src/dashboard/components/ColorSchemeControlWrapper';
 import * as SupersetCore from '@superset-ui/core';
 import { isFeatureEnabled } from '@superset-ui/core';
+import { getMockStoreWithNativeFilters } from 'spec/fixtures/mockStore';
 import PropertiesModal from '.';
 
 jest.mock('@superset-ui/core', () => ({
@@ -144,6 +145,7 @@ fetchMock.get('glob:*/api/v1/dashboard/26', {
     result: { ...dashboardInfo, json_metadata: mockedJsonMetadata },
   },
 });
+const mockUser = getMockStoreWithNativeFilters().getState().user;
 
 const createProps = () => ({
   certified_by: 'John Doe',
@@ -155,6 +157,13 @@ const createProps = () => ({
   onHide: jest.fn(),
   onSubmit: jest.fn(),
   addSuccessToast: jest.fn(),
+  user: {
+    ...mockUser,
+    roles: {
+      ...mockUser.roles,
+      dashboard_role_editor: [['can_edit', 'PinterestDashboardRoles']],
+    },
+  },
 });
 
 beforeEach(() => {
@@ -463,4 +472,17 @@ describe('PropertiesModal', () => {
     expect(options).toHaveLength(1);
     expect(options[0]).toHaveTextContent('Superset Admin');
   });
+});
+
+test('should not show roles without dashboard rbac editor permissions', async () => {
+  spyIsFeatureEnabled.mockReturnValue(true);
+
+  const props = createProps();
+  const propsWithDashboardInfo = { ...props, user: {}, dashboardInfo };
+
+  render(<PropertiesModal {...propsWithDashboardInfo} />, {
+    useRedux: true,
+  });
+
+  expect(screen.queryByText('Roles')).not.toBeInTheDocument();
 });

@@ -234,6 +234,7 @@ function DashboardTable({
           show
           onHide={() => setEditModal(undefined)}
           onSubmit={handleDashboardEdit}
+          user={user}
         />
       )}
       {dashboardToDelete && (

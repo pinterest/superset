@@ -21,9 +21,11 @@ from typing import Any, Optional
 from flask_appbuilder.models.sqla import Model
 from marshmallow import ValidationError
 
+from superset import security_manager
 from superset.commands.base import BaseCommand, CreateMixin
 from superset.commands.dashboard.exceptions import (
     DashboardCreateFailedError,
+    DashboardForbiddenError,
     DashboardInvalidError,
     DashboardSlugExistsValidationError,
 )
@@ -60,6 +62,17 @@ class CreateDashboardCommand(CreateMixin, BaseCommand):
             exceptions.append(ex)
         if exceptions:
             raise DashboardInvalidError(exceptions=exceptions)
+
+        if (
+            role_ids is not None
+            and len(role_ids)
+            and not security_manager.is_admin()
+            and not security_manager.can_access(
+                "can_edit",
+                "PinterestDashboardRoles",
+            )
+        ):
+            raise DashboardForbiddenError("User does not have access to edit roles")
 
         try:
             roles = populate_roles(role_ids)
