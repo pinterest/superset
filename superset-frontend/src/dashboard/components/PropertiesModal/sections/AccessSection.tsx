@@ -47,6 +47,7 @@ interface AccessSectionProps {
   owners: Owners;
   roles: Roles;
   tags: TagType[];
+  canAccessRoles?: boolean;
   onChangeOwners: (
     owners: { value: number; label: string }[],
     options: Record<string, unknown>[],
@@ -61,6 +62,7 @@ const AccessSection = ({
   owners,
   roles,
   tags,
+  canAccessRoles = true,
   onChangeOwners,
   onChangeRoles,
   onChangeTags,
@@ -125,7 +127,7 @@ const AccessSection = ({
           optionFilterProps={OWNER_OPTION_FILTER_PROPS}
         />
       </ModalFormField>
-      {isFeatureEnabled(FeatureFlag.DashboardRbac) && (
+      {isFeatureEnabled(FeatureFlag.DashboardRbac) && canAccessRoles && (
         <ModalFormField
           label={t('Roles')}
           testId="dashboard-roles-field"

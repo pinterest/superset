@@ -27,6 +27,7 @@ import * as ColorSchemeSelect from 'src/dashboard/components/ColorSchemeSelect';
 import * as SupersetCore from '@superset-ui/core';
 import { isFeatureEnabled, FeatureFlag } from '@superset-ui/core';
 import { t } from '@apache-superset/core/translation';
+import { getMockStoreWithNativeFilters } from 'spec/fixtures/mockStore';
 import PropertiesModal from '.';
 
 // Increase timeout for CI environment
@@ -145,6 +146,7 @@ fetchMock.get('glob:*/api/v1/dashboard/26', {
     result: { ...dashboardInfo, json_metadata: mockedJsonMetadata },
   },
 });
+const mockUser = getMockStoreWithNativeFilters().getState().user;
 
 fetchMock.get('glob:*/api/v1/theme/*', {
   body: {
@@ -173,6 +175,13 @@ const createProps = () => ({
   onHide: jest.fn(),
   onSubmit: jest.fn(),
   addSuccessToast: jest.fn(),
+  user: {
+    ...mockUser,
+    roles: {
+      ...mockUser.roles,
+      dashboard_role_editor: [['can_edit', 'PinterestDashboardRoles']],
+    },
+  },
 });
 
 beforeEach(() => {
@@ -795,4 +804,17 @@ describe('PropertiesModal', () => {
       { timeout: 1000 },
     );
   });
+});
+
+test('should not show roles without dashboard rbac editor permissions', async () => {
+  mockedIsFeatureEnabled.mockReturnValue(true);
+
+  const props = createProps();
+  const propsWithDashboardInfo = { ...props, user: {}, dashboardInfo };
+
+  render(<PropertiesModal {...propsWithDashboardInfo} />, {
+    useRedux: true,
+  });
+
+  expect(screen.queryByText('Roles')).not.toBeInTheDocument();
 });

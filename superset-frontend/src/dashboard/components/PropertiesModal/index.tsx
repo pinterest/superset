@@ -38,6 +38,11 @@ import {
 } from '@superset-ui/core';
 
 import withToasts from 'src/components/MessageToasts/withToasts';
+import { userHasPermission } from 'src/dashboard/util/permissionUtils';
+import {
+  UndefinedUser,
+  UserWithPermissionsAndRoles,
+} from 'src/types/bootstrapTypes';
 import {
   OWNER_TEXT_LABEL_PROP,
   OWNER_EMAIL_PROP,
@@ -77,6 +82,7 @@ type PropertiesModalProps = {
   addSuccessToast: (message: string) => void;
   addDangerToast: (message: string) => void;
   onlyApply?: boolean;
+  user: UserWithPermissionsAndRoles | UndefinedUser;
 };
 
 type Roles = { id: number; name: string }[];
@@ -109,6 +115,7 @@ const PropertiesModal = ({
   dashboardId,
   dashboardInfo: currentDashboardInfo,
   dashboardTitle,
+  user,
   onHide = () => {},
   onlyApply = false,
   onSubmit = () => {},
@@ -116,6 +123,11 @@ const PropertiesModal = ({
 }: PropertiesModalProps) => {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
+  const canAccessRoles = userHasPermission(
+    user,
+    'PinterestDashboardRoles',
+    'can_edit',
+  );
 
   const [isLoading, setIsLoading] = useState(true);
   const [isApplying, setIsApplying] = useState(false);
@@ -745,6 +757,7 @@ const PropertiesModal = ({
                   owners={owners}
                   roles={roles}
                   tags={tags}
+                  canAccessRoles={canAccessRoles}
                   onChangeOwners={handleOnChangeOwners}
                   onChangeRoles={handleOnChangeRoles}
                   onChangeTags={handleChangeTags}
