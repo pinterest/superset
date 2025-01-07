@@ -718,6 +718,7 @@ class Header extends PureComponent {
             colorScheme={this.props.colorScheme}
             onSubmit={handleOnPropertiesChange}
             onlyApply
+            user={user}
           />
         )}
 

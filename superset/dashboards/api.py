@@ -599,6 +599,8 @@ class DashboardRestApi(BaseSupersetModelRestApi):
                 exc_info=True,
             )
             return self.response_422(message=str(ex))
+        except DashboardForbiddenError:
+            return self.response_403()
 
     @expose("/<pk>", methods=("PUT",))
     @protect()

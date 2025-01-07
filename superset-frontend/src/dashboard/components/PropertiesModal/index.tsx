@@ -42,8 +42,13 @@ import ColorSchemeControlWrapper from 'src/dashboard/components/ColorSchemeContr
 import FilterScopeModal from 'src/dashboard/components/filterscope/FilterScopeModal';
 import withToasts from 'src/components/MessageToasts/withToasts';
 import TagType from 'src/types/TagType';
+import { userHasPermission } from 'src/dashboard/util/permissionUtils';
 import { fetchTags, OBJECT_TYPES } from 'src/features/tags/tags';
 import { loadTags } from 'src/components/Tags/utils';
+import {
+  UndefinedUser,
+  UserWithPermissionsAndRoles,
+} from 'src/types/bootstrapTypes';
 import { applyColors, getColorNamespace } from 'src/utils/colorScheme';
 import getOwnerName from 'src/utils/getOwnerName';
 import Owner from 'src/types/Owner';
@@ -68,6 +73,7 @@ type PropertiesModalProps = {
   addSuccessToast: (message: string) => void;
   addDangerToast: (message: string) => void;
   onlyApply?: boolean;
+  user: UserWithPermissionsAndRoles | UndefinedUser;
 };
 
 type Roles = { id: number; name: string }[];
@@ -93,6 +99,7 @@ const PropertiesModal = ({
   dashboardId,
   dashboardInfo: currentDashboardInfo,
   dashboardTitle,
+  user,
   onHide = () => {},
   onlyApply = false,
   onSubmit = () => {},
@@ -109,6 +116,11 @@ const PropertiesModal = ({
   const saveLabel = onlyApply ? t('Apply') : t('Save');
   const [tags, setTags] = useState<TagType[]>([]);
   const categoricalSchemeRegistry = getCategoricalSchemeRegistry();
+  const canAccessRoles = userHasPermission(
+    user,
+    'PinterestDashboardRoles',
+    'can_edit',
+  );
 
   const tagsAsSelectValues = useMemo(() => {
     const selectTags = tags.map((tag: { id: number; name: string }) => ({
@@ -623,7 +635,7 @@ const PropertiesModal = ({
             </p>
           </Col>
         </Row>
-        {isFeatureEnabled(FeatureFlag.DashboardRbac)
+        {isFeatureEnabled(FeatureFlag.DashboardRbac) && canAccessRoles
           ? getRowsWithRoles()
           : getRowsWithoutRoles()}
         <Row>
