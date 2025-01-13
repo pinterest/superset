@@ -79,7 +79,7 @@ class ResourceSchema(PermissiveSchema):
         is_embedded_by_id_or_slug_enabled = is_feature_enabled(
             "PINTEREST_EMBEDDED_SUPERSET_BY_ID_OR_SLUG"
         )
-        
+
         if is_dashboard and is_embedded_by_id_or_slug_enabled:
             id_or_slug = data["id"]
             try:
