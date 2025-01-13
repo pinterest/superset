@@ -1672,10 +1672,7 @@ PINTEREST_MENU_ITEMS: list[PinterestMenuItems] | None = None
 PINTEREST_HELP_LINK: str | None = None
 # List of allowed domains for PINTEREST_EMBEDDED_SUPERSET_BY_ID_OR_SLUG feature.
 # If empty, all domains are allowed, leave empty for dev.
-PINTEREST_EMBEDDED_SUPERSET_BY_ID_OR_SLUG_ALLOWED_DOMAINS: list[str] = [
-    "mlhub.pinadmin.com",
-    "mlhub-test.pinadmin.com",
-]
+PINTEREST_EMBEDDED_SUPERSET_BY_ID_OR_SLUG_ALLOWED_DOMAINS: list[str] = []
 
 
 # Extra dynamic query filters make it possible to limit which objects are shown
