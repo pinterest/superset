@@ -401,7 +401,7 @@ CURRENCIES = ["USD", "EUR", "GBP", "INR", "MXN", "JPY", "CNY"]
 # will result in combined feature flags of { 'FOO': True, 'BAR': True, 'BAZ': True }
 DEFAULT_FEATURE_FLAGS: dict[str, bool] = {
     # [pinterest-specific]: Allows embedding by dashboard id or slug
-    "PINTEREST_EMBEDDED_SUPERSET_BY_ID_OR_SLUG": True,
+    "PINTEREST_EMBEDDED_SUPERSET_BY_ID_OR_SLUG": False,
     # When using a recent version of Druid that supports JOINs turn this on
     "DRUID_JOINS": False,
     "DYNAMIC_PLUGINS": False,
