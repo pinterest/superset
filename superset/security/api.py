@@ -61,21 +61,32 @@ class ResourceSchema(PermissiveSchema):
         data["type"] = data["type"].value
         return data
 
-    # [pinterest-specific] Use dashboard id instead of slug for guest token as
-    # slug doesn't contain the same checks for permission thus fails.
+    # [pinterest-specific]
     @post_load
-    def convert_slug_or_embedded_uuid_to_id(
-        self, data: dict[str, Any], **kwargs: Any  # pylint: disable=unused-argument
+    def convert_slug_to_id(
+        self,
+        data: dict[str, Any],
+        **kwargs: Any,  # pylint: disable=unused-argument
     ) -> dict[str, Any]:
-        from superset import is_feature_enabled
+        """
+        Allows creating guest token via dashboard slug which in return allows
+        embedding dashboard by its slug.
+        """
+        from superset import conf, is_feature_enabled
         from superset.daos.dashboard import DashboardDAO
 
-        if is_feature_enabled("PINTEREST_EMBEDDED_SUPERSET_BY_ID_OR_SLUG"):
+        is_dashboard = data["type"] == GuestTokenResourceType.DASHBOARD.value
+        is_embedded_by_id_or_slug_enabled = is_feature_enabled(
+            "PINTEREST_EMBEDDED_SUPERSET_BY_ID_OR_SLUG"
+        )
+        
+        if is_dashboard and is_embedded_by_id_or_slug_enabled:
             id_or_slug = data["id"]
-            dashboard = DashboardDAO.get_by_id_or_slug(id_or_slug)
-
-            if dashboard:
+            try:
+                dashboard = DashboardDAO.get_by_id_or_slug(id_or_slug)
                 data["id"] = dashboard.id
+            except Exception:
+                pass
 
         return data
 
