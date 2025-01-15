@@ -22,8 +22,10 @@ from flask_appbuilder import expose
 from flask_login import AnonymousUserMixin, login_user
 from flask_wtf.csrf import same_origin
 
-from superset import event_logger, is_feature_enabled
+from superset import conf, event_logger, is_feature_enabled
 from superset.daos.dashboard import EmbeddedDashboardDAO
+from superset.models.dashboard import Dashboard
+from superset.models.embedded_dashboard import EmbeddedDashboard
 from superset.superset_typing import FlaskResponse
 from superset.utils import core as utils
 from superset.views.base import BaseSupersetView, common_bootstrap_payload
@@ -57,10 +59,6 @@ class EmbeddedView(BaseSupersetView):
         if not embedded and is_feature_enabled(
             "PINTEREST_EMBEDDED_SUPERSET_BY_ID_OR_SLUG"
         ):
-            from superset import conf
-            from superset.models.dashboard import Dashboard
-            from superset.models.embedded_dashboard import EmbeddedDashboard
-
             dashboard = Dashboard.get(uuid)
 
             if dashboard:
