@@ -459,6 +459,8 @@ CURRENCIES = ["USD", "EUR", "GBP", "INR", "MXN", "JPY", "CNY"]
 # and FEATURE_FLAGS = { 'BAR': True, 'BAZ': True } in superset_config.py
 # will result in combined feature flags of { 'FOO': True, 'BAR': True, 'BAZ': True }
 DEFAULT_FEATURE_FLAGS: dict[str, bool] = {
+    # [pinterest-specific]: Allows embedding by dashboard id or slug
+    "PINTEREST_EMBEDDED_SUPERSET_BY_ID_OR_SLUG": False,
     # When using a recent version of Druid that supports JOINs turn this on
     "DRUID_JOINS": False,
     "DYNAMIC_PLUGINS": False,
@@ -1826,8 +1828,12 @@ class ExtraRelatedQueryFilters(TypedDict, total=False):
 
 EXTRA_RELATED_QUERY_FILTERS: ExtraRelatedQueryFilters = {}
 
+# [pinterest-specific]
 PINTEREST_MENU_ITEMS: list[PinterestMenuItems] | None = None
 PINTEREST_HELP_LINK: str | None = None
+# List of allowed domains for PINTEREST_EMBEDDED_SUPERSET_BY_ID_OR_SLUG feature.
+# If empty, all domains are allowed, leave empty for dev.
+PINTEREST_EMBEDDED_SUPERSET_BY_ID_OR_SLUG_ALLOWED_DOMAINS: list[str] = []
 
 
 # Extra dynamic query filters make it possible to limit which objects are shown
