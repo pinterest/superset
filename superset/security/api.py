@@ -28,10 +28,16 @@ from marshmallow import EXCLUDE, fields, post_load, Schema, ValidationError
 from sqlalchemy import asc, desc
 from sqlalchemy.orm import selectinload
 
+from superset import is_feature_enabled
 from superset.commands.dashboard.embedded.exceptions import (
     EmbeddedDashboardNotFoundError,
 )
+from superset.commands.dashboard.exceptions import (
+    DashboardAccessDeniedError,
+    DashboardNotFoundError,
+)
 from superset.commands.exceptions import ForbiddenError
+from superset.daos.dashboard import DashboardDAO
 from superset.exceptions import SupersetGenericErrorException
 from superset.extensions import db, event_logger
 from superset.security.guest_token import GuestTokenResourceType
@@ -71,6 +77,32 @@ class ResourceSchema(PermissiveSchema):
     ) -> dict[str, Any]:
         # we don't care about the enum, we want the value inside
         data["type"] = data["type"].value
+        return data
+
+    # [pinterest-specific]
+    @post_load
+    def convert_slug_to_id(  # pylint: disable=unused-argument
+        self,
+        data: dict[str, Any],
+        **kwargs: Any,
+    ) -> dict[str, Any]:
+        """
+        Allows creating guest token via dashboard slug which in return allows
+        embedding dashboard by its slug.
+        """
+        is_dashboard = data["type"] == GuestTokenResourceType.DASHBOARD.value
+        is_embedding_by_slug_enabled = is_feature_enabled(
+            "PINTEREST_EMBEDDED_SUPERSET_BY_ID_OR_SLUG"
+        )
+
+        if is_dashboard and is_embedding_by_slug_enabled:
+            id_or_slug = data["id"]
+            try:
+                dashboard = DashboardDAO.get_by_id_or_slug(id_or_slug)
+                data["id"] = dashboard.id
+            except (DashboardNotFoundError, DashboardAccessDeniedError):
+                pass
+
         return data
 
 
