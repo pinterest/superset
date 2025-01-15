@@ -22,8 +22,10 @@ from flask_appbuilder import expose
 from flask_login import AnonymousUserMixin, login_user
 from flask_wtf.csrf import same_origin
 
-from superset import event_logger, is_feature_enabled
+from superset import conf, event_logger, is_feature_enabled
 from superset.daos.dashboard import EmbeddedDashboardDAO
+from superset.models.dashboard import Dashboard
+from superset.models.embedded_dashboard import EmbeddedDashboard
 from superset.superset_typing import FlaskResponse
 from superset.utils import core as utils
 from superset.views.base import BaseSupersetView, common_bootstrap_payload
@@ -44,6 +46,7 @@ class EmbeddedView(BaseSupersetView):
         """
         Server side rendering for the embedded dashboard page
         :param uuid: identifier for embedded dashboard
+            [pinterest-specific]: can use dashboard id or slug as uuid
         :param add_extra_log_payload: added by `log_this_with_manual_updates`, set a
             default value to appease pylint
         """
@@ -51,6 +54,22 @@ class EmbeddedView(BaseSupersetView):
             abort(404)
 
         embedded = EmbeddedDashboardDAO.find_by_id(uuid)
+
+        # [pinterest-specific] Allow embedding by dashboard id or slug
+        if not embedded and is_feature_enabled(
+            "PINTEREST_EMBEDDED_SUPERSET_BY_ID_OR_SLUG"
+        ):
+            dashboard = Dashboard.get(uuid)
+
+            if dashboard:
+                embedded = EmbeddedDashboard()
+                embedded.allow_domain_list = ",".join(
+                    conf.get(
+                        "PINTEREST_EMBEDDED_SUPERSET_BY_ID_OR_SLUG_ALLOWED_DOMAINS"
+                    )
+                )
+                embedded.dashboard_id = dashboard.id
+                uuid = None
 
         if not embedded:
             abort(404)
@@ -75,6 +94,8 @@ class EmbeddedView(BaseSupersetView):
         add_extra_log_payload(
             embedded_dashboard_id=uuid,
             dashboard_version="v2",
+            # [pinterest-specific] Only add extra log payload if uuid is None.
+            **({"embedded_by_id_or_slug": True} if uuid is None else {}),
         )
 
         bootstrap_data = {
