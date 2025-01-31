@@ -35,16 +35,15 @@ def db_tables_cache_warm_up(database_id: str, schema_name: str) -> None:
             logger.error("Database not found, database_id: %i", database_id)
 
         database.get_all_table_names_in_schema(
+            catalog=None,
             schema=schema_name,
             force=True,
             cache=database.table_cache_enabled,
             cache_timeout=database.table_cache_timeout,
         )
         database.get_all_view_names_in_schema(
-            schema=schema_name,
-            force=True,
-            cache=database.table_cache_enabled,
-            cache_timeout=database.table_cache_timeout,
+            None,
+            schema_name,
         )
         logger.info(
             "Database tables cache warm up succeeded for database_id: %i, schema_name: %s",  # pylint: disable=line-too-long

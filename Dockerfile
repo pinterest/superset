@@ -161,10 +161,11 @@ RUN apt-get update -qq \
 # Cache everything for dev purposes...
 
 COPY --chown=superset:superset requirements/development.txt requirements/
+COPY --chown=superset:superset requirements/local.txt requirements/
 RUN --mount=type=cache,target=/root/.cache/pip \
     apt-get update -qq && apt-get install -yqq --no-install-recommends \
       build-essential \
-    && pip install -r requirements/development.txt \
+    && pip install -r requirements/local.txt \
     && apt-get autoremove -yqq --purge build-essential \
     && rm -rf /var/lib/apt/lists/*
 

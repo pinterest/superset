@@ -36,7 +36,7 @@ if not current_app.config["ALEMBIC_SKIP_LOG_CONFIG"]:
     fileConfig(config.config_file_name)
 logger = logging.getLogger("alembic.env")
 
-DATABASE_URI = current_app.config["SQLALCHEMY_DATABASE_URI"]
+DATABASE_URI = current_app.config["ALEMBIC_SQLALCHEMY_DATABASE_URI"]
 if "sqlite" in DATABASE_URI:
     logger.warning(
         "SQLite Database support for metadata databases will \

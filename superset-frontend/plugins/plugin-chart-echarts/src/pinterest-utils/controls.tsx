@@ -1,4 +1,3 @@
-import React from 'react';
 import { t, validateNonEmpty } from '@superset-ui/core';
 import {
   formatSelectOptions,

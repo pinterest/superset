@@ -81,6 +81,8 @@ const formData: EchartsMixedTimeseriesFormData = {
   forecastPeriods: [],
   forecastInterval: 0,
   forecastSeasonalityDaily: 0,
+  pinterestDeltaTable: false,
+  pinterestDeltaTableColumns: [],
 };
 
 const queriesData = [
