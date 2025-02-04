@@ -25,6 +25,7 @@
   ],
   "dependencies": {
     "@types/d3-array": "^3.2.2",
+    "@types/escape-html": "^1.0.4",
     "@types/react-redux": "^7.1.34",
     "acorn": "^8.9.0",
     "d3-array": "^3.2.4",

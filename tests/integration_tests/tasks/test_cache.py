@@ -36,7 +36,6 @@ from tests.integration_tests.test_app import app
         "With trailing slash (HTTPS)",
     ],
 )
-@mock.patch("superset.tasks.cache.fetch_csrf_token")
 @mock.patch("superset.tasks.cache.request.Request")
 @mock.patch("superset.tasks.cache.request.urlopen")
 @mock.patch("superset.tasks.cache.is_secure_url")
@@ -44,7 +43,6 @@ def test_fetch_url(
     mock_is_secure_url,
     mock_urlopen,
     mock_request_cls,
-    mock_fetch_csrf_token,
     base_url,
     expected_referer,
 ):
@@ -67,14 +65,13 @@ def test_fetch_url(
         csrf_headers = csrf_headers | {"Referer": expected_referer}
         assert csrf_headers["Referer"] == expected_referer
 
-    mock_fetch_csrf_token.return_value = csrf_headers
-
     app.config["WEBDRIVER_BASEURL"] = base_url
     data = "data"
     data_encoded = b"data"
 
     result = fetch_url(data, initial_headers)
 
+<<<<<<< HEAD
     expected_url = (
         f"{base_url}/api/v1/chart/warm_up_cache"
         if not base_url.endswith("/")
@@ -82,11 +79,10 @@ def test_fetch_url(
     )
 
     mock_fetch_csrf_token.assert_called_once_with(initial_headers)
-
     mock_request_cls.assert_called_once_with(
         expected_url,  # Use the dynamic URL based on base_url
         data=data_encoded,
-        headers=csrf_headers,
+        headers=initial_headers,
         method="PUT",
     )
     # assert the same Request object is used

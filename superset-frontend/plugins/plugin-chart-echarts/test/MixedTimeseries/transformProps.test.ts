@@ -133,6 +133,8 @@ const formData: EchartsMixedTimeseriesFormData = {
   forecastInterval: 0,
   forecastSeasonalityDaily: 0,
   legendSort: null,
+  pinterestDeltaTable: false,
+  pinterestDeltaTableColumns: [],
 };
 
 const defaultQueryRows = [
