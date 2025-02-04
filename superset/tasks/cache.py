@@ -29,7 +29,6 @@ from superset.models.core import Log
 from superset.models.dashboard import Dashboard
 from superset.models.slice import Slice
 from superset.tags.models import Tag, TaggedObject
-from superset.tasks.utils import fetch_csrf_token
 from superset.utils import json
 from superset.utils.date_parser import parse_human_datetime
 from superset.utils.urls import get_url_path
@@ -271,9 +270,6 @@ def fetch_url(data: str, headers: dict[str, str]) -> dict[str, str]:
     """
     result = {}
     try:
-        # Fetch CSRF token for API request
-        headers.update(fetch_csrf_token(headers))
-
         url = get_url_path("ChartRestApi.warm_up_cache")
         logger.info("Fetching %s with payload %s", url, data)
         req = request.Request(
