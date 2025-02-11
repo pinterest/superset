@@ -152,10 +152,16 @@ export const useSimpleTabFilterProps = (props: Props) => {
     );
     let subject = '';
     let clause;
+    let isExtra;
+    let datasourceWarning;
     // infer the new clause based on what subject was selected.
     if (option && 'column_name' in option) {
       subject = option.column_name;
       clause = Clauses.Where;
+      if (option.warning_markdown) {
+        isExtra = true;
+        datasourceWarning = option.warning_markdown;
+      }
     } else if (option && 'saved_metric_name' in option) {
       subject = option.saved_metric_name;
       clause = Clauses.Having;
@@ -190,6 +196,8 @@ export const useSimpleTabFilterProps = (props: Props) => {
         expressionType: ExpressionTypes.Simple,
         operatorId,
         comparator,
+        isExtra,
+        datasourceWarning,
       }),
     );
   };

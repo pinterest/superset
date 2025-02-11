@@ -328,3 +328,10 @@ class DatasetCacheWarmUpResponseSchema(Schema):
             "description": "A list of each chart's warmup status and errors if any"
         },
     )
+
+
+class DatasetTemplateColumnsResponseSchema(Schema):
+    columns = fields.List(
+        fields.String(),
+        metadata={"description": "A list of columns extracted from the Jinja template"},
+    )

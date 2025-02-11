@@ -173,6 +173,7 @@ MODEL_API_RW_METHOD_PERMISSION_MAP = {
     "columnar_metadata": "columnar_upload",
     "csv_metadata": "csv_upload",
     "slack_channels": "write",
+    "template_columns": "read",
 }
 
 EXTRA_FORM_DATA_APPEND_KEYS = {
