@@ -47,7 +47,7 @@ class DatasetTemplateColumnsRestApi(BaseSupersetModelRestApi):
           responses:
             200:
             200:
-              description: Query result
+              description: Dataset template columns result
               content:
                 application/json:
                   schema:

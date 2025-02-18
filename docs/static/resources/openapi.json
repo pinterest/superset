@@ -16986,6 +16986,50 @@
         "tags": ["Datasets"]
       }
     },
+    "/api/v1/dataset/{pk}/template_columns": {
+      "get": {
+        "description": "Extract all columns referenced in jinja templates for virtual datasets.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pk",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatasetTemplateColumnsResponseSchema"
+                }
+              }
+            },
+            "description": "Dataset template columns result"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "422": {
+            "$ref": "#/components/responses/]"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ],
+        "tags": [
+          "Datasets"
+        ]
+      }
+    },
     "/api/v1/datasource/{datasource_type}/{datasource_id}/column/{column_name}/values/": {
       "get": {
         "parameters": [
