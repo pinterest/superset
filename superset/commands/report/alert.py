@@ -76,7 +76,9 @@ class AlertCommand(BaseCommand):
         if self._is_validator_not_null:
             self._report_schedule.last_value_row_json = str(self._result)
             return self._result not in (0, None, np.nan)
-        self._report_schedule.last_value = self._result
+        self._report_schedule.last_value = (
+            self._result if self._result not in [None, np.nan] else None
+        )
         try:
             operator = json.loads(self._report_schedule.validator_config_json)["op"]
             threshold = json.loads(self._report_schedule.validator_config_json)[
@@ -113,8 +115,11 @@ class AlertCommand(BaseCommand):
 
     def _validate_operator(self, rows: np.recarray[Any, Any]) -> None:
         self._validate_result(rows)
-        if rows[0][1] in (0, None, np.nan):
+        if rows[0][1] == 0:
             self._result = 0.0
+            return
+        if rows[0][1] in (None, np.nan):
+            self._result = np.nan  # Can compare np.nan with any number
             return
         try:
             # Check if it's float or if we can convert it
