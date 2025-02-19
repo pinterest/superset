@@ -152,8 +152,11 @@ export const useSimpleTabFilterProps = (props: Props) => {
     );
     let subject = '';
     let clause;
-    let isExtra;
-    let datasourceWarning;
+    let isExtra = option && 'isExtra' in option ? !!option.isExtra : false;
+    let datasourceWarning =
+      option && 'datasourceWarning' in option
+        ? option.datasourceWarning
+        : false;
     // infer the new clause based on what subject was selected.
     if (option && 'column_name' in option) {
       subject = option.column_name;
