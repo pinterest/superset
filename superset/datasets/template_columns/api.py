@@ -13,6 +13,7 @@ from superset.commands.dataset.template_columns.get import (
 )
 from superset.connectors.sqla.models import TableColumn
 from superset.constants import MODEL_API_RW_METHOD_PERMISSION_MAP
+from superset.datasets.schemas import DatasetTemplateColumnsResponseSchema
 from superset.views.base_api import BaseSupersetModelRestApi, statsd_metrics
 
 logger = logging.getLogger(__name__)
@@ -29,6 +30,7 @@ class DatasetTemplateColumnsRestApi(BaseSupersetModelRestApi):
     allow_browser_login = True
 
     openapi_spec_tag = "Datasets"
+    openapi_spec_component_schemas = (DatasetTemplateColumnsResponseSchema,)
 
     @expose("/<int:pk>/template_columns", methods=("GET",))
     @protect()
