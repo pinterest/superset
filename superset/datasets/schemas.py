@@ -439,3 +439,10 @@ class DatasetDrillInfoSchema(Schema):
         if security_manager.is_guest_user():
             return {"id": serialized["id"], "columns": serialized["columns"]}
         return serialized
+
+
+class DatasetTemplateColumnsResponseSchema(Schema):
+    columns = fields.List(
+        fields.String(),
+        metadata={"description": "A list of columns extracted from the Jinja template"},
+    )
