@@ -20,12 +20,8 @@ class TestTemplateColumnReferencesProcessor(SupersetTestCase):
             self.mock_db, table=mock_table
         )
 
-    def test_extract_columns_with_url_params(self):
-        sql = "SELECT a,b,c FROM foo WHERE bar = {{ url_param('bar') }}"
-        assert self.processor.extract_column_names(sql) == {"bar"}
-
     def test_extract_columns_with_filter_values(self):
-        sql = "SELECT name, count(*) FROM birth_names WHERE country = {{ filter_values('country')[0] }} GROUP BY name"
+        sql = "SELECT name, count(*) FROM birth_names WHERE country = {{ filter_values('country', 'US')[0] }} GROUP BY name"
         assert self.processor.extract_column_names(sql) == {"country"}
 
     def test_extract_columns_with_get_filters(self):

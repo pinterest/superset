@@ -21,11 +21,9 @@ class TemplateColumnReferencesProcessor(JinjaTemplateProcessor):
         super().__init__(*args, **kwargs)
         self._columns = set()
 
-    def url_param(self, param: str, **kwargs) -> Optional[str]:
-        self._columns.add(param)
-        return None
-
-    def filter_values(self, column: str, **kwargs) -> list[Any]:
+    def filter_values(
+        self, column: str, default: Optional[str] = None, remove_filter: bool = False
+    ) -> list[Any]:
         self._columns.add(column)
         return []
 
@@ -37,7 +35,6 @@ class TemplateColumnReferencesProcessor(JinjaTemplateProcessor):
         super().set_context(**kwargs)
         self._context.update(
             {
-                "url_param": partial(safe_proxy, self.url_param),
                 "filter_values": partial(safe_proxy, self.filter_values),
                 "get_filters": partial(safe_proxy, self.get_filters),
             }
