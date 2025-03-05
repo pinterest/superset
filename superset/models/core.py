@@ -57,7 +57,9 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 from sqlalchemy.pool import NullPool
 from sqlalchemy.schema import UniqueConstraint
-from sqlalchemy.sql import ColumnElement, expression, Select
+
+# pylint: disable=unused-import
+from sqlalchemy.sql import ColumnElement, Select
 
 from superset import app, db_engine_specs, is_feature_enabled
 from superset.commands.database.exceptions import DatabaseInvalidError
@@ -1019,9 +1021,7 @@ class Database(Model, AuditMixinNullable, ImportExportMixin):  # pylint: disable
 
     @perm.expression  # type: ignore
     def perm(cls) -> str:  # pylint: disable=no-self-argument
-        return (
-            "[" + cls.database_name + "].(id:" + expression.cast(cls.id, String) + ")"
-        )
+        return sqla.func.concat("[", cls.database_name, "].(id:", cls.id, ")")
 
     def get_perm(self) -> str:
         return self.perm  # type: ignore
