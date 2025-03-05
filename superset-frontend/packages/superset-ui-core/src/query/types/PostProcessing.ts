@@ -134,6 +134,16 @@ export type PostProcessingProphet =
   | _PostProcessingProphet
   | DefaultPostProcessing;
 
+interface _PostProcessingAnomalyDetection {
+  operation: 'anomaly_detection';
+  options: {
+    detection_spec: string;
+  };
+}
+export type PostProcessingAnomalyDetection =
+  | _PostProcessingAnomalyDetection
+  | DefaultPostProcessing;
+
 interface _PostProcessingDiff {
   operation: 'diff';
   options: {
@@ -253,6 +263,7 @@ export type PostProcessingHistogram =
  */
 export type PostProcessingRule =
   | PostProcessingAggregation
+  | PostProcessingAnomalyDetection
   | PostProcessingBoxplot
   | PostProcessingContribution
   | PostProcessingPivot
@@ -297,6 +308,11 @@ export function isPostProcessingProphet(
 ): rule is PostProcessingProphet {
   return rule?.operation === 'prophet';
 }
+
+export function isPostProcessingAnomalyDetection(
+  rule?: PostProcessingRule,
+): rule is PostProcessingAnomalyDetection {
+  return rule?.operation === 'anomaly_detection';
 
 export function isPostProcessingDiff(
   rule?: PostProcessingRule,

@@ -672,6 +672,19 @@ class ChartDataProphetOptionsSchema(ChartDataPostProcessingOperationOptionsSchem
     )
 
 
+class ChartDataAnomalyDetectionOptionsSchema(ChartDataPostProcessingOperationOptionsSchema):
+    """
+    AnomalyDetection operation config.
+    """
+
+    detection_spec = fields.String(
+        metadata={
+            "description": "Custom Spec for Anomaly Detection"
+            "To generate your custom spec (TODO: LINK TO JUPYTER NOTEBOOK)"
+        }
+    )
+
+
 class ChartDataBoxplotOptionsSchema(ChartDataPostProcessingOperationOptionsSchema):
     """
     Boxplot operation config.

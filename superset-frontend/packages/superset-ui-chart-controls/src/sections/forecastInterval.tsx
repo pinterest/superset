@@ -26,6 +26,7 @@ import { displayTimeRelatedControls } from '../utils';
 
 export const FORECAST_DEFAULT_DATA = {
   forecastEnabled: false,
+  anomalyEnabled: false,
   forecastInterval: 0.8,
   forecastPeriods: 10,
   forecastSeasonalityDaily: null,
@@ -47,6 +48,28 @@ export const forecastIntervalControls: ControlPanelSectionConfig = {
           renderTrigger: false,
           default: FORECAST_DEFAULT_DATA.forecastEnabled,
           description: t('Enable forecasting'),
+        },
+      },
+    ],
+    [
+      {
+        name: 'anomalyEnabled',
+        config: {
+          type: 'CheckboxControl',
+          label: t('Enable anomaly detection'),
+          renderTrigger: false,
+          default: FORECAST_DEFAULT_DATA.anomalyEnabled,
+          description: t('Enable detection of anomalies in the data.'),
+        },
+      },
+    ],
+    [
+      {
+        name: 'detectionSpec',
+        config: {
+          type: 'TextControl',
+          label: t('Customized spec for Anomaly Detection'),
+          description: t('Customized spec for Anomaly Detection.'),
         },
       },
     ],

@@ -158,6 +158,7 @@ class QueryContextProcessor:
 
                 query_result = self.get_query_result(query_obj)
                 annotation_data = self.get_annotation_data(query_obj)
+                self.add_anomaly_annotation_data(annotation_data, query_result.df)
                 cache.set_query_result(
                     key=cache_key,
                     query_result=query_result,
@@ -876,6 +877,18 @@ class QueryContextProcessor:
             return {"records": payload["queries"][0]["data"]}
         except SupersetException as ex:
             raise QueryObjectValidationError(error_msg_from_exception(ex)) from ex
+
+    def add_anomaly_annotation_data(self, annotation_data, df):
+        if 'anomalyAnnotationData' in df:
+            records = []
+            for index, row in df.iterrows():
+                if len(row['anomalyAnnotationData']) > 0:
+                    records.append(
+                        {"start_dttm": row['create_timestamp'],
+                        "end_dttm": row['create_timestamp'],
+                        "short_descr": " ",
+                        "long_descr" : str(row['create_timestamp']) + ": " + ', '.join(row['anomalyAnnotationData'])})
+            annotation_data["Anomaly"] = {"columns": ["start_dttm","end_dttm","short_descr","long_descr","json_metadata"],"records": records}
 
     def raise_for_access(self) -> None:
         """
