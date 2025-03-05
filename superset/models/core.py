@@ -57,8 +57,6 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 from sqlalchemy.pool import NullPool
 from sqlalchemy.schema import UniqueConstraint
-
-# pylint: disable=unused-import
 from sqlalchemy.sql import ColumnElement, Select
 
 from superset import app, db_engine_specs, is_feature_enabled
