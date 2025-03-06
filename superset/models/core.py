@@ -57,9 +57,9 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 from sqlalchemy.pool import NullPool
 from sqlalchemy.schema import UniqueConstraint
-from sqlalchemy.sql import ColumnElement, Select
+from sqlalchemy.sql import ColumnElement, expression, Select
 
-from superset import app, db_engine_specs, is_feature_enabled
+from superset import app, db, db_engine_specs, is_feature_enabled
 from superset.commands.database.exceptions import DatabaseInvalidError
 from superset.constants import LRU_CACHE_MAX_SIZE, PASSWORD_MASK
 from superset.databases.utils import make_url_safe
@@ -1019,6 +1019,15 @@ class Database(Model, AuditMixinNullable, ImportExportMixin):  # pylint: disable
 
     @perm.expression  # type: ignore
     def perm(cls) -> str:  # pylint: disable=no-self-argument
+        if db.engine.dialect.name == "sqlite":
+            return (
+                "["
+                + cls.database_name
+                + "].(id:"
+                + expression.cast(cls.id, String)
+                + ")"
+            )
+
         return sqla.func.concat("[", cls.database_name, "].(id:", cls.id, ")")
 
     def get_perm(self) -> str:
