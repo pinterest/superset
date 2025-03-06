@@ -1173,10 +1173,17 @@ class Database(CoreDatabase, AuditMixinNullable, ImportExportMixin):  # pylint: 
         return f"[{self.database_name}].(id:{self.id})"
 
     @perm.expression  # type: ignore
-    def perm(cls) -> str:  # pylint: disable=no-self-argument  # noqa: N805
-        return (
-            "[" + cls.database_name + "].(id:" + expression.cast(cls.id, String) + ")"
-        )
+    def perm(cls) -> str:  # pylint: disable=no-self-argument
+        if db.engine.dialect.name == "sqlite":
+            return (
+                "["
+                + cls.database_name
+                + "].(id:"
+                + expression.cast(cls.id, String)
+                + ")"
+            )
+
+        return sqla.func.concat("[", cls.database_name, "].(id:", cls.id, ")")
 
     def get_perm(self) -> str:
         return self.perm
