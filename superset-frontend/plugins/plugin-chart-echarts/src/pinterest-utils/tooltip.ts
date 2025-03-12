@@ -188,7 +188,7 @@ class DeltaTableTooltipFormatter {
     }
     const proportionalChange =
       ((currentValue as number) - (originalValue as number)) /
-      (originalValue as number);
+      Math.abs(originalValue as number);
     const percentChange = proportionalChange * 100;
     return Number(percentChange.toFixed(2));
   }
