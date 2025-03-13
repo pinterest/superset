@@ -43,54 +43,8 @@ def anomaly_detection (  # pylint: disable=too-many-arguments
     """
 
     # TODO - move to custom Pinterest config
-    URL = 'http://warden-test-0a01b4f0:8080/detect'
-    default_anomaly_detection_config = {
-      "name": "warden_superset_default",
-      "owner": "warden",
-#       "modelConfig": {
-#         "library": "EGADS",
-#         "tsModel": "MovingAverageModel",
-#         "tsUnit": "DAY",
-#         "adModels": [
-#           "ExtremeLowDensityModel",
-#           "KSigmaModel",
-#           "NaiveModel",
-#           "DBScanModel"
-#         ],
-#         "minAdModelConfirmNeeded": 1,
-#         "resultWithOnlyAnomalies": True,
-#         "skipLowerObservedDetection": False,
-#         "fillMissingTimestamps": False,
-#         "parameters": {
-#           "THRESHOLD": "mapee#1.0||mae#1.0||smape#1.0||mape#1.0||mase#1.0",
-#           "MAX_ANOMALY_TIME_AGO": 999999
-#         }
-#       },
-      "modelConfig": {
-       "tsUnit": "DAY",
-       "externalAnalyticsModule": "simple_anomaly_detection.isolation_forest",
-      "externalAnalyticsInterface": "SimpleAnomalyDetection",
-       "externalAnalyticsParams": {
-         "contamination_rate": 0.05, # rough percentage of expected outliers
-         "lookback": 600, # want to find anomalies only in last 90 days
-         "random_state": 42, # random seed
-       },
-       "fillMissingTimestamps": False,
-      },
-      "alertConfig": {
-        "notifications": [
-          {
-            "method": "SLACK",
-            "channel": "#cs-test",
-            "showAll": "True"
-          }
-        ]
-      },
-      "sourceData" : {
-          "timestampField": "create_timestamp",
-          "data": {}
-      }
-    }
+    URL = ''
+    default_anomaly_detection_config = {}
 
     # send request to anomaly detection service
     df.sort_values(by='create_timestamp', ascending=True, inplace=True)
