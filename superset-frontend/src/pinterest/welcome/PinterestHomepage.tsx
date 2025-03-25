@@ -40,11 +40,12 @@ const StyledWelcomePageContainer = styled('div')`
 `;
 
 export default function PinterestHomepage() {
-  const [mine, setMine] = useState<Dashboard[]>(null);
-  const [recommended, setRecommended] = useState<Dashboard[]>(null);
-  const [favorites, setFavorites] = useState<Dashboard[]>(null);
-  const [dashboardsBySection, setDashboardsBySection] =
-    useState<TopSectionInfo[]>(null);
+  const [mine, setMine] = useState<Dashboard[] | null>(null);
+  const [recommended, setRecommended] = useState<Dashboard[] | null>(null);
+  const [favorites, setFavorites] = useState<Dashboard[] | null>(null);
+  const [dashboardsBySection, setDashboardsBySection] = useState<
+    TopSectionInfo[] | null
+  >(null);
 
   const defaultTab = getItem(
     LocalStorageKeys.PinterestHomepageTabFilter,

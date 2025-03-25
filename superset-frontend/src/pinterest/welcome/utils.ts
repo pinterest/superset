@@ -3,7 +3,7 @@ import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
 import getBootstrapData from 'src/utils/getBootstrapData';
 import rison from 'rison';
 import { Dashboard } from 'src/views/CRUD/types';
-import { TopSectionInfo, HomepageTab } from './types';
+import { TopSectionConfig, TopSectionInfo, HomepageTab } from './types';
 
 const PAGE_SIZE = 20; // 4 rows of 5 cards each
 const DEFAULT_DASHBOARD_FILTER_PARAMS = {
@@ -59,8 +59,8 @@ const getDashboardsByTag = async (tag: string): Promise<Dashboard[]> => {
 export const getTopDashboardsBySection = async (): Promise<
   TopSectionInfo[]
 > => {
-  const topSections =
-    getBootstrapData().common.conf.PINTEREST_WELCOME_TOP_SECTIONS;
+  const topSections = getBootstrapData().common.conf
+    .PINTEREST_WELCOME_TOP_SECTIONS as TopSectionConfig[];
   const dashboardPromises = topSections.map(async section => {
     const dashboards = await getDashboardsByTag(section.tag);
     return {

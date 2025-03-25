@@ -1,4 +1,4 @@
-import { styled, SupersetTheme, t } from '@superset-ui/core';
+import { styled, SupersetTheme } from '@superset-ui/core';
 import { LoadingCards } from 'src/pages/Home';
 import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
 import DashboardContainer from './DashboardContainer';

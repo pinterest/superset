@@ -19,7 +19,7 @@
 
 import { TableTab } from 'src/views/CRUD/types';
 import { DashboardContextForExplore } from 'src/types/DashboardContextForExplore';
-import { WelcomeTab } from 'src/pinterest/welcome/types';
+import { HomepageTab } from 'src/pinterest/welcome/types';
 
 export enum LocalStorageKeys {
   /**
@@ -78,7 +78,7 @@ export type LocalStorageValues = {
   dashboard__explore_context: Record<string, DashboardContextForExplore>;
   dashboard__editor_show_only_my_charts: boolean;
   common__resizable_sidebar_widths: Record<string, number>;
-  pinterest_homepage_tab_filter: WelcomeTab;
+  pinterest_homepage_tab_filter: HomepageTab;
 };
 
 /*
