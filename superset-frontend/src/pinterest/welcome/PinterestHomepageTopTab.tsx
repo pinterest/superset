@@ -12,7 +12,7 @@ const StyledSectionHeader = styled('div')`
 `;
 
 type PinterestHomepageTopTabProps = {
-  dashboardsBySection?: TopSectionInfo[];
+  dashboardsBySection?: TopSectionInfo[] | null;
   user?: UserWithPermissionsAndRoles;
 };
 

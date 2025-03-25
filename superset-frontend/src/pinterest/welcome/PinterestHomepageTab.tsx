@@ -9,9 +9,9 @@ import EmptyState from './EmptyState';
 type PinterestHomepageTabProps = {
   user: UserWithPermissionsAndRoles;
   activeTab: HomepageTab;
-  mine: Dashboard[];
-  favorites: Dashboard[];
-  recommended: Dashboard[];
+  mine: Dashboard[] | null;
+  favorites: Dashboard[] | null;
+  recommended: Dashboard[] | null;
 };
 
 export default function PinterestHomepageTab({
@@ -21,7 +21,7 @@ export default function PinterestHomepageTab({
   favorites,
   recommended,
 }: PinterestHomepageTabProps) {
-  const [dashboards, setDashboards] = useState<Dashboard[]>([]);
+  const [dashboards, setDashboards] = useState<Dashboard[] | null>([]);
   useEffect(() => {
     if (activeTab === HomepageTab.Mine) {
       setDashboards(mine);
