@@ -54,7 +54,7 @@ export interface EmptyStateProps {
   tab?: string;
   otherTabTitle?: string;
 }
-const EmptyContainer = styled.div`
+export const EmptyContainer = styled.div`
   min-height: 200px;
   display: flex;
   flex-direction: column;

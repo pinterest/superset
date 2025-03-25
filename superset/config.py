@@ -55,7 +55,7 @@ from superset.advanced_data_type.types import AdvancedDataType
 from superset.constants import CHANGE_ME_SECRET_KEY
 from superset.jinja_context import BaseTemplateProcessor
 from superset.key_value.types import JsonKeyValueCodec
-from superset.pinterest.types import PinterestMenuItems
+from superset.pinterest.types import PinterestMenuItems, PinterestWelcomeTopSections
 from superset.stats_logger import DummyStatsLogger
 from superset.superset_typing import CacheConfig
 from superset.tasks.types import ExecutorType
@@ -1835,6 +1835,12 @@ PINTEREST_HELP_LINK: str | None = None
 # List of allowed domains for PINTEREST_EMBEDDED_SUPERSET_BY_ID_OR_SLUG feature.
 # If empty, all domains are allowed, leave empty for dev.
 PINTEREST_EMBEDDED_SUPERSET_BY_ID_OR_SLUG_ALLOWED_DOMAINS: list[str] = []
+
+# List of sections to show in the welcome page.
+PINTEREST_WELCOME_TOP_SECTIONS: list[PinterestWelcomeTopSections] | None = []
+
+# Tag ID used to filter all top dashboards
+PINTEREST_TOP_TAG_ID = 1
 
 
 # Extra dynamic query filters make it possible to limit which objects are shown

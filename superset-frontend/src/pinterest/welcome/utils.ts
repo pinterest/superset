@@ -1,0 +1,140 @@
+import { SupersetClient, t } from '@superset-ui/core';
+import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
+import getBootstrapData from 'src/utils/getBootstrapData';
+import rison from 'rison';
+import { Dashboard } from 'src/views/CRUD/types';
+import { TopSectionInfo, HomepageTab } from './types';
+
+const PAGE_SIZE = 20; // 4 rows of 5 cards each
+const DEFAULT_DASHBOARD_FILTER_PARAMS = {
+  pageIndex: 0,
+  pageSize: PAGE_SIZE,
+  sortBy: [
+    {
+      id: 'changed_on_delta_humanized',
+      desc: true,
+    },
+  ],
+};
+
+const queryDashboards = async (params: string) => {
+  const { json } = await SupersetClient.get({
+    endpoint: `/api/v1/dashboard/?q=${params}`,
+  });
+  return json?.result;
+};
+
+export const getViewAllLinkByTab = (
+  activeTab: HomepageTab,
+  user: UserWithPermissionsAndRoles,
+): string => {
+  if (activeTab === HomepageTab.Top) {
+    const topTagValue = getBootstrapData().common.conf.PINTEREST_TOP_TAG_ID;
+    return `/dashboard/list/?filters=(tags:(label:Top,value:${topTagValue}))`;
+  }
+  if (activeTab === HomepageTab.Recommended) {
+    return '/dashboard/list/';
+  }
+  if (activeTab === HomepageTab.Favorites) {
+    return `/dashboard/list/?filters=(favorite:(label:${t('Yes')},value:!t))`;
+  }
+  // activeTab === HomepageTab.Mine
+  return `/dashboard/list/?filters=(owners:(label:'${user.firstName} ${user.lastName}',value:${user.userId}))`;
+};
+
+const getDashboardsByTag = async (tag: string): Promise<Dashboard[]> => {
+  const params = rison.encode({
+    ...DEFAULT_DASHBOARD_FILTER_PARAMS,
+    filters: [
+      {
+        col: 'tags',
+        opr: 'dashboard_tags',
+        value: tag,
+      },
+    ],
+  });
+  return queryDashboards(params);
+};
+
+export const getTopDashboardsBySection = async (): Promise<
+  TopSectionInfo[]
+> => {
+  const topSections =
+    getBootstrapData().common.conf.PINTEREST_WELCOME_TOP_SECTIONS;
+  const dashboardPromises = topSections.map(async section => {
+    const dashboards = await getDashboardsByTag(section.tag);
+    return {
+      name: section.name,
+      dashboards,
+    };
+  });
+  const dashboardsBySection = await Promise.all(dashboardPromises);
+  return dashboardsBySection;
+};
+
+export const getDashboardsByTab = async (
+  tab: HomepageTab,
+): Promise<Dashboard[]> => {
+  const params = rison.encode({
+    order_column: 'changed_on_delta_humanized',
+    order_direction: 'desc',
+    page: 0,
+    page_size: -1,
+    filters: [
+      {
+        col: 'tags',
+        opr: 'dashboard_tags',
+        value: tab,
+      },
+    ],
+  });
+
+  const { json } = await SupersetClient.get({
+    endpoint: `/api/v1/dashboard/?q=${params}`,
+  });
+  return json?.result;
+};
+
+export const getUserOwnedDashboards = async (
+  user: UserWithPermissionsAndRoles,
+): Promise<Dashboard[]> => {
+  const params = rison.encode({
+    ...DEFAULT_DASHBOARD_FILTER_PARAMS,
+    filters: [
+      {
+        col: 'created_by',
+        opr: 'rel_o_m',
+        value: `${user?.userId}`,
+      },
+    ],
+  });
+
+  return queryDashboards(params);
+};
+
+export const getUserFavoriteDashboards = async (): Promise<Dashboard[]> => {
+  const params = rison.encode({
+    ...DEFAULT_DASHBOARD_FILTER_PARAMS,
+    filters: [
+      {
+        col: 'id',
+        opr: 'dashboard_is_favorite',
+        value: true,
+      },
+    ],
+  });
+  return queryDashboards(params);
+};
+export const getUserRecommendedDashboards = async () => {
+  const params = rison.encode({
+    ...DEFAULT_DASHBOARD_FILTER_PARAMS,
+    filters: [
+      {
+        col: 'id',
+        opr: 'dashboard_is_recommended',
+        value: true,
+      },
+    ],
+  });
+  return queryDashboards(params);
+};

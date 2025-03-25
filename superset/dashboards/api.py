@@ -67,6 +67,7 @@ from superset.dashboards.filters import (
     DashboardCreatedByMeFilter,
     DashboardFavoriteFilter,
     DashboardHasCreatedByFilter,
+    DashboardIsRecommended,
     DashboardTagIdFilter,
     DashboardTagNameFilter,
     DashboardTitleOrSlugFilter,
@@ -149,7 +150,10 @@ def with_dashboard(
 class DashboardRestApi(BaseSupersetModelRestApi):
     datamodel = SQLAInterface(Dashboard)
 
-    @before_request(only=["thumbnail", "cache_dashboard_screenshot", "screenshot"])
+    # Removing thumbnail endpoint from this list to support caching top Pinterest homepage
+    # dashboards without THUMBNAILS feature enabled to cache all dashboards
+    # @before_request(only=["thumbnail", "cache_dashboard_screenshot", "screenshot"])
+    @before_request(only=["cache_dashboard_screenshot", "screenshot"])
     def ensure_thumbnails_enabled(self) -> Optional[Response]:
         if not is_feature_enabled("THUMBNAILS"):
             return self.response_404()
@@ -257,7 +261,7 @@ class DashboardRestApi(BaseSupersetModelRestApi):
     )
     search_filters = {
         "dashboard_title": [DashboardTitleOrSlugFilter],
-        "id": [DashboardFavoriteFilter, DashboardCertifiedFilter],
+        "id": [DashboardFavoriteFilter, DashboardCertifiedFilter, DashboardIsRecommended],
         "created_by": [DashboardCreatedByMeFilter, DashboardHasCreatedByFilter],
         "tags": [DashboardTagIdFilter, DashboardTagNameFilter],
     }
