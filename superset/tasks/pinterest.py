@@ -1,12 +1,17 @@
-from superset.extensions import celery_app
+import logging
+from typing import List
+
+from celery.utils.log import get_task_logger
+
 from superset import db
-from typing import List, Optional
+from superset.extensions import celery_app
 from superset.models.dashboard import Dashboard
 from superset.tags.models import Tag
 from superset.tasks.thumbnails import cache_dashboard_thumbnail
-import logging
 
-logger = logging.getLogger(__name__)
+logger = get_task_logger(__name__)
+logger.setLevel(logging.INFO)
+
 
 def get_dashboards_by_tag(tag: str) -> List[int]:
     dashboard_result = (
@@ -16,6 +21,7 @@ def get_dashboards_by_tag(tag: str) -> List[int]:
         .all()
     )
     return [dashboard.id for dashboard in dashboard_result]
+
 
 @celery_app.task(name="cache_dashboard_thumbnail_by_tags", soft_time_limit=600)
 def cache_thumbnails_by_tags(tags: List[str]):
@@ -29,4 +35,3 @@ def cache_thumbnails_by_tags(tags: List[str]):
                 dashboard_id=dashboard_id,
                 force=True,
             )
-    
