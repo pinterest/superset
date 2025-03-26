@@ -17,10 +17,11 @@ export default function EmptyState({ tab }: EmptyStateProps) {
       return 'Your viewed dashboards will appear here';
     }
     if (tab === HomepageTab.Mine) {
-      return t('No dashbords yet');
+      return t('No dashboards yet');
     }
     return null;
   }, [tab]);
+
   return tab === HomepageTab.Favorites ? (
     <OriginalEmptyState tableName={WelcomeTable.Dashboards} tab="favorites" />
   ) : (

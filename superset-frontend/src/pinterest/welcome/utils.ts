@@ -17,11 +17,17 @@ const DEFAULT_DASHBOARD_FILTER_PARAMS = {
   ],
 };
 
-const queryDashboards = async (params: string) => {
-  const { json } = await SupersetClient.get({
-    endpoint: `/api/v1/dashboard/?q=${params}`,
-  });
-  return json?.result;
+const queryDashboards = async (params: string, onError: () => void) => {
+  try {
+    const { json } = await SupersetClient.get({
+      endpoint: `/api/v1/dashboard/?q=${params}`,
+    });
+    return json?.result;
+  } catch (error) {
+    console.error('Error fetching dashboards:', error);
+    onError();
+  }
+  return null;
 };
 
 export const getViewAllLinkByTab = (
@@ -42,7 +48,10 @@ export const getViewAllLinkByTab = (
   return `/dashboard/list/?filters=(owners:(label:'${user.firstName} ${user.lastName}',value:${user.userId}))`;
 };
 
-const getDashboardsByTag = async (tag: string): Promise<Dashboard[]> => {
+const getDashboardsByTag = async (
+  tag: string,
+  onError: () => void,
+): Promise<Dashboard[]> => {
   const params = rison.encode({
     ...DEFAULT_DASHBOARD_FILTER_PARAMS,
     filters: [
@@ -53,16 +62,18 @@ const getDashboardsByTag = async (tag: string): Promise<Dashboard[]> => {
       },
     ],
   });
-  return queryDashboards(params);
+  return queryDashboards(params, onError);
 };
 
-export const getTopDashboardsBySection = async (): Promise<
-  TopSectionInfo[]
-> => {
+export const getTopDashboardsBySection = async (
+  onError: (e: string) => void,
+): Promise<TopSectionInfo[]> => {
   const topSections = getBootstrapData().common.conf
     .PINTEREST_WELCOME_TOP_SECTIONS as TopSectionConfig[];
   const dashboardPromises = topSections.map(async section => {
-    const dashboards = await getDashboardsByTag(section.tag);
+    const dashboards = await getDashboardsByTag(section.tag, () =>
+      onError('Failed to load top dashboards'),
+    );
     return {
       name: section.name,
       dashboards,
@@ -72,31 +83,9 @@ export const getTopDashboardsBySection = async (): Promise<
   return dashboardsBySection;
 };
 
-export const getDashboardsByTab = async (
-  tab: HomepageTab,
-): Promise<Dashboard[]> => {
-  const params = rison.encode({
-    order_column: 'changed_on_delta_humanized',
-    order_direction: 'desc',
-    page: 0,
-    page_size: -1,
-    filters: [
-      {
-        col: 'tags',
-        opr: 'dashboard_tags',
-        value: tab,
-      },
-    ],
-  });
-
-  const { json } = await SupersetClient.get({
-    endpoint: `/api/v1/dashboard/?q=${params}`,
-  });
-  return json?.result;
-};
-
 export const getUserOwnedDashboards = async (
   user: UserWithPermissionsAndRoles,
+  onError: (e: string) => void,
 ): Promise<Dashboard[]> => {
   const params = rison.encode({
     ...DEFAULT_DASHBOARD_FILTER_PARAMS,
@@ -109,10 +98,14 @@ export const getUserOwnedDashboards = async (
     ],
   });
 
-  return queryDashboards(params);
+  return queryDashboards(params, () =>
+    onError('Failed to load user dashboards'),
+  );
 };
 
-export const getUserFavoriteDashboards = async (): Promise<Dashboard[]> => {
+export const getUserFavoriteDashboards = async (
+  onError: (e: string) => void,
+): Promise<Dashboard[]> => {
   const params = rison.encode({
     ...DEFAULT_DASHBOARD_FILTER_PARAMS,
     filters: [
@@ -123,9 +116,13 @@ export const getUserFavoriteDashboards = async (): Promise<Dashboard[]> => {
       },
     ],
   });
-  return queryDashboards(params);
+  return queryDashboards(params, () =>
+    onError('Failed to load favorite dashboards'),
+  );
 };
-export const getUserRecommendedDashboards = async () => {
+export const getUserRecommendedDashboards = async (
+  onError: (e: string) => void,
+) => {
   const params = rison.encode({
     ...DEFAULT_DASHBOARD_FILTER_PARAMS,
     filters: [
@@ -136,5 +133,33 @@ export const getUserRecommendedDashboards = async () => {
       },
     ],
   });
-  return queryDashboards(params);
+  return queryDashboards(params, () =>
+    onError('Failed to load recommended dashboards'),
+  );
+};
+
+export const getHeaderTextByTab = (
+  tab: HomepageTab,
+): { title: string; description: string } => {
+  let title = '';
+  let description = '';
+  if (tab === HomepageTab.Top) {
+    title = t('Top Pinterest Dashboards');
+    description = t('These are the most popular dashboards at Pinterest.');
+  }
+  if (tab === HomepageTab.Recommended) {
+    title = t('Recommended Dashboards');
+    description = t(
+      'These are your most viewed/most recently viewed dashboards.',
+    );
+  }
+  if (tab === HomepageTab.Favorites) {
+    title = t('Favorite Dashboards');
+    description = t('These are your favorite dashboards.');
+  }
+  if (tab === HomepageTab.Mine) {
+    title = t('Your Dashboards');
+    description = t('These are the dashboards you own.');
+  }
+  return { title, description };
 };

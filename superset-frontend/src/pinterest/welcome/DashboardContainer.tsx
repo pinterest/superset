@@ -44,6 +44,7 @@ export default function DashboardContainer({
             onClick={() => {
               history.push(d.url);
             }}
+            key={d.id}
           >
             <ListViewCard
               loading={d.loading || false}
@@ -55,7 +56,9 @@ export default function DashboardContainer({
               linkComponent={Link}
               imgURL={d.thumbnail_url}
               imgFallbackURL="/static/assets/images/dashboard-card-fallback.svg"
-              description={t('Modified %s', d.changed_on_delta_humanized)}
+              description={
+                d.description ?? t('Modified %s', d.changed_on_delta_humanized)
+              }
               actions={
                 <ListViewCard.Actions
                   onClick={e => {

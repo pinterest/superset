@@ -20,7 +20,10 @@ export default function PinterestHomepageTopTab({
   dashboardsBySection,
   user,
 }: PinterestHomepageTopTabProps) {
-  return dashboardsBySection ? (
+  if (!dashboardsBySection) {
+    return <LoadingCards />;
+  }
+  return (
     <div>
       {dashboardsBySection.map(({ name, dashboards }) => (
         <div key={name}>
@@ -33,7 +36,5 @@ export default function PinterestHomepageTopTab({
         </div>
       ))}
     </div>
-  ) : (
-    <LoadingCards />
   );
 }

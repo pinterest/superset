@@ -152,7 +152,6 @@ class DashboardRestApi(BaseSupersetModelRestApi):
 
     # Removing thumbnail endpoint from this list to support caching top Pinterest homepage
     # dashboards without THUMBNAILS feature enabled to cache all dashboards
-    # @before_request(only=["thumbnail", "cache_dashboard_screenshot", "screenshot"])
     @before_request(only=["cache_dashboard_screenshot", "screenshot"])
     def ensure_thumbnails_enabled(self) -> Optional[Response]:
         if not is_feature_enabled("THUMBNAILS"):
@@ -197,6 +196,7 @@ class DashboardRestApi(BaseSupersetModelRestApi):
         "slug",
         "url",
         "css",
+        "description",
         "position_json",
         "json_metadata",
         "thumbnail_url",
@@ -261,7 +261,11 @@ class DashboardRestApi(BaseSupersetModelRestApi):
     )
     search_filters = {
         "dashboard_title": [DashboardTitleOrSlugFilter],
-        "id": [DashboardFavoriteFilter, DashboardCertifiedFilter, DashboardIsRecommended],
+        "id": [
+            DashboardFavoriteFilter,
+            DashboardCertifiedFilter,
+            DashboardIsRecommended,
+        ],
         "created_by": [DashboardCreatedByMeFilter, DashboardHasCreatedByFilter],
         "tags": [DashboardTagIdFilter, DashboardTagNameFilter],
     }

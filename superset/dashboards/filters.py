@@ -20,7 +20,7 @@ from typing import Any, Optional
 from flask import g
 from flask_appbuilder.security.sqla.models import Role
 from flask_babel import lazy_gettext as _
-from sqlalchemy import and_, or_, func
+from sqlalchemy import and_, func, or_
 from sqlalchemy.orm.query import Query
 
 from superset import db, is_feature_enabled, security_manager
@@ -257,6 +257,7 @@ class DashboardHasCreatedByFilter(BaseFilter):  # pylint: disable=too-few-public
             return query.filter(and_(Dashboard.created_by_fk.is_(None)))
         return query
 
+
 class DashboardIsRecommended(BaseFilter):
     name = _("Is recommended")
     arg_name = "dashboard_is_recommended"
@@ -267,17 +268,14 @@ class DashboardIsRecommended(BaseFilter):
         but is adjusted to use 30 day time frame and return most viewed"""
         one_month_ago = datetime.today() - timedelta(days=30)
         subqry = (
-            db.session.query(
-                Log.dashboard_id,
-                func.count(Log.id).label('views')
-            )
+            db.session.query(Log.dashboard_id, func.count(Log.id).label("views"))
             .group_by(Log.dashboard_id)
             .filter(
                 and_(
                     Log.action.in_(["dashboard"]),
                     Log.user_id == user_id,
                     Log.dttm > one_month_ago,
-                    Log.dashboard_id.isnot(None)
+                    Log.dashboard_id.isnot(None),
                 )
             )
             .order_by(func.count(Log.id).desc())
@@ -321,21 +319,27 @@ class DashboardIsRecommended(BaseFilter):
                 Dashboard.id,
             )
             .outerjoin(subqry, Dashboard.id == subqry.c.dashboard_id)
-            .filter(and_(
-                Dashboard.dashboard_title is not None,
-                Dashboard.dashboard_title != "",
-            ))
+            .filter(
+                and_(
+                    Dashboard.dashboard_title.isnot(None),
+                    Dashboard.dashboard_title != "",
+                )
+            )
             .order_by(subqry.c.dttm.desc())
             .limit(self.limit)
         )
         return [d.id for d in qry.all()]
-    
+
     def apply(self, query: Query, value: Any) -> Query:
         user_id = get_user_id()
         # Return the most viewed dashboards in the last month if available
         # Otherwise, return the most recent dashboards viewed by the user
         # in the last year
-        if most_viewed_in_last_month := self._get_most_viewed_in_last_month(user_id):
-            return query.filter(Dashboard.id.in_(most_viewed_in_last_month))
-        return query.filter(Dashboard.id.in_(self._get_user_recent_dashboards(user_id)))
-
+        most_viewed_in_last_month = self._get_most_viewed_in_last_month(user_id)
+        recent_dashboards = self._get_user_recent_dashboards(user_id)
+        return query.filter(
+            or_(
+                Dashboard.id.in_(most_viewed_in_last_month),
+                Dashboard.id.in_(recent_dashboards),
+            )
+        )

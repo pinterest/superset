@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { styled, t } from '@superset-ui/core';
 import { Dashboard } from 'src/views/CRUD/types';
 
@@ -11,6 +11,7 @@ import {
   LocalStorageKeys,
   setItem,
 } from 'src/utils/localStorageHelpers';
+import { useToasts } from 'src/components/MessageToasts/withToasts';
 import { HomepageTab, TopSectionInfo } from './types';
 import {
   getViewAllLinkByTab,
@@ -18,6 +19,7 @@ import {
   getUserFavoriteDashboards,
   getUserOwnedDashboards,
   getUserRecommendedDashboards,
+  getHeaderTextByTab,
 } from './utils';
 import PinterestHomepageTab from './PinterestHomepageTab';
 import PinterestHomepageTopTab from './PinterestHomepageTopTab';
@@ -39,6 +41,19 @@ const StyledWelcomePageContainer = styled('div')`
   }
 `;
 
+const StyledHomepageTabHeader = styled('div')`
+  font-size: 36px;
+  font-weight: bold;
+  padding-left: 35px;
+  color: ${({ theme }) => theme.colors.primary.dark1};
+`;
+
+const StyledHomepageTabDescription = styled('div')`
+  font-size: ${({ theme }) => theme.typography.sizes.m}px;
+  padding-left: 35px;
+  color: ${({ theme }) => theme.colors.primary.dark1};
+`;
+
 export default function PinterestHomepage() {
   const [mine, setMine] = useState<Dashboard[] | null>(null);
   const [recommended, setRecommended] = useState<Dashboard[] | null>(null);
@@ -58,21 +73,28 @@ export default function PinterestHomepage() {
     any,
     UserWithPermissionsAndRoles
   >(state => state.user);
+  const { addDangerToast } = useToasts();
+  const { title, description } = useMemo(
+    () => getHeaderTextByTab(activeTab),
+    [activeTab],
+  );
 
   useEffect(() => {
     // Load the data for the active tab if needed
     if (activeTab === HomepageTab.Top && !dashboardsBySection) {
-      getTopDashboardsBySection().then(dashboardsBySection =>
+      getTopDashboardsBySection(addDangerToast).then(dashboardsBySection =>
         setDashboardsBySection(dashboardsBySection),
       );
     } else if (activeTab === HomepageTab.Recommended && !recommended) {
-      getUserRecommendedDashboards().then(recommended =>
+      getUserRecommendedDashboards(addDangerToast).then(recommended =>
         setRecommended(recommended),
       );
     } else if (activeTab === HomepageTab.Favorites && !favorites) {
-      getUserFavoriteDashboards().then(favorites => setFavorites(favorites));
+      getUserFavoriteDashboards(addDangerToast).then(favorites =>
+        setFavorites(favorites),
+      );
     } else if (activeTab === HomepageTab.Mine && !mine) {
-      getUserOwnedDashboards(user).then(mine => setMine(mine));
+      getUserOwnedDashboards(user, addDangerToast).then(mine => setMine(mine));
     }
   }, [activeTab, mine, recommended, favorites, dashboardsBySection, user]);
 
@@ -106,6 +128,8 @@ export default function PinterestHomepage() {
           },
         ]}
       />
+      <StyledHomepageTabHeader>{title}</StyledHomepageTabHeader>
+      <StyledHomepageTabDescription>{description}</StyledHomepageTabDescription>
       {activeTab === HomepageTab.Top ? (
         <PinterestHomepageTopTab
           dashboardsBySection={dashboardsBySection}
