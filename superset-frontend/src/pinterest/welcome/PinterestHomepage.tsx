@@ -44,7 +44,7 @@ const StyledWelcomePageContainer = styled('div')`
 const StyledHomepageTabDescription = styled('div')`
   font-size: ${({ theme }) => theme.typography.sizes.m}px;
   padding-left: 35px;
-  color: ${({ theme }) => theme.colors.grayscale.dark1};
+  color: ${({ theme }) => theme.colors.pinterest_black.base};
 `;
 
 export default function PinterestHomepage() {
