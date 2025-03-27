@@ -8,7 +8,8 @@ const StyledSectionHeader = styled('div')`
   font-weight: bold;
   font-size: 36px;
   padding-left: 35px;
-  color: ${({ theme }: { theme: SupersetTheme }) => theme.colors.primary.dark1};
+  color: ${({ theme }: { theme: SupersetTheme }) =>
+    theme.colors.pinterest_red.base};
 `;
 
 type PinterestHomepageTopTabProps = {

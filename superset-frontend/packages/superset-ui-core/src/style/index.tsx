@@ -125,6 +125,13 @@ const defaultTheme = {
       light1: '#B3DEFE',
       light2: '#EFF8FE',
     },
+    pinterest_red: {
+      base: '#E60023',
+    },
+    pinterest_black: {
+      base: '#111111',
+      light1: '#F1F1F1',
+    },
   },
   opacity: {
     light: '10%',

@@ -373,11 +373,18 @@ class WebDriverSelenium(WebDriverProxy):
             try:
                 # chart containers didn't render
                 logger.debug("Wait for chart containers to draw at url: %s", url)
-                WebDriverWait(driver, self._screenshot_locate_wait).until(
-                    EC.visibility_of_all_elements_located(
-                        (By.CLASS_NAME, "chart-container")
+                if driver.find_elements(By.CLASS_NAME, "dashboard-chart"):
+                    WebDriverWait(driver, self._screenshot_locate_wait).until(
+                        EC.visibility_of_all_elements_located(
+                            (By.CLASS_NAME, "chart-container")
+                        )
                     )
-                )
+                else:
+                    WebDriverWait(driver, self._screenshot_locate_wait).until(
+                        EC.visibility_of_all_elements_located(
+                            (By.CLASS_NAME, "dashboard-component")
+                        )
+                    )
             except TimeoutException:
                 logger.exception(
                     "Selenium timed out waiting for chart containers to draw at url %s",

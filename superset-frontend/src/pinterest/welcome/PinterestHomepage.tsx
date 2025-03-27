@@ -19,7 +19,7 @@ import {
   getUserFavoriteDashboards,
   getUserOwnedDashboards,
   getUserRecommendedDashboards,
-  getHeaderTextByTab,
+  getDescriptionByTab,
 } from './utils';
 import PinterestHomepageTab from './PinterestHomepageTab';
 import PinterestHomepageTopTab from './PinterestHomepageTopTab';
@@ -41,17 +41,10 @@ const StyledWelcomePageContainer = styled('div')`
   }
 `;
 
-const StyledHomepageTabHeader = styled('div')`
-  font-size: 36px;
-  font-weight: bold;
-  padding-left: 35px;
-  color: ${({ theme }) => theme.colors.primary.dark1};
-`;
-
 const StyledHomepageTabDescription = styled('div')`
   font-size: ${({ theme }) => theme.typography.sizes.m}px;
   padding-left: 35px;
-  color: ${({ theme }) => theme.colors.primary.dark1};
+  color: ${({ theme }) => theme.colors.grayscale.dark1};
 `;
 
 export default function PinterestHomepage() {
@@ -74,8 +67,8 @@ export default function PinterestHomepage() {
     UserWithPermissionsAndRoles
   >(state => state.user);
   const { addDangerToast } = useToasts();
-  const { title, description } = useMemo(
-    () => getHeaderTextByTab(activeTab),
+  const description = useMemo(
+    () => getDescriptionByTab(activeTab),
     [activeTab],
   );
 
@@ -128,7 +121,6 @@ export default function PinterestHomepage() {
           },
         ]}
       />
-      <StyledHomepageTabHeader>{title}</StyledHomepageTabHeader>
       <StyledHomepageTabDescription>{description}</StyledHomepageTabDescription>
       {activeTab === HomepageTab.Top ? (
         <PinterestHomepageTopTab

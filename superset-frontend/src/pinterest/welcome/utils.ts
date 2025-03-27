@@ -138,28 +138,17 @@ export const getUserRecommendedDashboards = async (
   );
 };
 
-export const getHeaderTextByTab = (
-  tab: HomepageTab,
-): { title: string; description: string } => {
-  let title = '';
-  let description = '';
+export const getDescriptionByTab = (tab: HomepageTab): string => {
   if (tab === HomepageTab.Top) {
-    title = t('Top Pinterest Dashboards');
-    description = t('These are the most popular dashboards at Pinterest.');
-  }
-  if (tab === HomepageTab.Recommended) {
-    title = t('Recommended Dashboards');
-    description = t(
-      'These are your most viewed/most recently viewed dashboards.',
+    return t(
+      'These are Pinterest Top Dashboards in terms of importance, popularity, and quality.',
     );
   }
+  if (tab === HomepageTab.Recommended) {
+    return t('These are your most viewed/most recently viewed dashboards.');
+  }
   if (tab === HomepageTab.Favorites) {
-    title = t('Favorite Dashboards');
-    description = t('These are your favorite dashboards.');
+    return t('These are your favorite dashboards.');
   }
-  if (tab === HomepageTab.Mine) {
-    title = t('Your Dashboards');
-    description = t('These are the dashboards you own.');
-  }
-  return { title, description };
+  return t('These are the dashboards you own.'); // activeTab === HomepageTab.Mine
 };
