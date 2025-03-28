@@ -25,7 +25,7 @@ import { styled, t } from '@superset-ui/core';
 import { navigateTo } from 'src/utils/navigationUtils';
 import { WelcomeTable } from './types';
 
-const EmptyContainer = styled.div`
+export const EmptyContainer = styled.div`
   min-height: 200px;
   display: flex;
   color: ${({ theme }) => theme.colorTextDescription};

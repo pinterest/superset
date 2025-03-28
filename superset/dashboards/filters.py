@@ -14,17 +14,18 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
+from datetime import datetime, timedelta
 from typing import Any, Optional
 
 from flask import g
 from flask_appbuilder.security.sqla.models import Role
 from flask_babel import lazy_gettext as _
-from sqlalchemy import and_, or_
+from sqlalchemy import and_, func, or_
 from sqlalchemy.orm.query import Query
 
 from superset import db, is_feature_enabled, security_manager
 from superset.connectors.sqla.models import SqlaTable
-from superset.models.core import Database
+from superset.models.core import Database, Log
 from superset.models.dashboard import Dashboard, is_uuid
 from superset.models.embedded_dashboard import EmbeddedDashboard
 from superset.models.slice import Slice
@@ -255,3 +256,90 @@ class DashboardHasCreatedByFilter(BaseFilter):  # pylint: disable=too-few-public
         if value is False:
             return query.filter(and_(Dashboard.created_by_fk.is_(None)))
         return query
+
+
+class DashboardIsRecommended(BaseFilter):
+    name = _("Is recommended")
+    arg_name = "dashboard_is_recommended"
+    limit = 5
+
+    def _get_most_viewed_in_last_month(self, user_id):
+        """Logic here is similar to get_recent_activity in superset/daos/log.py
+        but is adjusted to use 30 day time frame and return most viewed"""
+        one_month_ago = datetime.today() - timedelta(days=30)
+        subqry = (
+            db.session.query(Log.dashboard_id, func.count(Log.id).label("views"))
+            .group_by(Log.dashboard_id)
+            .filter(
+                and_(
+                    Log.action.in_(["dashboard"]),
+                    Log.user_id == user_id,
+                    Log.dttm > one_month_ago,
+                    Log.dashboard_id.isnot(None),
+                )
+            )
+            .order_by(func.count(Log.id).desc())
+            .subquery()
+        )
+        qry = (
+            db.session.query(Dashboard.id)
+            .outerjoin(subqry, Dashboard.id == subqry.c.dashboard_id)
+            .filter(
+                and_(
+                    Dashboard.dashboard_title is not None,
+                    Dashboard.dashboard_title != "",
+                )
+            )
+            .order_by(subqry.c.views.desc())
+            .limit(self.limit)
+        )
+        return [d.id for d in qry.all()]
+
+    def _get_user_recent_dashboards(self, user_id):
+        """Get the most recent dashboards viewed by the user in the last year."""
+        one_year_ago = datetime.today() - timedelta(days=365)
+        subqry = (
+            db.session.query(
+                Log.dashboard_id,
+                func.max(Log.dttm).label("dttm"),
+            )
+            .group_by(Log.dashboard_id)
+            .filter(
+                and_(
+                    Log.action.in_(["dashboard"]),
+                    Log.user_id == user_id,
+                    Log.dttm > one_year_ago,
+                    Log.dashboard_id.isnot(None),
+                )
+            )
+            .subquery()
+        )
+        qry = (
+            db.session.query(
+                Dashboard.id,
+            )
+            .outerjoin(subqry, Dashboard.id == subqry.c.dashboard_id)
+            .filter(
+                and_(
+                    Dashboard.dashboard_title.isnot(None),
+                    Dashboard.dashboard_title != "",
+                )
+            )
+            .order_by(subqry.c.dttm.desc())
+            .limit(self.limit)
+        )
+        return [d.id for d in qry.all()]
+
+    def apply(self, query: Query, value: Any) -> Query:
+        user_id = get_user_id()
+        # Return the most viewed dashboards in the last month if available
+        # Otherwise, return the most recent dashboards viewed by the user
+        # in the last year
+        most_viewed_in_last_month = self._get_most_viewed_in_last_month(user_id)
+        recent_dashboards = self._get_user_recent_dashboards(user_id)
+        return query.filter(
+            or_(
+                Dashboard.id.in_(most_viewed_in_last_month),
+                Dashboard.id.in_(recent_dashboards),
+            )
+        )

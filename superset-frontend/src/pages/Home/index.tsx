@@ -353,7 +353,7 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
         {WelcomeMessageExtension && <WelcomeMessageExtension />}
         {WelcomeTopExtension && <WelcomeTopExtension />}
         {WelcomeMainExtension && <WelcomeMainExtension />}
-        {(!WelcomeTopExtension || !WelcomeMainExtension) && (
+        {!WelcomeMainExtension && (
           <>
             <Collapse
               activeKey={activeState}

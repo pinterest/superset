@@ -73,6 +73,7 @@ from superset.dashboards.filters import (
     DashboardCreatedByMeFilter,
     DashboardFavoriteFilter,
     DashboardHasCreatedByFilter,
+    DashboardIsRecommended,
     DashboardTagIdFilter,
     DashboardTagNameFilter,
     DashboardTitleOrSlugFilter,
@@ -163,6 +164,20 @@ def with_dashboard(
 class DashboardRestApi(BaseSupersetModelRestApi):
     datamodel = SQLAInterface(Dashboard)
 
+    # Removing thumbnail endpoint from this list to support caching top Pinterest homepage
+    # dashboards without THUMBNAILS feature enabled to cache all dashboards
+    @before_request(only=["cache_dashboard_screenshot", "screenshot"])
+    def ensure_thumbnails_enabled(self) -> Optional[Response]:
+        if not is_feature_enabled("THUMBNAILS"):
+            return self.response_404()
+        return None
+
+    @before_request(only=["cache_dashboard_screenshot", "screenshot"])
+    def ensure_screenshots_enabled(self) -> Optional[Response]:
+        if not is_feature_enabled("ENABLE_DASHBOARD_SCREENSHOT_ENDPOINTS"):
+            return self.response_404()
+        return None
+
     include_route_methods = RouteMethod.REST_MODEL_VIEW_CRUD_SET | {
         RouteMethod.EXPORT,
         RouteMethod.IMPORT,
@@ -197,6 +212,10 @@ class DashboardRestApi(BaseSupersetModelRestApi):
         "status",
         "slug",
         "url",
+        "css",
+        "description",
+        "position_json",
+        "json_metadata",
         "thumbnail_url",
         "certified_by",
         "certification_details",
@@ -263,7 +282,11 @@ class DashboardRestApi(BaseSupersetModelRestApi):
     )
     search_filters = {
         "dashboard_title": [DashboardTitleOrSlugFilter],
-        "id": [DashboardFavoriteFilter, DashboardCertifiedFilter],
+        "id": [
+            DashboardFavoriteFilter,
+            DashboardCertifiedFilter,
+            DashboardIsRecommended,
+        ],
         "created_by": [DashboardCreatedByMeFilter, DashboardHasCreatedByFilter],
         "tags": [DashboardTagIdFilter, DashboardTagNameFilter],
     }

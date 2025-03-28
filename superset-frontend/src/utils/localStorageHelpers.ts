@@ -19,6 +19,7 @@
 
 import { TableTab } from 'src/views/CRUD/types';
 import { DashboardContextForExplore } from 'src/types/DashboardContextForExplore';
+import { HomepageTab } from 'src/pinterest/welcome/types';
 
 export enum LocalStorageKeys {
   /**
@@ -40,6 +41,7 @@ export enum LocalStorageKeys {
   HomepageCollapseState = 'homepage_collapse_state',
   HomepageActivityFilter = 'homepage_activity_filter',
   DatasetnameSetSuccessful = 'datasetname_set_successful',
+  PinterestHomepageTabFilter = 'pinterest_homepage_tab_filter',
   /** END LEGACY LOCAL STORAGE KEYS */
 
   /**
@@ -76,6 +78,7 @@ export type LocalStorageValues = {
   dashboard__explore_context: Record<string, DashboardContextForExplore>;
   dashboard__editor_show_only_my_charts: boolean;
   common__resizable_sidebar_widths: Record<string, number>;
+  pinterest_homepage_tab_filter: HomepageTab;
 };
 
 /*

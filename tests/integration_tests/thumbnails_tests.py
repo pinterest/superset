@@ -208,7 +208,9 @@ class TestThumbnails(SupersetTestCase):
         self.login(ADMIN_USERNAME)
         _, thumbnail_url = self._get_id_and_thumbnail_url(DASHBOARD_URL)
         rv = self.client.get(thumbnail_url)
-        assert rv.status_code == 404
+        # For Pinterest fork, thumbnail endpoint is available
+        # even when the feature flag is disabled
+        self.assertEqual(rv.status_code, 202)
 
     @pytest.mark.usefixtures("load_birth_names_dashboard_with_slices")
     @with_feature_flags(THUMBNAILS=False)

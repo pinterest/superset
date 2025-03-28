@@ -17,5 +17,11 @@
  * under the License.
  */
 
+import { getExtensionsRegistry } from '@superset-ui/core';
+import PinterestHomepage from 'src/pinterest/welcome/PinterestHomepage';
+
 // For individual deployments to add custom overrides
-export default function setupExtensions() {}
+export default function setupExtensions() {
+  const extensionsRegistry = getExtensionsRegistry();
+  extensionsRegistry.set('welcome.main.replacement', PinterestHomepage);
+}
