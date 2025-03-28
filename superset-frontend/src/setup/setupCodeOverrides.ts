@@ -17,6 +17,9 @@
  * under the License.
  */
 
+import { getExtensionsRegistry } from '@superset-ui/core';
+import PinterestHomepage from 'src/pinterest/welcome/PinterestHomepage';
+
 /**
  * Configuration options for setting up code overrides in different contexts.
  */
@@ -31,4 +34,7 @@ interface CodeOverrideOptions {
  * Hook for individual deployments to add custom overrides
  * @param options - Configuration options for the setup process
  */
-export default function setupCodeOverrides(options: CodeOverrideOptions = {}) {}
+export default function setupCodeOverrides(options: CodeOverrideOptions = {}) {
+  const extensionsRegistry = getExtensionsRegistry();
+  extensionsRegistry.set('welcome.main.replacement', PinterestHomepage);
+}
