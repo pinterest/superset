@@ -28,7 +28,6 @@ from flask_appbuilder import Model
 from flask_appbuilder.security.sqla.manager import SecurityManager
 from flask_appbuilder.security.sqla.models import (
     assoc_permissionview_role,
-    assoc_user_role,
     Permission,
     PermissionView,
     Role,
@@ -732,10 +731,9 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
         if not g.user.is_anonymous:
             # filter by user id
             view_menu_names = (
-                base_query.join(assoc_user_role)
-                .join(self.user_model)
-                .filter(self.user_model.id == get_user_id())
-                .filter(self.permission_model.name == permission_name)
+                base_query.filter(
+                    self.role_model.id.in_([r.id for r in g.user.roles])
+                ).filter(self.permission_model.name == permission_name)
             ).all()
             return {s.name for s in view_menu_names}
 

@@ -144,7 +144,8 @@ class Dashboard(BaseSupersetView):
         # Log in as an anonymous user, just for this view.
         # This view needs to be visible to all users,
         # and building the page fails if g.user and/or ctx.user aren't present.
-        login_user(AnonymousUserMixin(), force=True)
+        if not hasattr(g, "user"):  # only log in user if not already logged in
+            login_user(AnonymousUserMixin(), force=True)
 
         add_extra_log_payload(
             dashboard_id=dashboard_id_or_slug,

@@ -16,7 +16,7 @@
 # under the License.
 from typing import Callable
 
-from flask import abort, current_app, request
+from flask import abort, current_app, g, request
 from flask_appbuilder import expose
 from flask_login import AnonymousUserMixin, login_user
 from flask_wtf.csrf import same_origin
@@ -88,7 +88,8 @@ class EmbeddedView(BaseSupersetView):
         # Log in as an anonymous user, just for this view.
         # This view needs to be visible to all users,
         # and building the page fails if g.user and/or ctx.user aren't present.
-        login_user(AnonymousUserMixin(), force=True)
+        if not hasattr(g, "user"):  # only log in user if not already logged in
+            login_user(AnonymousUserMixin(), force=True)
 
         add_extra_log_payload(
             embedded_dashboard_id=uuid,
