@@ -17,6 +17,8 @@
  * under the License.
  */
 /* eslint-disable no-param-reassign */
+import _JSONbig from 'json-bigint';
+import BigNumber from 'bignumber.js';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   AppSection,
@@ -48,6 +50,10 @@ import { FilterBarOrientation } from 'src/dashboard/types';
 import { getDataRecordFormatter, getSelectExtraFormData } from '../../utils';
 import { FilterPluginStyle, StatusMessage } from '../common';
 import { PluginFilterSelectProps, SelectValue } from './types';
+
+const JSONbig = _JSONbig({
+  constructorAction: 'preserve',
+});
 
 type DataMaskAction =
   | { type: 'ownState'; ownState: JsonObject }
@@ -296,7 +302,11 @@ export default function PluginFilterSelect(props: PluginFilterSelectProps) {
   }, [filterState.validateMessage, filterState.validateStatus]);
 
   const uniqueOptions = useMemo(() => {
-    const allOptions = new Set([...data.map(el => el[col])]);
+    const allOptions = new Set([
+      ...data.map(el =>
+        el[col] instanceof BigNumber ? JSONbig.stringify(el[col]) : el[col],
+      ),
+    ]);
     return [...allOptions].map((value: string) => ({
       label: labelFormatter(value, datatype),
       value,
