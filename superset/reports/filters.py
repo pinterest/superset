@@ -37,7 +37,13 @@ class ReportScheduleFilter(BaseFilter):  # pylint: disable=too-few-public-method
                 == security_manager.user_model.get_user_id()
             )
         )
-        return query.filter(ReportSchedule.id.in_(owner_ids_query))
+        database_ids = security_manager.get_accessible_databases()
+        return query.filter(
+            or_(
+                ReportSchedule.id.in_(owner_ids_query),
+                ReportSchedule.database_id.in_(database_ids),
+            )
+        )
 
 
 class ReportScheduleAllTextFilter(BaseFilter):  # pylint: disable=too-few-public-methods
