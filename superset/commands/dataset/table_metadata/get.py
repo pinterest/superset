@@ -12,7 +12,8 @@ from superset.connectors.sqla.models import SqlaTable
 from superset.daos.database import DatabaseDAO
 from superset.daos.dataset import DatasetDAO
 from superset.utils.decorators import on_error, transaction
-from superset.sql.parse import Table, SQLStatement
+from superset.sql.parse import Table
+from superset.sql_parse import extract_tables_from_jinja_sql
 from superset.models.core import Database
 
 config = app.config
@@ -31,12 +32,7 @@ class GetDatasetTableMetadataCommand(BaseCommand):
         """
         
         if self._dataset.sql:
-            statement = SQLStatement(self._dataset.sql, self._database.backend)
-            if not statement:
-                raise DatasetGetTableMetadataError(
-                    f"Unable to parse SQL statement: {self._dataset.sql}"
-                )
-            return statement.tables
+            return extract_tables_from_jinja_sql(self._dataset.sql, self._database.backend)
         return {
             Table(
                 self._dataset.table_name,

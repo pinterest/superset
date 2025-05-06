@@ -64,7 +64,6 @@ from superset.utils.core import is_test, NO_TIME_RANGE, parse_boolean_string
 from superset.utils.encrypt import SQLAlchemyUtilsAdapter
 from superset.utils.log import DBEventLogger
 from superset.utils.logging_configurator import DefaultLoggingConfigurator
-from superset.pinterest.types import DatabaseTableMetadataFields
 
 logger = logging.getLogger(__name__)
 
@@ -1307,7 +1306,7 @@ DB_CONNECTION_MUTATOR = None
 #     database: Database,
 #     schema: str | None,
 #     table_name: str,
-# ) -> list[DatabaseTableMetadataFields]:
+# ) -> list[DatabaseTableMetadataField]:
 #     return [
 #         {
 #             'key': 'Table name',
@@ -1315,7 +1314,7 @@ DB_CONNECTION_MUTATOR = None
 #             'type': 'string',
 #         }
 #     ]
-# DB_TABLE_METADATA = database_table_metadata    
+# DB_TABLE_METADATA = database_table_metadata
 
 DB_TABLE_METADATA = None
 

@@ -45,7 +45,7 @@ import {
   LOG_ACTIONS_CHART_DOWNLOAD_AS_XLS,
 } from 'src/logger/LogUtils';
 import ViewQueryModal from '../controls/ViewQueryModal';
-import ViewDatasetInfoModal from '../controls/ViewDatasetInfoModal';
+import ViewTableInfoModal from '../controls/ViewTableInfoModal';
 import EmbedCodeContent from '../EmbedCodeContent';
 import DashboardsSubMenu from './DashboardsSubMenu';
 
@@ -449,7 +449,9 @@ export const useExploreAdditionalActionsMenu = (
               </span>
             }
             modalTitle={t('View dataset info')}
-            modalBody={<ViewDatasetInfoModal datasetId={datasource.split('__')[0]} />}
+            modalBody={
+              <ViewTableInfoModal datasetId={datasource.split('__')[0]} />
+            }
             draggable
             resizable
             responsive

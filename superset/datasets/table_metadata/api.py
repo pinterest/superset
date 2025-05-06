@@ -1,7 +1,3 @@
-
-# Takes list of SQL queries (POST)
-# Returns map of table to table metadata (JSON)
-
 import logging
 
 from flask import Response, request

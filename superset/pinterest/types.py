@@ -10,7 +10,7 @@ class PinterestWelcomeTopSections(TypedDict):
     name: str
     tag: str
 
-class DatabaseTableMetadataFields(TypedDict):
+class DatabaseTableMetadataField(TypedDict):
     key: str
     value: str
     type: Literal["string", "sql"]
