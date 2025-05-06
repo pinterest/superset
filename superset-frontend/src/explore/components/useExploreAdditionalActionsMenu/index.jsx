@@ -45,6 +45,7 @@ import {
   LOG_ACTIONS_CHART_DOWNLOAD_AS_XLS,
 } from 'src/logger/LogUtils';
 import ViewQueryModal from '../controls/ViewQueryModal';
+import ViewDatasetInfoModal from '../controls/ViewDatasetInfoModal';
 import EmbedCodeContent from '../EmbedCodeContent';
 import DashboardsSubMenu from './DashboardsSubMenu';
 
@@ -68,6 +69,7 @@ const MENU_KEYS = {
   DELETE_REPORT: 'delete_report',
   VIEW_QUERY: 'view_query',
   RUN_IN_SQL_LAB: 'run_in_sql_lab',
+  VIEW_DATASET_INFO: 'view_dataset_info',
 };
 
 const VIZ_TYPES_PIVOTABLE = ['pivot_table_v2'];
@@ -434,6 +436,20 @@ export const useExploreAdditionalActionsMenu = (
             modalBody={
               <ViewQueryModal latestQueryFormData={latestQueryFormData} />
             }
+            draggable
+            resizable
+            responsive
+          />
+        </Menu.Item>
+        <Menu.Item key={MENU_KEYS.VIEW_DATASET_INFO}>
+          <ModalTrigger
+            triggerNode={
+              <span data-test="view-dataset-menu-item">
+                {t('View dataset info')}
+              </span>
+            }
+            modalTitle={t('View dataset info')}
+            modalBody={<ViewDatasetInfoModal datasetId={datasource.split('__')[0]} />}
             draggable
             resizable
             responsive

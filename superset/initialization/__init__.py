@@ -143,6 +143,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         from superset.datasets.api import DatasetRestApi
         from superset.datasets.columns.api import DatasetColumnsRestApi
         from superset.datasets.template_columns.api import DatasetTemplateColumnsRestApi
+        from superset.datasets.table_metadata.api import DatasetTableMetadataRestApi
         from superset.datasets.metrics.api import DatasetMetricRestApi
         from superset.datasource.api import DatasourceRestApi
         from superset.embedded.api import EmbeddedDashboardRestApi
@@ -215,6 +216,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         appbuilder.add_api(DatasetRestApi)
         appbuilder.add_api(DatasetColumnsRestApi)
         appbuilder.add_api(DatasetTemplateColumnsRestApi)
+        appbuilder.add_api(DatasetTableMetadataRestApi)
         appbuilder.add_api(DatasetMetricRestApi)
         appbuilder.add_api(DatasourceRestApi)
         appbuilder.add_api(EmbeddedDashboardRestApi)

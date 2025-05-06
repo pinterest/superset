@@ -1,0 +1,82 @@
+from functools import partial
+from typing import List, Optional
+import logging
+
+from superset import app
+from superset.commands.base import BaseCommand
+from superset.commands.dataset.exceptions import DatasetNotFoundError
+from superset.commands.dataset.table_metadata.exceptions import (
+    DatasetGetTableMetadataError,
+)
+from superset.connectors.sqla.models import SqlaTable
+from superset.daos.database import DatabaseDAO
+from superset.daos.dataset import DatasetDAO
+from superset.utils.decorators import on_error, transaction
+from superset.sql.parse import Table, SQLStatement
+from superset.models.core import Database
+
+config = app.config
+
+DB_TABLE_METADATA = config["DB_TABLE_METADATA"]
+
+class GetDatasetTableMetadataCommand(BaseCommand):
+    def __init__(self, dataset_id: int):
+        self._dataset_id = dataset_id
+        self._dataset: Optional[SqlaTable] = None
+        self._database: Optional[Database] = None
+    
+    def _get_dataset_tables(self) -> List[str]:
+        """
+        Get the tables referenced in the dataset SQL.
+        """
+        
+        if self._dataset.sql:
+            statement = SQLStatement(self._dataset.sql, self._database.backend)
+            if not statement:
+                raise DatasetGetTableMetadataError(
+                    f"Unable to parse SQL statement: {self._dataset.sql}"
+                )
+            return statement.tables
+        return {
+            Table(
+                self._dataset.table_name,
+                self._dataset.schema,
+                self._dataset.schema
+            )
+        }
+
+    @transaction(on_error=partial(on_error, reraise=DatasetGetTableMetadataError))
+    def run(self) -> List[str]:
+        self.validate()
+        dataset_tables = self._get_dataset_tables()
+        database_name = self._database.database_name
+        table_metadata = []
+        for table in dataset_tables:
+            if table.schema:
+                table_name = f"{table.schema}.{table.table}"
+            else:
+                table_name = table.table
+            table_metadata.append(
+                {
+                    "table_name": table_name,
+                    "metadata_fields": DB_TABLE_METADATA(
+                        self._database,
+                        table.schema,
+                        table.table
+                    ) if DB_TABLE_METADATA else None,
+                }
+            )
+        return {
+            "database_name": database_name,
+            "table_metadata": table_metadata,
+        }
+
+    def validate(self) -> None:
+        self._dataset = DatasetDAO.find_by_id(self._dataset_id)
+        if not self._dataset:
+            raise DatasetNotFoundError()
+        self._database = DatabaseDAO.find_by_id(self._dataset.database_id)
+        if not self._database:
+            raise DatasetGetTableMetadataError(
+                f"Database with id {self._dataset.database_id} not found"
+            )

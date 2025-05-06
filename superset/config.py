@@ -64,6 +64,7 @@ from superset.utils.core import is_test, NO_TIME_RANGE, parse_boolean_string
 from superset.utils.encrypt import SQLAlchemyUtilsAdapter
 from superset.utils.log import DBEventLogger
 from superset.utils.logging_configurator import DefaultLoggingConfigurator
+from superset.pinterest.types import DatabaseTableMetadataFields
 
 logger = logging.getLogger(__name__)
 
@@ -1300,6 +1301,23 @@ DASHBOARD_TEMPLATE_ID = None
 # Note that the returned uri and params are passed directly to sqlalchemy's
 # as such `create_engine(url, **params)`
 DB_CONNECTION_MUTATOR = None
+
+# Example:
+# def database_table_metadata(
+#     database: Database,
+#     schema: str | None,
+#     table_name: str,
+# ) -> list[DatabaseTableMetadataFields]:
+#     return [
+#         {
+#             'key': 'Table name',
+#             'value': table_name,
+#             'type': 'string',
+#         }
+#     ]
+# DB_TABLE_METADATA = database_table_metadata    
+
+DB_TABLE_METADATA = None
 
 
 # A callable that is invoked for every invocation of DB Engine Specs
