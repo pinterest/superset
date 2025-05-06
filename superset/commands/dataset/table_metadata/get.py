@@ -1,6 +1,5 @@
 from functools import partial
 from typing import List, Optional
-import logging
 
 from superset import app
 from superset.commands.base import BaseCommand
@@ -11,34 +10,31 @@ from superset.commands.dataset.table_metadata.exceptions import (
 from superset.connectors.sqla.models import SqlaTable
 from superset.daos.database import DatabaseDAO
 from superset.daos.dataset import DatasetDAO
-from superset.utils.decorators import on_error, transaction
+from superset.models.core import Database
 from superset.sql.parse import Table
 from superset.sql_parse import extract_tables_from_jinja_sql
-from superset.models.core import Database
+from superset.utils.decorators import on_error, transaction
 
 config = app.config
 
 DB_TABLE_METADATA = config["DB_TABLE_METADATA"]
+
 
 class GetDatasetTableMetadataCommand(BaseCommand):
     def __init__(self, dataset_id: int):
         self._dataset_id = dataset_id
         self._dataset: Optional[SqlaTable] = None
         self._database: Optional[Database] = None
-    
+
     def _get_dataset_tables(self) -> List[str]:
         """
         Get the tables referenced in the dataset SQL.
         """
-        
+
         if self._dataset.sql:
-            return extract_tables_from_jinja_sql(self._dataset.sql, self._database.backend)
+            return extract_tables_from_jinja_sql(self._dataset.sql, self._database)
         return {
-            Table(
-                self._dataset.table_name,
-                self._dataset.schema,
-                self._dataset.schema
-            )
+            Table(self._dataset.table_name, self._dataset.schema, self._dataset.schema)
         }
 
     @transaction(on_error=partial(on_error, reraise=DatasetGetTableMetadataError))
@@ -55,11 +51,11 @@ class GetDatasetTableMetadataCommand(BaseCommand):
             table_metadata.append(
                 {
                     "table_name": table_name,
-                    "metadata_fields": DB_TABLE_METADATA(
-                        self._database,
-                        table.schema,
-                        table.table
-                    ) if DB_TABLE_METADATA else None,
+                    "metadata_fields": (
+                        DB_TABLE_METADATA(self._database, table.schema, table.table)
+                        if DB_TABLE_METADATA
+                        else None
+                    ),
                 }
             )
         return {

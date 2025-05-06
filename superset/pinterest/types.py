@@ -1,4 +1,4 @@
-from typing import TypedDict, Literal
+from typing import Literal, TypedDict
 
 
 class PinterestMenuItems(TypedDict):
@@ -6,9 +6,11 @@ class PinterestMenuItems(TypedDict):
     href: str
     icon: str
 
+
 class PinterestWelcomeTopSections(TypedDict):
     name: str
     tag: str
+
 
 class DatabaseTableMetadataField(TypedDict):
     key: str
