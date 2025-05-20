@@ -28,7 +28,7 @@ const ViewTableInfoModalContainer = styled.div`
   flex-direction: column;
 `;
 
-const MetadataField = (theme: SupersetTheme) => css`
+const TableMetadataInfo = (theme: SupersetTheme) => css`
   .metadata-key {
     font-weight: ${theme.typography.weights.normal};
     font-size: ${theme.typography.sizes.m}px;
@@ -40,6 +40,10 @@ const MetadataField = (theme: SupersetTheme) => css`
     font-size: ${theme.typography.sizes.m}px;
     color: ${theme.colors.grayscale.dark1};
     margin-bottom: ${theme.gridUnit * 2}px;
+  }
+
+  .no-metadata {
+    color: ${theme.colors.grayscale.light1};
   }
 `;
 
@@ -96,20 +100,24 @@ const ViewTableInfoModal: FC<ViewTableInfoModalProps> = ({ datasetId }) => {
             }
             key={table_name}
           >
-            {metadata_fields ? (
-              metadata_fields.map(({ key, value, type }) => (
-                <div key={`${table_name}-${key}`} css={MetadataField}>
-                  <div className="metadata-key">{key}</div>
-                  {type !== 'sql' ? (
-                    <div className="metadata-value">{value}</div>
-                  ) : (
-                    <ViewQuery sql={value} language="sql" />
-                  )}
+            <div css={TableMetadataInfo}>
+              {metadata_fields ? (
+                metadata_fields.map(({ key, value, type }) => (
+                  <div key={`${table_name}-${key}`}>
+                    <div className="metadata-key">{key}</div>
+                    {type !== 'sql' ? (
+                      <div className="metadata-value">{value}</div>
+                    ) : (
+                      <ViewQuery sql={value} language="sql" />
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div className="no-metadata">
+                  No additional table information available
                 </div>
-              ))
-            ) : (
-              <div>No additional table information available</div>
-            )}
+              )}
+            </div>
           </AntdCollapse.Panel>
         ))}
       </AntdCollapse>

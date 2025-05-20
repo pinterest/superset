@@ -67,7 +67,7 @@ import { DrillDetailMenuItems } from 'src/components/Chart/DrillDetail';
 import { LOG_ACTIONS_CHART_DOWNLOAD_AS_IMAGE } from 'src/logger/LogUtils';
 import { MenuKeys, RootState } from 'src/dashboard/types';
 import { findPermission } from 'src/utils/findPermission';
-import ViewTableInfoModal from '../controls/ViewTableInfoModal';
+import ViewTableInfoModal from 'src/explore/components/controls/ViewTableInfoModal';
 import { useCrossFiltersScopingModal } from '../nativeFilters/FilterBar/CrossFilters/ScopingModal/useCrossFiltersScopingModal';
 
 const ACTION_KEYS = {
@@ -807,7 +807,7 @@ const SliceHeaderControls = (props: SliceHeaderControlsPropsWithRouter) => {
           modalTitle={t('View table info')}
           modalBody={
             <ViewTableInfoModal
-              datasetId={props.slice.datasource.split('__')[0]}
+              datasetId={Number(props.slice.datasource.split('__')[0])}
             />
           }
           draggable
