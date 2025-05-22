@@ -1,5 +1,5 @@
 from functools import partial
-from typing import List, Optional
+from typing import Optional
 
 from superset import app
 from superset.commands.base import BaseCommand
@@ -14,6 +14,7 @@ from superset.models.core import Database
 from superset.sql.parse import Table
 from superset.sql_parse import extract_tables_from_jinja_sql
 from superset.utils.decorators import on_error, transaction
+from superset.pinterest.types import DatasetTableMetadata
 
 config = app.config
 
@@ -26,7 +27,7 @@ class GetDatasetTableMetadataCommand(BaseCommand):
         self._dataset: Optional[SqlaTable] = None
         self._database: Optional[Database] = None
 
-    def _get_dataset_tables(self) -> List[str]:
+    def _get_dataset_tables(self) -> set[Table]:
         """
         Get the tables referenced in the dataset SQL.
         """
@@ -38,7 +39,7 @@ class GetDatasetTableMetadataCommand(BaseCommand):
         }
 
     @transaction(on_error=partial(on_error, reraise=DatasetGetTableMetadataError))
-    def run(self) -> List[str]:
+    def run(self) -> DatasetTableMetadata:
         self.validate()
         dataset_tables = self._get_dataset_tables()
         database_name = self._database.database_name
