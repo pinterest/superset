@@ -60,6 +60,7 @@ import DrillDetailModal from 'src/components/Chart/DrillDetail/DrillDetailModal'
 import { usePermissions } from 'src/hooks/usePermissions';
 import { useDatasetDrillInfo } from 'src/hooks/apiResources/datasets';
 import { ResourceStatus } from 'src/hooks/apiResources/apiResources';
+import ViewTableInfoModal from 'src/explore/components/controls/ViewTableInfoModal';
 import { useCrossFiltersScopingModal } from '../nativeFilters/FilterBar/CrossFilters/ScopingModal/useCrossFiltersScopingModal';
 import { ViewResultsModalTrigger } from './ViewResultsModalTrigger';
 import { Global } from '@emotion/react';
@@ -491,6 +492,28 @@ const SliceHeaderControls = (
       ),
     });
   }
+
+  newMenuItems.push({
+    key: MenuKeys.ViewTableInfo,
+    label: (
+      <ModalTrigger
+        triggerNode={
+          <span data-test="view-table-info-menu-item">
+            {t('View table info')}
+          </span>
+        }
+        modalTitle={t('View table info')}
+        modalBody={
+          <ViewTableInfoModal
+            datasetId={Number(props.slice.datasource.split('__')[0])}
+          />
+        }
+        draggable
+        resizable
+        responsive
+      />
+    ),
+  });
 
   if (canExplore || canViewTable) {
     newMenuItems.push({

@@ -69,6 +69,7 @@ import { Slice } from 'src/types/Chart';
 import { ChartState, ExplorePageInitialData } from 'src/explore/types';
 import { ReportObject } from 'src/features/reports/types';
 import ViewQueryModal from '../controls/ViewQueryModal';
+import ViewTableInfoModal from 'src/explore/components/controls/ViewTableInfoModal';
 import EmbedCodeContent from '../EmbedCodeContent';
 import { useDashboardsMenuItems } from './DashboardsSubMenu';
 
@@ -102,6 +103,7 @@ const MENU_KEYS = {
   DELETE_REPORT: 'delete_report',
   VIEW_QUERY: 'view_query',
   RUN_IN_SQL_LAB: 'run_in_sql_lab',
+  VIEW_TABLE_INFO: 'view_table_info',
 };
 
 const VIZ_TYPES_PIVOTABLE = [VizType.PivotTable];
@@ -988,6 +990,27 @@ export const useExploreAdditionalActionsMenu = (
             <ViewQueryModal
               latestQueryFormData={latestQueryFormData as QueryFormData}
             />
+          }
+          draggable
+          resizable
+          responsive
+        />
+      ),
+      onClick: () => setIsDropdownVisible(false),
+    });
+
+    menuItems.push({
+      key: MENU_KEYS.VIEW_TABLE_INFO,
+      label: (
+        <ModalTrigger
+          triggerNode={
+            <span data-test="view-table-info-menu-item">
+              {t('View table info')}
+            </span>
+          }
+          modalTitle={t('View table info')}
+          modalBody={
+            <ViewTableInfoModal datasetId={Number(datasource.split('__')[0])} />
           }
           draggable
           resizable
