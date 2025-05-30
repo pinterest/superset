@@ -1461,6 +1461,23 @@ ENGINE_CONTEXT_MANAGER = engine_context_manager
 # as such `create_engine(url, **params)`
 DB_CONNECTION_MUTATOR = None
 
+# Example:
+# def database_table_metadata(
+#     database: Database,
+#     schema: str | None,
+#     table_name: str,
+# ) -> list[DatabaseTableMetadataField]:
+#     return [
+#         {
+#             'key': 'Table name',
+#             'value': table_name,
+#             'type': 'string',
+#         }
+#     ]
+# DB_TABLE_METADATA = database_table_metadata
+
+DB_TABLE_METADATA = None
+
 
 # A callable that is invoked for every invocation of DB Engine Specs
 # which allows for custom validation of the engine URI.

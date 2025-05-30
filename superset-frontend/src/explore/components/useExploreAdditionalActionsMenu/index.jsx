@@ -77,6 +77,7 @@ const MENU_KEYS = {
   VIEW_QUERY: 'view_query',
   RUN_IN_SQL_LAB: 'run_in_sql_lab',
   EXPORT_TO_PIVOT_XLSX: 'export_to_pivot_xlsx',
+  VIEW_TABLE_INFO: 'view_table_info',
 };
 
 const VIZ_TYPES_PIVOTABLE = [VizType.PivotTable];
@@ -499,6 +500,27 @@ export const useExploreAdditionalActionsMenu = (
           modalTitle={t('View query')}
           modalBody={
             <ViewQueryModal latestQueryFormData={latestQueryFormData} />
+          }
+          draggable
+          resizable
+          responsive
+        />
+      ),
+      onClick: () => setIsDropdownVisible(false),
+    });
+
+    menuItems.push({
+      key: MENU_KEYS.VIEW_TABLE_INFO,
+      label: (
+        <ModalTrigger
+          triggerNode={
+            <span data-test="view-table-info-menu-item">
+              {t('View table info')}
+            </span>
+          }
+          modalTitle={t('View table info')}
+          modalBody={
+            <ViewTableInfoModal datasetId={datasource.split('__')[0]} />
           }
           draggable
           resizable
