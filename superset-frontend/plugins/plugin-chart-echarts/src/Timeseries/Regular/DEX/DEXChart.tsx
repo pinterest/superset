@@ -1,4 +1,4 @@
-import { JsonObject, getTimeFormatterForGranularity } from '@superset-ui/core';
+import { getTimeFormatterForGranularity } from '@superset-ui/core';
 import {
   MetricsLayoutEnum,
   PivotTableChart,

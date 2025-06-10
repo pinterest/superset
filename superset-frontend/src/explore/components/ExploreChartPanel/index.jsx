@@ -37,6 +37,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import Alert from 'src/components/Alert';
 import ChartContainer from 'src/components/Chart/ChartContainer';
+import { getDatasourceAsSaveableDataset } from 'src/utils/datasourceUtils';
 import { ChartPills } from '../ChartPills';
 import { DataTablesPane } from '../DataTablesPane';
 import { ExploreAlert } from '../ExploreAlert';
@@ -46,7 +47,6 @@ import Split from 'react-split';
 import { buildV1ChartDataPayload } from 'src/explore/exploreUtils';
 import { chartPropShape } from 'src/dashboard/util/propShapes';
 import { getChartRequiredFieldsMissingMessage } from 'src/utils/getChartRequiredFieldsMissingMessage';
-import { getDatasourceAsSaveableDataset } from 'src/utils/datasourceUtils';
 import useResizeDetectorByObserver from './useResizeDetectorByObserver';
 
 const propTypes = {
