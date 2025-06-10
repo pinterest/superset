@@ -18,6 +18,7 @@
  */
 // eslint-disable-next-line import/prefer-default-export
 export { default as PivotTableChartPlugin } from './plugin';
+export { default as PivotTableChart } from './PivotTableChart';
 /**
  * Note: this file exports the default export from PivotTableChart.tsx.
  * If you want to export multiple visualization modules, you will need to

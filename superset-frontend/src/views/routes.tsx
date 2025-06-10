@@ -123,6 +123,8 @@ const RowLevelSecurityList = lazy(
     ),
 );
 
+const DEX = lazy(() => import(/* webpackChunkName: "DEX" */ 'src/pages/DEX'));
+
 type Routes = {
   path: string;
   Component: ComponentType;
@@ -224,6 +226,10 @@ export const routes: Routes = [
   {
     path: '/sqllab/',
     Component: SqlLab,
+  },
+  {
+    path: '/dex/',
+    Component: DEX,
   },
 ];
 

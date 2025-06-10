@@ -90,6 +90,7 @@ const propTypes = {
   vizType: PropTypes.string,
   saveAction: PropTypes.string,
   isSaveModalVisible: PropTypes.bool,
+  isDex: PropTypes.bool,
 };
 
 const ExplorePanelContainer = styled.div`
@@ -558,7 +559,7 @@ function ExploreViewContainer(props) {
 
   return (
     <ExploreContainer>
-      <ConnectedExploreChartHeader
+      {!props.isDex && <ConnectedExploreChartHeader
         actions={props.actions}
         canOverwrite={props.can_overwrite}
         canDownload={props.can_download}
@@ -574,7 +575,7 @@ function ExploreViewContainer(props) {
         reports={props.reports}
         saveDisabled={errorMessage || props.chart.chartStatus === 'loading'}
         metadata={props.metadata}
-      />
+      />}
       <ExplorePanelContainer id="explore-container">
         <Global
           styles={css`
@@ -600,7 +601,7 @@ function ExploreViewContainer(props) {
             }
           `}
         />
-        <Resizable
+        {!props.isDex && <Resizable
           onResizeStop={(evt, direction, ref, d) => {
             setWidth(ref.getBoundingClientRect().width);
             setSidebarWidths(LocalStorageKeys.DatasourceWidth, d);
@@ -639,7 +640,7 @@ function ExploreViewContainer(props) {
             width={width}
             user={props.user}
           />
-        </Resizable>
+        </Resizable>}
         {isCollapsed ? (
           <div
             className="sidebar"

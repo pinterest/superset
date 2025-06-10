@@ -118,6 +118,10 @@ const viz_type: SharedControlConfig<'VizTypeControl'> = {
   label: t('Visualization Type'),
   default: 'table',
   description: t('The type of visualization to display'),
+  shouldMapStateToProps: () => true,
+  mapStateToProps: ({ form_data }) => ({
+    hidden: form_data.viz_type === 'dex',
+  }),
 };
 
 const color_picker: SharedControlConfig<'ColorPickerControl'> = {

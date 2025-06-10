@@ -55,7 +55,11 @@ from superset.advanced_data_type.types import AdvancedDataType
 from superset.constants import CHANGE_ME_SECRET_KEY
 from superset.jinja_context import BaseTemplateProcessor
 from superset.key_value.types import JsonKeyValueCodec
-from superset.pinterest.types import PinterestMenuItems, PinterestWelcomeTopSections
+from superset.pinterest.types import (
+    PinterestCustomLink,
+    PinterestMenuItems,
+    PinterestWelcomeTopSections,
+)
 from superset.stats_logger import DummyStatsLogger
 from superset.superset_typing import CacheConfig
 from superset.tasks.types import ExecutorType
@@ -900,7 +904,7 @@ TIME_GRAIN_JOIN_COLUMN_PRODUCERS: dict[str, Callable[[Series, int], str]] = {}
 #  VIZ_TYPE_DENYLIST = ['pivot_table', 'treemap']
 # ---------------------------------------------------
 
-VIZ_TYPE_DENYLIST: list[str] = []
+VIZ_TYPE_DENYLIST: list[str] = ['dex']
 
 # --------------------------------------------------
 # Modules, datasources and middleware to be registered
@@ -1832,6 +1836,12 @@ EXTRA_RELATED_QUERY_FILTERS: ExtraRelatedQueryFilters = {}
 # [pinterest-specific]
 PINTEREST_MENU_ITEMS: list[PinterestMenuItems] | None = None
 PINTEREST_HELP_LINK: str | None = None
+PINTEREST_CUSTOM_LINKS: list[PinterestCustomLink] | None = [
+    {
+        "name": "DEX",
+        "href": '/dex/',
+    }
+]
 # List of allowed domains for PINTEREST_EMBEDDED_SUPERSET_BY_ID_OR_SLUG feature.
 # If empty, all domains are allowed, leave empty for dev.
 PINTEREST_EMBEDDED_SUPERSET_BY_ID_OR_SLUG_ALLOWED_DOMAINS: list[str] = []
@@ -1841,6 +1851,18 @@ PINTEREST_WELCOME_TOP_SECTIONS: list[PinterestWelcomeTopSections] | None = []
 
 # Tag ID used to filter all top dashboards
 PINTEREST_TOP_TAG_ID = 1
+
+# TODO (kgopal): Remove all when dex dataset info is in db
+PINTEREST_DEX_DATASET_ID = 26
+PINTEREST_DEX_METRIC_NAME_COLUMN = 'metric_name'
+PINTEREST_DEX_METRIC_VALUE_COLUMN = 'metric_value'
+PINTEREST_DEX_TIME_COLUMN = 'dt'
+PINTEREST_DEX_RESERVED_COLUMNS = [
+    'dt',
+    'user_id',
+    'metric_name',
+    'metric_value',
+]
 
 
 # Extra dynamic query filters make it possible to limit which objects are shown

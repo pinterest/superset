@@ -34,6 +34,8 @@ import VizTypeGallery, {
 } from './VizTypeGallery';
 import { FastVizSwitcher } from './FastVizSwitcher';
 
+const DEX_VIZ_TYPE = 'dex';
+
 interface VizTypeControlProps {
   description?: string;
   label?: string;
@@ -103,7 +105,7 @@ const VizTypeControl = ({
     setSelectedViz(initialValue);
   }, [initialValue]);
 
-  return (
+  return selectedViz !== DEX_VIZ_TYPE ? (
     <>
       <div
         css={(theme: SupersetTheme) => css`
@@ -147,6 +149,8 @@ const VizTypeControl = ({
         />
       </UnpaddedModal>
     </>
+  ) : (
+    <> </>
   );
 };
 

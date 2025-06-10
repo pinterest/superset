@@ -33,6 +33,7 @@
   "peerDependencies": {
     "@superset-ui/chart-controls": "*",
     "@superset-ui/core": "*",
+    "@superset-ui/plugin-chart-pivot-table": "file:../plugin-chart-pivot-table",
     "memoize-one": "*",
     "react": "^16.13.1"
   },

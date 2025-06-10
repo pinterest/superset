@@ -142,8 +142,8 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         from superset.databases.api import DatabaseRestApi
         from superset.datasets.api import DatasetRestApi
         from superset.datasets.columns.api import DatasetColumnsRestApi
-        from superset.datasets.template_columns.api import DatasetTemplateColumnsRestApi
         from superset.datasets.metrics.api import DatasetMetricRestApi
+        from superset.datasets.template_columns.api import DatasetTemplateColumnsRestApi
         from superset.datasource.api import DatasourceRestApi
         from superset.embedded.api import EmbeddedDashboardRestApi
         from superset.embedded.view import EmbeddedView
@@ -188,6 +188,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
             TableSchemaView,
             TabStateView,
         )
+        from superset.views.dex import DEXView
         from superset.views.sqllab import SqllabView
         from superset.views.tags import TagModelView, TagView
         from superset.views.users.api import CurrentUserRestApi, UserRestApi
@@ -311,6 +312,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         appbuilder.add_view_no_menu(SavedQueryViewApi)
         appbuilder.add_view_no_menu(SliceAsync)
         appbuilder.add_view_no_menu(SqllabView)
+        appbuilder.add_view_no_menu(DEXView)
         appbuilder.add_view_no_menu(SqlMetricInlineView)
         appbuilder.add_view_no_menu(Superset)
         appbuilder.add_view_no_menu(TableColumnInlineView)
@@ -381,6 +383,18 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
                 category_icon="",
                 icon="fa-question",
             )
+
+        if self.config["PINTEREST_CUSTOM_LINKS"]:
+            for custom_link in self.config["PINTEREST_CUSTOM_LINKS"]:
+                appbuilder.add_link(
+                    custom_link["name"],
+                    label=__(custom_link["name"]),
+                    href=custom_link["href"],
+                    icon=custom_link.get("icon", ""),
+                    category=custom_link.get("category", ""),
+                    category_label=custom_link.get("category_label", ""),
+                    category_icon=custom_link.get("category_icon", ""),
+                )
 
         appbuilder.add_api(LogRestApi)
         appbuilder.add_view(

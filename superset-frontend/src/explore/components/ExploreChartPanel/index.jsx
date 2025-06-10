@@ -71,6 +71,7 @@ const propTypes = {
   chart: chartPropShape,
   errorMessage: PropTypes.node,
   triggerRender: PropTypes.bool,
+  isDex: PropTypes.bool,
 };
 
 const GUTTER_SIZE_FACTOR = 1.25;
@@ -138,6 +139,7 @@ const ExploreChartPanel = ({
   chartIsStale,
   chartAlert,
   can_download: canDownload,
+  isDex,
 }) => {
   const theme = useTheme();
   const gutterMargin = theme.gridUnit * GUTTER_SIZE_FACTOR;
@@ -441,7 +443,7 @@ const ExploreChartPanel = ({
         expandToMin
       >
         {panelBody}
-        <DataTablesPane
+        {!isDex && <DataTablesPane
           ownState={ownState}
           queryFormData={queryFormData}
           datasource={datasource}
@@ -451,7 +453,7 @@ const ExploreChartPanel = ({
           errorMessage={errorMessage}
           actions={actions}
           canDownload={canDownload}
-        />
+        />}
       </Split>
       {showDatasetModal && (
         <SaveDatasetModal
