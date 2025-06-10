@@ -20,8 +20,8 @@ class DEXView(BaseSupersetView):
     method_permission_name = MODEL_API_RW_METHOD_PERMISSION_MAP
 
     @expose("/", methods=["GET"])
-    # @has_access
-    # @permission_name("read")
+    @has_access
+    @permission_name("read")
     @event_logger.log_this
     def root(self) -> FlaskResponse:
         return self.render_app_template()
