@@ -785,6 +785,7 @@ function mapStateToProps(state) {
     metadata,
     saveAction: explore.saveAction,
     isSaveModalVisible: saveModal.isVisible,
+    isDex: form_data.viz_type === 'dex',
   };
 }
 

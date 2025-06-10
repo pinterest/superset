@@ -52,5 +52,5 @@ export default function DEX() {
         });
     }
   }, [dispatch, datasetId]);
-  return isLoaded ? <ExploreViewContainer isDex={true} /> : <Loading />;
+  return isLoaded ? <ExploreViewContainer /> : <Loading />;
 }

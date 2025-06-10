@@ -17,19 +17,20 @@
  * under the License.
  */
 import {
-  QueryFormData,
-  DataRecord,
-  SetDataMaskHook,
-  DataRecordValue,
-  JsonObject,
-  TimeFormatter,
-  NumberFormatter,
-  QueryFormMetric,
-  QueryFormColumn,
-  TimeGranularity,
   ContextMenuFilters,
   Currency,
+  DataRecord,
+  DataRecordValue,
+  JsonObject,
+  NumberFormatter,
+  QueryFormColumn,
+  QueryFormData,
+  QueryFormMetric,
+  SetDataMaskHook,
+  TimeFormatter,
+  TimeGranularity,
 } from '@superset-ui/core';
+
 import { ColorFormatters } from '@superset-ui/chart-controls';
 
 export interface PivotTableStylesProps {

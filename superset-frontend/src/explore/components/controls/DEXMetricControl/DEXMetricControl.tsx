@@ -1,11 +1,12 @@
-import AdhocMetric, { EXPRESSION_TYPES } from '../MetricControl/AdhocMetric';
-import { SupersetClient, t } from '@superset-ui/core';
+import { useSelector } from 'react-redux';
+import { JsonObject, SupersetClient, t } from '@superset-ui/core';
 import { useEffect, useState } from 'react';
 
 import { ControlComponentProps } from 'src/explore/components/Control';
 import { ExplorePageState } from 'src/explore/types';
+
+import AdhocMetric, { EXPRESSION_TYPES } from '../MetricControl/AdhocMetric';
 import SelectControl from '../SelectControl';
-import { useSelector } from 'react-redux';
 
 export default function DEXMetricControl(props: ControlComponentProps) {
   const [options, setOptions] = useState<{ label: string; value: string }[]>(
@@ -44,7 +45,7 @@ export default function DEXMetricControl(props: ControlComponentProps) {
 
   const handleChange = (selectedValue: string) => {
     if (!selectedValue) {
-      props.onChange(undefined);
+      props!.onChange!(null);
       return;
     }
 
@@ -55,13 +56,13 @@ export default function DEXMetricControl(props: ControlComponentProps) {
       label: selectedValue,
       hasCustomLabel: true,
     });
-    props.onChange([newMetric]);
+    props!.onChange!([newMetric]);
   };
 
   return (
     <SelectControl
       {...props}
-      value={props.value?.label}
+      value={(props.value as JsonObject)?.label}
       options={options}
       isLoading={isLoading}
       onChange={handleChange}
