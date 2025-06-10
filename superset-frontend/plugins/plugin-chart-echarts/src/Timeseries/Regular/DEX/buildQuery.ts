@@ -1,11 +1,11 @@
 import {
+  PostProcessingPivot,
+  QueryFormData,
   buildQueryContext,
   ensureIsArray,
   getXAxisColumn,
   isXAxisSet,
   normalizeOrderBy,
-  PostProcessingPivot,
-  QueryFormData,
 } from '@superset-ui/core';
 import {
   contributionOperator,
@@ -18,8 +18,8 @@ import {
   resampleOperator,
   rollingWindowOperator,
   sortOperator,
-  timeComparePivotOperator,
   timeCompareOperator,
+  timeComparePivotOperator,
 } from '@superset-ui/chart-controls';
 
 // Copied from superset-frontend/plugins/plugin-chart-echarts/src/Timeseries/buildQuery.ts

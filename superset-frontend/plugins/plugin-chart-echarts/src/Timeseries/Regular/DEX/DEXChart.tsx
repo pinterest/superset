@@ -1,10 +1,10 @@
-import { useSelector } from 'react-redux';
-import { getTimeFormatterForGranularity } from '@superset-ui/core';
+import { JsonObject, getTimeFormatterForGranularity } from '@superset-ui/core';
+
 import { DEFAULT_NUMBER_FORMAT } from '@superset-ui/chart-controls';
-import { PivotTableChart } from '@superset-ui/plugin-chart-pivot-table';
 import { DEXChartTransformedProps } from './types';
 import EchartsTimeseries from '../../EchartsTimeseries';
-import { ExplorePageState } from 'src/explore/types';
+import { PivotTableChart } from '@superset-ui/plugin-chart-pivot-table';
+import { useSelector } from 'react-redux';
 
 const MIN_LINE_CHART_HEIGHT = 400;
 
@@ -28,7 +28,7 @@ export default function DEXChart(props: DEXChartTransformedProps) {
     pivotData,
   } = props;
   const PINTEREST_DEX_TIME_COLUMN = useSelector(
-    (state: ExplorePageState) => state.common.conf.PINTEREST_DEX_TIME_COLUMN,
+    (state: JsonObject) => state.common.conf.PINTEREST_DEX_TIME_COLUMN,
   );
 
   const pivotTableProps = {

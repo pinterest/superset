@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { fetchExploreData } from 'src/pages/Chart';
 import { addDangerToast } from 'src/components/MessageToasts/actions';
 import { getUrlParam } from 'src/utils/urlUtils';
@@ -9,7 +9,6 @@ import { URL_PARAMS } from 'src/constants';
 import { fallbackExploreInitialData } from 'src/explore/fixtures';
 import Loading from 'src/components/Loading';
 import ExploreViewContainer from 'src/explore/components/ExploreViewContainer';
-import { useSelector } from 'react-redux';
 
 export default function DEX() {
   const dispatch = useDispatch();
@@ -22,7 +21,7 @@ export default function DEX() {
 
   useEffect(() => {
     const exploreUrlParams = new URLSearchParams({
-      datasource_id: datasetId,
+      datasource_id: datasetId as string,
       datasource_type: 'table',
       viz_type: 'dex',
     });
@@ -52,6 +51,6 @@ export default function DEX() {
           isExploreInitialized.current = true;
         });
     }
-  }, [dispatch]);
-  return isLoaded ? <ExploreViewContainer isDex /> : <Loading />;
+  }, [dispatch, datasetId]);
+  return isLoaded ? <ExploreViewContainer isDex={true} /> : <Loading />;
 }

@@ -22,10 +22,11 @@ import {
   EchartsTimeseriesFormData,
   EchartsTimeseriesSeriesType,
 } from '../../types';
+
+import { EchartsChartPlugin } from '../../../types';
 import buildQuery from './buildQuery';
 import controlPanel from './controlPanel';
 import transformProps from './transformProps';
-import { EchartsChartPlugin } from '../../../types';
 
 const dexTransformProps = (chartProps: EchartsTimeseriesChartProps) =>
   transformProps({

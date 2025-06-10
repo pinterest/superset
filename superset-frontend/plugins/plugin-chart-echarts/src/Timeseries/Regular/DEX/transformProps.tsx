@@ -1,6 +1,6 @@
-import echartsTranformProps from '../../transformProps';
-import { EchartsTimeseriesChartProps } from '../../types';
 import { DEXChartTransformedProps } from './types';
+import { EchartsTimeseriesChartProps } from '../../types';
+import echartsTranformProps from '../../transformProps';
 
 export default function transformProps(
   chartProps: EchartsTimeseriesChartProps,

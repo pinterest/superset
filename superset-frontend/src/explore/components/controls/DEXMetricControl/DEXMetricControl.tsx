@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import AdhocMetric, { EXPRESSION_TYPES } from '../MetricControl/AdhocMetric';
 import { SupersetClient, t } from '@superset-ui/core';
-import SelectControl from '../SelectControl';
-import AdhocMetric from '../MetricControl/AdhocMetric';
-import { EXPRESSION_TYPES } from '../MetricControl/AdhocMetric';
-import { useSelector } from 'react-redux';
-import { ExplorePageState } from 'src/explore/types';
+import { useEffect, useState } from 'react';
+
 import { ControlComponentProps } from 'src/explore/components/Control';
+import { ExplorePageState } from 'src/explore/types';
+import SelectControl from '../SelectControl';
+import { useSelector } from 'react-redux';
 
 export default function DEXMetricControl(props: ControlComponentProps) {
   const [options, setOptions] = useState<{ label: string; value: string }[]>(

@@ -1,16 +1,16 @@
-import { t, validateNonEmpty } from '@superset-ui/core';
 import {
   ControlPanelConfig,
-  getStandardizedControls,
-  Dataset,
   ControlPanelState,
   ControlState,
   ControlSubSectionHeader,
-  dndGroupByControl,
-  xAxisMixin,
+  Dataset,
   TIME_FILTER_LABELS,
+  dndGroupByControl,
+  getStandardizedControls,
+  xAxisMixin,
 } from '@superset-ui/chart-controls';
-import getBootstrapData from 'src/utils/getBootstrapData';
+import { t, validateNonEmpty } from '@superset-ui/core';
+
 import { DEFAULT_FORM_DATA } from '../../constants';
 
 const { rowLimit } = DEFAULT_FORM_DATA;
@@ -86,8 +86,13 @@ const config: ControlPanelConfig = {
                 controlState: ControlState,
               ) => {
                 const columns = (state.datasource as Dataset)?.columns || [];
-                const reservedColumns =
-                  getBootstrapData().common.conf.PINTEREST_DEX_RESERVED_COLUMNS;
+                // TODO (kgopal): Change to use constant
+                const reservedColumns = [
+                  'dt',
+                  'user_id',
+                  'metric_name',
+                  'metric_value',
+                ];
                 return {
                   choices: columns
                     .filter(
