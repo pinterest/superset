@@ -90,8 +90,8 @@ const config: ControlPanelConfig = {
                 const reservedColumns = [
                   'dt',
                   'user_id',
-                  'metric_name',
-                  'metric_value',
+                  'metric_type',
+                  'metric_volume',
                 ];
                 return {
                   choices: columns
