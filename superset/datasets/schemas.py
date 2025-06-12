@@ -335,3 +335,20 @@ class DatasetTemplateColumnsResponseSchema(Schema):
         fields.String(),
         metadata={"description": "A list of columns extracted from the Jinja template"},
     )
+
+class DatasetTableMetadataResponseSchema(Schema):
+    database_name = fields.String(
+        required=True,
+    )
+    table_metadata = fields.List(
+        fields.Dict(
+            table_name=fields.String(allow_none=False),
+            metadata_fields=fields.List(
+                fields.Dict(
+                    key=fields.String(allow_none=False),
+                    value=fields.String(allow_none=False),
+                    type=fields.String(allow_none=False),
+                )
+            ),
+        )
+    )
