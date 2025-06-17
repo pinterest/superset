@@ -1,14 +1,17 @@
-import { useEffect, useRef, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchExploreData } from 'src/pages/Chart';
-import { addDangerToast } from 'src/components/MessageToasts/actions';
-import { getUrlParam } from 'src/utils/urlUtils';
 import { ExplorePageState, SaveActionType } from 'src/explore/types';
-import { hydrateExplore } from 'src/explore/actions/hydrateExplore';
-import { URL_PARAMS } from 'src/constants';
-import { fallbackExploreInitialData } from 'src/explore/fixtures';
-import Loading from 'src/components/Loading';
+import { LocalStorageKeys, setItem } from 'src/utils/localStorageHelpers';
+import { useDispatch, useSelector } from 'react-redux';
+import { useEffect, useRef, useState } from 'react';
+
 import ExploreViewContainer from 'src/explore/components/ExploreViewContainer';
+import { INITIAL_SIZES } from 'src/explore/components/ExploreChartPanel';
+import Loading from 'src/components/Loading';
+import { URL_PARAMS } from 'src/constants';
+import { addDangerToast } from 'src/components/MessageToasts/actions';
+import { fallbackExploreInitialData } from 'src/explore/fixtures';
+import { fetchExploreData } from 'src/pages/Chart';
+import { getUrlParam } from 'src/utils/urlUtils';
+import { hydrateExplore } from 'src/explore/actions/hydrateExplore';
 
 export default function DEX() {
   const dispatch = useDispatch();
@@ -51,6 +54,11 @@ export default function DEX() {
           isExploreInitialized.current = true;
         });
     }
+    // Ensure that the height of the chart panel is set to 100%
+    setItem(
+      LocalStorageKeys.ChartSplitSizes,
+      INITIAL_SIZES as [number, number],
+    );
   }, [dispatch, datasetId]);
   return isLoaded ? <ExploreViewContainer /> : <Loading />;
 }

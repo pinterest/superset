@@ -148,6 +148,7 @@ class MySQLEngineSpec(BasicParametersMixin, BaseEngineSpec):
         TimeGrain.WEEK_STARTING_MONDAY: "DATE(DATE_SUB({col}, "
         "INTERVAL DAYOFWEEK(DATE_SUB({col}, "
         "INTERVAL 1 DAY)) - 1 DAY))",
+        TimeGrain.BIWEEKLY: "DATE_ADD(DATE_FORMAT({col}, '%Y-01-01'), INTERVAL (FLOOR(DATEDIFF({col}, DATE_FORMAT({col}, '%Y-01-01')) / 14) * 14) DAY)",
     }
 
     type_code_map: dict[int, str] = {}  # loaded from get_datatype only if needed

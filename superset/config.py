@@ -875,7 +875,9 @@ TIME_GRAIN_DENYLIST: list[str] = []
 # superset/db_engine_specs/base.py.
 # For example: To add a new 2 second time grain:
 # TIME_GRAIN_ADDONS = {'PT2S': '2 second'}
-TIME_GRAIN_ADDONS: dict[str, str] = {}
+TIME_GRAIN_ADDONS: dict[str, str] = {
+    'P2W': 'Biweekly',
+}
 
 # Implementation of additional time grains per engine.
 # The column to be truncated is denoted `{col}` in the expression.

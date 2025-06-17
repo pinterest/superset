@@ -21,38 +21,6 @@ const config: ControlPanelConfig = {
     {
       expanded: true,
       controlSetRows: [
-        [<ControlSubSectionHeader>{t('Time')}</ControlSubSectionHeader>],
-        [
-          {
-            name: 'x_axis',
-            config: {
-              ...dndGroupByControl,
-              ...xAxisMixin,
-              default: 'dt', // TODO (kgopal): Change to date column from constant
-              visibility: () => false,
-            },
-          },
-        ],
-        ['time_grain_sqla'],
-        [
-          {
-            name: 'time_range',
-            config: {
-              type: 'DateFilterControl',
-              freeForm: true,
-              label: TIME_FILTER_LABELS.time_range,
-              initialValue: DEFAULT_TIME_RANGE,
-              description: t(
-                'This control filters the whole chart based on the selected time range. All relative times, e.g. "Last month", ' +
-                  '"Last 7 days", "now", etc. are evaluated on the server using the server\'s ' +
-                  'local time (sans timezone). All tooltips and placeholder times are expressed ' +
-                  'in UTC (sans timezone). The timestamps are then evaluated by the database ' +
-                  "using the engine's local timezone. Note one can explicitly set the timezone " +
-                  'per the ISO 8601 format if specifying either the start and/or end time.',
-              ),
-            },
-          },
-        ],
         [<ControlSubSectionHeader>{t('Metrics')}</ControlSubSectionHeader>],
         [
           {
@@ -103,6 +71,88 @@ const config: ControlPanelConfig = {
                     .map(c => [c.column_name, c.verbose_name || c.column_name]),
                 };
               },
+            },
+          },
+        ],
+        [<ControlSubSectionHeader>{t('Time')}</ControlSubSectionHeader>],
+        [
+          {
+            name: 'x_axis',
+            config: {
+              ...dndGroupByControl,
+              ...xAxisMixin,
+              default: 'dt', // TODO (kgopal): Change to date column from constant
+              visibility: () => false,
+            },
+          },
+        ],
+        ['time_grain_sqla'],
+        [
+          {
+            name: 'time_range',
+            config: {
+              type: 'DateFilterControl',
+              freeForm: true,
+              label: TIME_FILTER_LABELS.time_range,
+              initialValue: DEFAULT_TIME_RANGE,
+              description: t(
+                'This control filters the whole chart based on the selected time range. All relative times, e.g. "Last month", ' +
+                  '"Last 7 days", "now", etc. are evaluated on the server using the server\'s ' +
+                  'local time (sans timezone). All tooltips and placeholder times are expressed ' +
+                  'in UTC (sans timezone). The timestamps are then evaluated by the database ' +
+                  "using the engine's local timezone. Note one can explicitly set the timezone " +
+                  'per the ISO 8601 format if specifying either the start and/or end time.',
+              ),
+            },
+          },
+        ],
+        [
+          <ControlSubSectionHeader>
+            {t('Time comparison')}
+          </ControlSubSectionHeader>,
+        ],
+        [
+          {
+            name: 'time_compare',
+            config: {
+              type: 'SelectControl',
+              multi: true,
+              freeForm: true,
+              label: t('Time shift'),
+              choices: [
+                ['1 day ago', t('1 day ago')],
+                ['1 week ago', t('1 week ago')],
+                ['28 days ago', t('28 days ago')],
+                ['30 days ago', t('30 days ago')],
+                ['52 weeks ago', t('52 weeks ago')],
+                ['1 year ago', t('1 year ago')],
+                ['104 weeks ago', t('104 weeks ago')],
+                ['2 years ago', t('2 years ago')],
+              ],
+              description: t(
+                'Overlay one or more timeseries from a ' +
+                  'relative time period. Expects relative time deltas ' +
+                  'in natural language (example: 24 hours ago, 7 days ago, ' +
+                  '52 weeks ago, 1 year ago). Free text is supported.',
+              ),
+            },
+          },
+          {
+            name: 'comparison_type',
+            config: {
+              type: 'SelectControl',
+              label: t('Calculation type'),
+              default: 'values',
+              choices: [
+                ['values', t('Actual values')],
+                ['difference', t('Difference')],
+                ['percentage', t('Percentage change')],
+              ],
+              description: t(
+                'How to display time shifts: as individual lines; as the ' +
+                  'difference between the main time series and each time shift; ' +
+                  'as the percentage change; or as the ratio between series and time shifts.',
+              ),
             },
           },
         ],

@@ -266,6 +266,7 @@ export const controls = {
       ['P1M', t('month')],
       ['P3M', t('quarter')],
       ['P1Y', t('year')],
+      ['P2W', t('biweekly')],
     ],
     description: t(
       'The time granularity for the visualization. Note that you ' +

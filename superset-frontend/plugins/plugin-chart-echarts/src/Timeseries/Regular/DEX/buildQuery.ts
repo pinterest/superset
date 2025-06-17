@@ -103,7 +103,7 @@ export default function buildQuery(formData: QueryFormData) {
         // todo: move `normalizeOrderBy to extractQueryFields`
         orderby: normalizeOrderBy(baseQueryObject).orderby,
         time_offsets,
-        post_processing: [],
+        post_processing: [timeCompareOperator(formData, baseQueryObject)],
       },
     ];
   });

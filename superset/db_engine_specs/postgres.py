@@ -110,6 +110,7 @@ class PostgresBaseEngineSpec(BaseEngineSpec):
         TimeGrain.MONTH: "DATE_TRUNC('month', {col})",
         TimeGrain.QUARTER: "DATE_TRUNC('quarter', {col})",
         TimeGrain.YEAR: "DATE_TRUNC('year', {col})",
+        TimeGrain.BIWEEKLY: "DATE_TRUNC('year', {col}) + INTERVAL '1 day' * (FLOOR(EXTRACT(day FROM {col} - DATE_TRUNC('year', {col})) / 14.0) * 14)",
     }
 
     custom_errors: dict[Pattern[str], tuple[str, SupersetErrorType, dict[str, Any]]] = {

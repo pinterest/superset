@@ -1,4 +1,3 @@
-import { getTimeFormatterForGranularity } from '@superset-ui/core';
 import {
   MetricsLayoutEnum,
   PivotTableChart,
@@ -7,6 +6,7 @@ import {
 import { DEFAULT_NUMBER_FORMAT } from '@superset-ui/chart-controls';
 import { DEXChartTransformedProps } from './types';
 import EchartsTimeseries from '../../EchartsTimeseries';
+import { getTimeFormatterForGranularity } from '@superset-ui/core';
 
 const MIN_LINE_CHART_HEIGHT = 400;
 
@@ -32,9 +32,11 @@ export default function DEXChart(props: DEXChartTransformedProps) {
     width,
     height,
     data: pivotData.data,
-    groupbyRows: ['dt'], // TODO (kgopal): Change to use constant
-    groupbyColumns: groupby,
-    metrics: formData.metrics,
+    groupbyRows: groupby,
+    groupbyColumns: ['dt'], // TODO (kgopal): Change to use constant
+    metrics: Object.keys(pivotData.data[0])
+      .map(key => key)
+      .filter(key => key !== 'dt' && !groupby.includes(key)), // TODO (kgopal): Change to use constant for dt
     tableRenderer: '',
     colOrder: PIVOT_TABLE_ROW_COLUMN_ORDER,
     rowOrder: PIVOT_TABLE_ROW_COLUMN_ORDER,
@@ -43,9 +45,9 @@ export default function DEXChart(props: DEXChartTransformedProps) {
     combineMetric: false,
     rowSubtotalPosition: false,
     colSubtotalPosition: false,
-    colTotals: false,
+    colTotals: true, // TODO (kgopal): Change to false when time comparison percent change applied
     colSubTotals: false,
-    rowTotals: true,
+    rowTotals: false,
     rowSubTotals: false,
     valueFormat: DEFAULT_NUMBER_FORMAT,
     currencyFormat: {
