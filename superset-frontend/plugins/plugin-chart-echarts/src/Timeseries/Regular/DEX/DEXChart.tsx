@@ -1,3 +1,4 @@
+import { getTimeFormatterForGranularity } from '@superset-ui/core';
 import {
   MetricsLayoutEnum,
   PivotTableChart,
@@ -6,7 +7,6 @@ import {
 import { DEFAULT_NUMBER_FORMAT } from '@superset-ui/chart-controls';
 import { DEXChartTransformedProps } from './types';
 import EchartsTimeseries from '../../EchartsTimeseries';
-import { getTimeFormatterForGranularity } from '@superset-ui/core';
 
 const MIN_LINE_CHART_HEIGHT = 400;
 
