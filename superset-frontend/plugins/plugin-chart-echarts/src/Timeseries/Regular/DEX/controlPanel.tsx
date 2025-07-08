@@ -4,6 +4,7 @@ import {
   ControlState,
   ControlSubSectionHeader,
   Dataset,
+  SortSeriesType,
   TIME_FILTER_LABELS,
   dndGroupByControl,
   getStandardizedControls,
@@ -176,6 +177,66 @@ const config: ControlPanelConfig = {
             },
           },
         ],
+        [
+          {
+            name: 'truncateYAxis',
+            config: {
+              type: 'HiddenControl',
+              label: t('Truncate Y Axis'),
+              hidden: true,
+              description: t('Truncate Y Axis'),
+              initialValue: true,
+            },
+          },
+        ],
+        [
+          {
+            name: 'legendOrientation',
+            config: {
+              type: 'HiddenControl',
+              label: t('Legend Orientation'),
+              hidden: true,
+              description: t('Legend Orientation'),
+              initialValue: 'right',
+            },
+          },
+        ],
+        [
+          {
+            name: 'tooltipSortByMetric',
+            config: {
+              type: 'HiddenControl',
+              label: t('Tooltip Sort By Metric'),
+              hidden: true,
+              description: t('Tooltip Sort By Metric'),
+              initialValue: true,
+            },
+          },
+        ],
+        [
+          {
+            name: 'sortSeriesType',
+            config: {
+              type: 'HiddenControl',
+              label: t('Sort Series By'),
+              hidden: true,
+              description: t('Sort Series By'),
+              initialValue: SortSeriesType.Max,
+            },
+          },
+        ],
+        [
+          {
+            name: 'truncate_metric',
+            config: {
+              type: 'HiddenControl',
+              label: t('Truncate Metric'),
+              hidden: true,
+              description: t('Whether to truncate metrics'),
+              initialValue: true,
+            },
+          },
+        ],
       ],
     },
   ],
@@ -188,7 +249,6 @@ const config: ControlPanelConfig = {
     ...formData,
     metrics: getStandardizedControls().popAllMetrics(),
     groupby: getStandardizedControls().popAllColumns(),
-    truncateYAxis: true,
   }),
 };
 

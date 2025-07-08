@@ -1,4 +1,3 @@
-import { getTimeFormatterForGranularity } from '@superset-ui/core';
 import {
   MetricsLayoutEnum,
   PivotTableChart,
@@ -7,10 +6,11 @@ import {
 import { DEFAULT_NUMBER_FORMAT } from '@superset-ui/chart-controls';
 import { DEXChartTransformedProps } from './types';
 import EchartsTimeseries from '../../EchartsTimeseries';
+import { getTimeFormatterForGranularity } from '@superset-ui/core';
 
-const MIN_LINE_CHART_HEIGHT = 400;
+const MIN_LINE_CHART_HEIGHT = 300;
 
-const PIVOT_TABLE_HEIGHT = 200;
+const PIVOT_TABLE_HEIGHT = 400;
 const PIVOT_TABLE_AGGREGATE_FUNCTION = 'Sum';
 const PIVOT_TABLE_ROW_COLUMN_ORDER = 'key_a_to_z';
 
