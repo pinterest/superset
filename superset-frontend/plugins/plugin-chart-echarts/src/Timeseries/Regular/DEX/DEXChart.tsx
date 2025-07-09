@@ -4,9 +4,9 @@ import {
 } from '@superset-ui/plugin-chart-pivot-table';
 
 import { DEFAULT_NUMBER_FORMAT } from '@superset-ui/chart-controls';
+import { getTimeFormatterForGranularity } from '@superset-ui/core';
 import { DEXChartTransformedProps } from './types';
 import EchartsTimeseries from '../../EchartsTimeseries';
-import { getTimeFormatterForGranularity } from '@superset-ui/core';
 
 const MIN_LINE_CHART_HEIGHT = 300;
 
