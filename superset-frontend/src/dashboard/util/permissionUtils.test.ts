@@ -65,6 +65,13 @@ const owner: Owner = {
   last_name: 'User',
 };
 
+const readOnlyUser: UserWithPermissionsAndRoles = {
+  ...ownerUser,
+  roles: { Alpha: [['can_read', 'Dashboard']] },
+  userId: 4,
+  username: 'readonly',
+};
+
 const sqlLabMenuAccessPermission: [string, string] = ['menu_access', 'SQL Lab'];
 
 const arbitraryPermissions: [string, string][] = [
@@ -184,7 +191,23 @@ test('userHasPermission returns true if user has permission', () => {
   ).toEqual(true);
 });
 
-describe('canUserSaveAsDashboard with RBAC feature flag disabled', () => {
+test('canUserSaveAsDashboard returns true if user has write permission', () => {
+  expect(canUserSaveAsDashboard(dashboard, adminUser)).toEqual(true);
+  expect(canUserSaveAsDashboard(dashboard, ownerUser)).toEqual(true);
+  expect(canUserSaveAsDashboard(dashboard, outsiderUser)).toEqual(true);
+});
+
+test('canUserSaveAsDashboard returns false if user does not have write permission', () => {
+  expect(canUserSaveAsDashboard(dashboard, readOnlyUser)).toEqual(false);
+});
+
+test('canUserSaveAsDashboard always returns false for undefined user', () => {
+  expect(canUserSaveAsDashboard(dashboard, undefinedUser)).toEqual(false);
+});
+
+// The usage of the RBAC feature flag was removed from canUserSaveAsDashboard.
+// Skipping the old test cases for future rebases.
+describe.skip('canUserSaveAsDashboard with RBAC feature flag disabled', () => {
   beforeAll(() => {
     mockedIsFeatureEnabled.mockImplementation(
       (featureFlag: FeatureFlag) => featureFlag !== FeatureFlag.DashboardRbac,
@@ -208,7 +231,7 @@ describe('canUserSaveAsDashboard with RBAC feature flag disabled', () => {
   });
 });
 
-describe('canUserSaveAsDashboard with RBAC feature flag enabled', () => {
+describe.skip('canUserSaveAsDashboard with RBAC feature flag enabled', () => {
   beforeAll(() => {
     mockedIsFeatureEnabled.mockImplementation(
       (featureFlag: FeatureFlag) => featureFlag === FeatureFlag.DashboardRbac,
