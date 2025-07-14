@@ -386,7 +386,8 @@ export const ControlPanelsContainer = (props: ControlPanelsContainerProps) => {
       prevDatasource &&
       prevDatasource.type !== DatasourceType.Query &&
       (props.exploreState.datasource?.id !== prevDatasource.id ||
-        props.exploreState.datasource?.type !== prevDatasource.type)
+        props.exploreState.datasource?.type !== prevDatasource.type) &&
+      props.exploreState.form_data.viz_type !== 'dex'
     ) {
       setShowDatasourceAlert(true);
       containerRef.current?.scrollTo(0, 0);

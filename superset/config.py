@@ -473,7 +473,7 @@ DEFAULT_FEATURE_FLAGS: dict[str, bool] = {
     # editor no longer shows. Currently this is set to false so that the editor
     # option does show, but we will be depreciating it.
     "DISABLE_LEGACY_DATASOURCE_EDITOR": True,
-    "ENABLE_TEMPLATE_PROCESSING": False,
+    "ENABLE_TEMPLATE_PROCESSING": True,
     # Allow for javascript controls components
     # this enables programmers to customize certain charts (like the
     # geospatial ones) by inputting javascript in controls. This exposes
@@ -520,7 +520,7 @@ DEFAULT_FEATURE_FLAGS: dict[str, bool] = {
     # Allow users to export full CSV of table viz type.
     # This could cause the server to run out of memory or compute.
     "ALLOW_FULL_CSV_EXPORT": False,
-    "ALLOW_ADHOC_SUBQUERY": False,
+    "ALLOW_ADHOC_SUBQUERY": True,
     "USE_ANALAGOUS_COLORS": False,
     # Apply RLS rules to SQL Lab queries. This requires parsing and manipulating the
     # query, and might break queries and/or allow users to bypass RLS. Use with care!
@@ -1872,7 +1872,11 @@ PINTEREST_WELCOME_TOP_SECTIONS: list[PinterestWelcomeTopSections] | None = []
 PINTEREST_TOP_TAG_ID = 1
 
 # TODO (kgopal): Remove all when dex dataset info is in db
-PINTEREST_DEX_DATASET_ID = 26
+PINTEREST_DEX_LONG_DATASET_ID = 26
+PINTEREST_DEX_WIDE_DATASET_ID = 27
+PINTEREST_DEX_WIDE_DATASET_METRICS = [
+    "MAU",
+]
 PINTEREST_DEX_METRIC_NAME_COLUMN = 'metric_name'
 PINTEREST_DEX_METRIC_VALUE_COLUMN = 'metric_value'
 PINTEREST_DEX_TIME_COLUMN = 'dt'
