@@ -2,6 +2,7 @@ import { ExplorePageState, SaveActionType } from 'src/explore/types';
 import { LocalStorageKeys, setItem } from 'src/utils/localStorageHelpers';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect, useRef, useState } from 'react';
+import { useHistory, useLocation } from 'react-router-dom';
 
 import ExploreViewContainer from 'src/explore/components/ExploreViewContainer';
 import { INITIAL_SIZES } from 'src/explore/components/ExploreChartPanel';
@@ -11,6 +12,7 @@ import { URL_PARAMS } from 'src/constants';
 import { addDangerToast } from 'src/components/MessageToasts/actions';
 import { fallbackExploreInitialData } from 'src/explore/fixtures';
 import { fetchExploreData } from 'src/pages/Chart';
+import { getParsedExploreURLParams } from 'src/explore/exploreUtils/getParsedExploreURLParams';
 import { getUrlParam } from 'src/utils/urlUtils';
 import { hydrateExplore } from 'src/explore/actions/hydrateExplore';
 import { setDatasource } from 'src/explore/actions/datasourcesActions';
@@ -19,6 +21,8 @@ export default function DEX() {
   const dispatch = useDispatch();
   const [isLoaded, setIsLoaded] = useState(false);
   const isExploreInitialized = useRef(false);
+  const history = useHistory();
+  const location = useLocation();
 
   const longDatasetId = useSelector<ExplorePageState>(
     state => state.common.conf.PINTEREST_DEX_LONG_DATASET_ID,
@@ -28,11 +32,38 @@ export default function DEX() {
   );
 
   useEffect(() => {
-    const exploreUrlParams = new URLSearchParams({
-      datasource_id: wideDatasetId as string,
-      datasource_type: 'table',
-      viz_type: 'dex',
-    });
+    const exploreUrlParams = getParsedExploreURLParams(location);
+    const currentDatasourceId = exploreUrlParams.get('datasource_id');
+    const currentDatasourceType = exploreUrlParams.get('datasource_type');
+    const currentVizType = exploreUrlParams.get('viz_type');
+
+    // Check if required parameters are missing or incorrect
+    const needsUpdate =
+      !currentDatasourceId ||
+      !currentDatasourceType ||
+      currentVizType !== 'dex';
+
+    if (needsUpdate) {
+      // Create new URLSearchParams with current params and defaults
+      const newParams = new URLSearchParams(location.search);
+
+      // Set defaults if missing
+      if (!currentDatasourceId) {
+        newParams.set('datasource_id', wideDatasetId as string);
+      }
+      if (!currentDatasourceType) {
+        newParams.set('datasource_type', 'table');
+      }
+      if (currentVizType !== 'dex') {
+        newParams.set('viz_type', 'dex');
+      }
+
+      // Update the location
+      const newUrl = `${location.pathname}?${newParams.toString()}`;
+      history.replace(newUrl);
+      return; // Exit early, the effect will run again with the new location
+    }
+
     const saveAction = getUrlParam(
       URL_PARAMS.saveAction,
     ) as SaveActionType | null;
@@ -64,7 +95,7 @@ export default function DEX() {
       LocalStorageKeys.ChartSplitSizes,
       INITIAL_SIZES as [number, number],
     );
-  }, [dispatch, wideDatasetId]);
+  }, [dispatch, wideDatasetId, location, history]);
 
   useEffect(() => {
     // Fetch and set both long and wide datasources

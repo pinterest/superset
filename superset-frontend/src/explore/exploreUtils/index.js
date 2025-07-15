@@ -104,6 +104,22 @@ export function mountExploreUrl(endpointType, extraSearch = {}, force = false) {
   return uri.directory(directory).search(search).toString();
 }
 
+export function mountDEXUrl(endpointType, extraSearch = {}, force = false) {
+  const uri = new URI('/');
+  const directory = "/dex/";
+  const search = uri.search(true);
+  Object.keys(extraSearch).forEach(key => {
+    search[key] = extraSearch[key];
+  });
+  if (endpointType === URL_PARAMS.standalone.name) {
+    if (force) {
+      search.force = '1';
+    }
+    search.standalone = DashboardStandaloneMode.HideNav;
+  }
+  return uri.directory(directory).search(search).toString();
+}
+
 export function getChartDataUri({ path, qs, allowDomainSharding = false }) {
   // The search params from the window.location are carried through,
   // but can be specified with curUrl (used for unit tests to spoof

@@ -58,7 +58,7 @@ import { chartPropShape } from 'src/dashboard/util/propShapes';
 import { mergeExtraFormData } from 'src/dashboard/components/nativeFilters/utils';
 import { postFormData, putFormData } from 'src/explore/exploreUtils/formData';
 import { datasourcesActions } from 'src/explore/actions/datasourcesActions';
-import { mountExploreUrl } from 'src/explore/exploreUtils';
+import { mountExploreUrl, mountDEXUrl } from 'src/explore/exploreUtils';
 import { getFormDataFromControls } from 'src/explore/controlUtils';
 import * as exploreActions from 'src/explore/actions/exploreActions';
 import * as saveModalActions from 'src/explore/actions/saveModalActions';
@@ -215,6 +215,17 @@ const updateHistory = debounce(
       // avoid race condition in case user changes route before explore updates the url
       if (window.location.pathname.startsWith('/explore')) {
         const url = mountExploreUrl(
+          standalone ? URL_PARAMS.standalone.name : null,
+          {
+            [URL_PARAMS.formDataKey.name]: key,
+            ...additionalParam,
+          },
+          force,
+        );
+        window.history[stateModifier](payload, title, url);
+      }
+      if (window.location.pathname.startsWith('/dex')) {
+        const url = mountDEXUrl(
           standalone ? URL_PARAMS.standalone.name : null,
           {
             [URL_PARAMS.formDataKey.name]: key,
