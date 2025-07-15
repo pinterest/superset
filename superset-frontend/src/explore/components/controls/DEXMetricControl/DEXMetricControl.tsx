@@ -1,4 +1,3 @@
-import AdhocMetric, { EXPRESSION_TYPES } from '../MetricControl/AdhocMetric';
 import { JsonObject, SupersetClient, t } from '@superset-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect, useState } from 'react';
@@ -6,8 +5,10 @@ import { useEffect, useState } from 'react';
 import { ControlComponentProps } from 'src/explore/components/Control';
 import { Dataset } from '@superset-ui/chart-controls';
 import { ExplorePageState } from 'src/explore/types';
-import SelectControl from '../SelectControl';
 import { changeDatasource } from 'src/explore/actions/datasourcesActions';
+
+import AdhocMetric, { EXPRESSION_TYPES } from '../MetricControl/AdhocMetric';
+import SelectControl from '../SelectControl';
 
 export default function DEXMetricControl(props: ControlComponentProps) {
   const dispatch = useDispatch();
