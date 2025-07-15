@@ -106,7 +106,7 @@ export function mountExploreUrl(endpointType, extraSearch = {}, force = false) {
 
 export function mountDEXUrl(endpointType, extraSearch = {}, force = false) {
   const uri = new URI('/');
-  const directory = "/dex/";
+  const directory = '/dex/';
   const search = uri.search(true);
   Object.keys(extraSearch).forEach(key => {
     search[key] = extraSearch[key];
