@@ -37,7 +37,7 @@ class DatasetTableMetadataRestApi(BaseSupersetModelRestApi):
   def table_metadata(self, pk: int) -> Response:
     """Extract all columns referenced in jinja templates for virtual datasets.
     ---
-    post:
+    get:
       summary: Get dataset table metadata
       parameters:
       - in: path
@@ -45,7 +45,6 @@ class DatasetTableMetadataRestApi(BaseSupersetModelRestApi):
         schema:
           type: integer
       responses:
-        200:
         200:
           description: Dataset table metadata result
           content:
