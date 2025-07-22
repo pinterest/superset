@@ -180,7 +180,9 @@ class TestGetDatasetTableMetadataCommand(SupersetTestCase):
                 table="table_1", schema=None
             )
         }
-        tables = GetDatasetTableMetadataCommand(1)._get_dataset_tables()
+        command = GetDatasetTableMetadataCommand(1)
+        command.validate()
+        tables = command._get_dataset_tables()
         assert self.mock_extract_tables.call_count == 1
         assert tables == {
             Table(
@@ -196,10 +198,12 @@ class TestGetDatasetTableMetadataCommand(SupersetTestCase):
             table_name="tablea",
             schema="schemaa",
         )
-        tables = GetDatasetTableMetadataCommand(1)._get_dataset_tables()
+        command = GetDatasetTableMetadataCommand(1)
+        command.validate()
+        tables = command._get_dataset_tables()
         assert self.mock_extract_tables.call_count == 0
         assert tables == {
             Table(
-                table="tablea", schema="schemaa"
+                table="tablea", schema="schemaa", catalog="schemaa"
             )
         }
