@@ -208,6 +208,7 @@ BASE_LIST_COLUMNS = [
     "roles.name",
     "is_managed_externally",
     "uuid",
+    "relevance_score",
 ]
 
 # Full tags (current behavior - includes all tag types)
@@ -284,6 +285,34 @@ class DashboardRestApi(CustomTagsOptimizationMixin, BaseSupersetModelRestApi):
         )
         super().__init__()
 
+        original_apply_order_by = self.datamodel.apply_order_by
+
+        # Override the apply_order_by method to handle relevance_score ordering
+        def custom_apply_order_by(query, order_column, order_direction, **kwargs):
+            if order_column == "relevance_score":
+                # Clear any existing ordering
+                query = query.order_by(None)
+
+                # Apply custom ordering based on relevance_score
+                if order_direction == "desc":
+                    return query.order_by(
+                        Dashboard.relevance_score.desc(),
+                        Dashboard.published.desc(),
+                        Dashboard.dashboard_title.asc(),
+                    )
+                return query.order_by(
+                    Dashboard.relevance_score.asc(),
+                    Dashboard.published.asc(),
+                    Dashboard.dashboard_title.asc(),
+                )
+
+            # For all other columns, use the original method
+            return original_apply_order_by(
+                query, order_column, order_direction, **kwargs
+            )
+
+        self.datamodel.apply_order_by = custom_apply_order_by
+
     @expose("/", methods=("GET",))
     @protect()
     @safe
@@ -358,6 +387,7 @@ class DashboardRestApi(CustomTagsOptimizationMixin, BaseSupersetModelRestApi):
         "dashboard_title",
         "published",
         "changed_on",
+        "relevance_score",
     ]
 
     add_columns = [
@@ -468,6 +498,39 @@ class DashboardRestApi(CustomTagsOptimizationMixin, BaseSupersetModelRestApi):
             current_app.config["VERSION_STRING"],
             current_app.config["VERSION_SHA"],
         )
+
+    def __init__(self):
+        super().__init__()
+        original_apply_order_by = self.datamodel.apply_order_by
+
+        # Override the apply_order_by method to handle relevance_score ordering
+        def custom_apply_order_by(
+            query, order_column, order_direction, **kwargs
+        ):
+            if order_column == "relevance_score":
+                # Clear any existing ordering
+                query = query.order_by(None)
+
+                # Apply custom ordering based on relevance_score
+                if order_direction == "desc":
+                    return query.order_by(
+                        Dashboard.relevance_score.desc(),
+                        Dashboard.published.desc(),
+                        Dashboard.dashboard_title.asc()
+                    )
+                else:
+                    return query.order_by(
+                        Dashboard.relevance_score.asc(),
+                        Dashboard.published.asc(),
+                        Dashboard.dashboard_title.asc()
+                    )
+
+            # For all other columns, use the original method
+            return original_apply_order_by(
+                query, order_column, order_direction, **kwargs
+            )
+
+        self.datamodel.apply_order_by = custom_apply_order_by
 
     @expose("/<id_or_slug>", methods=("GET",))
     @protect()

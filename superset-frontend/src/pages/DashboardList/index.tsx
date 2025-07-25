@@ -222,7 +222,7 @@ function DashboardList(props: DashboardListProps) {
   const canDelete = hasPerm('can_write');
   const canExport = hasPerm('can_export');
 
-  const initialSort = [{ id: 'changed_on_delta_humanized', desc: true }];
+  const initialSort = [{ id: 'relevance_score', desc: true }];
 
   const openDashboardEditModal = useCallback((dashboard: Dashboard) => {
     setDashboardToEdit(dashboard);

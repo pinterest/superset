@@ -42,13 +42,28 @@ class DashboardTitleOrSlugFilter(BaseFilter):  # pylint: disable=too-few-public-
     arg_name = "title_or_slug"
 
     def apply(self, query: Query, value: Any) -> Query:
+        value = value.strip()
+
         if not value:
             return query
-        ilike_value = f"%{value}%"
+
+        # Split the value into search terms
+        search_terms = value.split()
+        if not search_terms:
+            return query
+
+        # Create a list of conditions for title and slug
+        titles, slugs = [], []
+
+        for term in search_terms:
+            ilike_value = f"%{term}%"
+            titles.append(Dashboard.dashboard_title.ilike(ilike_value))
+            slugs.append(Dashboard.slug.ilike(ilike_value))
+
         return query.filter(
             or_(
-                Dashboard.dashboard_title.ilike(ilike_value),
-                Dashboard.slug.ilike(ilike_value),
+                and_(*titles),
+                and_(*slugs),
             )
         )
 
