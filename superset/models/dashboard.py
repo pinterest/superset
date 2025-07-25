@@ -36,8 +36,13 @@ from sqlalchemy import (
     Table,
     Text,
     UniqueConstraint,
+    case,
+    func,
+    or_,
+    select,
 )
 from sqlalchemy.engine.base import Connection
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship, subqueryload
 from sqlalchemy.orm.mapper import Mapper
 from sqlalchemy.sql.elements import BinaryExpression
@@ -45,6 +50,7 @@ from sqlalchemy.sql.elements import BinaryExpression
 from superset import db, is_feature_enabled, security_manager
 from superset.connectors.sqla.models import BaseDatasource, SqlaTable
 from superset.daos.datasource import DatasourceDAO
+from superset.models.core import FavStar
 from superset.models.helpers import AuditMixinNullable, ImportExportMixin
 from superset.models.slice import Slice
 from superset.models.user_attributes import UserAttribute
@@ -56,6 +62,8 @@ from superset.utils import core as utils, json
 metadata = Model.metadata  # pylint: disable=no-member
 logger = logging.getLogger(__name__)
 
+MISSING_TITLE_PENALTY = 1000
+DEPRECATED_TITLE_PENALTY = 10000
 
 def copy_dashboard(_mapper: Mapper, _connection: Connection, target: Dashboard) -> None:
     dashboard_id = app.config["DASHBOARD_TEMPLATE_ID"]
@@ -159,6 +167,12 @@ class Dashboard(AuditMixinNullable, ImportExportMixin, Model):
         viewonly=True,  # cascading deletion already handled by superset.tags.models.ObjectUpdater.after_delete  # noqa: E501
     )
     theme = relationship("Theme", foreign_keys=[theme_id])
+    favorites = relationship(
+        FavStar,
+        primaryjoin="and_(Dashboard.id == foreign(FavStar.obj_id), "
+        "FavStar.class_name == 'Dashboard')",
+        viewonly=True,  # cascading deletion already handled by superset.models.core.ObjectUpdater.after_delete
+    )
     published = Column(Boolean, default=False)
     is_managed_externally = Column(Boolean, nullable=False, default=False)
     external_url = Column(Text, nullable=True)
@@ -350,6 +364,64 @@ class Dashboard(AuditMixinNullable, ImportExportMixin, Model):
             build_tab_tree(node, children)
 
         return {"all_tabs": all_tabs, "tab_tree": tab_tree}
+
+    @hybrid_property
+    def relevance_score(self) -> float:
+        """
+        Returns a relevance score for the dashboard based on its favorite count.
+        This is used for sorting dashboards in the list view.
+        """
+        score = len(self.favorites)
+
+        if not self.dashboard_title:
+            score -= MISSING_TITLE_PENALTY
+            return score
+        if self.dashboard_title:
+            title_lower = self.dashboard_title.lower().trim()
+
+            if title_lower.startswith("[ untitled ]"):
+                score -= MISSING_TITLE_PENALTY
+
+            if (
+                title_lower.startswith("[deprecated]")
+                or title_lower.endswith("[deprecated]")
+                or title_lower.startswith("(deprecated)")
+                or title_lower.endswith("(deprecated)")
+            ):
+                score -= DEPRECATED_TITLE_PENALTY
+
+        return score
+
+    @relevance_score.expression
+    def relevance_score(cls):
+        """
+        SQL expression for relevance score in queries
+        """
+        return (
+            # Start with favorite count
+            select(func.count(FavStar.id))
+            .where(FavStar.obj_id == cls.id)
+            .where(FavStar.class_name == 'Dashboard')
+            .scalar_subquery()
+            # Subtract penalty for missing titles
+            - case(
+                [
+                    (cls.dashboard_title.is_(None), MISSING_TITLE_PENALTY),
+                    (func.lower(func.trim(cls.dashboard_title)).like('[ untitled ]%'), MISSING_TITLE_PENALTY),
+                ],
+                else_=0,
+            )
+            # Subtract penalty for deprecated titles
+            - case(
+                [
+                    (func.lower(func.trim(cls.dashboard_title)).like('[deprecated]%'), DEPRECATED_TITLE_PENALTY),
+                    (func.lower(func.trim(cls.dashboard_title)).like('%[deprecated]'), DEPRECATED_TITLE_PENALTY),
+                    (func.lower(func.trim(cls.dashboard_title)).like('(deprecated)%'), DEPRECATED_TITLE_PENALTY),
+                    (func.lower(func.trim(cls.dashboard_title)).like('%(deprecated)'), DEPRECATED_TITLE_PENALTY),
+                ],
+                else_=0,
+            )
+        )
 
     def update_thumbnail(self) -> None:
         cache_dashboard_thumbnail.delay(
