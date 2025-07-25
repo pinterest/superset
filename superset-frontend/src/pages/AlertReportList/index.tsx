@@ -87,6 +87,7 @@ interface AlertListProps {
     userId: string | number;
     firstName: string;
     lastName: string;
+    username: string;
   };
 }
 const deleteAlerts = makeApi<number[], { message: string }>({

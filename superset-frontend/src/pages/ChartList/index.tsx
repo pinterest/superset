@@ -160,6 +160,7 @@ interface ChartListProps {
     userId: string | number;
     firstName: string;
     lastName: string;
+    username: string;
   };
 }
 

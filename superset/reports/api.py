@@ -159,6 +159,7 @@ class ReportScheduleRestApi(BaseSupersetModelRestApi):
         "owners.id",
         "owners.last_name",
         "owners.email",
+        "owners.username",
         "recipients.id",
         "recipients.type",
         "timezone",

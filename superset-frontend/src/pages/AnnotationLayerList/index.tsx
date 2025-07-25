@@ -54,6 +54,7 @@ interface AnnotationLayersListProps {
     userId: string | number;
     firstName: string;
     lastName: string;
+    username: string;
   };
 }
 

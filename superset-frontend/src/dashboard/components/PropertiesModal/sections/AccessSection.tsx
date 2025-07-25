@@ -22,7 +22,7 @@ import { isFeatureEnabled, FeatureFlag } from '@superset-ui/core';
 import { AsyncSelect } from '@superset-ui/core/components';
 import { type TagType } from 'src/components';
 import { loadTags } from 'src/components/Tag/utils';
-import getOwnerName from 'src/utils/getOwnerName';
+import { getOwnerDisplayName } from 'src/utils/getOwnerName';
 import Owner from 'src/types/Owner';
 import { ModalFormField } from 'src/components/Modal';
 import {
@@ -75,7 +75,7 @@ const AccessSection = ({
       (owners || []).map((owner: Owner & { email?: string }) => ({
         value: owner.id,
         label: OwnerSelectLabel({
-          name: getOwnerName(owner),
+          name: getOwnerDisplayName(owner),
           email: owner.email,
         }),
         [OWNER_TEXT_LABEL_PROP]: getOwnerName(owner),

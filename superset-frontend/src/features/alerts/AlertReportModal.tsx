@@ -101,6 +101,7 @@ import { getChartDataRequest } from 'src/components/Chart/chartAction';
 import DateFilterControl from 'src/explore/components/controls/DateFilterControl';
 import { Icons } from '@superset-ui/core/components/Icons';
 import { StandardModal, ModalFormField } from 'src/components/Modal';
+import { getOwnerDisplayName } from 'src/utils/getOwnerName';
 import NumberInput from './components/NumberInput';
 import { AlertReportCronScheduler } from './components/AlertReportCronScheduler';
 import { NotificationMethod } from './components/NotificationMethod';
@@ -1889,7 +1890,12 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
               {
                 value: currentUser.userId,
                 label: OwnerSelectLabel({
-                  name: `${currentUser.firstName} ${currentUser.lastName}`,
+                  name: getOwnerDisplayName({
+                    ...currentUser,
+                    first_name: currentUser.firstName,
+                    last_name: currentUser.lastName,
+                    id: currentUser.userId,
+                  } as Owner),
                   email: currentUser.email,
                 }),
                 [OWNER_TEXT_LABEL_PROP]: `${currentUser.firstName} ${currentUser.lastName}`,
@@ -1989,7 +1995,7 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
         owners: (resource.owners || []).map(owner => {
           const ownerName =
             (owner as MetaObject).label ||
-            `${(owner as Owner).first_name} ${(owner as Owner).last_name}`;
+            getOwnerDisplayName(owner as Owner);
           return {
             value: (owner as MetaObject).value || owner.id,
             label: OwnerSelectLabel({

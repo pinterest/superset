@@ -53,6 +53,7 @@ import {
   getColorNamespace,
   getFreshLabelsColorMapEntries,
 } from 'src/utils/colorScheme';
+import Owner from 'src/types/Owner';
 import { useDispatch } from 'react-redux';
 import {
   setColorScheme,
@@ -86,13 +87,7 @@ type PropertiesModalProps = {
 };
 
 type Roles = { id: number; name: string }[];
-type Owners = {
-  id: number;
-  full_name?: string;
-  first_name?: string;
-  last_name?: string;
-  email?: string;
-}[];
+type Owners = Owner[];
 type DashboardInfo = {
   id: number;
   title: string;
