@@ -1,4 +1,9 @@
-import { JsonObject, SupersetClient, t } from '@superset-ui/core';
+import {
+  DatasourceType,
+  JsonObject,
+  SupersetClient,
+  t,
+} from '@superset-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect, useState } from 'react';
 
@@ -104,7 +109,10 @@ export default function DEXMetricControl(props: ControlComponentProps) {
 
     if (wideDatasetMetrics.includes(selectedValue)) {
       // Change dataset to wide dataset
-      targetDataset = wideDataset;
+      targetDataset = {
+        ...wideDataset,
+        type: DatasourceType.Query,
+      };
       newMetric = new AdhocMetric({
         expressionType: EXPRESSION_TYPES.SQL,
         sqlExpression: `SUM(${selectedValue})`,
@@ -113,7 +121,10 @@ export default function DEXMetricControl(props: ControlComponentProps) {
       });
     } else {
       // Change dataset to long dataset
-      targetDataset = longDataset;
+      targetDataset = {
+        ...longDataset,
+        type: DatasourceType.Table,
+      };
       newMetric = new AdhocMetric({
         expressionType: EXPRESSION_TYPES.SQL,
         sqlExpression: `SUM(CASE WHEN ${metricNameColumn} = '${selectedValue}' THEN ${metricValueColumn} ELSE NULL END)`,
