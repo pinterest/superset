@@ -87,6 +87,7 @@ interface SavedQueryListProps {
     userId: string | number;
     firstName: string;
     lastName: string;
+    username: string;
   };
 }
 
