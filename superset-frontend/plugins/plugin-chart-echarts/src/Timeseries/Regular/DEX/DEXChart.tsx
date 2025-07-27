@@ -81,7 +81,7 @@ export default function DEXChart(props: DEXChartTransformedProps) {
             : height
         }
       />
-      {/*<PivotTableChart {...pivotTableProps} height={PIVOT_TABLE_HEIGHT} />*/}
+      {/* <PivotTableChart {...pivotTableProps} height={PIVOT_TABLE_HEIGHT} /> */}
     </div>
   );
 }
