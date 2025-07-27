@@ -94,17 +94,17 @@ export default function buildQuery(formData: QueryFormData) {
       },
       // TODO: Change to use a single query object
       // Adding a second query to get the correctly formatted data for the pivot table
-      {
-        ...baseQueryObject,
-        metrics: [...(baseQueryObject.metrics || []), ...extra_metrics],
-        columns,
-        series_columns: groupby,
-        ...(isXAxisSet(formData) ? {} : { is_timeseries: true }),
-        // todo: move `normalizeOrderBy to extractQueryFields`
-        orderby: normalizeOrderBy(baseQueryObject).orderby,
-        time_offsets,
-        post_processing: [timeCompareOperator(formData, baseQueryObject)],
-      },
+      // {
+      //   ...baseQueryObject,
+      //   metrics: [...(baseQueryObject.metrics || []), ...extra_metrics],
+      //   columns,
+      //   series_columns: groupby,
+      //   ...(isXAxisSet(formData) ? {} : { is_timeseries: true }),
+      //   // todo: move `normalizeOrderBy to extractQueryFields`
+      //   orderby: normalizeOrderBy(baseQueryObject).orderby,
+      //   time_offsets,
+      //   post_processing: [timeCompareOperator(formData, baseQueryObject)],
+      // },
     ];
   });
 }

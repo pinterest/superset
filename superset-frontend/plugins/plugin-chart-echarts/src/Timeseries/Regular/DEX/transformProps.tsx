@@ -6,10 +6,10 @@ export default function transformProps(
   chartProps: EchartsTimeseriesChartProps,
 ): DEXChartTransformedProps {
   const defaultProps = echartsTranformProps(chartProps);
-  const { queriesData = [] } = chartProps;
+  // const { queriesData = [] } = chartProps;
   return {
     ...defaultProps,
-    datasource: chartProps.datasource,
-    pivotData: queriesData[1],
+    // datasource: chartProps.datasource,
+    // pivotData: queriesData[1],
   };
 }
