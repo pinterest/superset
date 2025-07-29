@@ -45,7 +45,7 @@ import { getFormDataWithDashboardContext } from 'src/explore/controlUtils/getFor
 const isValidResult = (rv: JsonObject): boolean =>
   rv?.result?.form_data && isDefined(rv?.result?.dataset?.id);
 
-const fetchExploreData = async (exploreUrlParams: URLSearchParams) => {
+export const fetchExploreData = async (exploreUrlParams: URLSearchParams) => {
   try {
     const rv = await makeApi<{}, ExploreResponsePayload>({
       method: 'GET',

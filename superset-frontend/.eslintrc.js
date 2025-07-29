@@ -62,6 +62,11 @@ module.exports = {
         // resolve modules from `/superset_frontend/node_modules` and `/superset_frontend`
         moduleDirectory: ['node_modules', '.'],
       },
+      // Required to resolve @pinterest-plugins/
+      typescript: {
+        alwaysTryTypes: true,
+        project: './tsconfig.json',
+      },
     },
     // only allow import from top level of module
     'import/core-modules': importCoreModules,
@@ -197,7 +202,11 @@ module.exports = {
       },
       settings: {
         'import/resolver': {
-          typescript: {},
+          // Required to resolve @pinterest-plugins/
+          typescript: {
+            alwaysTryTypes: true,
+            project: './tsconfig.json',
+          },
         },
         react: {
           version: 'detect',

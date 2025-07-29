@@ -24,6 +24,7 @@ import {
   styled,
   SupersetTheme,
 } from '@superset-ui/core';
+import { checkIsDEXContext } from '@pinterest-plugins/src/dex/utils';
 import { usePluginContext } from 'src/components/DynamicPlugins';
 import Modal from 'src/components/Modal';
 import { noOp } from 'src/utils/common';
@@ -102,6 +103,10 @@ const VizTypeControl = ({
     // make sure the modal re-opens to the last submitted viz
     setSelectedViz(initialValue);
   }, [initialValue]);
+
+  if (checkIsDEXContext()) {
+    return <></>;
+  }
 
   return (
     <>

@@ -55,7 +55,7 @@ from superset.advanced_data_type.types import AdvancedDataType
 from superset.constants import CHANGE_ME_SECRET_KEY
 from superset.jinja_context import BaseTemplateProcessor
 from superset.key_value.types import JsonKeyValueCodec
-from superset.pinterest.types import PinterestMenuItems, PinterestWelcomeTopSections
+from superset.pinterest.types import PinterestCustomLink, PinterestMenuItems, PinterestWelcomeTopSections
 from superset.stats_logger import DummyStatsLogger
 from superset.superset_typing import CacheConfig
 from superset.tasks.types import ExecutorType
@@ -1849,6 +1849,7 @@ EXTRA_RELATED_QUERY_FILTERS: ExtraRelatedQueryFilters = {}
 # [pinterest-specific]
 PINTEREST_MENU_ITEMS: list[PinterestMenuItems] | None = None
 PINTEREST_HELP_LINK: str | None = None
+PINTEREST_CUSTOM_LINKS: list[PinterestCustomLink] | None = None
 # List of allowed domains for PINTEREST_EMBEDDED_SUPERSET_BY_ID_OR_SLUG feature.
 # If empty, all domains are allowed, leave empty for dev.
 PINTEREST_EMBEDDED_SUPERSET_BY_ID_OR_SLUG_ALLOWED_DOMAINS: list[str] = []

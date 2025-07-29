@@ -31,6 +31,7 @@ import {
   t,
   useTheme,
 } from '@superset-ui/core';
+import { checkIsDEXContext } from '@pinterest-plugins/src/dex/utils';
 import { chartPropShape } from 'src/dashboard/util/propShapes';
 import ChartContainer from 'src/components/Chart/ChartContainer';
 import {
@@ -142,6 +143,7 @@ const ExploreChartPanel = ({
   const theme = useTheme();
   const gutterMargin = theme.gridUnit * GUTTER_SIZE_FACTOR;
   const gutterHeight = theme.gridUnit * GUTTER_SIZE_FACTOR;
+  const isDEXContext = checkIsDEXContext();
   const {
     ref: chartPanelRef,
     observerRef: resizeObserverRef,
@@ -441,17 +443,19 @@ const ExploreChartPanel = ({
         expandToMin
       >
         {panelBody}
-        <DataTablesPane
-          ownState={ownState}
-          queryFormData={queryFormData}
-          datasource={datasource}
-          queryForce={force}
-          onCollapseChange={onCollapseChange}
-          chartStatus={chart.chartStatus}
-          errorMessage={errorMessage}
-          actions={actions}
-          canDownload={canDownload}
-        />
+        {!isDEXContext && (
+          <DataTablesPane
+            ownState={ownState}
+            queryFormData={queryFormData}
+            datasource={datasource}
+            queryForce={force}
+            onCollapseChange={onCollapseChange}
+            chartStatus={chart.chartStatus}
+            errorMessage={errorMessage}
+            actions={actions}
+            canDownload={canDownload}
+          />
+        )}
       </Split>
       {showDatasetModal && (
         <SaveDatasetModal

@@ -383,6 +383,18 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
                 category_icon="",
                 icon="fa-question",
             )
+        # Adding this here ensures custom links are added after existing links
+        if self.config["PINTEREST_CUSTOM_LINKS"]:
+            for custom_link in self.config["PINTEREST_CUSTOM_LINKS"]:
+                appbuilder.add_link(
+                    custom_link["name"],
+                    label=__(custom_link["name"]),
+                    href=custom_link["href"],
+                    icon=custom_link.get("icon", ""),
+                    category=custom_link.get("category", ""),
+                    category_label=custom_link.get("category_label", ""),
+                    category_icon=custom_link.get("category_icon", ""),
+                )
 
         appbuilder.add_api(LogRestApi)
         appbuilder.add_view(

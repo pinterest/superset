@@ -12,14 +12,25 @@ class PinterestWelcomeTopSections(TypedDict):
     tag: str
 
 
+class PinterestCustomLink(TypedDict):
+    name: str
+    href: str
+    icon: Optional[str]
+    category: Optional[str]
+    category_icon: Optional[str]
+    icon: Optional[str]
+
+
 class TableMetadataField(TypedDict):
     key: str
     value: str
     type: Literal["string", "sql"]
 
+
 class TableMetadata(TypedDict):
     table_name: str
     metadata_fields: Optional[list[TableMetadataField]]
+
 
 class DatasetTableMetadata(TypedDict):
     database_name: str
