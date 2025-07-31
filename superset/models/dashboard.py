@@ -35,10 +35,6 @@ from sqlalchemy import (
     Table,
     Text,
     UniqueConstraint,
-    case,
-    func,
-    or_,
-    select,
 )
 from sqlalchemy.engine.base import Connection
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -360,7 +356,7 @@ class Dashboard(AuditMixinNullable, ImportExportMixin, Model):
 
         return {"all_tabs": all_tabs, "tab_tree": tab_tree}
 
-    @hybrid_property
+    @property
     def relevance_score(self) -> float:
         """
         Returns a relevance score for the dashboard based on its favorite count.
@@ -387,36 +383,6 @@ class Dashboard(AuditMixinNullable, ImportExportMixin, Model):
 
         return score
 
-    @relevance_score.expression
-    def relevance_score(cls):
-        """
-        SQL expression for relevance score in queries
-        """
-        return (
-            # Start with favorite count
-            select(func.count(FavStar.id))
-            .where(FavStar.obj_id == cls.id)
-            .where(FavStar.class_name == 'Dashboard')
-            .scalar_subquery()
-            # Subtract penalty for missing titles
-            - case(
-                [
-                    (cls.dashboard_title.is_(None), MISSING_TITLE_PENALTY),
-                    (func.lower(func.trim(cls.dashboard_title)).like('[ untitled ]%'), MISSING_TITLE_PENALTY),
-                ],
-                else_=0,
-            )
-            # Subtract penalty for deprecated titles
-            - case(
-                [
-                    (func.lower(func.trim(cls.dashboard_title)).like('[deprecated]%'), DEPRECATED_TITLE_PENALTY),
-                    (func.lower(func.trim(cls.dashboard_title)).like('%[deprecated]'), DEPRECATED_TITLE_PENALTY),
-                    (func.lower(func.trim(cls.dashboard_title)).like('(deprecated)%'), DEPRECATED_TITLE_PENALTY),
-                    (func.lower(func.trim(cls.dashboard_title)).like('%(deprecated)'), DEPRECATED_TITLE_PENALTY),
-                ],
-                else_=0,
-            )
-        )
 
     def update_thumbnail(self) -> None:
         cache_dashboard_thumbnail.delay(

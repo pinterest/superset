@@ -29,6 +29,7 @@ from flask_appbuilder.hooks import before_request
 from flask_appbuilder.models.sqla.interface import SQLAInterface
 from flask_babel import gettext, ngettext
 from marshmallow import ValidationError
+from sqlalchemy import case, func
 from werkzeug.wrappers import Response as WerkzeugResponse
 from werkzeug.wsgi import FileWrapper
 
@@ -94,7 +95,12 @@ from superset.dashboards.schemas import (
     thumbnail_query_schema,
 )
 from superset.extensions import event_logger
-from superset.models.dashboard import Dashboard
+from superset.models.core import FavStar, FavStarClassName
+from superset.models.dashboard import (
+    Dashboard,
+    DEPRECATED_TITLE_PENALTY,
+    MISSING_TITLE_PENALTY,
+)
 from superset.models.embedded_dashboard import EmbeddedDashboard
 from superset.security.guest_token import GuestUser
 from superset.tasks.thumbnails import (
@@ -348,16 +354,50 @@ class DashboardRestApi(BaseSupersetModelRestApi):
                 # Clear any existing ordering
                 query = query.order_by(None)
 
-                # Apply custom ordering based on relevance_score
+                # Join with FavStar table to get favorite counts
+                query = query.outerjoin(
+                    FavStar,
+                    (FavStar.obj_id == Dashboard.id) &
+                    (FavStar.class_name == FavStarClassName.DASHBOARD)
+                )
+
+                # Apply ordering with GROUP BY to handle the JOIN properly
+                query = query.group_by(Dashboard.id)
+
+                favorite_count = func.coalesce(func.count(FavStar.id), 0)
+
+                # Calculate title penalties (same logic as in the model)
+                title_penalty = (
+                    case(
+                        [
+                            (Dashboard.dashboard_title.is_(None), MISSING_TITLE_PENALTY),
+                            (func.lower(func.trim(Dashboard.dashboard_title)).like('[ untitled ]%'), MISSING_TITLE_PENALTY),
+                        ],
+                        else_=0,
+                    )
+                    + case(
+                        [
+                            (func.lower(func.trim(Dashboard.dashboard_title)).like('[deprecated]%'), DEPRECATED_TITLE_PENALTY),
+                            (func.lower(func.trim(Dashboard.dashboard_title)).like('%[deprecated]'), DEPRECATED_TITLE_PENALTY),
+                            (func.lower(func.trim(Dashboard.dashboard_title)).like('(deprecated)%'), DEPRECATED_TITLE_PENALTY),
+                            (func.lower(func.trim(Dashboard.dashboard_title)).like('%(deprecated)'), DEPRECATED_TITLE_PENALTY),
+                        ],
+                        else_=0,
+                    )
+                )
+
+                # Calculate relevance score (same logic as in the model)
+                relevance_score = favorite_count - title_penalty
+
                 if order_direction == "desc":
                     return query.order_by(
-                        Dashboard.relevance_score.desc(),
+                        relevance_score.desc(),
                         Dashboard.published.desc(),
                         Dashboard.dashboard_title.asc()
                     )
                 else:
                     return query.order_by(
-                        Dashboard.relevance_score.asc(),
+                        relevance_score.asc(),
                         Dashboard.published.asc(),
                         Dashboard.dashboard_title.asc()
                     )
