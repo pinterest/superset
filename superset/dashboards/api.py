@@ -378,17 +378,21 @@ class DashboardRestApi(BaseSupersetModelRestApi):
                 # Clear any existing ordering
                 query = query.order_by(None)
 
-                # Join with FavStar table to get favorite counts
+                # Create a pre-aggregated subquery that counts favorites per dashboard
+                favstar_counts = db.session.query(
+                    FavStar.obj_id.label('dashboard_id'),
+                    func.count(FavStar.id).label('favorite_count')
+                ).filter(
+                    FavStar.class_name == FavStarClassName.DASHBOARD
+                ).group_by(FavStar.obj_id).subquery()
+
+                # Join with the pre-aggregated favorite counts
                 query = query.outerjoin(
-                    FavStar,
-                    (FavStar.obj_id == Dashboard.id) &
-                    (FavStar.class_name == FavStarClassName.DASHBOARD)
+                    favstar_counts,
+                    favstar_counts.c.dashboard_id == Dashboard.id
                 )
 
-                # Apply ordering with GROUP BY to handle the JOIN properly
-                query = query.group_by(Dashboard.id)
-
-                favorite_count = func.coalesce(func.count(FavStar.id), 0)
+                favorite_count = func.coalesce(favstar_counts.c.favorite_count, 0)
 
                 # Calculate title penalties (same logic as in the model)
                 title_penalty = (
