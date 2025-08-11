@@ -474,6 +474,41 @@ class Dashboard(CoreDashboard, AuditMixinNullable, ImportExportMixin):
 
         security_manager.raise_for_access(dashboard=self)
 
+    def sync_dashboard_chart_owners(self) -> None:
+        """
+        Add the owners of this dashboard to be owners of each chart
+        when auto_sync_chart_owners is enabled.
+        A chart will have its own owners updated if the owners of the dashboard
+        and chart have mutual owners.
+        """
+        if not self.auto_sync_chart_owners:
+            return
+
+        dashboard_owner_ids = {owner.id for owner in self.owners}
+
+        for slice in self.slices:
+            slice_owner_ids = {owner.id for owner in slice.owners}
+
+            if not bool(dashboard_owner_ids & slice_owner_ids):
+                continue
+
+            if dashboard_owner_ids.issubset(slice_owner_ids):
+                continue
+
+            slice.owners = list(set(slice.owners) | set(self.owners))
+
+        db.session.commit()
+
+    @property
+    def auto_sync_chart_owners(self) -> bool:
+        return json.loads(self.params).get("auto_sync_chart_owners", False)
+
+    @auto_sync_chart_owners.setter
+    def auto_sync_chart_owners(self, value: bool) -> None:
+        metadata = json.loads(self.params or "{}")
+        metadata["auto_sync_chart_owners"] = value
+        self.params = json.dumps(metadata)
+
 
 def is_uuid(value: str | int) -> bool:
     try:
