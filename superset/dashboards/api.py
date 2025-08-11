@@ -765,6 +765,19 @@ class DashboardRestApi(BaseSupersetModelRestApi):
             return self.response_400(message=error.messages)
         try:
             changed_model = UpdateDashboardCommand(pk, item).run()
+
+            # Sync chart owners after the dashboard has been updated
+            try:
+                changed_model.sync_dashboard_chart_owners()
+            except Exception as sync_error:
+                # Log the sync error
+                logger.warning(
+                    "Failed to sync chart owners for dashboard %s: %s",
+                    changed_model.id,
+                    str(sync_error),
+                    exc_info=True,
+                )
+
             last_modified_time = changed_model.changed_on.replace(
                 microsecond=0
             ).timestamp()
