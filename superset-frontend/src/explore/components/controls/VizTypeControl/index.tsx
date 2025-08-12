@@ -17,6 +17,9 @@
  * under the License.
  */
 import { useCallback, useState } from 'react';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import { showMinimalChartView } from '@pinterest-plugins/src/utils';
 import {
   css,
   t,
@@ -24,7 +27,6 @@ import {
   styled,
   SupersetTheme,
 } from '@superset-ui/core';
-import { checkIsDEXContext } from '@pinterest-plugins/src/dex/utils';
 import { usePluginContext } from 'src/components/DynamicPlugins';
 import Modal from 'src/components/Modal';
 import { noOp } from 'src/utils/common';
@@ -104,7 +106,7 @@ const VizTypeControl = ({
     setSelectedViz(initialValue);
   }, [initialValue]);
 
-  if (checkIsDEXContext()) {
+  if (showMinimalChartView()) {
     return <></>;
   }
 

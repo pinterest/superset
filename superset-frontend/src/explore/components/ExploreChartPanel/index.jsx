@@ -19,6 +19,9 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import Split from 'react-split';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import { showMinimalChartView } from '@pinterest-plugins/src/utils';
 import {
   css,
   DatasourceType,
@@ -31,7 +34,6 @@ import {
   t,
   useTheme,
 } from '@superset-ui/core';
-import { checkIsDEXContext } from '@pinterest-plugins/src/dex/utils';
 import { chartPropShape } from 'src/dashboard/util/propShapes';
 import ChartContainer from 'src/components/Chart/ChartContainer';
 import {
@@ -143,7 +145,6 @@ const ExploreChartPanel = ({
   const theme = useTheme();
   const gutterMargin = theme.gridUnit * GUTTER_SIZE_FACTOR;
   const gutterHeight = theme.gridUnit * GUTTER_SIZE_FACTOR;
-  const isDEXContext = checkIsDEXContext();
   const {
     ref: chartPanelRef,
     observerRef: resizeObserverRef,
@@ -443,7 +444,7 @@ const ExploreChartPanel = ({
         expandToMin
       >
         {panelBody}
-        {!isDEXContext && (
+        {!showMinimalChartView() && (
           <DataTablesPane
             ownState={ownState}
             queryFormData={queryFormData}

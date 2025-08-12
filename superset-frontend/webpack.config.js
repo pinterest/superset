@@ -170,6 +170,19 @@ if (!isDevMode) {
   );
 }
 
+if (process.env.USE_PINTEREST_PLUGINS !== 'true') {
+  plugins.push(
+    new webpack.NormalModuleReplacementPlugin(
+      /pinterest-plugins\/src\/views\/routes$/,
+      path.resolve(__dirname, 'pinterest-plugins/src/views/routes.stub.tsx'),
+    ),
+    new webpack.NormalModuleReplacementPlugin(
+      /@pinterest-plugins\/src\/utils$/,
+      path.resolve(__dirname, 'pinterest-plugins/src/utils.stub.ts'),
+    ),
+  );
+}
+
 const PREAMBLE = [path.join(APP_DIR, '/src/preamble.ts')];
 if (isDevMode) {
   // A Superset webpage normally includes two JS bundles in dev, `theme.ts` and

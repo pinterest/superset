@@ -21,6 +21,9 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import { showMinimalChartView } from '@pinterest-plugins/src/utils';
 import {
   styled,
   t,
@@ -31,7 +34,6 @@ import {
   useComponentDidMount,
   usePrevious,
 } from '@superset-ui/core';
-import { checkIsDEXContext } from '@pinterest-plugins/src/dex/utils';
 import { debounce, isEqual, isObjectLike, omit, pick } from 'lodash';
 import { Resizable } from 're-resizable';
 import { usePluginContext } from 'src/components/DynamicPlugins';
@@ -246,7 +248,7 @@ function setSidebarWidths(key, dimension) {
 }
 
 function ExploreViewContainer(props) {
-  const isDEXContext = checkIsDEXContext();
+  const minimalChartMode = showMinimalChartView();
   const dynamicPluginContext = usePluginContext();
   const dynamicPlugin = dynamicPluginContext.dynamicPlugins[props.vizType];
   const isDynamicPluginLoading = dynamicPlugin && dynamicPlugin.mounting;
@@ -560,7 +562,7 @@ function ExploreViewContainer(props) {
 
   return (
     <ExploreContainer>
-      {!isDEXContext && (
+      {!minimalChartMode && (
         <ConnectedExploreChartHeader
           actions={props.actions}
           canOverwrite={props.can_overwrite}
@@ -604,7 +606,7 @@ function ExploreViewContainer(props) {
             }
           `}
         />
-        {!isDEXContext && (
+        {!minimalChartMode && (
           <Resizable
             onResizeStop={(evt, direction, ref, d) => {
               setWidth(ref.getBoundingClientRect().width);

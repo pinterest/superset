@@ -16,6 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import { pinterestRoutes } from '@pinterest-plugins/src/views/routes';
 import { FeatureFlag, isFeatureEnabled } from '@superset-ui/core';
 import { lazy, ComponentType, ComponentProps } from 'react';
 
@@ -123,11 +126,6 @@ const RowLevelSecurityList = lazy(
     ),
 );
 
-const DEX = lazy(
-  () =>
-    import(/* webpackChunkName: "DEX" */ '@pinterest-plugins/src/pages/DEX'),
-);
-
 type Routes = {
   path: string;
   Component: ComponentType;
@@ -230,10 +228,6 @@ export const routes: Routes = [
     path: '/sqllab/',
     Component: SqlLab,
   },
-  {
-    path: '/dex/',
-    Component: DEX,
-  },
 ];
 
 if (isFeatureEnabled(FeatureFlag.TaggingSystem)) {
@@ -246,6 +240,8 @@ if (isFeatureEnabled(FeatureFlag.TaggingSystem)) {
     Component: Tags,
   });
 }
+
+routes.push(...pinterestRoutes);
 
 const frontEndRoutes = routes
   .map(r => r.path)
