@@ -16,7 +16,13 @@
       ],
       "@superset-ui/plugin-chart-*": ["./plugins/plugin-chart-*/src"],
       "@superset-ui/preset-chart-*": ["./plugins/preset-chart-*/src"],
-      "@superset-ui/switchboard": ["./packages/superset-ui-switchboard/src"]
+      "@superset-ui/switchboard": ["./packages/superset-ui-switchboard/src"],
+      // Needed to resolve @pinterest-plugins/ from superset-frontend/
+      "@pinterest-plugins": ["./pinterest-plugins"],
+      "@pinterest-plugins/*": ["./pinterest-plugins/*"],
+      // Needed to resolve @superset-frontend/ from pinterst-plugins/
+      "@superset-frontend": ["./"],
+      "@superset-frontend/*": ["./*"]
     },
     "typeRoots": ["src/types", "node_modules/@types"]
 
@@ -32,6 +38,7 @@
     "./plugins/*/src/**/*",
     "./plugins/*/types/**/*",
     "./packages/*/test/**/*",
-    "./plugins/*/test/**/*"
+    "./plugins/*/test/**/*",
+    "./pinterest-plugins/**/*"
   ]
 }

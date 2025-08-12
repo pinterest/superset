@@ -18,6 +18,9 @@
  */
 import { useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
 import Split from 'react-split';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import { showMinimalChartView } from '@pinterest-plugins/src/utils';
 import {
   css,
   DatasourceType,
@@ -468,17 +471,19 @@ const ExploreChartPanel = ({
         expandToMin
       >
         {panelBody}
-        <DataTablesPane
-          ownState={ownState}
-          queryFormData={queryFormData}
-          datasource={datasource}
-          queryForce={Boolean(force)}
-          onCollapseChange={onCollapseChange}
-          chartStatus={chart.chartStatus}
-          errorMessage={errorMessage}
-          setForceQuery={actions.setForceQuery}
-          canDownload={canDownload}
-        />
+        {!showMinimalChartView() && (
+          <DataTablesPane
+            ownState={ownState}
+            queryFormData={queryFormData}
+            datasource={datasource}
+            queryForce={Boolean(force)}
+            onCollapseChange={onCollapseChange}
+            chartStatus={chart.chartStatus}
+            errorMessage={errorMessage}
+            setForceQuery={actions.setForceQuery}
+            canDownload={canDownload}
+          />
+        )}
       </Split>
       {showDatasetModal && (
         <SaveDatasetModal

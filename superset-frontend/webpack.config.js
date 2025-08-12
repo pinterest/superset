@@ -175,6 +175,19 @@ if (!isDevMode) {
   );
 }
 
+if (process.env.USE_PINTEREST_PLUGINS !== 'true') {
+  plugins.push(
+    new webpack.NormalModuleReplacementPlugin(
+      /pinterest-plugins\/src\/views\/routes$/,
+      path.resolve(__dirname, 'pinterest-plugins/src/views/routes.stub.tsx'),
+    ),
+    new webpack.NormalModuleReplacementPlugin(
+      /@pinterest-plugins\/src\/utils$/,
+      path.resolve(__dirname, 'pinterest-plugins/src/utils.stub.ts'),
+    ),
+  );
+}
+
 const PREAMBLE = [path.join(APP_DIR, '/src/preamble.ts')];
 if (isDevMode) {
   // A Superset webpage normally includes two JS bundles in dev, `theme.ts` and
@@ -335,6 +348,10 @@ const config = {
           './node_modules/@storybook/react-dom-shim/dist/react-16',
         ),
       ),
+      // Alias for pinterest-plugins to make it accessible to other React components
+      '@pinterest-plugins': path.resolve(APP_DIR, './pinterest-plugins'),
+      // Alias for superset-frontend to make it accessible by Pinterest plugins
+      '@superset-frontend': path.resolve(APP_DIR, './'),
     },
     extensions: ['.ts', '.tsx', '.js', '.jsx', '.yml'],
     fallback: {
@@ -393,8 +410,8 @@ const config = {
         // include source code for plugins, but exclude node_modules and test files within them
         exclude: [/superset-ui.*\/node_modules\//, /\.test.jsx?$/],
         include: [
-          new RegExp(`${APP_DIR}/(src|.storybook|plugins|packages)`),
-          ...['./src', './.storybook', './plugins', './packages'].map(p =>
+          new RegExp(`${APP_DIR}/(src|.storybook|plugins|packages|pinterest-plugins)`),
+          ...['./src', './.storybook', './plugins', './packages', './pinterest-plugins'].map(p =>
             path.resolve(__dirname, p),
           ), // redundant but required for windows
           /@encodable/,

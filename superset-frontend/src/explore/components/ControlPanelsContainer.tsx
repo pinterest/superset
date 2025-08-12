@@ -27,6 +27,9 @@ import {
   useRef,
   useState,
 } from 'react';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import { showMinimalChartView } from '@pinterest-plugins/src/utils';
 import {
   ensureIsArray,
   t,
@@ -355,7 +358,8 @@ export const ControlPanelsContainer = (props: ControlPanelsContainerProps) => {
       prevDatasource &&
       prevDatasource.type !== DatasourceType.Query &&
       (props.exploreState.datasource?.id !== prevDatasource.id ||
-        props.exploreState.datasource?.type !== prevDatasource.type)
+        props.exploreState.datasource?.type !== prevDatasource.type) &&
+      !showMinimalChartView()
     ) {
       setShowDatasourceAlert(true);
       containerRef.current?.scrollTo(0, 0);

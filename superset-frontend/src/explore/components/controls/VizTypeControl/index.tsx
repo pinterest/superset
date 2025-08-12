@@ -17,6 +17,9 @@
  * under the License.
  */
 import { useCallback, useState } from 'react';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import { showMinimalChartView } from '@pinterest-plugins/src/utils';
 import {
   css,
   t,
@@ -94,6 +97,10 @@ const VizTypeControl = ({
     // make sure the modal re-opens to the last submitted viz
     setSelectedViz(initialValue);
   }, [initialValue]);
+
+  if (showMinimalChartView()) {
+    return <></>;
+  }
 
   return (
     <>
