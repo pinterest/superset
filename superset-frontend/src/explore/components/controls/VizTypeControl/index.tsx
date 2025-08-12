@@ -20,6 +20,9 @@ import { useCallback, useState } from 'react';
 import { t } from '@apache-superset/core/translation';
 import { getChartMetadataRegistry } from '@superset-ui/core';
 import { css, styled, SupersetTheme } from '@apache-superset/core/theme';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import { showMinimalChartView } from '@pinterest-plugins/src/utils';
 import { usePluginContext } from 'src/components';
 import { Icons, Modal } from '@superset-ui/core/components';
 import { noOp } from 'src/utils/common';
@@ -90,6 +93,10 @@ const VizTypeControl = ({
     // make sure the modal re-opens to the last submitted viz
     setSelectedViz(initialValue);
   }, [initialValue]);
+
+  if (showMinimalChartView()) {
+    return <></>;
+  }
 
   return (
     <>

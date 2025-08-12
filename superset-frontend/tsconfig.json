@@ -60,7 +60,13 @@
       "@superset-ui/plugin-chart-*": ["./plugins/plugin-chart-*/src"],
       "@superset-ui/legacy-plugin-chart-*": ["./plugins/legacy-plugin-chart-*/src"],
       "@superset-ui/legacy-preset-chart-*": ["./plugins/legacy-preset-chart-*/src"],
-      "echarts/types/src/*": ["./node_modules/echarts/types/src/*"]
+      "echarts/types/src/*": ["./node_modules/echarts/types/src/*"],
+      // Needed to resolve @pinterest-plugins/ from superset-frontend/
+      "@pinterest-plugins": ["./pinterest-plugins"],
+      "@pinterest-plugins/*": ["./pinterest-plugins/*"],
+      // Needed to resolve @superset-frontend/ from pinterst-plugins/
+      "@superset-frontend": ["./"],
+      "@superset-frontend/*": ["./*"]
     }
   },
   "include": [
@@ -72,7 +78,8 @@
     "./.storybook/**/*",
     "./webpack.config.js",
     "./webpack*.js",
-    "./package.json"
+    "./package.json",
+    "./pinterest-plugins/**/*"
   ],
   "references": [
     { "path": "./packages/superset-core" },

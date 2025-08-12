@@ -248,6 +248,19 @@ if (isDevMode) {
   );
 }
 
+if (process.env.USE_PINTEREST_PLUGINS !== 'true') {
+  plugins.push(
+    new webpack.NormalModuleReplacementPlugin(
+      /pinterest-plugins\/src\/views\/routes$/,
+      path.resolve(__dirname, 'pinterest-plugins/src/views/routes.stub.tsx'),
+    ),
+    new webpack.NormalModuleReplacementPlugin(
+      /@pinterest-plugins\/src\/utils$/,
+      path.resolve(__dirname, 'pinterest-plugins/src/utils.stub.ts'),
+    ),
+  );
+}
+
 // In dev mode, include theme.ts in preamble to avoid separate chunk HMR issues
 const PREAMBLE = isDevMode
   ? [path.join(APP_DIR, 'src/theme.ts'), path.join(APP_DIR, 'src/preamble.ts')]
@@ -462,6 +475,10 @@ const config = {
       This prevents "Module not found" errors for moment locale files.
       */
       'moment/min/moment-with-locales': false,
+      // Alias for pinterest-plugins to make it accessible to other React components
+      '@pinterest-plugins': path.resolve(APP_DIR, './pinterest-plugins'),
+      // Alias for superset-frontend to make it accessible by Pinterest plugins
+      '@superset-frontend': path.resolve(APP_DIR, './'),
     },
     extensions: ['.ts', '.tsx', '.js', '.jsx', '.yml'],
     fallback: {
@@ -505,8 +522,8 @@ const config = {
         // include source code for plugins, but exclude node_modules and test files within them
         exclude: [/superset-ui.*\/node_modules\//, /\.test.jsx?$/],
         include: [
-          new RegExp(`${APP_DIR}/(src|.storybook|plugins|packages)`),
-          ...['./src', './.storybook', './plugins', './packages'].map(p =>
+          new RegExp(`${APP_DIR}/(src|.storybook|plugins|packages|pinterest-plugins)`),
+          ...['./src', './.storybook', './plugins', './packages', './pinterest-plugins'].map(p =>
             path.resolve(__dirname, p),
           ), // redundant but required for windows
           /@encodable/,

@@ -27,6 +27,9 @@ import {
 } from 'react';
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import { showMinimalChartView } from '@pinterest-plugins/src/utils';
 import {
   useChangeEffect,
   useComponentDidMount,
@@ -367,6 +370,7 @@ interface DispatchProps {
 type ExploreViewContainerProps = StateProps & DispatchProps & OwnProps;
 
 function ExploreViewContainer(props: ExploreViewContainerProps) {
+  const minimalChartMode = showMinimalChartView();
   const dynamicPluginContext = usePluginContext();
   const dynamicPlugin = props.vizType
     ? dynamicPluginContext.dynamicPlugins[props.vizType]
@@ -881,9 +885,10 @@ function ExploreViewContainer(props: ExploreViewContainerProps) {
 
   return (
     <ExploreContainer>
-      <ConnectedExploreChartHeader
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Combined actions type is compatible at runtime
-        actions={props.actions as any}
+      {!minimalChartMode && (
+        <ConnectedExploreChartHeader
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Combined actions type is compatible at runtime
+          actions={props.actions as any}
         canOverwrite={props.can_overwrite}
         canDownload={props.can_download}
         dashboardId={props.dashboardId}
@@ -899,7 +904,8 @@ function ExploreViewContainer(props: ExploreViewContainerProps) {
         saveDisabled={!!errorMessage || props.chart.chartStatus === 'loading'}
         metadata={props.metadata}
         isSaveModalVisible={props.isSaveModalVisible}
-      />
+        />
+      )}
       <ExplorePanelContainer id="explore-container">
         <Global
           styles={css`
@@ -925,7 +931,8 @@ function ExploreViewContainer(props: ExploreViewContainerProps) {
             }
           `}
         />
-        <Resizable
+        {!minimalChartMode && (
+          <Resizable
           onResizeStop={(evt, direction, ref, d) => {
             setWidth(ref.getBoundingClientRect().width);
             setSidebarWidths(LocalStorageKeys.DatasourceWidth, d);
@@ -968,7 +975,8 @@ function ExploreViewContainer(props: ExploreViewContainerProps) {
             width={width}
           />
           {/* eslint-enable @typescript-eslint/no-explicit-any */}
-        </Resizable>
+          </Resizable>
+        )}
         {isCollapsed ? (
           <div
             className="sidebar"

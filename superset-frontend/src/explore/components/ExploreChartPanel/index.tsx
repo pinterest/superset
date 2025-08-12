@@ -20,6 +20,9 @@ import { useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Split from 'react-split';
 import { t } from '@apache-superset/core/translation';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import { showMinimalChartView } from '@pinterest-plugins/src/utils';
 import {
   DatasourceType,
   ensureIsArray,
@@ -548,17 +551,19 @@ const ExploreChartPanel = ({
         expandToMin
       >
         {panelBody}
-        <DataTablesPane
-          ownState={ownState}
-          queryFormData={queryFormData}
-          datasource={datasource}
-          queryForce={Boolean(force)}
-          onCollapseChange={onCollapseChange}
-          chartStatus={chart.chartStatus}
-          errorMessage={errorMessage}
-          setForceQuery={actions.setForceQuery}
-          canDownload={canDownload}
-        />
+        {!showMinimalChartView() && (
+          <DataTablesPane
+            ownState={ownState}
+            queryFormData={queryFormData}
+            datasource={datasource}
+            queryForce={Boolean(force)}
+            onCollapseChange={onCollapseChange}
+            chartStatus={chart.chartStatus}
+            errorMessage={errorMessage}
+            setForceQuery={actions.setForceQuery}
+            canDownload={canDownload}
+          />
+        )}
       </Split>
       {showDatasetModal && (
         <SaveDatasetModal

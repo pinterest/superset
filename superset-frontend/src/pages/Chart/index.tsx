@@ -50,7 +50,7 @@ const isValidResult = (rv: JsonObject): boolean =>
 const hasDatasetId = (rv: JsonObject): boolean =>
   isDefined(rv?.result?.dataset?.id);
 
-const fetchExploreData = async (
+export const fetchExploreData = async (
   exploreUrlParams: URLSearchParams,
   signal?: AbortSignal,
 ) => {
