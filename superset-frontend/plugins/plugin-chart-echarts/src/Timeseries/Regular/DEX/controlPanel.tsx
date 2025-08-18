@@ -6,9 +6,7 @@ import {
   Dataset,
   SortSeriesType,
   TIME_FILTER_LABELS,
-  dndGroupByControl,
   getStandardizedControls,
-  xAxisMixin,
 } from '@superset-ui/chart-controls';
 import { t, validateNonEmpty } from '@superset-ui/core';
 
