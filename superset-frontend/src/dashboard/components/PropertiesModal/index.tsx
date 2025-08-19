@@ -62,6 +62,7 @@ import {
 import { dashboardInfoChanged } from 'src/dashboard/actions/dashboardInfo';
 import { areObjectsEqual } from 'src/reduxUtils';
 import { StandardModal, useModalValidation } from 'src/components/Modal';
+import SyncChartOwnersControl from 'src/dashboard/components/PropertiesModal/SyncChartOwnersControl';
 import { validateRefreshFrequency } from '../RefreshFrequency';
 import {
   BasicInfoSection,
@@ -101,6 +102,11 @@ type DashboardInfo = {
       SUPERSET_DASHBOARD_PERIODICAL_REFRESH_LIMIT?: number;
     };
   };
+};
+export type ChartInfo = {
+  id: number;
+  name: string;
+  ownerIds: number[];
 };
 
 const PropertiesModal = ({
@@ -149,30 +155,38 @@ const PropertiesModal = ({
       json_data?: string;
     }>
   >([]);
+  const [autoSyncChartsEnabled, setAutoSyncChartsEnabled] = useState(false);
+  const [hasFetchedCharts, setHasFetchedCharts] = useState(false);
+  const [chartInfo, setChartInfo] = useState<Record<number, ChartInfo>>({});
   const categoricalSchemeRegistry = getCategoricalSchemeRegistry();
   const originalDashboardMetadata = useRef<Record<string, any>>({});
   const originalCss = useRef<string | null>(null);
   const cssDebounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const handleErrorResponse = async (response: Response) => {
-    const { error, statusText, message } = await getClientErrorObject(response);
-    let errorText = error || statusText || t('An error has occurred');
-    if (
-      typeof message === 'object' &&
-      'json_metadata' in message &&
-      typeof (message as { json_metadata: unknown }).json_metadata === 'string'
-    ) {
-      errorText = (message as { json_metadata: string }).json_metadata;
-    } else if (typeof message === 'string') {
-      errorText = message;
+  const handleErrorResponse = useCallback(
+    async (response: Response) => {
+      const { error, statusText, message } =
+        await getClientErrorObject(response);
+      let errorText = error || statusText || t('An error has occurred');
+      if (
+        typeof message === 'object' &&
+        'json_metadata' in message &&
+        typeof (message as { json_metadata: unknown }).json_metadata ===
+          'string'
+      ) {
+        errorText = (message as { json_metadata: string }).json_metadata;
+      } else if (typeof message === 'string') {
+        errorText = message;
 
-      if (message === 'Forbidden') {
-        errorText = t('You do not have permission to edit this dashboard');
+        if (message === 'Forbidden') {
+          errorText = t('You do not have permission to edit this dashboard');
+        }
       }
-    }
 
-    addDangerToast(String(errorText));
-  };
+      addDangerToast(String(errorText));
+    },
+    [addDangerToast],
+  );
 
   const handleDashboardData = useCallback(
     dashboardData => {
@@ -227,6 +241,27 @@ const PropertiesModal = ({
     [form],
   );
 
+  const fetchChartInfo = useCallback(() => {
+    setHasFetchedCharts(true);
+
+    SupersetClient.get({
+      endpoint: `/api/v1/dashboard/${dashboardId}/charts`,
+    })
+      .then(response => {
+        const charts = response.json.result;
+        const chartInfoMap: Record<number, ChartInfo> = {};
+        charts.forEach((chart: any) => {
+          chartInfoMap[chart.id] = {
+            id: chart.id,
+            name: chart.slice_name,
+            ownerIds: (chart.owners ?? []).map((owner: any) => owner.id),
+          };
+        });
+        setChartInfo(chartInfoMap);
+      })
+      .catch(handleErrorResponse);
+  }, [dashboardId, handleErrorResponse]);
+
   const fetchDashboardDetails = useCallback(() => {
     // We fetch the dashboard details because not all code
     // that renders this component have all the values we need.
@@ -247,7 +282,7 @@ const PropertiesModal = ({
 
       setIsLoading(false);
     }, handleErrorResponse);
-  }, [dashboardId, handleDashboardData]);
+  }, [dashboardId, handleDashboardData, handleErrorResponse]);
 
   const getJsonMetadata = () => {
     try {
@@ -462,6 +497,20 @@ const PropertiesModal = ({
     }
   }, [show]);
 
+  const getAutoSyncChartsControl = () => (
+    <SyncChartOwnersControl
+      autoSyncChartsEnabled={autoSyncChartsEnabled}
+      onChange={(val: boolean): void => {
+        const nextVal = val ?? false;
+        const jsonMetadataObj = getJsonMetadata();
+        jsonMetadataObj.auto_sync_chart_owners = nextVal;
+        setJsonMetadata(jsonStringify(jsonMetadataObj));
+      }}
+      dashboardOwnerIds={owners.map(owner => owner.id)}
+      chartInfoMap={chartInfo}
+    />
+  );
+
   useEffect(() => {
     if (show) {
       // Reset loading state when modal opens
@@ -536,7 +585,7 @@ const PropertiesModal = ({
     } catch (error) {
       handleErrorResponse(error);
     }
-  }, [dashboardId]);
+  }, [addDangerToast, dashboardId, handleErrorResponse]);
 
   const handleChangeTags = (tags: { label: string; value: number }[]) => {
     const parsedTags: TagType[] = ensureIsArray(tags).map(r => ({
@@ -676,6 +725,28 @@ const PropertiesModal = ({
     }
   }, [refreshFrequency, validateSection, isDataReady]);
 
+  useEffect(() => {
+    // Update auto-sync charts setting from JSON metadata
+    // Read and parse the jsonMetadata directly or we'll have to wrap getJsonMetadata in a useCallback
+    let syncCharts = false;
+
+    try {
+      const jsonMetadataObj = jsonMetadata?.length
+        ? JSON.parse(jsonMetadata)
+        : {};
+      syncCharts = jsonMetadataObj.auto_sync_chart_owners === true;
+    } catch (_) {
+      syncCharts = false;
+    }
+
+    setAutoSyncChartsEnabled(syncCharts);
+
+    // Fetch chart info when sync is enabled for the first time
+    if (syncCharts && !hasFetchedCharts) {
+      fetchChartInfo();
+    }
+  }, [fetchChartInfo, hasFetchedCharts, jsonMetadata]);
+
   return (
     <StandardModal
       show={show}
@@ -747,17 +818,20 @@ const PropertiesModal = ({
                 />
               ),
               children: (
-                <AccessSection
-                  isLoading={isLoading}
-                  owners={owners}
-                  roles={roles}
-                  tags={tags}
-                  canAccessRoles={canAccessRoles}
-                  onChangeOwners={handleOnChangeOwners}
-                  onChangeRoles={handleOnChangeRoles}
-                  onChangeTags={handleChangeTags}
-                  onClearTags={handleClearTags}
-                />
+                <>
+                  <AccessSection
+                    isLoading={isLoading}
+                    owners={owners}
+                    roles={roles}
+                    tags={tags}
+                    canAccessRoles={canAccessRoles}
+                    onChangeOwners={handleOnChangeOwners}
+                    onChangeRoles={handleOnChangeRoles}
+                    onChangeTags={handleChangeTags}
+                    onClearTags={handleClearTags}
+                  />
+                  {getAutoSyncChartsControl()}
+                </>
               ),
             },
             {
