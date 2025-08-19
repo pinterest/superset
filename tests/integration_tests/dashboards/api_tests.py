@@ -72,7 +72,6 @@ from tests.integration_tests.fixtures.world_bank_dashboard import (
 
 DASHBOARDS_FIXTURE_COUNT = 10
 
-
 class TestDashboardApi(ApiOwnersTestCaseMixin, InsertChartMixin, SupersetTestCase):
     resource_name = "dashboard"
 
@@ -422,6 +421,7 @@ class TestDashboardApi(ApiOwnersTestCaseMixin, InsertChartMixin, SupersetTestCas
             "description_markeddown",
             "form_data",
             "id",
+            "owners",
             "slice_name",
             "slice_url",
         }
@@ -3342,3 +3342,84 @@ class TestDashboardApi(ApiOwnersTestCaseMixin, InsertChartMixin, SupersetTestCas
             # Cleanup
             db.session.delete(dashboard)
             db.session.commit()
+
+    @pytest.mark.usefixtures("load_birth_names_dashboard_with_slices")
+    def test_dashboard_chart_owners_sync(self):
+        """
+        Dashboard API: Test chart owners get updated when added to a dashboard with auto sync enabled
+        """
+        user_alpha1 = self.create_user(
+            "alpha1",
+            "password",
+            "Alpha",
+            email="alpha1@superset.org",
+            first_name="alpha1",
+        )
+        user_alpha2 = self.create_user(
+            "alpha2",
+            "password",
+            "Alpha",
+            email="alpha2@superset.org",
+            first_name="alpha2",
+        )
+        admin = self.get_user("admin")
+
+        boys = db.session.query(Slice).filter_by(slice_name="Boys").one()
+        girls = db.session.query(Slice).filter_by(slice_name="Girls").one()
+        trends = db.session.query(Slice).filter_by(slice_name="Trends").one()
+
+        # Insert dashboard with owners
+        dashboard = self.insert_dashboard(
+            "title1",
+            "slug1",
+            [user_alpha1.id, admin.id],
+            slices=[boys, girls, trends]
+        )
+
+        boys.owners = [user_alpha1]
+        girls.owners = [user_alpha2]
+        trends.owners = []
+
+        db.session.commit()
+
+        dashboard_data = {
+            "json_metadata": json.dumps(
+                {
+                    "auto_sync_chart_owners": True
+                }
+            ),
+        }
+
+        self.login(ADMIN_USERNAME)
+        uri = f"api/v1/dashboard/{dashboard.id}"
+        rv = self.client.put(uri, json=dashboard_data)
+        self.assertEqual(rv.status_code, 200)
+
+        boys = db.session.query(Slice).filter_by(slice_name="Boys").one()
+        girls = db.session.query(Slice).filter_by(slice_name="Girls").one()
+        trends = db.session.query(Slice).filter_by(slice_name="Trends").one()
+
+        # Check that chart owners were updated to match dashboard owners
+        self.assertIn(user_alpha1, boys.owners)
+        self.assertIn(admin, boys.owners)
+        # user_alpha2 is not an owner of the dashboard
+        self.assertNotIn(user_alpha2, boys.owners)
+
+        self.assertIn(user_alpha2, girls.owners)
+        # owners of Girls does not have mutual owners of the dashboard
+        self.assertNotIn(user_alpha1, girls.owners)
+        self.assertNotIn(admin, girls.owners)
+
+        # Trends has no owners so there should be no updates
+        self.assertEqual(trends.owners, [])
+
+        # Revert owners on slice
+        for slice in [boys, girls, trends]:
+            slice.owners = []
+            db.session.commit()
+
+        # Rollback changes
+        db.session.delete(dashboard)
+        db.session.delete(user_alpha1)
+        db.session.delete(user_alpha2)
+        db.session.commit()
