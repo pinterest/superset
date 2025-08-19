@@ -37,6 +37,7 @@ function reset_db() {
     CREATE SCHEMA admin_database;
 EOF
 "
+  docker compose start db
   docker exec -i superset_db bash -c "${RESET_DB_CMD}"
   docker compose start superset-tests-worker superset
 }
@@ -45,17 +46,9 @@ EOF
 # Run init test procedures
 #
 function test_init() {
-  echo --------------------
-  echo Upgrading
-  echo --------------------
-  superset db upgrade
-  echo --------------------
-  echo Superset init
-  echo --------------------
-  superset init
-  echo Load test users
-  echo --------------------
-  superset load-test-users
+  docker exec -i superset_app bash -c "superset db upgrade"
+  docker exec -i superset_app bash -c "superset init"
+  docker exec -i superset_app bash -c "superset load-test-users"
 }
 
 #
@@ -144,5 +137,5 @@ fi
 
 if [ $RUN_TESTS -eq 1 ]
 then
-  pytest -vv --durations=0 "${TEST_MODULE}"
+  docker exec -i -e SUPERSET__SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://superset:superset@db:5432/superset" -e SUPERSET_SECRET_KEY="TEST_NON_DEV_SECRET" superset_app bash -c " pytest -vv --durations=0 ${TEST_MODULE}"
 fi

@@ -45,9 +45,9 @@ services:
     container_name: superset_nginx
     restart: unless-stopped
     ports:
-      - "80:80"
+      - '10001:80'
     extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - 'host.docker.internal:host-gateway'
     volumes:
       - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
   redis:
@@ -55,7 +55,7 @@ services:
     container_name: superset_cache
     restart: unless-stopped
     ports:
-      - "127.0.0.1:6379:6379"
+      - '127.0.0.1:6379:6379'
     volumes:
       - redis:/data
 
@@ -69,7 +69,7 @@ services:
     container_name: superset_db
     restart: unless-stopped
     ports:
-      - "127.0.0.1:5432:5432"
+      - '127.0.0.1:5432:5432'
     volumes:
       - db_home:/var/lib/postgresql/data
       - ./docker/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
@@ -83,17 +83,17 @@ services:
     build:
       <<: *common-build
     container_name: superset_app
-    command: ["/app/docker/docker-bootstrap.sh", "app"]
+    command: ['/app/docker/docker-bootstrap.sh', 'app']
     restart: unless-stopped
     ports:
       - 8088:8088
     extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - 'host.docker.internal:host-gateway'
     user: *superset-user
     depends_on: *superset-depends-on
     volumes: *superset-volumes
     environment:
-      CYPRESS_CONFIG: "${CYPRESS_CONFIG:-}"
+      CYPRESS_CONFIG: '${CYPRESS_CONFIG:-}'
 
   superset-websocket:
     container_name: superset_websocket
@@ -101,7 +101,7 @@ services:
     ports:
       - 8080:8080
     extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - 'host.docker.internal:host-gateway'
     depends_on:
       - redis
     # Mount everything in superset-websocket into container and
@@ -132,7 +132,7 @@ services:
     build:
       <<: *common-build
     container_name: superset_init
-    command: ["/app/docker/docker-init.sh"]
+    command: ['/app/docker/docker-init.sh']
     env_file:
       - path: docker/.env # default
         required: true
@@ -142,7 +142,7 @@ services:
     user: *superset-user
     volumes: *superset-volumes
     environment:
-      CYPRESS_CONFIG: "${CYPRESS_CONFIG:-}"
+      CYPRESS_CONFIG: '${CYPRESS_CONFIG:-}'
     healthcheck:
       disable: true
 
@@ -152,10 +152,10 @@ services:
       # set this to false if you have perf issues running the npm i; npm run dev in-docker
       # if you do so, you have to run this manually on the host, which should perform better!
       BUILD_SUPERSET_FRONTEND_IN_DOCKER: ${BUILD_SUPERSET_FRONTEND_IN_DOCKER:-true}
-      SCARF_ANALYTICS: "${SCARF_ANALYTICS}"
+      SCARF_ANALYTICS: '${SCARF_ANALYTICS}'
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: ${BUILD_SUPERSET_FRONTEND_IN_DOCKER:-false}
     container_name: superset_node
-    command: ["/app/docker/docker-frontend.sh"]
+    command: ['/app/docker/docker-frontend.sh']
     env_file:
       - path: docker/.env # default
         required: true
@@ -168,7 +168,7 @@ services:
     build:
       <<: *common-build
     container_name: superset_worker
-    command: ["/app/docker/docker-bootstrap.sh", "worker"]
+    command: ['/app/docker/docker-bootstrap.sh', 'worker']
     env_file:
       - path: docker/.env # default
         required: true
@@ -181,12 +181,12 @@ services:
     user: *superset-user
     volumes: *superset-volumes
     extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - 'host.docker.internal:host-gateway'
     healthcheck:
       test:
         [
-          "CMD-SHELL",
-          "celery -A superset.tasks.celery_app:app inspect ping -d celery@$$HOSTNAME",
+          'CMD-SHELL',
+          'celery -A superset.tasks.celery_app:app inspect ping -d celery@$$HOSTNAME',
         ]
     # Bump memory limit if processing selenium / thumbnails on superset-worker
     # mem_limit: 2038m
@@ -196,7 +196,7 @@ services:
     build:
       <<: *common-build
     container_name: superset_worker_beat
-    command: ["/app/docker/docker-bootstrap.sh", "beat"]
+    command: ['/app/docker/docker-bootstrap.sh', 'beat']
     env_file:
       - path: docker/.env # default
         required: true
@@ -213,7 +213,7 @@ services:
     build:
       <<: *common-build
     container_name: superset_tests_worker
-    command: ["/app/docker/docker-bootstrap.sh", "worker"]
+    command: ['/app/docker/docker-bootstrap.sh', 'worker']
     env_file:
       - path: docker/.env # default
         required: true
@@ -235,8 +235,8 @@ services:
     healthcheck:
       test:
         [
-          "CMD-SHELL",
-          "celery inspect ping -A superset.tasks.celery_app:app -d celery@$$HOSTNAME",
+          'CMD-SHELL',
+          'celery inspect ping -A superset.tasks.celery_app:app -d celery@$$HOSTNAME',
         ]
 
 volumes:
