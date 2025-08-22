@@ -122,6 +122,7 @@ export default function DEXMetricControl(props: ControlComponentProps) {
     }
 
     let newMetric: AdhocMetric;
+    let newFilter: AdhocFilterType | null = null;
     let targetDataset;
 
     if (wideDatasetMetrics.includes(selectedValue)) {
@@ -131,10 +132,18 @@ export default function DEXMetricControl(props: ControlComponentProps) {
         type: DatasourceType.Query,
       };
       newMetric = new AdhocMetric({
-        expressionType: EXPRESSION_TYPES.SQL,
-        sqlExpression: `SUM(${selectedValue})`,
+        expressionType: EXPRESSION_TYPES.SIMPLE,
+        subject: metricValueColumn,
+        operator: 'SUM',
         label: selectedValue,
         hasCustomLabel: true,
+      });
+      newFilter = new AdhocFilter({
+        clause: 'WHERE',
+        expressionType: 'SIMPLE',
+        subject: metricNameColumn,
+        operator: '=',
+        comparator: selectedValue,
       });
     } else {
       // Change dataset to long dataset
@@ -156,6 +165,11 @@ export default function DEXMetricControl(props: ControlComponentProps) {
     }
 
     props!.onChange!([newMetric]);
+    if (newFilter !== null) {
+      dispatch(setControlValue('adhoc_filters', [newFilter]));
+    } else {
+      dispatch(setControlValue('adhoc_filters', []));
+    }
   };
 
   return (
