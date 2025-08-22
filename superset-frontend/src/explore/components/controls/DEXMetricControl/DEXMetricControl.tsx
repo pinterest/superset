@@ -1,4 +1,5 @@
 import {
+  AdhocFilter as AdhocFilterType,
   DatasourceType,
   JsonObject,
   SupersetClient,
@@ -11,7 +12,9 @@ import { ControlComponentProps } from 'src/explore/components/Control';
 import { Dataset } from '@superset-ui/chart-controls';
 import { ExplorePageState } from 'src/explore/types';
 import { changeDatasource } from 'src/explore/actions/datasourcesActions';
+import { setControlValue } from 'src/explore/actions/exploreActions';
 
+import AdhocFilter from '../FilterControl/AdhocFilter';
 import AdhocMetric, { EXPRESSION_TYPES } from '../MetricControl/AdhocMetric';
 import SelectControl from '../SelectControl';
 
@@ -85,6 +88,7 @@ export default function DEXMetricControl(props: ControlComponentProps) {
       console.warn('Datasets not loaded yet, cannot switch datasource');
       // Still create the metric but don't switch datasource
       let newMetric: AdhocMetric;
+      let newFilter: AdhocFilterType | null = null;
       if (wideDatasetMetrics.includes(selectedValue)) {
         newMetric = new AdhocMetric({
           expressionType: EXPRESSION_TYPES.SQL,
@@ -94,13 +98,26 @@ export default function DEXMetricControl(props: ControlComponentProps) {
         });
       } else {
         newMetric = new AdhocMetric({
-          expressionType: EXPRESSION_TYPES.SQL,
-          sqlExpression: `SUM(CASE WHEN ${metricNameColumn} = '${selectedValue}' THEN ${metricValueColumn} ELSE NULL END)`,
+          expressionType: EXPRESSION_TYPES.SIMPLE,
+          subject: metricValueColumn,
+          operator: 'SUM',
           label: selectedValue,
           hasCustomLabel: true,
         });
+        newFilter = new AdhocFilter({
+          clause: 'WHERE',
+          expressionType: 'SIMPLE',
+          subject: metricNameColumn,
+          operator: '=',
+          comparator: selectedValue,
+        });
       }
       props!.onChange!([newMetric]);
+      if (newFilter !== null) {
+        dispatch(setControlValue('adhoc_filters', [newFilter]));
+      } else {
+        dispatch(setControlValue('adhoc_filters', []));
+      }
       return;
     }
 
