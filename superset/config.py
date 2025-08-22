@@ -165,6 +165,11 @@ SAMPLES_ROW_LIMIT = 1000
 NATIVE_FILTER_DEFAULT_ROW_LIMIT = 1000
 # max rows retrieved by filter select auto complete
 FILTER_SELECT_ROW_LIMIT = 10000
+# Enable caching for column values in filter dropdowns and auto-complete
+# Uses the EXPLORE_FORM_DATA_CACHE_CONFIG backend
+ENABLE_COLUMN_VALUES_CACHE = True
+# Cache timeout for column values (in seconds)
+COLUMN_VALUES_CACHE_TIMEOUT = 86400  # 24 hours
 # default time filter in explore
 # values may be "Last day", "Last week", "<ISO date> : now", etc.
 DEFAULT_TIME_FILTER = NO_TIME_RANGE
@@ -1872,10 +1877,10 @@ PINTEREST_WELCOME_TOP_SECTIONS: list[PinterestWelcomeTopSections] | None = []
 PINTEREST_TOP_TAG_ID = 1
 
 # TODO (kgopal): Remove all when dex dataset info is in db
-PINTEREST_DEX_LONG_DATASET_ID = 26
-PINTEREST_DEX_WIDE_DATASET_ID = 27
+PINTEREST_DEX_LONG_DATASET_ID = 25
+PINTEREST_DEX_WIDE_DATASET_ID = 26
 PINTEREST_DEX_WIDE_DATASET_METRICS = [
-    "MAU",
+    "MAU (Approx)",
 ]
 PINTEREST_DEX_METRIC_NAME_COLUMN = 'metric_name'
 PINTEREST_DEX_METRIC_VALUE_COLUMN = 'metric_value'

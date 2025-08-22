@@ -6,7 +6,9 @@ import {
   Dataset,
   SortSeriesType,
   TIME_FILTER_LABELS,
+  dndGroupByControl,
   getStandardizedControls,
+  xAxisMixin,
 } from '@superset-ui/chart-controls';
 import { t, validateNonEmpty } from '@superset-ui/core';
 
@@ -78,8 +80,10 @@ const config: ControlPanelConfig = {
           {
             name: 'x_axis',
             config: {
+              ...dndGroupByControl,
+              ...xAxisMixin,
+              default: 'dt', // TODO (kgopal): Change to date column from constant
               type: 'HiddenControl',
-              default: 'dt',
             },
           },
         ],

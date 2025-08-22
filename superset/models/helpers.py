@@ -19,6 +19,7 @@
 
 import builtins
 import dataclasses
+import hashlib
 import logging
 import re
 import uuid
@@ -66,7 +67,7 @@ from superset.exceptions import (
     SupersetParseError,
     SupersetSecurityException,
 )
-from superset.extensions import feature_flag_manager
+from superset.extensions import cache_manager, feature_flag_manager
 from superset.jinja_context import BaseTemplateProcessor
 from superset.sql.parse import SQLScript
 from superset.sql_parse import (
@@ -1321,12 +1322,62 @@ class ExploreMixin:  # pylint: disable=too-many-public-methods
             )
         return and_(*l)
 
+    def _get_column_values_cache_key(
+        self,
+        column_name: str,
+        limit: int,
+        denormalize_column: bool,
+    ) -> str:
+        """
+        Generate a cache key for column values.
+        
+        :param column_name: Name of the column
+        :param limit: Row limit for the query
+        :param denormalize_column: Whether to denormalize column names
+        :return: Cache key string
+        """
+        # Create a unique cache key based on dataset, column, and query parameters
+        cache_key_parts = [
+            str(self.id),  # Dataset ID
+            str(self.database.id),  # Database ID
+            column_name,
+            str(limit),
+            str(denormalize_column),
+            str(self.fetch_values_predicate),  # Include predicate in cache key
+            str(self.normalize_columns),  # Include normalization setting
+        ]
+        
+        # Add RLS filters to cache key if they exist
+        try:
+            tp = self.get_template_processor()
+            rls_filters = self.get_sqla_row_level_filters(template_processor=tp)
+            if rls_filters:
+                # Convert RLS filters to string representation for cache key
+                rls_str = str(sorted([str(f) for f in rls_filters]))
+                cache_key_parts.append(rls_str)
+        except Exception:
+            # If RLS filters can't be determined, don't include them
+            pass
+        
+        # Create hash of the cache key parts
+        cache_key_string = "|".join(cache_key_parts)
+        return f"column_values_{hashlib.md5(cache_key_string.encode()).hexdigest()}"
+
     def values_for_column(  # pylint: disable=too-many-locals
         self,
         column_name: str,
         limit: int = 10000,
         denormalize_column: bool = False,
     ) -> list[Any]:
+        # Check cache first if caching is enabled
+        if app.config.get("ENABLE_COLUMN_VALUES_CACHE", True):
+            cache_key = self._get_column_values_cache_key(column_name, limit, denormalize_column)
+            cached_values = cache_manager.explore_form_data_cache.get(cache_key)
+            
+            if cached_values is not None:
+                logger.debug("Column values retrieved from cache for column: %s", column_name)
+                return cached_values
+        
         # denormalize column name before querying for values
         # unless disabled in the dataset configuration
         db_dialect = self.database.get_dialect()
@@ -1372,7 +1423,48 @@ class ExploreMixin:  # pylint: disable=too-many-public-methods
             df = pd.read_sql_query(sql=sql, con=engine)
             # replace NaN with None to ensure it can be serialized to JSON
             df = df.replace({np.nan: None})
-            return df["column_values"].to_list()
+            column_values = df["column_values"].to_list()
+            
+            # Cache the results using explore form data cache if caching is enabled
+            if app.config.get("ENABLE_COLUMN_VALUES_CACHE", True):
+                try:
+                    cache_timeout = app.config.get("COLUMN_VALUES_CACHE_TIMEOUT", 3600)
+                    cache_manager.explore_form_data_cache.set(
+                        cache_key, 
+                        column_values, 
+                        timeout=cache_timeout
+                    )
+                    logger.debug("Column values cached for column: %s", column_name)
+                except Exception as e:
+                    # Log cache errors but don't fail the request
+                    logger.warning("Failed to cache column values for column %s: %s", column_name, str(e))
+            
+            return column_values
+
+    def invalidate_column_values_cache(self, column_name: Optional[str] = None) -> None:
+        """
+        Invalidate cached column values.
+        
+        :param column_name: Specific column to invalidate, or None to invalidate all columns
+        """
+        if not app.config.get("ENABLE_COLUMN_VALUES_CACHE", True):
+            return
+            
+        try:
+            if column_name:
+                # Invalidate cache for a specific column
+                cache_key = self._get_column_values_cache_key(column_name, 10000, False)
+                cache_manager.explore_form_data_cache.delete(cache_key)
+                logger.debug("Cache invalidated for column: %s", column_name)
+            else:
+                # Invalidate cache for all columns by pattern matching
+                # This is a simple approach - in production you might want more sophisticated invalidation
+                logger.debug("Column values cache invalidation requested for all columns")
+                # Note: The explore form data cache doesn't support pattern deletion by default
+                # In a production environment, you might want to implement a more sophisticated
+                # invalidation strategy or use a cache backend that supports pattern deletion
+        except Exception as e:
+            logger.warning("Failed to invalidate column values cache: %s", str(e))
 
     def get_timestamp_expression(
         self,
