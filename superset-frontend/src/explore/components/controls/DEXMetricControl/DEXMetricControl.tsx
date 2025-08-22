@@ -63,7 +63,7 @@ export default function DEXMetricControl(props: ControlComponentProps) {
         }));
         setOptions([
           ...wideDatasetMetrics.map(metric => ({
-            label: metric,
+            label: metric.replace(/"/g, ''),
             value: metric,
           })),
           ...metricOptions,
