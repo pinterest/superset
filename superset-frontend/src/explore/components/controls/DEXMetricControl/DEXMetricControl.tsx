@@ -108,7 +108,7 @@ export default function DEXMetricControl(props: ControlComponentProps) {
           clause: 'WHERE',
           expressionType: 'SIMPLE',
           subject: metricNameColumn,
-          operator: '=',
+          operator: '==',
           comparator: selectedValue,
         });
       }
@@ -138,13 +138,6 @@ export default function DEXMetricControl(props: ControlComponentProps) {
         label: selectedValue,
         hasCustomLabel: true,
       });
-      newFilter = new AdhocFilter({
-        clause: 'WHERE',
-        expressionType: 'SIMPLE',
-        subject: metricNameColumn,
-        operator: '=',
-        comparator: selectedValue,
-      });
     } else {
       // Change dataset to long dataset
       targetDataset = {
@@ -152,10 +145,18 @@ export default function DEXMetricControl(props: ControlComponentProps) {
         type: DatasourceType.Table,
       };
       newMetric = new AdhocMetric({
-        expressionType: EXPRESSION_TYPES.SQL,
-        sqlExpression: `SUM(CASE WHEN ${metricNameColumn} = '${selectedValue}' THEN ${metricValueColumn} ELSE NULL END)`,
+        expressionType: EXPRESSION_TYPES.SIMPLE,
+        subject: metricValueColumn,
+        operator: 'SUM',
         label: selectedValue,
         hasCustomLabel: true,
+      });
+      newFilter = new AdhocFilter({
+        clause: 'WHERE',
+        expressionType: 'SIMPLE',
+        subject: metricNameColumn,
+        operator: '==',
+        comparator: selectedValue,
       });
     }
 
