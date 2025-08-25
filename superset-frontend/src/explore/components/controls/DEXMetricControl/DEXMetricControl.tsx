@@ -98,9 +98,8 @@ export default function DEXMetricControl(props: ControlComponentProps) {
         });
       } else {
         newMetric = new AdhocMetric({
-          expressionType: EXPRESSION_TYPES.SIMPLE,
-          subject: metricValueColumn,
-          operator: 'SUM',
+          expressionType: EXPRESSION_TYPES.SQL,
+          sqlExpression: `SUM(${metricValueColumn})`,
           label: selectedValue,
           hasCustomLabel: true,
         });
@@ -132,9 +131,8 @@ export default function DEXMetricControl(props: ControlComponentProps) {
         type: DatasourceType.Query,
       };
       newMetric = new AdhocMetric({
-        expressionType: EXPRESSION_TYPES.SIMPLE,
-        subject: metricValueColumn,
-        operator: 'SUM',
+        expressionType: EXPRESSION_TYPES.SQL,
+        sqlExpression: `SUM(${selectedValue})`,
         label: selectedValue,
         hasCustomLabel: true,
       });
@@ -145,9 +143,8 @@ export default function DEXMetricControl(props: ControlComponentProps) {
         type: DatasourceType.Table,
       };
       newMetric = new AdhocMetric({
-        expressionType: EXPRESSION_TYPES.SIMPLE,
-        subject: metricValueColumn,
-        operator: 'SUM',
+        expressionType: EXPRESSION_TYPES.SQL,
+        sqlExpression: `SUM(${metricValueColumn})`,
         label: selectedValue,
         hasCustomLabel: true,
       });
