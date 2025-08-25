@@ -50,7 +50,7 @@ export const anomalyDetectionControls: ControlPanelSectionConfig = {
         name: 'anomalyDetectionDetrend',
         config: {
           type: 'CheckboxControl',
-          label: t('Remove the trend from the data first'),
+          label: t('Remove trend from data first'),
           renderTrigger: false,
           default: ANOMALY_DETECTION_DEFAULT_DATA.anomalyDetectionDetrend,
           description: t(

@@ -57,7 +57,13 @@ import {
   TimeseriesChartTransformedProps,
 } from './types';
 import { DEFAULT_FORM_DATA } from './constants';
-import { ForecastSeriesEnum, ForecastValue, Refs } from '../types';
+import {
+  ForecastSeriesEnum,
+  ForecastValue,
+  Refs,
+  RawSeriesEntry,
+  AnomalyLookup,
+} from '../types';
 import { parseAxisBound } from '../utils/controls';
 import {
   calculateLowerLogTick,
@@ -82,6 +88,11 @@ import {
   formatForecastTooltipSeries,
   rebaseForecastDatum,
 } from '../utils/forecast';
+import {
+  createAnomalyLookup,
+  processAnomaliesForChart,
+  isSeriesAboutAnomaly,
+} from '../utils/anomalyDetection';
 import { convertInteger } from '../utils/convertInteger';
 import { defaultGrid, defaultYAxis } from '../defaults';
 import {
@@ -284,7 +295,12 @@ export default function transformProps(
 
   const offsetLineWidths = {};
 
-  rawSeries.forEach(entry => {
+  const anomalyLookup: AnomalyLookup = createAnomalyLookup(
+    rawSeries as RawSeriesEntry[],
+    inverted,
+  );
+
+  (rawSeries as RawSeriesEntry[]).forEach(entry => {
     const derivedSeries = isDerivedSeries(entry, chartProps.rawFormData);
     const lineStyle: LineStyleOption = {};
     if (derivedSeries) {
@@ -302,6 +318,10 @@ export default function transformProps(
     const entryName = String(entry.name || '');
     const seriesName = inverted[entryName] || entryName;
     const colorScaleKey = getOriginalSeries(seriesName, array);
+
+    if (isSeriesAboutAnomaly(seriesName)) {
+      return;
+    }
 
     const transformedSeries = transformSeries(
       entry,
@@ -445,6 +465,17 @@ export default function transformProps(
     xAxisDataType === GenericDataType.Temporal
       ? getXAxisFormatter(xAxisTimeFormat)
       : String;
+
+  const anomalyScatterSeries = processAnomaliesForChart(
+    rawSeries as RawSeriesEntry[],
+    inverted,
+    anomalyLookup,
+    tooltipFormatter,
+    refs,
+    inContextMenu || false,
+    theme,
+  );
+  series.push(...anomalyScatterSeries);
 
   const {
     setDataMask = () => {},
