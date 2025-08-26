@@ -511,6 +511,7 @@ const PropertiesModal = ({
               value={handleOwnersSelectValue()}
             />
           </FormItem>
+          {getAutoSyncChartsControl()}
         </Col>
         <Col xs={24} md={12}>
           <Typography.Title level={4} style={{ marginTop: '1em' }}>
@@ -562,6 +563,7 @@ const PropertiesModal = ({
                 value={handleOwnersSelectValue()}
               />
             </FormItem>
+            {getAutoSyncChartsControl()}
           </Col>
           <Col xs={24} md={12}>
             <FormItem
@@ -766,7 +768,6 @@ const PropertiesModal = ({
           {isFeatureEnabled(FeatureFlag.DashboardRbac) && canAccessRoles
             ? getRowsWithRoles()
             : getRowsWithoutRoles()}
-          {getAutoSyncChartsControl()}
         </>
         <Row>
           <Col xs={24} md={24}>
