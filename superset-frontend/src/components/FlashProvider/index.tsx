@@ -41,7 +41,10 @@ export function FlashProvider({ children, messages }: Props) {
       const flash = flashObj[type];
       const toast = toasts[flash as keyof typeof toasts];
       if (toast) {
-        toast(text);
+        toast(text, {
+          allowHtml: true,
+          duration: 10000,
+        });
       }
     });
   });

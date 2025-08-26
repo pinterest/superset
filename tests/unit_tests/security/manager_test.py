@@ -35,6 +35,7 @@ from superset.security.manager import (
 from superset.sql.parse import Table
 from superset.superset_typing import AdhocColumn, AdhocMetric
 from superset.utils.core import DatasourceName, override_user
+from superset.errors import SupersetError, SupersetErrorType, ErrorLevel
 
 
 def test_security_manager(app_context: None) -> None:
@@ -1186,3 +1187,104 @@ def test_get_catalogs_accessible_by_user_schema_access(
     catalogs = {"catalog1", "catalog2"}
 
     assert sm.get_catalogs_accessible_by_user(database, catalogs) == {"catalog2"}
+
+
+def test_get_dashboard_access_error_object_guest_user_no_access(
+    mocker: MockerFixture,
+    app_context: None,
+) -> None:
+    """
+    Test that guest user without access gets appropriate error message.
+    """
+    sm = SupersetSecurityManager(appbuilder)
+    mock_dashboard = mocker.MagicMock()
+
+    # Mock guest user without access
+    mocker.patch.object(sm, "is_guest_user", return_value=True)
+    mocker.patch.object(sm, "has_guest_access", return_value=False)
+
+    error = sm.get_dashboard_access_error_object(mock_dashboard)
+
+    assert isinstance(error, SupersetError)
+    assert error.error_type == SupersetErrorType.DASHBOARD_SECURITY_ACCESS_ERROR
+    assert error.level == ErrorLevel.WARNING
+    assert "You don't have access to this dashboard." in error.message
+
+def test_get_dashboard_access_error_object_external_groups_with_wiki(
+    mocker: MockerFixture,
+    app_context: None,
+) -> None:
+    """
+    Test error message for both missing roles and external groups.
+    """
+    sm = SupersetSecurityManager(appbuilder)
+    mock_dashboard = mocker.MagicMock()
+
+    # Mock regular user (not guest)
+    mocker.patch.object(sm, "is_guest_user", return_value=False)
+
+    # Mock wiki URL configured - use the pattern from other tests
+    wiki_url = "https://wiki.example.com/roles"
+    current_app_mock = mocker.patch("superset.security.manager.current_app")
+    current_app_mock.config = {"AUTH_ROLES_WIKI_URL": wiki_url}
+
+    external_groups = ["group1"]
+    error = sm.get_dashboard_access_error_object(
+        mock_dashboard,
+        required_external_groups=external_groups
+    )
+
+    assert isinstance(error, SupersetError)
+    assert error.error_type == SupersetErrorType.DASHBOARD_SECURITY_ACCESS_ERROR
+    assert error.level == ErrorLevel.WARNING
+    expected_message = f"You don't have access to this dashboard. Join one of the following external groups: group1. Learn more about roles <a target='_blank' href='{wiki_url}'>here</a>."
+    assert error.message == expected_message
+
+def test_get_dashboard_access_error_object_external_groups_without_wiki(
+    mocker: MockerFixture,
+    app_context: None,
+) -> None:
+    """
+    Test error message for missing external groups without wiki URL.
+    """
+    sm = SupersetSecurityManager(appbuilder)
+    mock_dashboard = mocker.MagicMock()
+
+    # Mock regular user (not guest)
+    mocker.patch.object(sm, "is_guest_user", return_value=False)
+
+    # Mock no wiki URL configured - use the pattern from other tests
+    current_app_mock = mocker.patch("superset.security.manager.current_app")
+    current_app_mock.config = {}  # No AUTH_ROLES_WIKI_URL key
+
+    external_groups = ["group1", "group2"]
+    error = sm.get_dashboard_access_error_object(
+        mock_dashboard,
+        required_external_groups=external_groups
+    )
+
+    assert isinstance(error, SupersetError)
+    assert error.error_type == SupersetErrorType.DASHBOARD_SECURITY_ACCESS_ERROR
+    assert error.level == ErrorLevel.WARNING
+    expected_message = f"You don't have access to this dashboard. Join one of the following external groups: group1, group2."
+    assert error.message == expected_message
+
+def test_get_dashboard_access_error_object_default_message(
+    mocker: MockerFixture,
+    app_context: None,
+) -> None:
+    """
+    Test default error message for regular users without specific details.
+    """
+    sm = SupersetSecurityManager(appbuilder)
+    mock_dashboard = mocker.MagicMock()
+
+    # Mock regular user (not guest)
+    mocker.patch.object(sm, "is_guest_user", return_value=False)
+
+    error = sm.get_dashboard_access_error_object(mock_dashboard)
+
+    assert isinstance(error, SupersetError)
+    assert error.error_type == SupersetErrorType.DASHBOARD_SECURITY_ACCESS_ERROR
+    assert error.level == ErrorLevel.WARNING
+    assert error.message == "You don't have access to this dashboard."

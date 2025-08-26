@@ -31,6 +31,7 @@ export function addToast({
   text,
   duration = 8000,
   noDuplicate = false,
+  allowHtml,
 }: Omit<ToastMeta, 'id'>) {
   return {
     type: ADD_TOAST,
@@ -40,6 +41,7 @@ export function addToast({
       text,
       duration,
       noDuplicate,
+      allowHtml,
     },
   };
 }

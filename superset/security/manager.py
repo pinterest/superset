@@ -21,7 +21,7 @@ import logging
 import re
 import time
 from collections import defaultdict
-from typing import Any, Callable, cast, NamedTuple, Optional, TYPE_CHECKING
+from typing import Any, Callable, cast, Dict, List, NamedTuple, Optional, TYPE_CHECKING
 
 from flask import current_app, Flask, g, Request
 from flask_appbuilder import Model
@@ -672,17 +672,36 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
     def get_dashboard_access_error_object(  # pylint: disable=invalid-name
         self,
         dashboard: "Dashboard",  # pylint: disable=unused-argument
+        required_external_groups: Optional[list] = None,
     ) -> SupersetError:
         """
         Return the error object for the denied Superset dashboard.
 
         :param dashboard: The denied Superset dashboard
+        :param required_external_groups: The external groups that the user is missing
         :returns: The error object
         """
 
+        message = "You don't have access to this dashboard. "
+
+        if self.is_guest_user() and not self.has_guest_access(dashboard):
+            return SupersetError(
+                error_type=SupersetErrorType.DASHBOARD_SECURITY_ACCESS_ERROR,
+                message=message.strip(),
+                level=ErrorLevel.WARNING,
+            )
+
+        if required_external_groups:
+            external_groups_str = ", ".join(str(g) for g in required_external_groups)
+            message += f"Join one of the following external groups: {external_groups_str}. "
+
+            wiki_url = current_app.config.get("AUTH_ROLES_WIKI_URL", None)
+            if wiki_url:
+                message += f"Learn more about roles <a target='_blank' href='{wiki_url}'>here</a>."
+
         return SupersetError(
             error_type=SupersetErrorType.DASHBOARD_SECURITY_ACCESS_ERROR,
-            message="You don't have access to this dashboard.",
+            message=message.strip(),
             level=ErrorLevel.WARNING,
         )
 
@@ -2522,8 +2541,17 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
             ):
                 return
 
+            missing_dashboard_roles = [
+                role for role in dashboard.roles if role not in self.get_user_roles()
+            ]
+            required_external_groups = self.get_external_groups_for_superset_roles(
+                [role.name for role in missing_dashboard_roles]
+            )
             raise SupersetSecurityException(
-                self.get_dashboard_access_error_object(dashboard)
+                self.get_dashboard_access_error_object(
+                    dashboard,
+                    required_external_groups=required_external_groups
+                )
             )
 
         if chart:
@@ -2557,6 +2585,59 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
             public_role = get_conf().get("AUTH_ROLE_PUBLIC")
             return [self.get_public_role()] if public_role else []
         return super().get_user_roles(user)
+
+    # ==================== Role Mapping Interface Methods ====================
+    # These methods provide abstracted access to AUTH_ROLES_MAPPING without
+    # exposing the raw configuration. They can be overridden in custom security managers.
+
+    def get_mapped_roles_for_external_group(self, external_group: str) -> List[str]:
+        """
+        Get Superset roles mapped to an external group.
+
+        :param external_group: The external group name (e.g., from OAuth/LDAP)
+        :return: List of Superset role names mapped to this group
+        """
+        auth_roles_mapping = current_app.config.get("AUTH_ROLES_MAPPING", {})
+        return auth_roles_mapping.get(external_group, [])
+
+    def is_external_group_mapped(self, external_group: str) -> bool:
+        """
+        Check if an external group has any role mappings.
+
+        :param external_group: The external group name
+        :return: True if the group has role mappings, False otherwise
+        """
+        auth_roles_mapping = current_app.config.get("AUTH_ROLES_MAPPING", {})
+        return external_group in auth_roles_mapping
+
+    def get_external_group_for_superset_role(self, superset_role: str) -> str:
+        """
+        Get the external group name for an internal group.
+
+        :param superset_role: The Superset role name
+        :return: The external group name
+        """
+        auth_roles_mapping = current_app.config.get("AUTH_ROLES_MAPPING", {})
+        for external_group, internal_groups in auth_roles_mapping.items():
+            if superset_role in internal_groups:
+                return external_group
+        return None
+
+    def get_external_groups_for_superset_roles(self, superset_roles: List[str]) -> List[str]:
+        """
+        Get the external group names for a list of Superset roles.
+
+        :param superset_roles: The Superset role names
+        :return: The external group names
+        """
+        auth_roles_mapping = current_app.config.get("AUTH_ROLES_MAPPING", {})
+        external_groups = set()
+        for external_group, internal_groups in auth_roles_mapping.items():
+            if set(internal_groups) & set(superset_roles):
+                external_groups.add(external_group)
+        return list(external_groups)
+
+    # ==================== End Role Mapping Interface Methods ====================
 
     def get_guest_rls_filters(
         self, dataset: "BaseDatasource"
