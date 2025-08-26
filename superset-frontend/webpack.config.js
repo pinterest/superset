@@ -180,6 +180,10 @@ if (process.env.USE_PINTEREST_PLUGINS !== 'true') {
       /@pinterest-plugins\/src\/utils$/,
       path.resolve(__dirname, 'pinterest-plugins/src/utils.stub.ts'),
     ),
+    new webpack.NormalModuleReplacementPlugin(
+      /@pinterest-plugins\/src\/visualizations$/,
+      path.resolve(__dirname, 'pinterest-plugins/src/visualizations.stub.ts'),
+    ),
   );
 }
 
