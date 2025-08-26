@@ -68,20 +68,9 @@ export type RawSeriesEntry = {
   data: DataRow[];
 };
 
-export type AnomalyLabel = {
-  isAnomaly: number;
-  anomalyScore: number;
-};
-
-export type AnomalyPoint = {
-  coord: [string | number, number];
-  value: number;
-  tooltip: string;
-};
-
 export type AnomalyLookup = Record<
   string, // series name
-  Record<string | number, AnomalyLabel> // x-coordinate -> anomaly label
+  Record<string | number, { y: number; score: number }> // x-value -> {y-value, anomaly score}
 >;
 
 export enum ForecastSeriesEnum {

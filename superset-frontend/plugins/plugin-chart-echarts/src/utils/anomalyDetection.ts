@@ -1,13 +1,7 @@
 import type { ScatterSeriesOption } from 'echarts';
 import type { SupersetTheme } from '@superset-ui/core';
 import { getDefaultTooltip } from './tooltip';
-import type {
-  Refs,
-  DataRow,
-  RawSeriesEntry,
-  AnomalyLookup,
-  AnomalyPoint,
-} from '../types';
+import type { Refs, RawSeriesEntry, AnomalyLookup } from '../types';
 
 export const ANOMALY_SUFFIXES = {
   IS_ANOMALY: '_is_anomaly',
@@ -16,16 +10,17 @@ export const ANOMALY_SUFFIXES = {
 
 export const ANOMALY_SCORE_THRESHOLDS = {
   HIGH: 0.7,
-  MEDIUM: 0.4,
-  LOW: 0.2,
+  MEDIUM: 0.3,
 } as const;
 
 export const ANOMALY_POINT_CONFIG = {
   baseSize: 6,
   zLevel: 1,
   symbol: 'circle',
-  sizeAdjustmentFactor: 5,
+  sizeAdjustmentFactor: 4,
 } as const;
+
+export const DEFAULT_ANOMALY_SCORE = 0.5;
 
 // the following two functions dynamically adjust the color and size
 // of each anomaly point based on its anomaly score, which we expect to
@@ -35,10 +30,10 @@ export function getAdjustedAnomalyPointColor(
   score: number,
   theme: SupersetTheme,
 ): string {
-  if (score > ANOMALY_SCORE_THRESHOLDS.HIGH) return theme.colors.error.base;
-  if (score > ANOMALY_SCORE_THRESHOLDS.MEDIUM) return theme.colors.warning.base;
-  if (score > ANOMALY_SCORE_THRESHOLDS.LOW) return theme.colors.alert.base;
-  return theme.colors.alert.light1;
+  if (score >= ANOMALY_SCORE_THRESHOLDS.HIGH) return theme.colors.error.base;
+  if (score >= ANOMALY_SCORE_THRESHOLDS.MEDIUM)
+    return theme.colors.warning.base;
+  return theme.colors.alert.base;
 }
 
 export function getAdjustedAnomalyPointSize(
@@ -51,71 +46,6 @@ export function getAdjustedAnomalyPointSize(
   );
 }
 
-export function createAnomalyLookup(
-  rawSeries: RawSeriesEntry[],
-  seriesNameLookup: Record<string, string>,
-): AnomalyLookup {
-  const anomalyLookup: AnomalyLookup = {};
-
-  rawSeries.forEach(entry => {
-    const entryName = String(entry.name || '');
-    const seriesName = seriesNameLookup[entryName] || entryName;
-
-    if (
-      seriesName.endsWith(ANOMALY_SUFFIXES.IS_ANOMALY) ||
-      seriesName.endsWith(ANOMALY_SUFFIXES.ANOMALY_SCORE)
-    ) {
-      // remove suffix to get base series name
-      const baseSeriesName = seriesName.replace(
-        new RegExp(
-          `${ANOMALY_SUFFIXES.IS_ANOMALY}$|${ANOMALY_SUFFIXES.ANOMALY_SCORE}$`,
-        ),
-        '',
-      );
-
-      if (!anomalyLookup[baseSeriesName]) {
-        anomalyLookup[baseSeriesName] = {};
-      }
-
-      entry.data.forEach(([x, y]: [string | number, number]) => {
-        if (!anomalyLookup[baseSeriesName][x]) {
-          anomalyLookup[baseSeriesName][x] = { isAnomaly: 0, anomalyScore: 0 };
-        }
-
-        if (seriesName.endsWith(ANOMALY_SUFFIXES.IS_ANOMALY)) {
-          anomalyLookup[baseSeriesName][x].isAnomaly = y;
-        } else if (seriesName.endsWith(ANOMALY_SUFFIXES.ANOMALY_SCORE)) {
-          anomalyLookup[baseSeriesName][x].anomalyScore = y;
-        }
-      });
-    }
-  });
-
-  return anomalyLookup;
-}
-
-export function extractAnomaliesForSeries(
-  seriesData: DataRow[],
-  seriesName: string,
-  anomalyLookup: AnomalyLookup,
-): AnomalyPoint[] {
-  const anomalies: AnomalyPoint[] = [];
-  const seriesAnomalyLabel = anomalyLookup[seriesName] || {};
-
-  seriesData.forEach(([x, y]: [string | number, number]) => {
-    const anomalyLabel = seriesAnomalyLabel[x];
-    if (anomalyLabel && anomalyLabel.isAnomaly === 1) {
-      anomalies.push({
-        coord: [x, y],
-        value: y,
-        tooltip: `Anomaly Score: ${anomalyLabel.anomalyScore}`,
-      });
-    }
-  });
-
-  return anomalies;
-}
-
 export function isSeriesAboutAnomaly(seriesName: string): boolean {
   return (
     seriesName.endsWith(ANOMALY_SUFFIXES.IS_ANOMALY) ||
@@ -123,9 +53,68 @@ export function isSeriesAboutAnomaly(seriesName: string): boolean {
   );
 }
 
+export function createAnomalyLookup(
+  rawSeries: RawSeriesEntry[],
+  seriesNameLookup: Record<string, string>,
+): AnomalyLookup {
+  const seriesLookup = new Map<string, RawSeriesEntry>();
+  rawSeries.forEach(entry => {
+    const entryName = String(entry.name || '');
+    const seriesName = seriesNameLookup[entryName] || entryName;
+    seriesLookup.set(seriesName, entry);
+  });
+
+  const anomalyLookup: AnomalyLookup = {};
+  rawSeries.forEach(entry => {
+    const entryName = String(entry.name || '');
+    const seriesName = seriesNameLookup[entryName] || entryName;
+    if (isSeriesAboutAnomaly(seriesName)) {
+      return;
+    }
+
+    const anomalyFlagSeriesName = `${seriesName}${ANOMALY_SUFFIXES.IS_ANOMALY}`;
+    const anomalyFlagSeries = seriesLookup.get(anomalyFlagSeriesName);
+    if (!anomalyFlagSeries) {
+      return;
+    }
+    // set of x-values for anomalies
+    const anomalyXValues = new Set<string | number>();
+    anomalyFlagSeries.data.forEach(
+      ([x, isAnomaly]: [string | number, number]) => {
+        if (isAnomaly === 1) {
+          anomalyXValues.add(x);
+        }
+      },
+    );
+
+    const anomalyScoreSeriesName = `${seriesName}${ANOMALY_SUFFIXES.ANOMALY_SCORE}`;
+    const anomalyScoreSeries = seriesLookup.get(anomalyScoreSeriesName);
+    // maps x-values to anomaly scores
+    const anomalyScoreLookup = new Map<string | number, number>();
+    if (anomalyScoreSeries) {
+      anomalyScoreSeries.data.forEach(
+        ([x, score]: [string | number, number]) => {
+          anomalyScoreLookup.set(x, score);
+        },
+      );
+    }
+
+    anomalyLookup[seriesName] = {};
+    entry.data.forEach(([x, y]: [string | number, number]) => {
+      if (anomalyXValues.has(x)) {
+        anomalyLookup[seriesName][x] = {
+          y,
+          score: anomalyScoreLookup.get(x) ?? DEFAULT_ANOMALY_SCORE,
+        };
+      }
+    });
+  });
+
+  return anomalyLookup;
+}
+
 export function createAnomalyScatterSeries(
   seriesName: string,
-  anomalies: AnomalyPoint[],
   anomalyLookup: AnomalyLookup,
   tooltipFormatter:
     | ((value: number | Date | null | undefined) => string)
@@ -134,25 +123,27 @@ export function createAnomalyScatterSeries(
   inContextMenu: boolean,
   theme: SupersetTheme,
 ): ScatterSeriesOption {
+  const anomalyData: any[] = [];
+  const seriesAnomalies = anomalyLookup[seriesName] || {};
+
+  Object.entries(seriesAnomalies).forEach(([x, { y, score }]) => {
+    anomalyData.push({
+      value: [x, y],
+      anomalyScore: score,
+      itemStyle: {
+        color: getAdjustedAnomalyPointColor(score, theme),
+      },
+      symbolSize: getAdjustedAnomalyPointSize(
+        score,
+        ANOMALY_POINT_CONFIG.baseSize,
+      ),
+    });
+  });
+
   return {
     name: `${seriesName} - Anomalies`,
     type: 'scatter',
-    data: anomalies.map(a => {
-      const anomalyLabel = anomalyLookup[seriesName]?.[a.coord[0]];
-      const score = anomalyLabel?.anomalyScore || 0;
-
-      return {
-        value: a.coord,
-        anomalyScore: score,
-        itemStyle: {
-          color: getAdjustedAnomalyPointColor(score, theme),
-        },
-        symbolSize: getAdjustedAnomalyPointSize(
-          score,
-          ANOMALY_POINT_CONFIG.baseSize,
-        ),
-      };
-    }),
+    data: anomalyData,
     symbol: ANOMALY_POINT_CONFIG.symbol,
     zlevel: ANOMALY_POINT_CONFIG.zLevel,
     tooltip: {
@@ -162,30 +153,23 @@ export function createAnomalyScatterSeries(
       formatter: (params: any) => {
         const { value, anomalyScore } = params.data;
         const [xValue, yValue] = value;
-        const anomalyLabel = anomalyLookup[seriesName]?.[xValue];
+        const anomalyColor = getAdjustedAnomalyPointColor(anomalyScore, theme);
 
-        if (anomalyLabel) {
-          const anomalyColor = getAdjustedAnomalyPointColor(
-            anomalyScore,
-            theme,
-          );
-          return `
-              <div style="text-align: left; padding: 8px;">
-                <div style="color: ${
-                  theme.colors.error.base
-                }; font-weight: bold; margin-bottom: 4px;">
-                  🚨 Anomaly Detected
-                </div>
-                <div><strong>Series:</strong> ${seriesName}</div>
-                <div><strong>Time:</strong> ${tooltipFormatter(xValue)}</div>
-                <div><strong>Value:</strong> ${yValue.toLocaleString()}</div>
-                <div style="color: ${anomalyColor}; font-weight: bold;">
-                  <strong>Anomaly Score:</strong> ${anomalyScore?.toFixed(3)}
-                </div>
-              </div>
-            `;
-        }
-        return `Anomaly: ${yValue}`;
+        return `
+          <div style="text-align: left; padding: 8px;">
+            <div style="color: ${
+              theme.colors.error.base
+            }; font-weight: bold; margin-bottom: 4px;">
+              🚨 Anomaly Detected
+            </div>
+            <div><strong>Series:</strong> ${seriesName}</div>
+            <div><strong>Time:</strong> ${tooltipFormatter(xValue)}</div>
+            <div><strong>Value:</strong> ${yValue.toLocaleString()}</div>
+            <div style="color: ${anomalyColor}; font-weight: bold;">
+              <strong>Anomaly Score:</strong> ${anomalyScore?.toFixed(3)}
+            </div>
+          </div>
+        `;
       },
     },
   };
@@ -212,22 +196,21 @@ export function processAnomaliesForChart(
       return;
     }
 
-    const anomalies = extractAnomaliesForSeries(
-      entry.data,
-      seriesName,
-      anomalyLookup,
-    );
-    if (anomalies.length > 0) {
+    if (
+      anomalyLookup[seriesName] &&
+      Object.keys(anomalyLookup[seriesName]).length > 0
+    ) {
       const anomalySeries = createAnomalyScatterSeries(
         seriesName,
-        anomalies,
         anomalyLookup,
         tooltipFormatter,
         refs,
         inContextMenu,
         theme,
       );
-      anomalyScatterSeries.push(anomalySeries);
+      if (anomalySeries.data && anomalySeries.data.length > 0) {
+        anomalyScatterSeries.push(anomalySeries);
+      }
     }
   });
 
