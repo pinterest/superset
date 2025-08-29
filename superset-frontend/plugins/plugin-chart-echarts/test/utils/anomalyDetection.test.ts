@@ -114,12 +114,9 @@ describe('anomalyDetection utils', () => {
       };
 
       const lookup = createAnomalyLookup(rawSeries, seriesNameLookup);
-      expect(lookup).toEqual({
-        metric1: {
-          '2025-01-02': { y: 200, score: 0.8 },
-        },
-        metric2: {},
-      });
+      expect(lookup.metric1.size).toBe(1);
+      expect(lookup.metric1.get('2025-01-02')).toEqual({ y: 200, score: 0.8 });
+      expect(lookup.metric2.size).toBe(0);
     });
 
     it('should use default anomaly score when score series is missing', () => {
@@ -144,22 +141,22 @@ describe('anomalyDetection utils', () => {
         metric1_is_anomaly: 'metric1_is_anomaly',
       };
       const lookup = createAnomalyLookup(rawSeries, seriesNameLookup);
-      expect(lookup).toEqual({
-        metric1: {
-          '2025-01-02': { y: 200, score: DEFAULT_ANOMALY_SCORE },
-        },
+      expect(lookup.metric1.size).toBe(1);
+      expect(lookup.metric1.get('2025-01-02')).toEqual({
+        y: 200,
+        score: DEFAULT_ANOMALY_SCORE,
       });
     });
   });
 
   describe('createAnomalyScatterSeries', () => {
     const anomalyLookup: AnomalyLookup = {
-      metric1: {
-        '2025-01-01': { y: 100, score: 0.8 },
-        '2025-01-03': { y: 50, score: 0.5 },
-        '2025-01-10': { y: 35, score: 0.1 },
-      },
-      metric2: {},
+      metric1: new Map([
+        ['2025-01-01', { y: 100, score: 0.8 }],
+        ['2025-01-03', { y: 50, score: 0.5 }],
+        ['2025-01-10', { y: 35, score: 0.1 }],
+      ]),
+      metric2: new Map(),
     };
 
     it('should create scatter series with correct data', () => {
@@ -196,7 +193,7 @@ describe('anomalyDetection utils', () => {
       expect(dataPoint3.symbolSize).toBe(6 + 0.1 * 4);
     });
 
-    it('should handle empty record in anomaly lookup', () => {
+    it('should handle empty map in anomaly lookup', () => {
       const series = createAnomalyScatterSeries(
         'metric2',
         anomalyLookup,

@@ -70,7 +70,7 @@ export type RawSeriesEntry = {
 
 export type AnomalyLookup = Record<
   string, // series name
-  Record<string | number, { y: number; score: number }> // x-value -> {y-value, anomaly score}
+  Map<string | number, { y: number; score: number }> // x-value -> {y-value, anomaly score}
 >;
 
 export enum ForecastSeriesEnum {

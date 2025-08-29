@@ -99,13 +99,13 @@ export function createAnomalyLookup(
       );
     }
 
-    anomalyLookup[seriesName] = {};
+    anomalyLookup[seriesName] = new Map();
     entry.data.forEach(([x, y]: [string | number, number]) => {
       if (anomalyXValues.has(x)) {
-        anomalyLookup[seriesName][x] = {
+        anomalyLookup[seriesName].set(x, {
           y,
           score: anomalyScoreLookup.get(x) ?? DEFAULT_ANOMALY_SCORE,
-        };
+        });
       }
     });
   });
@@ -124,9 +124,9 @@ export function createAnomalyScatterSeries(
   theme: SupersetTheme,
 ): ScatterSeriesOption {
   const anomalyData: any[] = [];
-  const seriesAnomalies = anomalyLookup[seriesName] || {};
+  const seriesAnomalies = anomalyLookup[seriesName] || new Map();
 
-  Object.entries(seriesAnomalies).forEach(([x, { y, score }]) => {
+  seriesAnomalies.forEach(({ y, score }, x) => {
     anomalyData.push({
       value: [x, y],
       anomalyScore: score,
@@ -198,7 +198,7 @@ export function processAnomaliesForChart(
 
     if (
       anomalyLookup[seriesName] &&
-      Object.keys(anomalyLookup[seriesName]).length > 0
+      anomalyLookup[seriesName].size > 0
     ) {
       const anomalySeries = createAnomalyScatterSeries(
         seriesName,
