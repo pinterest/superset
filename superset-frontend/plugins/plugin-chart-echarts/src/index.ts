@@ -70,6 +70,19 @@ export * from './utils/safeEChartOptionsParser';
 
 export * from './types';
 
+// Below exports needed for internal visualization plugin
+export {
+  buildQuery as buildQueryEchartsTimeseriesLine,
+  lineTransformProps as lineTransformPropsEchartsTimeseriesLine,
+} from './Timeseries/Regular/Line';
+export {
+  EchartsTimeseriesChartProps,
+  EchartsTimeseriesFormData,
+  EchartsTimeseriesSeriesType,
+  TimeseriesChartTransformedProps,
+} from './Timeseries/types';
+export { default as EchartsTimeseriesVisualization } from './Timeseries/EchartsTimeseries';
+
 /**
  * Note: this file exports the default export from EchartsTimeseries.tsx.
  * If you want to export multiple visualization modules, you will need to

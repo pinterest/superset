@@ -89,3 +89,5 @@ export default class EchartsTimeseriesLineChartPlugin extends EchartsChartPlugin
     });
   }
 }
+
+export { buildQuery, lineTransformProps };
