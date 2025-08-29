@@ -2,6 +2,7 @@ import {
   AdhocFilter as AdhocFilterType,
   DatasourceType,
   JsonObject,
+  NO_TIME_RANGE,
   SupersetClient,
   t,
 } from '@superset-ui/core';
@@ -17,6 +18,74 @@ import { setControlValue } from 'src/explore/actions/exploreActions';
 import AdhocFilter from '../FilterControl/AdhocFilter';
 import AdhocMetric, { EXPRESSION_TYPES } from '../MetricControl/AdhocMetric';
 import SelectControl from '../SelectControl';
+
+// Helper function to get temporal columns from datasource
+const getTemporalColumns = (datasource: Dataset) => {
+  if (!datasource?.columns)
+    return { temporalColumns: [], defaultTemporalColumn: null };
+
+  const temporalColumns = datasource.columns
+    .filter(col => col.is_dttm)
+    .map(col => col.column_name);
+
+  return {
+    temporalColumns,
+    defaultTemporalColumn: temporalColumns[0] || null,
+  };
+};
+
+// Helper function to create time range filter based on mixins logic
+const createTimeRangeFilter = (
+  currentFilters: AdhocFilterType[],
+  datasource: Dataset,
+  state: any,
+): AdhocFilterType[] => {
+  // Check if there's already a time filter in adhoc filters
+  const hasTimeFilter =
+    currentFilters.findIndex((flt: any) => flt?.operator === 'TEMPORAL_RANGE') >
+    -1;
+
+  if (hasTimeFilter) {
+    return currentFilters;
+  }
+
+  // Check if time_range control is present (legacy charts)
+  if (state?.controls?.time_range?.value) {
+    return currentFilters;
+  }
+
+  // Should migrate original granularity_sqla and time_range into adhoc filter
+  if (state?.form_data?.granularity_sqla && state?.form_data?.time_range) {
+    return [
+      ...currentFilters,
+      {
+        clause: 'WHERE',
+        subject: state.form_data.granularity_sqla,
+        operator: 'TEMPORAL_RANGE',
+        comparator: state.form_data.time_range,
+        expressionType: 'SIMPLE',
+      } as AdhocFilterType,
+    ];
+  }
+
+  // Should apply the default time filter into adhoc filter
+  const temporalColumn =
+    datasource && getTemporalColumns(datasource).defaultTemporalColumn;
+  if (temporalColumn) {
+    return [
+      ...currentFilters,
+      {
+        clause: 'WHERE',
+        subject: temporalColumn,
+        operator: 'TEMPORAL_RANGE',
+        comparator: state?.common?.conf?.DEFAULT_TIME_FILTER || NO_TIME_RANGE,
+        expressionType: 'SIMPLE',
+      } as AdhocFilterType,
+    ];
+  }
+
+  return currentFilters;
+};
 
 export default function DEXMetricControl(props: ControlComponentProps) {
   const dispatch = useDispatch();
@@ -47,6 +116,9 @@ export default function DEXMetricControl(props: ControlComponentProps) {
   const currentDatasource = useSelector<ExplorePageState>(
     state => state.explore.datasource,
   ) as Dataset;
+
+  // Get current state for time range logic
+  const currentState = useSelector<ExplorePageState>(state => state);
 
   const longDataset = datasources[`${longDatasetId}__table`];
   const wideDataset = datasources[`${wideDatasetId}__table`];
@@ -112,11 +184,16 @@ export default function DEXMetricControl(props: ControlComponentProps) {
         });
       }
       props!.onChange!([newMetric]);
+
+      // Apply time range logic from mixins instead of overriding with empty array
+      let filters: AdhocFilterType[] = [];
       if (newFilter !== null) {
-        dispatch(setControlValue('adhoc_filters', [newFilter]));
-      } else {
-        dispatch(setControlValue('adhoc_filters', []));
+        filters.push(newFilter);
       }
+
+      // Apply time range logic to preserve existing time filters and add default ones
+      filters = createTimeRangeFilter(filters, currentDatasource, currentState);
+      dispatch(setControlValue('adhoc_filters', filters));
       return;
     }
 
@@ -163,11 +240,16 @@ export default function DEXMetricControl(props: ControlComponentProps) {
     }
 
     props!.onChange!([newMetric]);
+
+    // Apply time range logic from mixins instead of overriding with empty array
+    let filters: AdhocFilterType[] = [];
     if (newFilter !== null) {
-      dispatch(setControlValue('adhoc_filters', [newFilter]));
-    } else {
-      dispatch(setControlValue('adhoc_filters', []));
+      filters.push(newFilter);
     }
+
+    // Apply time range logic to preserve existing time filters and add default ones
+    filters = createTimeRangeFilter(filters, targetDataset, currentState);
+    dispatch(setControlValue('adhoc_filters', filters));
   };
 
   return (
