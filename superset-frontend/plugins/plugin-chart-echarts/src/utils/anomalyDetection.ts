@@ -196,10 +196,7 @@ export function processAnomaliesForChart(
       return;
     }
 
-    if (
-      anomalyLookup[seriesName] &&
-      anomalyLookup[seriesName].size > 0
-    ) {
+    if (anomalyLookup[seriesName] && anomalyLookup[seriesName].size > 0) {
       const anomalySeries = createAnomalyScatterSeries(
         seriesName,
         anomalyLookup,

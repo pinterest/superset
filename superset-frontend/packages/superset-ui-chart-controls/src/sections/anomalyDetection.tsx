@@ -13,6 +13,11 @@ export const ANOMALY_DETECTION_DEFAULT_DATA = {
 
 export const anomalyDetectionControls: ControlPanelSectionConfig = {
   label: t('Warden Anomaly Detection'),
+  description: t(
+    'Detects time-series anomalies and assigns each a 0-1 score ' +
+      "indicating confidence in it being a true anomaly (1 = very confident). " +
+      'Excels at detecting local spikes and dips.',
+  ),
   expanded: false,
   visibility: displayTimeRelatedControls,
   controlSetRows: [
