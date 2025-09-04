@@ -76,7 +76,7 @@ const SyncChartOwnersControl = ({
   const showTooltip = autoSyncChartsEnabled && tooltipText.length > 0;
 
   return (
-    <div data-test="sync-chart-owners-control" style={{ marginBottom: '8px'}}>
+    <div data-test="sync-chart-owners-control" style={{ marginBottom: '8px' }}>
       <Checkbox
         aria-checked={autoSyncChartsEnabled}
         // aria-labelledby is not being forwarded to the checkbox component.
