@@ -26,8 +26,9 @@
       "@superset-ui/preset-chart-*": ["./plugins/preset-chart-*/src"],
       "@superset-ui/switchboard": ["./packages/superset-ui-switchboard/src"],
       // Needed to resolve @pinterest-plugins/ from superset-frontend/
-      "@pinterest-plugins": ["./pinterest-plugins"],
-      "@pinterest-plugins/*": ["./pinterest-plugins/*"],
+      "@superset-frontend/src": ["./src"],
+      "@pinterest-plugins/src": ["./pinterest-plugins/src"],
+      "superset-plugin-chart-dex": ["./pinterest-plugins/superset-plugin-chart-dex"],
       // Needed to resolve @superset-frontend/ from pinterst-plugins/
       "@superset-frontend": ["./"],
       "@superset-frontend/*": ["./*"]
