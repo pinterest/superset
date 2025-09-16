@@ -38,7 +38,7 @@ import {
 } from 'src/explore/exploreUtils';
 import { addDangerToast } from 'src/components/MessageToasts/actions';
 import { logEvent } from 'src/logger/actions';
-import { Logger, LOG_ACTIONS_LOAD_CHART } from 'src/logger/LogUtils';
+import { LOG_ACTIONS_LOAD_CHART } from 'src/logger/LogUtils';
 import { allowCrossDomain as domainShardingEnabled } from 'src/utils/hostNamesConfig';
 import { updateDataMask } from 'src/dataMask/actions';
 import { waitForAsyncData } from 'src/middleware/asyncEvent';
@@ -405,7 +405,7 @@ export function exploreJSON(
   ownState,
 ) {
   return async (dispatch, getState) => {
-    const logStart = Logger.getTimestamp();
+    const perfStart = window.performance.now();
     const controller = new AbortController();
     const queryTimeout =
       timeout || getState().common.conf.SUPERSET_WEBSERVER_TIMEOUT;
@@ -447,9 +447,9 @@ export function exploreJSON(
               force_refresh: force,
               row_count: resultItem.rowcount,
               datasource: formData.datasource,
-              start_offset: logStart,
+              start_offset: Math.round(perfStart),
               ts: new Date().getTime(),
-              duration: Logger.getTimestamp() - logStart,
+              duration: Math.round(window.performance.now() - perfStart),
               has_extra_filters:
                 formData.extra_filters && formData.extra_filters.length > 0,
               viz_type: formData.viz_type,
@@ -474,9 +474,9 @@ export function exploreJSON(
               is_cached: isCached,
               error_details: errorDetails,
               datasource: formData.datasource,
-              start_offset: logStart,
+              start_offset: Math.round(perfStart),
               ts: new Date().getTime(),
-              duration: Logger.getTimestamp() - logStart,
+              duration: Math.round(window.performance.now() - perfStart),
             }),
           );
         };

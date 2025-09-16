@@ -20,6 +20,8 @@
 export const LOG_ACTIONS_LOAD_CHART = 'load_chart';
 export const LOG_ACTIONS_RENDER_CHART = 'render_chart';
 export const LOG_ACTIONS_HIDE_BROWSER_TAB = 'hide_browser_tab';
+export const LOG_ACTIONS_LOAD_DASHBOARD_WITH_CHARTS =
+  'load_dashboard_with_charts';
 
 export const LOG_ACTIONS_MOUNT_DASHBOARD = 'mount_dashboard';
 export const LOG_ACTIONS_MOUNT_EXPLORER = 'mount_explorer';
@@ -95,6 +97,7 @@ export const LOG_EVENT_TYPE_TIMING = new Set([
   LOG_ACTIONS_SQLLAB_LOAD_TAB_STATE,
 ]);
 export const LOG_EVENT_TYPE_USER = new Set([
+  LOG_ACTIONS_LOAD_DASHBOARD_WITH_CHARTS,
   LOG_ACTIONS_MOUNT_DASHBOARD,
   LOG_ACTIONS_SELECT_DASHBOARD_TAB,
   LOG_ACTIONS_EXPLORE_DASHBOARD_CHART,

@@ -32,7 +32,9 @@ import { Global } from '@emotion/react';
 import {
   LOG_ACTIONS_PERIODIC_RENDER_DASHBOARD,
   LOG_ACTIONS_FORCE_REFRESH_DASHBOARD,
+  LOG_ACTIONS_LOAD_DASHBOARD_WITH_CHARTS,
   LOG_ACTIONS_TOGGLE_EDIT_DASHBOARD,
+  Logger,
 } from 'src/logger/LogUtils';
 import Icons from 'src/components/Icons';
 import Button from 'src/components/Button';
@@ -203,12 +205,21 @@ class Header extends PureComponent {
   componentDidMount() {
     const { refreshFrequency } = this.props;
     this.startPeriodicRender(refreshFrequency * 1000);
+    Logger.markTimeOrigin();
   }
 
   componentDidUpdate(prevProps) {
     if (this.props.refreshFrequency !== prevProps.refreshFrequency) {
       const { refreshFrequency } = this.props;
       this.startPeriodicRender(refreshFrequency * 1000);
+    }
+
+    if (prevProps.isLoading && !this.props.isLoading) {
+      this.props.logEvent(LOG_ACTIONS_LOAD_DASHBOARD_WITH_CHARTS, {
+        duration: Logger.getTimestamp(),
+        dashboard_id: this.props.dashboardInfo.id,
+        chartCount: Object.keys(this.props.charts).length,
+      });
     }
   }
 

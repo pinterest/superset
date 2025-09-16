@@ -22,6 +22,8 @@ import logging
 import typing
 from importlib.resources import files
 from typing import Any, Callable, cast
+from datetime import datetime
+import traceback
 
 from flask import (
     Flask,
@@ -35,6 +37,7 @@ from sqlalchemy import exc
 from werkzeug.exceptions import HTTPException
 
 from superset import appbuilder
+from superset.extensions import event_logger
 from superset.commands.exceptions import CommandException, CommandInvalidError
 from superset.errors import ErrorLevel, SupersetError, SupersetErrorType
 from superset.exceptions import (
@@ -96,33 +99,58 @@ def handle_api_exception(
     """
 
     def wraps(self: BaseSupersetView, *args: Any, **kwargs: Any) -> FlaskResponse:
+        start = datetime.now()
+
+        def _log_api_exception(ex: Exception, status: int) -> None:
+            duration = datetime.now() - start
+            try:
+                event_logger.log_with_context(
+                    action="api_exception",
+                    duration=duration,
+                    object_ref=f.__qualname__,
+                    payload={
+                        "status": status,
+                        "exception_type": type(ex).__name__,
+                        "error_message": utils.error_msg_from_exception(ex),
+                        "stacktrace": traceback.format_exc(),
+                    },
+                )
+            except Exception as log_ex:  # pylint: disable=broad-except
+                logger.debug("Failed to persist api_exception log: %s", log_ex)
         try:
             return f(self, *args, **kwargs)
         except SupersetSecurityException as ex:
             logger.warning("SupersetSecurityException", exc_info=True)
+            _log_api_exception(ex, ex.status)
             return json_error_response([ex.error], status=ex.status, payload=ex.payload)
         except SupersetErrorsException as ex:
             logger.warning(ex, exc_info=True)
+            _log_api_exception(ex, ex.status)
             return json_error_response(ex.errors, status=ex.status)
         except SupersetErrorException as ex:
             logger.warning("SupersetErrorException", exc_info=True)
+            _log_api_exception(ex, ex.status)
             return json_error_response([ex.error], status=ex.status)
         except SupersetException as ex:
             if ex.status >= 500:
                 logger.exception(ex)
+            _log_api_exception(ex, ex.status)
             return json_error_response(
                 utils.error_msg_from_exception(ex), status=ex.status
             )
         except HTTPException as ex:
             logger.exception(ex)
+            _log_api_exception(ex, cast(int, ex.code))
             return json_error_response(
                 utils.error_msg_from_exception(ex), status=cast(int, ex.code)
             )
         except (exc.IntegrityError, exc.DatabaseError, exc.DataError) as ex:
             logger.exception(ex)
+            _log_api_exception(ex, 422)
             return json_error_response(utils.error_msg_from_exception(ex), status=422)
         except Exception as ex:  # pylint: disable=broad-except
             logger.exception(ex)
+            _log_api_exception(ex, 500)
             return json_error_response(utils.error_msg_from_exception(ex))
 
     return functools.update_wrapper(wraps, f)

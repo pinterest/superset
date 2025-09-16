@@ -18,8 +18,9 @@
 from __future__ import annotations
 
 import contextlib
+import json
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any, Callable, cast
 from urllib import parse
 
@@ -117,6 +118,51 @@ PARAMETER_MISSING_ERR = __(
 )
 
 SqlResults = dict[str, Any]
+
+def extract_all_events_from_request() -> list[dict]:
+    """Extract all events from the request payload as a list of dicts"""
+    try:
+        # Try to get events from form data
+        if request.form.get('events'):
+            events = json.loads(request.form.get('events'))
+            if isinstance(events, list):
+                return events
+        # Try to get events from JSON payload
+        elif request.is_json:
+            json_data = request.get_json(cache=True, silent=True) or {}
+            if 'events' in json_data and isinstance(json_data['events'], list):
+                return json_data['events']
+    except Exception:
+        pass
+    return []
+
+def extract_event_duration(event: dict) -> timedelta:
+    """Extract the event duration from the request payload"""
+    return timedelta(milliseconds=event.get('duration', 0))
+
+def extract_event_context(event: dict) -> dict:
+    """Extract the event context from the request payload"""
+    try:
+        action = event.get('event_name', 'log')
+        source = event.get('source', None)
+
+        context = {
+            "action": action,
+            **event,
+        }
+
+        if 'duration' in event:
+            context['duration'] = extract_event_duration(event)
+
+        # Special handling for dashboards and slices
+        if (action == 'load_chart' or action == 'render_chart' or action == 'mount_dashboard') and source == 'dashboard':
+            context['dashboard_id'] = event.get('source_id', 0)
+
+        return context
+    except Exception:
+        pass
+
+    return event
 
 
 class Superset(BaseSupersetView):
@@ -852,9 +898,12 @@ class Superset(BaseSupersetView):
 
     @api
     @has_access
-    @event_logger.log_this
     @expose("/log/", methods=("POST",))
     def log(self) -> FlaskResponse:
+        events = extract_all_events_from_request()
+        for event in events:
+            event_logger.log_with_context(**extract_event_context(event), payload=event)
+
         return Response(status=200)
 
     @expose("/theme/")
