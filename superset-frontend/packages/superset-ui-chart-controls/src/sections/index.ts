@@ -21,6 +21,7 @@ export * from './sections';
 export * from './advancedAnalytics';
 export * from './annotationsAndLayers';
 export * from './forecastInterval';
+export * from './anomalyDetection';
 export * from './chartTitle';
 export * from './echartsTimeSeriesQuery';
 export * from './timeComparison';

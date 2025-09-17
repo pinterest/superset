@@ -69,6 +69,8 @@ import {
   LegendOrientation,
   LegendType,
   Refs,
+  RawSeriesEntry,
+  AnomalyLookup,
 } from '../types';
 import { parseAxisBound } from '../utils/controls';
 import {
@@ -97,6 +99,11 @@ import {
   rebaseForecastDatum,
   reorderForecastSeries,
 } from '../utils/forecast';
+import {
+  createAnomalyLookup,
+  processAnomaliesForChart,
+  isSeriesAboutAnomaly,
+} from '../utils/anomalyDetection';
 import { convertInteger } from '../utils/convertInteger';
 import { defaultGrid, defaultYAxis } from '../defaults';
 import {
@@ -393,7 +400,12 @@ export default function transformProps(
   let dataMax: number | undefined;
   let dataMin: number | undefined;
 
-  rawSeries.forEach(entry => {
+  const anomalyLookup: AnomalyLookup = createAnomalyLookup(
+    rawSeries as RawSeriesEntry[],
+    inverted,
+  );
+
+  (rawSeries as RawSeriesEntry[]).forEach(entry => {
     const entryName = String(entry.name || '');
     const seriesName = inverted[entryName] || entryName;
     // isDerivedSeries checks for time comparison series patterns:
@@ -472,6 +484,10 @@ export default function transformProps(
           String(originalSeries.name || '');
         colorScaleKey = getOriginalSeries(originalSeriesName, array);
       }
+    }
+
+    if (isSeriesAboutAnomaly(seriesName)) {
+      return;
     }
 
     const transformedSeries = transformSeries(
@@ -727,6 +743,17 @@ export default function transformProps(
       : xAxisDataType === GenericDataType.Numeric
         ? getNumberFormatter(xAxisNumberFormat)
         : String;
+
+  const anomalyScatterSeries = processAnomaliesForChart(
+    rawSeries as RawSeriesEntry[],
+    inverted,
+    anomalyLookup,
+    tooltipFormatter,
+    refs,
+    inContextMenu || false,
+    theme,
+  );
+  series.push(...anomalyScatterSeries);
 
   const {
     setDataMask = () => {},
