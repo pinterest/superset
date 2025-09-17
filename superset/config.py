@@ -36,7 +36,7 @@ from contextlib import contextmanager
 from datetime import timedelta
 from email.mime.multipart import MIMEMultipart
 from importlib.resources import files
-from typing import Any, Callable, Iterator, Literal, TYPE_CHECKING, TypedDict
+from typing import Any, Callable, Iterator, Literal, TYPE_CHECKING, TypedDict, Optional
 
 import click
 from celery.schedules import crontab
@@ -45,6 +45,7 @@ from flask_appbuilder.security.manager import AUTH_DB
 from flask_caching.backends.base import BaseCache
 from pandas import Series
 from pandas._libs.parsers import STR_NA_VALUES
+from pandas import DataFrame
 from sqlalchemy.engine.url import URL
 from sqlalchemy.orm.query import Query
 
@@ -2180,6 +2181,20 @@ EXTRA_DYNAMIC_QUERY_FILTERS: ExtraDynamicQueryFilters = {}
 # connection via the UI (without downtime).
 CATALOGS_SIMPLIFIED_MIGRATION: bool = False
 
+# plug in your own anomaly detection function here
+# see superset/utils/pandas_postprocessing/anomaly_detection.py for parameter descriptions
+ANOMALY_DETECTION: Optional[Callable[
+    [
+        DataFrame,
+        float,
+        Optional[bool],
+        Optional[bool],
+        Optional[bool],
+        Optional[bool],
+        Optional[str],
+    ],
+    DataFrame,
+]] = None
 
 # When updating a DB connection or manually triggering a perm sync, the command
 # happens in sync mode. If you have a celery worker configured, it's recommended

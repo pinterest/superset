@@ -61,6 +61,18 @@ export interface EchartsHandler {
   getEchartInstance: () => EChartsType | undefined;
 }
 
+export type DataRow = [x: string | number, y: number, ...rest: any[]];
+
+export type RawSeriesEntry = {
+  name: string;
+  data: DataRow[];
+};
+
+export type AnomalyLookup = Record<
+  string, // series name
+  Map<string | number, { y: number; score: number }> // x-value -> {y-value, anomaly score}
+>;
+
 export enum ForecastSeriesEnum {
   Observation = '',
   ForecastTrend = '__yhat',
