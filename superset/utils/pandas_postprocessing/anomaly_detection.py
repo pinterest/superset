@@ -1,6 +1,7 @@
 import pandas as pd
 from typing import Optional
 
+from superset.utils.core import DTTM_ALIAS
 from superset.config import ANOMALY_DETECTION
 
 def anomaly_detection(
