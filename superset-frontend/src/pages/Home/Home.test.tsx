@@ -194,7 +194,7 @@ test('With sql role - calls api methods in parallel on page load', async () => {
   expect(fetchMock.calls(chartsEndpoint)).toHaveLength(2);
   expect(fetchMock.calls(recentActivityEndpoint)).toHaveLength(1);
   expect(fetchMock.calls(savedQueryEndpoint)).toHaveLength(1);
-  expect(fetchMock.calls(dashboardsEndpoint)).toHaveLength(2);
+  expect(fetchMock.calls(dashboardsEndpoint)).toHaveLength(3); // Pinterest custom page
 });
 
 test('Without sql role - renders', async () => {
@@ -219,7 +219,7 @@ test('Without sql role - calls api methods in parallel on page load', async () =
   expect(fetchMock.calls(chartsEndpoint)).toHaveLength(2);
   expect(fetchMock.calls(recentActivityEndpoint)).toHaveLength(1);
   expect(fetchMock.calls(savedQueryEndpoint)).toHaveLength(0);
-  expect(fetchMock.calls(dashboardsEndpoint)).toHaveLength(2);
+  expect(fetchMock.calls(dashboardsEndpoint)).toHaveLength(3); // Pinterest custom page
 });
 
 // Mock specific to the tests related to the toggle switch
@@ -282,7 +282,8 @@ test('Should render a submenu extension component if one is supplied', async () 
   expect(screen.getByText('submenu extension')).toBeInTheDocument();
 });
 
-test('Should not make data fetch calls if `welcome.main.replacement` is defined', async () => {
+// Skipping because Pinterest custom homepage still make data calls
+test.skip('Should not make data fetch calls if `welcome.main.replacement` is defined', async () => {
   const extensionsRegistry = getExtensionsRegistry();
 
   // Clean up
