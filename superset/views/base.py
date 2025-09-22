@@ -459,6 +459,14 @@ def cached_common_bootstrap_data(  # pylint: disable=unused-argument
         for k in FRONTEND_CONF_KEYS
     }
 
+    if conf.get("PINTEREST_FRONTEND_CONF_KEYS"):
+        frontend_config.update(
+            {
+                k: (list(conf.get(k)) if isinstance(conf.get(k), set) else conf.get(k))
+                for k in conf.get("PINTEREST_FRONTEND_CONF_KEYS")
+            }
+        )
+
     if app.config.get("SLACK_API_TOKEN"):
         frontend_config["ALERT_REPORTS_NOTIFICATION_METHODS"] = [
             ReportRecipientType.EMAIL,

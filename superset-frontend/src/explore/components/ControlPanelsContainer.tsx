@@ -340,7 +340,7 @@ export const ControlPanelsContainer = (props: ControlPanelsContainerProps) => {
           filter.operator === Operators.TemporalRange &&
           filter.subject === x_axis,
       );
-      if (noFilter) {
+      if (noFilter && !showMinimalChartView()) {
         showConfirm({
           title: t('The X-axis is not on the filters list'),
           body: t(

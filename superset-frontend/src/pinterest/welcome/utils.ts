@@ -68,8 +68,8 @@ const getDashboardsByTag = async (
 export const getTopDashboardsBySection = async (
   onError: (e: string) => void,
 ): Promise<TopSectionInfo[]> => {
-  const topSections = getBootstrapData().common.conf
-    .PINTEREST_WELCOME_TOP_SECTIONS as TopSectionConfig[];
+  const topSections = (getBootstrapData().common.conf
+    .PINTEREST_WELCOME_TOP_SECTIONS ?? []) as TopSectionConfig[];
   const dashboardPromises = topSections.map(async section => {
     const dashboards = await getDashboardsByTag(section.tag, () =>
       onError('Failed to load top dashboards'),

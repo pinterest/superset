@@ -262,6 +262,13 @@ if (process.env.USE_PINTEREST_PLUGINS !== 'true') {
       /@pinterest-plugins\/src\/visualizations$/,
       path.resolve(__dirname, 'pinterest-plugins/src/visualizations.stub.ts'),
     ),
+    new webpack.NormalModuleReplacementPlugin(
+      /@pinterest-plugins\/src\/chart-controls\/controlMap$/,
+      path.resolve(
+        __dirname,
+        'pinterest-plugins/src/chart-controls/controlMap.stub.ts',
+      ),
+    ),
   );
 }
 
@@ -526,10 +533,16 @@ const config = {
         // include source code for plugins, but exclude node_modules and test files within them
         exclude: [/superset-ui.*\/node_modules\//, /\.test.jsx?$/],
         include: [
-          new RegExp(`${APP_DIR}/(src|.storybook|plugins|packages|pinterest-plugins)`),
-          ...['./src', './.storybook', './plugins', './packages', './pinterest-plugins'].map(p =>
-            path.resolve(__dirname, p),
-          ), // redundant but required for windows
+          new RegExp(
+            `${APP_DIR}/(src|.storybook|plugins|packages|pinterest-plugins)`,
+          ),
+          ...[
+            './src',
+            './.storybook',
+            './plugins',
+            './packages',
+            './pinterest-plugins',
+          ].map(p => path.resolve(__dirname, p)), // redundant but required for windows
           /@encodable/,
         ],
         use: [createSwcLoader('ecmascript')],
