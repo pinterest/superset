@@ -30,6 +30,7 @@ import FlashProvider from '../components/FlashProvider';
 import { theme } from '../preamble';
 import { EmbeddedUiConfigProvider } from '../components/UiConfigContext';
 import { DynamicPluginProvider } from '../components/DynamicPlugins';
+import { QueryClientProviderWrapper } from './QueryClientProvider';
 
 const { common } = getBootstrapData();
 
@@ -44,26 +45,28 @@ export const RootContextProviders: React.FC = ({ children }) => {
     <ThemeProvider theme={theme}>
       <AntdThemeProvider>
         <ReduxProvider store={store}>
-          <DndProvider backend={HTML5Backend}>
-            <FlashProvider messages={common.flash_messages}>
-              <EmbeddedUiConfigProvider>
-                <DynamicPluginProvider>
-                  <QueryParamProvider
-                    ReactRouterRoute={Route}
-                    stringifyOptions={{ encode: false }}
-                  >
-                    {RootContextProviderExtension ? (
-                      <RootContextProviderExtension>
-                        {children}
-                      </RootContextProviderExtension>
-                    ) : (
-                      children
-                    )}
-                  </QueryParamProvider>
-                </DynamicPluginProvider>
-              </EmbeddedUiConfigProvider>
-            </FlashProvider>
-          </DndProvider>
+          <QueryClientProviderWrapper>
+            <DndProvider backend={HTML5Backend}>
+              <FlashProvider messages={common.flash_messages}>
+                <EmbeddedUiConfigProvider>
+                  <DynamicPluginProvider>
+                    <QueryParamProvider
+                      ReactRouterRoute={Route}
+                      stringifyOptions={{ encode: false }}
+                    >
+                      {RootContextProviderExtension ? (
+                        <RootContextProviderExtension>
+                          {children}
+                        </RootContextProviderExtension>
+                      ) : (
+                        children
+                      )}
+                    </QueryParamProvider>
+                  </DynamicPluginProvider>
+                </EmbeddedUiConfigProvider>
+              </FlashProvider>
+            </DndProvider>
+          </QueryClientProviderWrapper>
         </ReduxProvider>
       </AntdThemeProvider>
     </ThemeProvider>
