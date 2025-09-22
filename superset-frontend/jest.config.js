@@ -22,7 +22,7 @@ process.env.TZ = 'America/New_York';
 
 module.exports = {
   testRegex:
-    '\\/superset-frontend\\/(spec|src|plugins|packages|tools)\\/.*(_spec|\\.test)\\.[jt]sx?$',
+    '\\/superset-frontend\\/(spec|src|plugins|packages|tools|pinterest-plugins)\\/.*(_spec|\\.test)\\.[jt]sx?$',
   moduleNameMapper: {
     '\\.(css|less|geojson)$': '<rootDir>/spec/__mocks__/mockExportObject.js',
     '\\.(gif|ttf|eot|png|jpg)$': '<rootDir>/spec/__mocks__/mockExportString.js',
@@ -31,6 +31,17 @@ module.exports = {
     '^spec/(.*)$': '<rootDir>/spec/$1',
     // mapping plugins of superset-ui to source code
     '@superset-ui/(.*)$': '<rootDir>/node_modules/@superset-ui/$1/src',
+    // mapping pinterest-plugins modules to stub files for Jest
+    '^@pinterest-plugins/src/views/routes$':
+      '<rootDir>/pinterest-plugins/src/views/routes.stub.tsx',
+    '^@pinterest-plugins/src/utils$':
+      '<rootDir>/pinterest-plugins/src/utils.stub.ts',
+    '^@pinterest-plugins/src/visualizations$':
+      '<rootDir>/pinterest-plugins/src/visualizations.stub.ts',
+    '^@pinterest-plugins/src/chart-controls/controlMap$':
+      '<rootDir>/pinterest-plugins/src/chart-controls/controlMap.stub.ts',
+    // general mapping for other @pinterest-plugins modules
+    '^@pinterest-plugins/(.*)$': '<rootDir>/pinterest-plugins/$1',
   },
   testEnvironment: 'jsdom',
   modulePathIgnorePatterns: ['<rootDir>/packages/generator-superset'],
@@ -40,7 +51,7 @@ module.exports = {
   },
   collectCoverageFrom: [
     'src/**/*.{js,jsx,ts,tsx}',
-    '{packages,plugins}/**/src/**/*.{js,jsx,ts,tsx}',
+    '{packages,plugins,pinterest-plugins}/**/src/**/*.{js,jsx,ts,tsx}',
     '!**/*.stories.*',
     '!packages/superset-ui-demo/**/*',
   ],

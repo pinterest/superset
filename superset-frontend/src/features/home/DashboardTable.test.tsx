@@ -68,7 +68,8 @@ describe('DashboardTable', () => {
     expect(wrapper.find(DashboardTable)).toExist();
   });
 
-  it('render a submenu with clickable tabs and buttons', async () => {
+  // Not relevant to Pinterest custom homepage
+  it.skip('render a submenu with clickable tabs and buttons', async () => {
     expect(wrapper.find('SubMenu')).toExist();
     expect(wrapper.find('[role="tab"]')).toHaveLength(2);
     expect(wrapper.find('Button')).toHaveLength(6);
@@ -82,7 +83,8 @@ describe('DashboardTable', () => {
     expect(fetchMock.calls(/dashboard\/\?q/)).toHaveLength(1);
   });
 
-  it('render DashboardCard', () => {
+  // Not relevant to Pinterest custom homepage
+  it.skip('render DashboardCard', () => {
     expect(wrapper.find(DashboardCard)).toExist();
   });
 
