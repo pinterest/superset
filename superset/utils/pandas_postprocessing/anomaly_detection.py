@@ -16,13 +16,13 @@ def anomaly_detection(
     """
     Performs anomaly detection on each series in the time-series DataFrame.
     For each series, adds two new columns suffixed as follows:
-    
-    - `__is_anomaly`: 1 if the data point is an anomaly, 0 if otherwise
-    - `__anomaly_score`: anomaly score for each data point, normalized between 0 and 1;
-                         0 if not an anomaly
 
-    The `__anomaly_score` column is technically optional. If not present, all anomalies
-    will be assigned a score of 0.5.
+    - `_is_anomaly`: 1 if the data point is an anomaly, 0 if otherwise
+    - `_anomaly_score`: anomaly score for each data point, normalized between 0 and 1;
+                        0 if not an anomaly
+
+    The column with `_anomaly_score` suffix is technically optional. If not present,
+    all anomalies will be assigned a score of 0.5.
 
     :param df: DataFrame containing time-series data
     :param contamination_rate: the proportion of data points per series that could be anomalies
