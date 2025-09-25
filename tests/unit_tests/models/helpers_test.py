@@ -28,6 +28,9 @@ from pytest_mock import MockerFixture
 from sqlalchemy import create_engine
 from sqlalchemy.orm.session import Session
 from sqlalchemy.pool import StaticPool
+from superset.connectors.sqla.models import SqlaTable, TableColumn
+from superset.extensions import cache_manager
+from tests.unit_tests.conftest import with_feature_flags
 
 if TYPE_CHECKING:
     from superset.models.core import Database
@@ -208,3 +211,142 @@ def test_values_for_column_double_percents(
             ),
             con=engine,
         )
+
+
+@with_feature_flags(ENABLE_COLUMN_VALUES_CACHE=False)
+def test_values_for_column_enable_cache_false(
+    mocker: MockerFixture,
+    database: Database,
+) -> None:
+    """
+    Test that column values are not cached when the feature flag is disabled.
+    """
+    mock_cache = mocker.MagicMock()
+    mocker.patch.object(
+        cache_manager,
+        "_explore_form_data_cache",
+        mock_cache,
+    )
+    mock_cache.get.return_value = None
+    table = SqlaTable(
+        database=database,
+        schema=None,
+        table_name="t",
+        columns=[TableColumn(column_name="a")],
+    )
+    result = table.values_for_column("a", use_cache=True)
+    mock_cache.get.assert_not_called()
+
+
+@with_feature_flags(ENABLE_COLUMN_VALUES_CACHE=True)
+def test_values_for_column_use_cache_false(
+    mocker: MockerFixture,
+    database: Database,
+) -> None:
+    """
+    Test that column values are not cached when use_cache is false.
+    """
+    mock_cache = mocker.MagicMock()
+    mocker.patch.object(
+        cache_manager,
+        "_explore_form_data_cache",
+        mock_cache,
+    )
+    mock_cache.get.return_value = None
+    table = SqlaTable(
+        database=database,
+        schema=None,
+        table_name="t",
+        columns=[TableColumn(column_name="a")],
+    )
+    result = table.values_for_column("a", use_cache=False)
+    mock_cache.get.assert_not_called()
+
+
+@with_feature_flags(ENABLE_COLUMN_VALUES_CACHE=True)
+def test_values_for_column_caching(
+    mocker: MockerFixture,
+    database: Database,
+) -> None:
+    """
+    Test that column values are properly cached and retrieved from cache.
+    """
+
+    # Mock the cache manager
+    mock_cache = mocker.MagicMock()
+    mocker.patch.object(
+        cache_manager,
+        "_explore_form_data_cache",
+        mock_cache,
+    )
+    mock_cache.get.return_value = None
+    # Patch pd.read_sql_query to return [1, None] as the column_values
+    pd = mocker.patch("superset.models.helpers.pd")
+    pd.read_sql_query.return_value = pd.DataFrame(
+        [
+            1,
+            None,
+        ]
+    )
+    pd.read_sql_query.return_value.replace.return_value = pd.read_sql_query.return_value
+    pd.read_sql_query.return_value.__getitem__.return_value.to_list.return_value = [
+        1,
+        None,
+    ]
+
+    table = SqlaTable(
+        database=database,
+        schema=None,
+        table_name="t",
+        columns=[TableColumn(column_name="a")],
+    )
+
+    # Test cache miss - should query database and cache results
+    result = table.values_for_column("a", use_cache=True)
+
+    assert result == [1, None]
+    mock_cache.get.assert_called_once()
+    mock_cache.set.assert_called_once()
+
+    # Test cache hit - should return cached values without querying database
+    mock_cache.get.return_value = [
+        1,
+        None,
+        2,
+    ]  # Different cached values
+    mock_cache.set.reset_mock()
+
+    result = table.values_for_column("a", use_cache=True)
+    assert result == [1, None, 2]
+    mock_cache.set.assert_not_called()  # Should not set cache again
+
+
+def test_values_for_column_cache_key_generation(
+    mocker: MockerFixture,
+    database: Database,
+) -> None:
+    """
+    Test that cache keys are generated consistently for the same parameters.
+    """
+    from superset.connectors.sqla.models import SqlaTable, TableColumn
+
+    table = SqlaTable(
+        database=database,
+        schema=None,
+        table_name="t",
+        columns=[TableColumn(column_name="a")],
+    )
+
+    # Generate cache keys for the same parameters
+    key1 = table._get_column_values_cache_key("a", 10000, False)
+    key2 = table._get_column_values_cache_key("a", 10000, False)
+
+    # Keys should be identical for identical parameters
+    assert key1 == key2
+
+    # Keys should be different for different parameters
+    key3 = table._get_column_values_cache_key("a", 5000, False)
+    assert key1 != key3
+
+    key4 = table._get_column_values_cache_key("b", 10000, False)
+    assert key1 != key4

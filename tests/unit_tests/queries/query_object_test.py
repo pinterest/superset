@@ -342,3 +342,157 @@ def test_cache_key_cache_impersonation_on_with_different_user_and_db_impersonati
             ),
         ]
     )
+
+
+class TestRemoveOptionNameFromCacheDict:
+    """Test cases for _remove_option_name_from_cache_dict method"""
+
+    def test_remove_option_name_simple_dict(self):
+        """Test removing optionName from a simple dictionary"""
+        query_object = QueryObject()
+        cache_dict = {
+            "key1": "value1",
+            "optionName": "should_be_removed",
+            "key2": "value2",
+        }
+
+        result = query_object._remove_option_name_from_cache_dict(cache_dict)
+
+        expected = {"key1": "value1", "key2": "value2"}
+        assert result == expected
+        assert "optionName" not in result
+
+    def test_remove_option_name_nested_dict(self):
+        """Test removing optionName from nested dictionaries"""
+        query_object = QueryObject()
+        cache_dict = {
+            "level1": {"optionName": "should_be_removed", "nested_key": "value"},
+            "level1_2": {"normal_key": "value", "optionName": "also_removed"},
+            "optionName": "removed_too",
+        }
+
+        result = query_object._remove_option_name_from_cache_dict(cache_dict)
+
+        expected = {
+            "level1": {"nested_key": "value"},
+            "level1_2": {"normal_key": "value"},
+        }
+        assert result == expected
+        assert "optionName" not in result
+        assert "optionName" not in result["level1"]
+        assert "optionName" not in result["level1_2"]
+
+    def test_remove_option_name_with_lists(self):
+        """Test removing optionName from dictionaries within lists"""
+        query_object = QueryObject()
+        cache_dict = {
+            "list_of_dicts": [
+                {"key1": "value1", "optionName": "removed1"},
+                {"key2": "value2", "optionName": "removed2"},
+                {"key3": "value3"},  # no optionName
+            ],
+            "mixed_list": [
+                "string_value",
+                {"optionName": "removed", "key": "value"},
+                42,
+                {"nested": {"optionName": "also_removed", "key": "value"}},
+            ],
+        }
+
+        result = query_object._remove_option_name_from_cache_dict(cache_dict)
+
+        expected = {
+            "list_of_dicts": [
+                {"key1": "value1"},
+                {"key2": "value2"},
+                {"key3": "value3"},
+            ],
+            "mixed_list": [
+                "string_value",
+                {"key": "value"},
+                42,
+                {"nested": {"key": "value"}},
+            ],
+        }
+        assert result == expected
+
+    def test_remove_option_name_with_tuples(self):
+        """Test removing optionName from dictionaries within tuples"""
+        query_object = QueryObject()
+        cache_dict = {
+            "tuple_of_dicts": (
+                {"key1": "value1", "optionName": "removed1"},
+                {"key2": "value2", "optionName": "removed2"},
+            )
+        }
+
+        result = query_object._remove_option_name_from_cache_dict(cache_dict)
+
+        expected = {"tuple_of_dicts": ({"key1": "value1"}, {"key2": "value2"})}
+        assert result == expected
+
+    def test_remove_option_name_no_option_name(self):
+        """Test that dictionaries without optionName are unchanged"""
+        query_object = QueryObject()
+        cache_dict = {
+            "key1": "value1",
+            "key2": "value2",
+            "nested": {"nested_key": "nested_value"},
+        }
+
+        result = query_object._remove_option_name_from_cache_dict(cache_dict)
+
+        assert result == cache_dict
+
+    def test_remove_option_name_empty_dict(self):
+        """Test with empty dictionary"""
+        query_object = QueryObject()
+        cache_dict = {}
+
+        result = query_object._remove_option_name_from_cache_dict(cache_dict)
+
+        assert result == {}
+
+    def test_remove_option_name_non_dict_types(self):
+        """Test with non-dictionary types (should return as-is)"""
+        query_object = QueryObject()
+
+        # Test with string
+        assert query_object._remove_option_name_from_cache_dict("string") == "string"
+
+        # Test with integer
+        assert query_object._remove_option_name_from_cache_dict(42) == 42
+
+        # Test with None
+        assert query_object._remove_option_name_from_cache_dict(None) is None
+
+        # Test with list of non-dicts
+        assert query_object._remove_option_name_from_cache_dict([1, 2, 3]) == [1, 2, 3]
+
+    def test_remove_option_name_deeply_nested(self):
+        """Test with deeply nested structures"""
+        query_object = QueryObject()
+        cache_dict = {
+            "level1": {
+                "level2": {
+                    "level3": {"optionName": "deeply_nested_removed", "key": "value"},
+                    "optionName": "level2_removed",
+                },
+                "optionName": "level1_removed",
+            },
+            "optionName": "top_level_removed",
+        }
+
+        result = query_object._remove_option_name_from_cache_dict(cache_dict)
+
+        expected = {"level1": {"level2": {"level3": {"key": "value"}}}}
+        assert result == expected
+
+    def test_remove_option_name_only_option_name(self):
+        """Test dictionary with only optionName key"""
+        query_object = QueryObject()
+        cache_dict = {"optionName": "only_key"}
+
+        result = query_object._remove_option_name_from_cache_dict(cache_dict)
+
+        assert result == {}

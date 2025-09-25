@@ -48,7 +48,11 @@ class DatasourceRestApi(BaseSupersetApi):
         log_to_statsd=False,
     )
     def get_column_values(
-        self, datasource_type: str, datasource_id: int, column_name: str
+        self,
+        datasource_type: str,
+        datasource_id: int,
+        column_name: str,
+        use_cache: bool = False,
     ) -> FlaskResponse:
         """Get possible values for a datasource column.
         ---
@@ -121,6 +125,7 @@ class DatasourceRestApi(BaseSupersetApi):
                 column_name=column_name,
                 limit=row_limit,
                 denormalize_column=denormalize_column,
+                use_cache=use_cache,
             )
             return self.response(200, result=payload)
         except KeyError:
