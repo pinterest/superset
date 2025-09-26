@@ -414,6 +414,27 @@ class QueryObject:  # pylint: disable=too-many-instance-attributes
             default=str,
         )
 
+    def _remove_option_name_from_cache_dict(self, cache_dict: Any) -> dict[str, Any]:
+        """
+        Recursively search cache_dict and remove any key named 'optionName'.
+        """
+        if isinstance(cache_dict, list):
+            return [
+                self._remove_option_name_from_cache_dict(item) for item in cache_dict
+            ]
+        elif isinstance(cache_dict, tuple):
+            return tuple(
+                self._remove_option_name_from_cache_dict(item) for item in cache_dict
+            )
+        if not isinstance(cache_dict, dict):
+            return cache_dict
+        cache_dict_copy = {}
+        for k in cache_dict:
+            if k == "optionName":
+                continue
+            cache_dict_copy[k] = self._remove_option_name_from_cache_dict(cache_dict[k])
+        return cache_dict_copy
+
     def cache_key(self, **extra: Any) -> str:  # noqa: C901
         """
         The cache key is made out of the key/values from to_dict(), plus any
@@ -425,6 +446,7 @@ class QueryObject:  # pylint: disable=too-many-instance-attributes
         # Cast to dict[str, Any] for mutation operations
         cache_dict: dict[str, Any] = dict(self.to_dict())
         cache_dict.update(extra)
+        cache_dict = self._remove_option_name_from_cache_dict(cache_dict)
 
         # TODO: the below KVs can all be cleaned up and moved to `to_dict()` at some
         #  predetermined point in time when orgs are aware that the previously
