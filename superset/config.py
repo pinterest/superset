@@ -623,6 +623,7 @@ DEFAULT_FEATURE_FLAGS: dict[str, bool] = {
     # Enable support for date range timeshifts (e.g., "2015-01-03 : 2015-01-04")
     # in addition to relative timeshifts (e.g., "1 day ago")
     "DATE_RANGE_TIMESHIFTS_ENABLED": False,
+    "ENABLE_COLUMN_VALUES_CACHE": True,
 }
 
 # ------------------------------
@@ -2152,6 +2153,8 @@ PINTEREST_WELCOME_TOP_SECTIONS: list[PinterestWelcomeTopSections] | None = []
 # Tag ID used to filter all top dashboards
 PINTEREST_TOP_TAG_ID = 1
 
+# Cache timeout for column values cache (if enabled)
+COLUMN_VALUES_CACHE_TIMEOUT = 25 * 60 * 60  # 25 hours
 
 # Extra dynamic query filters make it possible to limit which objects are shown
 # in the UI before any other filtering is applied. Useful for example when
@@ -2184,16 +2187,16 @@ CATALOGS_SIMPLIFIED_MIGRATION: bool = False
 # plug in your own anomaly detection function here
 # see superset/utils/pandas_postprocessing/anomaly_detection.py for parameter descriptions
 ANOMALY_DETECTION: Optional[Callable[
-    [
+        [
+            DataFrame,
+            float,
+            Optional[bool],
+            Optional[bool],
+            Optional[bool],
+            Optional[bool],
+            Optional[str],
+        ],
         DataFrame,
-        float,
-        Optional[bool],
-        Optional[bool],
-        Optional[bool],
-        Optional[bool],
-        Optional[str],
-    ],
-    DataFrame,
 ]] = None
 
 # When updating a DB connection or manually triggering a perm sync, the command
