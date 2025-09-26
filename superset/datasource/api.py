@@ -16,6 +16,7 @@
 # under the License.
 import logging
 
+from flask import request
 from flask_appbuilder.api import expose, protect, safe
 
 from superset import app, event_logger
@@ -48,7 +49,10 @@ class DatasourceRestApi(BaseSupersetApi):
         log_to_statsd=False,
     )
     def get_column_values(
-        self, datasource_type: str, datasource_id: int, column_name: str
+        self,
+        datasource_type: str,
+        datasource_id: int,
+        column_name: str,
     ) -> FlaskResponse:
         """Get possible values for a datasource column.
         ---
@@ -70,6 +74,12 @@ class DatasourceRestApi(BaseSupersetApi):
               type: string
             name: column_name
             description: The name of the column to get values for
+          - in: query
+            schema:
+              type: boolean
+              default: true
+            name: use_cache
+            description: Whether to use cached results for column values
           responses:
             200:
               description: A List of distinct values for the column
@@ -116,11 +126,13 @@ class DatasourceRestApi(BaseSupersetApi):
 
         row_limit = apply_max_row_limit(app.config["FILTER_SELECT_ROW_LIMIT"])
         denormalize_column = not datasource.normalize_columns
+        use_cache = request.args.get("use_cache", "false").lower() == "true"
         try:
             payload = datasource.values_for_column(
                 column_name=column_name,
                 limit=row_limit,
                 denormalize_column=denormalize_column,
+                use_cache=use_cache,
             )
             return self.response(200, result=payload)
         except KeyError:
