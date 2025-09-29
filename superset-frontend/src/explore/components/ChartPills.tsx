@@ -16,12 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { forwardRef, RefObject } from 'react';
+import { forwardRef, RefObject, useMemo } from 'react';
 import { css, QueryData, SupersetTheme } from '@superset-ui/core';
 import RowCountLabel from 'src/explore/components/RowCountLabel';
 import CachedLabel from 'src/components/CachedLabel';
 import Timer from 'src/components/Timer';
 import { Type } from 'src/components/Label';
+import { getPinterestChartPills } from '@pinterest-plugins/src/explore/components/pinterestChartPills';
 
 const CHART_STATUS_MAP = {
   failed: 'danger' as Type,
@@ -52,6 +53,11 @@ export const ChartPills = forwardRef(
   ) => {
     const isLoading = chartStatus === 'loading';
     const firstQueryResponse = queriesResponse?.[0];
+
+    const pinterestChartPills = useMemo(() => {
+      return getPinterestChartPills(isLoading, firstQueryResponse);
+    }, [isLoading, firstQueryResponse]);
+
     return (
       <div ref={ref}>
         <div
@@ -64,6 +70,7 @@ export const ChartPills = forwardRef(
             }
           `}
         >
+          {pinterestChartPills}
           {!isLoading && firstQueryResponse && (
             <RowCountLabel
               rowcount={Number(firstQueryResponse.sql_rowcount) || 0}
