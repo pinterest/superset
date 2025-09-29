@@ -269,6 +269,10 @@ if (process.env.USE_PINTEREST_PLUGINS !== 'true') {
         'pinterest-plugins/src/chart-controls/controlMap.stub.ts',
       ),
     ),
+    new webpack.NormalModuleReplacementPlugin(
+      /@pinterest-plugins\/src\/explore\/components\/pinterestChartPills$/,
+      path.resolve(__dirname, 'pinterest-plugins/src/explore/components/pinterestChartPills.stub.tsx'),
+    ),
   );
 }
 
