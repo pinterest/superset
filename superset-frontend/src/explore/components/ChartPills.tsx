@@ -54,9 +54,10 @@ export const ChartPills = forwardRef(
     const isLoading = chartStatus === 'loading';
     const firstQueryResponse = queriesResponse?.[0];
 
-    const pinterestChartPills = useMemo(() => {
-      return getPinterestChartPills(isLoading, firstQueryResponse);
-    }, [isLoading, firstQueryResponse]);
+    const pinterestChartPills = useMemo(
+      () => getPinterestChartPills(isLoading, firstQueryResponse),
+      [isLoading, firstQueryResponse],
+    );
 
     return (
       <div ref={ref}>
