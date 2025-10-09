@@ -20,6 +20,7 @@
 /* eslint-disable */
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Alert } from 'antd';
+import { useTheme } from '@superset-ui/core';
 import Icons from 'src/components/Icons';
 import getBootstrapData from 'src/utils/getBootstrapData';
 
@@ -43,13 +44,11 @@ const getIcon = (type: string) => {
   }
 };
 
-let renderCount = 0;
-
 const AnnouncementBanner = () => {
-  console.log('RENDER COUNT:', ++renderCount);
-  
   const [dismissedIds, setDismissedIds] = useState<Set<string>>(() => new Set());
-  
+  const theme = useTheme();
+  const { gridUnit } = theme;
+
   // Memoize bootstrap data to prevent re-fetching on every render
   const announcementConfig = useMemo(() => {
     const bootstrapData = getBootstrapData();
@@ -107,7 +106,7 @@ const AnnouncementBanner = () => {
           onClose={() => handleClose(announcement.id)}
           role="banner"
           showIcon
-          style={{ marginBottom: '10px' }}
+          style={{margin: `${gridUnit}px`}}
           type={announcement.type}
         />
       ))}
