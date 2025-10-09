@@ -2089,6 +2089,17 @@ WELCOME_PAGE_LAST_TAB: Literal["examples", "all"] | tuple[str, list[dict[str, An
     "all"
 )
 
+# Announcement banner configuration
+# Set this to display an announcement banner at the top of Superset
+# The banner will be shown until dismissed by the user. The dismiss state is stored in localStorage.
+# Example:
+# ANNOUNCEMENTS = {
+#     "id": "announcement-2025-01-15",  # Change this ID to show a new announcement
+#     "message": "<strong>Maintenance Notice:</strong> System will be down on Jan 20th",
+#     "type": "info",  # "info", "warning", "error", or "success"
+# }
+ANNOUNCEMENTS: list[dict[str, str]] | None = []
+
 # Max allowed size for a zipped file
 ZIPPED_FILE_MAX_SIZE = 100 * 1024 * 1024  # 100MB
 # Max allowed compression ratio for a zipped file
