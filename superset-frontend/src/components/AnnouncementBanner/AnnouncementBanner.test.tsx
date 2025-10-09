@@ -47,7 +47,9 @@ describe('AnnouncementBanner', () => {
     });
 
     const { container } = renderWithTheme(<AnnouncementBanner />);
-    expect(container.firstChild).toBeEmptyDOMElement();
+
+    // eslint-disable-next-line jest-dom/prefer-empty
+    expect(container.firstChild).toBeNull();
   });
 
   it('should render when announcement config is provided', () => {
@@ -111,7 +113,9 @@ describe('AnnouncementBanner', () => {
     });
 
     const { container } = renderWithTheme(<AnnouncementBanner />);
-    expect(container.firstChild).toBeEmptyDOMElement();
+
+    // eslint-disable-next-line jest-dom/prefer-empty
+    expect(container.firstChild).toBeNull();
   });
 
   it('should dismiss announcement and save to localStorage when close button is clicked', async () => {
@@ -132,7 +136,7 @@ describe('AnnouncementBanner', () => {
 
     renderWithTheme(<AnnouncementBanner />);
 
-    const closeButton = screen.getByLabelText('Close announcement');
+    const closeButton = screen.getByLabelText('close');
     fireEvent.click(closeButton);
 
     await waitFor(() => {
