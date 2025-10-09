@@ -16,12 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-/* eslint-disable */
-
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { ThemeProvider, supersetTheme } from '@superset-ui/core';
+import getBootstrapData from 'src/utils/getBootstrapData';
 import AnnouncementBanner from '.';
 
 // Mock getBootstrapData
@@ -29,8 +27,6 @@ jest.mock('src/utils/getBootstrapData', () => ({
   __esModule: true,
   default: jest.fn(),
 }));
-
-const getBootstrapData = require('src/utils/getBootstrapData').default;
 
 const renderWithTheme = (component: React.ReactElement) =>
   render(<ThemeProvider theme={supersetTheme}>{component}</ThemeProvider>);
@@ -42,7 +38,7 @@ describe('AnnouncementBanner', () => {
   });
 
   it('should not render when no announcement config is provided', () => {
-    getBootstrapData.mockReturnValue({
+    (getBootstrapData as jest.Mock).mockReturnValue({
       common: {
         conf: {
           ANNOUNCEMENTS: null,
@@ -51,35 +47,39 @@ describe('AnnouncementBanner', () => {
     });
 
     const { container } = renderWithTheme(<AnnouncementBanner />);
-    expect(container.firstChild).toBeNull();
+    expect(container.firstChild).toBeEmptyDOMElement();
   });
 
   it('should render when announcement config is provided', () => {
-    getBootstrapData.mockReturnValue({
+    (getBootstrapData as jest.Mock).mockReturnValue({
       common: {
         conf: {
-          ANNOUNCEMENTS: {
-            id: 'test-announcement',
-            message: '<strong>Test</strong> message',
-            type: 'info',
-          },
+          ANNOUNCEMENTS: [
+            {
+              id: 'test-announcement',
+              message: '<strong>Test</strong> message',
+              type: 'info',
+            },
+          ],
         },
       },
     });
 
     renderWithTheme(<AnnouncementBanner />);
-    expect(screen.getByRole('alert')).toBeInTheDocument();
+    expect(screen.getByRole('banner')).toBeInTheDocument();
   });
 
   it('should render HTML content correctly', () => {
-    getBootstrapData.mockReturnValue({
+    (getBootstrapData as jest.Mock).mockReturnValue({
       common: {
         conf: {
-          ANNOUNCEMENTS: {
-            id: 'test-announcement',
-            message: '<strong>Bold text</strong> and normal text',
-            type: 'info',
-          },
+          ANNOUNCEMENTS: [
+            {
+              id: 'test-announcement',
+              message: '<strong>Bold text</strong> and normal text',
+              type: 'info',
+            },
+          ],
         },
       },
     });
@@ -96,44 +96,50 @@ describe('AnnouncementBanner', () => {
       'true',
     );
 
-    getBootstrapData.mockReturnValue({
+    (getBootstrapData as jest.Mock).mockReturnValue({
       common: {
         conf: {
-          ANNOUNCEMENTS: {
-            id: announcementId,
-            message: 'This should not appear',
-            type: 'info',
-          },
+          ANNOUNCEMENTS: [
+            {
+              id: announcementId,
+              message: 'This should not appear',
+              type: 'info',
+            },
+          ],
         },
       },
     });
 
     const { container } = renderWithTheme(<AnnouncementBanner />);
-    expect(container.firstChild).toBeNull();
+    expect(container.firstChild).toBeEmptyDOMElement();
   });
 
   it('should dismiss announcement and save to localStorage when close button is clicked', async () => {
     const announcementId = 'test-announcement';
-    getBootstrapData.mockReturnValue({
+    (getBootstrapData as jest.Mock).mockReturnValue({
       common: {
         conf: {
-          ANNOUNCEMENTS: {
-            id: announcementId,
-            message: 'Test message',
-            type: 'info',
-          },
+          ANNOUNCEMENTS: [
+            {
+              id: announcementId,
+              message: 'Test message',
+              type: 'info',
+            },
+          ],
         },
       },
     });
 
     renderWithTheme(<AnnouncementBanner />);
-    
+
     const closeButton = screen.getByLabelText('Close announcement');
     fireEvent.click(closeButton);
 
     await waitFor(() => {
       expect(
-        localStorage.getItem(`superset_announcement_dismissed_${announcementId}`),
+        localStorage.getItem(
+          `superset_announcement_dismissed_${announcementId}`,
+        ),
       ).toBe('true');
     });
   });
@@ -142,20 +148,22 @@ describe('AnnouncementBanner', () => {
     const types = ['info', 'warning', 'error', 'success'] as const;
 
     types.forEach(type => {
-      getBootstrapData.mockReturnValue({
+      (getBootstrapData as jest.Mock).mockReturnValue({
         common: {
           conf: {
-            ANNOUNCEMENTS: {
-              id: `test-${type}`,
-              message: `Test ${type} message`,
-              type,
-            },
+            ANNOUNCEMENTS: [
+              {
+                id: `test-${type}`,
+                message: `Test ${type} message`,
+                type,
+              },
+            ],
           },
         },
       });
 
       const { unmount } = renderWithTheme(<AnnouncementBanner />);
-      expect(screen.getByRole('alert')).toBeInTheDocument();
+      expect(screen.getByRole('banner')).toBeInTheDocument();
       unmount();
       localStorage.clear();
     });
@@ -169,21 +177,94 @@ describe('AnnouncementBanner', () => {
     localStorage.setItem(`superset_announcement_dismissed_${firstId}`, 'true');
 
     // Show second announcement with different ID
-    getBootstrapData.mockReturnValue({
+    (getBootstrapData as jest.Mock).mockReturnValue({
       common: {
         conf: {
-          ANNOUNCEMENTS: {
-            id: secondId,
-            message: 'New announcement',
-            type: 'info',
-          },
+          ANNOUNCEMENTS: [
+            {
+              id: secondId,
+              message: 'New announcement',
+              type: 'info',
+            },
+          ],
         },
       },
     });
 
     renderWithTheme(<AnnouncementBanner />);
-    expect(screen.getByRole('alert')).toBeInTheDocument();
+    expect(screen.getByRole('banner')).toBeInTheDocument();
     expect(screen.getByText(/New announcement/)).toBeInTheDocument();
   });
-});
 
+  it('should render multiple announcements at once', () => {
+    (getBootstrapData as jest.Mock).mockReturnValue({
+      common: {
+        conf: {
+          ANNOUNCEMENTS: [
+            {
+              id: 'announcement-1',
+              message: 'First announcement',
+              type: 'info',
+            },
+            {
+              id: 'announcement-2',
+              message: 'Second announcement',
+              type: 'warning',
+            },
+            {
+              id: 'announcement-3',
+              message: 'Third announcement',
+              type: 'success',
+            },
+          ],
+        },
+      },
+    });
+
+    renderWithTheme(<AnnouncementBanner />);
+    const banners = screen.getAllByRole('banner');
+    expect(banners).toHaveLength(3);
+    expect(screen.getByText(/First announcement/)).toBeInTheDocument();
+    expect(screen.getByText(/Second announcement/)).toBeInTheDocument();
+    expect(screen.getByText(/Third announcement/)).toBeInTheDocument();
+  });
+
+  it('should only render non-dismissed announcements when multiple exist', () => {
+    // Dismiss the second announcement
+    localStorage.setItem(
+      'superset_announcement_dismissed_announcement-2',
+      'true',
+    );
+
+    (getBootstrapData as jest.Mock).mockReturnValue({
+      common: {
+        conf: {
+          ANNOUNCEMENTS: [
+            {
+              id: 'announcement-1',
+              message: 'First announcement',
+              type: 'info',
+            },
+            {
+              id: 'announcement-2',
+              message: 'Second announcement (dismissed)',
+              type: 'warning',
+            },
+            {
+              id: 'announcement-3',
+              message: 'Third announcement',
+              type: 'success',
+            },
+          ],
+        },
+      },
+    });
+
+    renderWithTheme(<AnnouncementBanner />);
+    const banners = screen.getAllByRole('banner');
+    expect(banners).toHaveLength(2);
+    expect(screen.getByText(/First announcement/)).toBeInTheDocument();
+    expect(screen.queryByText(/Second announcement/)).not.toBeInTheDocument();
+    expect(screen.getByText(/Third announcement/)).toBeInTheDocument();
+  });
+});

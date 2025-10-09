@@ -16,9 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-/* eslint-disable */
-
 import { StoryFn, Meta } from '@storybook/react';
 import { Alert } from 'antd';
 import { styled, SupersetTheme } from '@superset-ui/core';
@@ -84,7 +81,6 @@ function AnnouncementBannerStory({ config }: { config: AnnouncementConfig }) {
       message={<div dangerouslySetInnerHTML={{ __html: message }} />}
       icon={icon}
       closable
-      // closeIcon={<Icons.XSmall aria-label="Close announcement" />}
       onClose={() => console.log('Banner dismissed')}
       showIcon
       banner
@@ -160,4 +156,3 @@ WithList.args = {
     type: 'info',
   },
 };
-

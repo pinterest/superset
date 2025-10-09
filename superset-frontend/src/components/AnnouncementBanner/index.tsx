@@ -16,8 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-/* eslint-disable */
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Alert } from 'antd';
 import { useTheme } from '@superset-ui/core';
@@ -35,24 +33,32 @@ const STORAGE_KEY_PREFIX = 'superset_announcement_dismissed_';
 const getIcon = (type: string) => {
   if (type === 'error') {
     return <Icons.ErrorSolid />;
-  } else if (type === 'warning') {
-    return <Icons.AlertSolid />;
-  } else if (type === 'success') {
-    return <Icons.CircleCheckSolid />;
-  } else {
-    return <Icons.InfoSolid />;
   }
+
+  if (type === 'warning') {
+    return <Icons.AlertSolid />;
+  }
+
+  if (type === 'success') {
+    return <Icons.CircleCheckSolid />;
+  }
+
+  return <Icons.InfoSolid />;
 };
 
 const AnnouncementBanner = () => {
-  const [dismissedIds, setDismissedIds] = useState<Set<string>>(() => new Set());
+  const [dismissedIds, setDismissedIds] = useState<Set<string>>(
+    () => new Set(),
+  );
   const theme = useTheme();
   const { gridUnit } = theme;
 
   // Memoize bootstrap data to prevent re-fetching on every render
   const announcementConfig = useMemo(() => {
     const bootstrapData = getBootstrapData();
-    return bootstrapData?.common?.conf?.ANNOUNCEMENTS as AnnouncementConfig[] | null;
+    return bootstrapData?.common?.conf?.ANNOUNCEMENTS as
+      | AnnouncementConfig[]
+      | null;
   }, []);
 
   useEffect(() => {
@@ -83,10 +89,10 @@ const AnnouncementBanner = () => {
       return [];
     }
     return announcementConfig.filter(
-      announcement => 
-        announcement.id && 
-        announcement.message && 
-        !dismissedIds.has(announcement.id)
+      announcement =>
+        announcement.id &&
+        announcement.message &&
+        !dismissedIds.has(announcement.id),
     );
   }, [announcementConfig, dismissedIds]);
 
@@ -102,11 +108,13 @@ const AnnouncementBanner = () => {
           banner
           closable
           icon={getIcon(announcement.type)}
-          message={<div dangerouslySetInnerHTML={{ __html: announcement.message }} />}
+          message={
+            <div dangerouslySetInnerHTML={{ __html: announcement.message }} />
+          }
           onClose={() => handleClose(announcement.id)}
           role="banner"
           showIcon
-          style={{margin: `${gridUnit}px`}}
+          style={{ margin: `${gridUnit}px` }}
           type={announcement.type}
         />
       ))}
