@@ -33,4 +33,5 @@ gunicorn \
     --max-requests-jitter ${WORKER_MAX_REQUESTS_JITTER:-0} \
     --limit-request-line ${SERVER_LIMIT_REQUEST_LINE:-0} \
     --limit-request-field_size ${SERVER_LIMIT_REQUEST_FIELD_SIZE:-0} \
+    --worker-connections ${SERVER_WORKER_CONNECTIONS:-1000} \
     "${FLASK_APP}"
