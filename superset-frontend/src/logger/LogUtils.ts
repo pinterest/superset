@@ -18,6 +18,7 @@
  */
 // Log event names ------------------------------------------------------------
 export const LOG_ACTIONS_LOAD_CHART = 'load_chart';
+export const LOG_ACTIONS_LOAD_CHART_FAILED = 'load_chart_failed';
 export const LOG_ACTIONS_RENDER_CHART = 'render_chart';
 export const LOG_ACTIONS_HIDE_BROWSER_TAB = 'hide_browser_tab';
 export const LOG_ACTIONS_LOAD_DASHBOARD_WITH_CHARTS =

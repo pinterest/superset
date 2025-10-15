@@ -37,7 +37,11 @@ import {
 } from 'src/explore/exploreUtils';
 import { addDangerToast } from 'src/components/MessageToasts/actions';
 import { logEvent } from 'src/logger/actions';
-import { Logger, LOG_ACTIONS_LOAD_CHART } from 'src/logger/LogUtils';
+import {
+  Logger,
+  LOG_ACTIONS_LOAD_CHART,
+  LOG_ACTIONS_LOAD_CHART_FAILED,
+} from 'src/logger/LogUtils';
 import { allowCrossDomain as domainShardingEnabled } from 'src/utils/hostNamesConfig';
 import { updateDataMask } from 'src/dataMask/actions';
 import { waitForAsyncData } from 'src/middleware/asyncEvent';
@@ -477,13 +481,9 @@ export function exploreJSON(
         return dispatch(chartUpdateSucceeded(queriesResponse, key));
       })
       .catch(response => {
-        if (isFeatureEnabled(FeatureFlag.GlobalAsyncQueries)) {
-          return dispatch(chartUpdateFailed([response], key));
-        }
-
         const appendErrorLog = (errorDetails, isCached) => {
           dispatch(
-            logEvent(LOG_ACTIONS_LOAD_CHART, {
+            logEvent(LOG_ACTIONS_LOAD_CHART_FAILED, {
               slice_id: key,
               has_err: true,
               is_cached: isCached,
@@ -495,17 +495,36 @@ export function exploreJSON(
             }),
           );
         };
+
         if (response.name === 'AbortError') {
           appendErrorLog('abort');
           return dispatch(chartUpdateStopped(key));
         }
-        return getClientErrorObject(response).then(parsedResponse => {
-          if (response.statusText === 'timeout') {
-            appendErrorLog('timeout');
-          } else {
-            appendErrorLog(parsedResponse.error, parsedResponse.is_cached);
+
+        const logAndFail = (parsedResponse, overrideErrorDetails) => {
+          try {
+            const errorDetails =
+              overrideErrorDetails ||
+              parsedResponse?.error ||
+              parsedResponse?.message ||
+              parsedResponse?.statusText ||
+              safeStringify(parsedResponse);
+            appendErrorLog(errorDetails, parsedResponse?.is_cached);
+          } catch (e) {
+            // best-effort logging, ignore secondary errors
           }
           return dispatch(chartUpdateFailed([parsedResponse], key));
+        };
+
+        if (isFeatureEnabled(FeatureFlag.GlobalAsyncQueries)) {
+          return logAndFail(response);
+        }
+
+        return getClientErrorObject(response).then(parsedResponse => {
+          if (response.statusText === 'timeout') {
+            return logAndFail(parsedResponse, 'timeout');
+          }
+          return logAndFail(parsedResponse.error);
         });
       });
 
