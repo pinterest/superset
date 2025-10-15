@@ -59,9 +59,6 @@ const AnnouncementBanner = () => {
 
   // Hide announcements in standalone views or when navigation is hidden
   const standalone = getUrlParam(URL_PARAMS.standalone);
-  if (standalone || uiConfig.hideNav) {
-    return null;
-  }
 
   // Memoize bootstrap data to prevent re-fetching on every render
   const announcementConfig = useMemo(() => {
@@ -105,6 +102,10 @@ const AnnouncementBanner = () => {
         !dismissedIds.has(announcement.id),
     );
   }, [announcementConfig, dismissedIds]);
+
+  if (standalone || uiConfig.hideNav) {
+    return null;
+  }
 
   if (activeAnnouncements.length === 0) {
     return null;
