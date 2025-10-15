@@ -60,7 +60,6 @@ const AnnouncementBanner = () => {
 
   // useLocation ensures component re-renders on route changes to properly
   // detect standalone mode from URL params
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const location = useLocation();
 
   // Memoize bootstrap data to prevent re-fetching on every render
@@ -72,7 +71,11 @@ const AnnouncementBanner = () => {
   }, []);
 
   // Hide announcements in standalone views or when navigation is hidden
-  const standalone = getUrlParam(URL_PARAMS.standalone);
+  // Re-evaluate when location changes to detect standalone mode from URL params
+  const standalone = useMemo(
+    () => getUrlParam(URL_PARAMS.standalone),
+    [location],
+  );
 
   useEffect(() => {
     // Load dismissed announcements from localStorage on mount
