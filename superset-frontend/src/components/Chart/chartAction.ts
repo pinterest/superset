@@ -44,7 +44,11 @@ import {
 } from 'src/explore/exploreUtils';
 import { addDangerToast } from 'src/components/MessageToasts/actions';
 import { logEvent } from 'src/logger/actions';
-import { Logger, LOG_ACTIONS_LOAD_CHART } from 'src/logger/LogUtils';
+import {
+  Logger,
+  LOG_ACTIONS_LOAD_CHART,
+  LOG_ACTIONS_LOAD_CHART_FAILED,
+} from 'src/logger/LogUtils';
 import { allowCrossDomain as domainShardingEnabled } from 'src/utils/hostNamesConfig';
 import { updateDataMask } from 'src/dataMask/actions';
 import { waitForAsyncData } from 'src/middleware/asyncEvent';
@@ -816,32 +820,12 @@ export function exploreJSON(
             statusText?: string;
           },
         ) => {
-          // Ignore abort errors - they're expected when filters change quickly
-          const isAbort =
-            response?.name === 'AbortError' || response?.statusText === 'abort';
-          if (isAbort) {
-            // Abort is expected: filters changed, chart unmounted, etc.
-            return dispatch(
-              chartUpdateStopped(key as string | number, controller),
-            );
-          }
-
-          if (isFeatureEnabled(FeatureFlag.GlobalAsyncQueries)) {
-            // In async mode we just pass the raw error response through
-            return dispatch(
-              chartUpdateFailed(
-                [response as JsonObject],
-                key as string | number,
-              ),
-            );
-          }
-
           const appendErrorLog = (
             errorDetails: string | undefined,
             isCached?: boolean,
           ): void => {
             dispatch(
-              logEvent(LOG_ACTIONS_LOAD_CHART, {
+              logEvent(LOG_ACTIONS_LOAD_CHART_FAILED, {
                 slice_id: key,
                 has_err: true,
                 is_cached: isCached,
@@ -854,19 +838,51 @@ export function exploreJSON(
             );
           };
 
+          // Ignore abort errors - they're expected when filters change quickly
+          const isAbort =
+            response?.name === 'AbortError' || response?.statusText === 'abort';
+          if (isAbort) {
+            // Abort is expected: filters changed, chart unmounted, etc.
+            appendErrorLog('abort');
+            return dispatch(
+              chartUpdateStopped(key as string | number, controller),
+            );
+          }
+
+          const logAndFail = (
+            parsedResponse: JsonObject,
+            overrideErrorDetails?: string,
+          ) => {
+            try {
+              const errorDetails =
+                overrideErrorDetails ||
+                parsedResponse?.error ||
+                parsedResponse?.message ||
+                parsedResponse?.statusText ||
+                safeStringify(parsedResponse);
+              appendErrorLog(errorDetails, parsedResponse?.is_cached);
+            } catch (e) {
+              // best-effort logging, ignore secondary errors
+            }
+            return dispatch(
+              chartUpdateFailed([parsedResponse], key as string | number),
+            );
+          };
+
+          if (isFeatureEnabled(FeatureFlag.GlobalAsyncQueries)) {
+            // In async mode we just pass the raw error response through
+            return logAndFail(response as JsonObject);
+          }
+
           return getClientErrorObject(
             response as unknown as Parameters<typeof getClientErrorObject>[0],
           ).then((parsedResponse: JsonObject) => {
             if (
               (response as { statusText?: string }).statusText === 'timeout'
             ) {
-              appendErrorLog('timeout');
-            } else {
-              appendErrorLog(parsedResponse.error, parsedResponse.is_cached);
+              return logAndFail(parsedResponse, 'timeout');
             }
-            return dispatch(
-              chartUpdateFailed([parsedResponse], key as string | number),
-            );
+            return logAndFail(parsedResponse.error);
           });
         },
       );
