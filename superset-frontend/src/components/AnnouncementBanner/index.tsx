@@ -19,8 +19,12 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Alert } from 'antd';
 import { useTheme } from '@superset-ui/core';
+import { useLocation } from 'react-router-dom';
 import Icons from 'src/components/Icons';
 import getBootstrapData from 'src/utils/getBootstrapData';
+import { getUrlParam } from 'src/utils/urlUtils';
+import { useUiConfig } from 'src/components/UiConfigContext';
+import { URL_PARAMS } from 'src/constants';
 
 interface AnnouncementConfig {
   id: string;
@@ -52,6 +56,11 @@ const AnnouncementBanner = () => {
   );
   const theme = useTheme();
   const { gridUnit } = theme;
+  const uiConfig = useUiConfig();
+
+  // useLocation ensures component re-renders on route changes to properly
+  // detect standalone mode from URL params
+  const location = useLocation();
 
   // Memoize bootstrap data to prevent re-fetching on every render
   const announcementConfig = useMemo(() => {
@@ -60,6 +69,13 @@ const AnnouncementBanner = () => {
       | AnnouncementConfig[]
       | null;
   }, []);
+
+  // Hide announcements in standalone views or when navigation is hidden
+  // Re-evaluate when location changes to detect standalone mode from URL params
+  const standalone = useMemo(
+    () => getUrlParam(URL_PARAMS.standalone),
+    [location],
+  );
 
   useEffect(() => {
     // Load dismissed announcements from localStorage on mount
@@ -95,6 +111,10 @@ const AnnouncementBanner = () => {
         !dismissedIds.has(announcement.id),
     );
   }, [announcementConfig, dismissedIds]);
+
+  if (standalone || uiConfig.hideNav) {
+    return null;
+  }
 
   if (activeAnnouncements.length === 0) {
     return null;
