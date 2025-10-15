@@ -19,6 +19,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Alert } from 'antd';
 import { useTheme } from '@superset-ui/core';
+import { useLocation } from 'react-router-dom';
 import Icons from 'src/components/Icons';
 import getBootstrapData from 'src/utils/getBootstrapData';
 import { getUrlParam } from 'src/utils/urlUtils';
@@ -57,8 +58,10 @@ const AnnouncementBanner = () => {
   const { gridUnit } = theme;
   const uiConfig = useUiConfig();
 
-  // Hide announcements in standalone views or when navigation is hidden
-  const standalone = getUrlParam(URL_PARAMS.standalone);
+  // useLocation ensures component re-renders on route changes to properly
+  // detect standalone mode from URL params
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const location = useLocation();
 
   // Memoize bootstrap data to prevent re-fetching on every render
   const announcementConfig = useMemo(() => {
@@ -67,6 +70,9 @@ const AnnouncementBanner = () => {
       | AnnouncementConfig[]
       | null;
   }, []);
+
+  // Hide announcements in standalone views or when navigation is hidden
+  const standalone = getUrlParam(URL_PARAMS.standalone);
 
   useEffect(() => {
     // Load dismissed announcements from localStorage on mount
