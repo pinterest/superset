@@ -21,6 +21,9 @@ import { Alert } from 'antd';
 import { useTheme } from '@superset-ui/core';
 import Icons from 'src/components/Icons';
 import getBootstrapData from 'src/utils/getBootstrapData';
+import { getUrlParam } from 'src/utils/urlUtils';
+import { useUiConfig } from 'src/components/UiConfigContext';
+import { URL_PARAMS } from 'src/constants';
 
 interface AnnouncementConfig {
   id: string;
@@ -52,6 +55,13 @@ const AnnouncementBanner = () => {
   );
   const theme = useTheme();
   const { gridUnit } = theme;
+  const uiConfig = useUiConfig();
+
+  // Hide announcements in standalone views or when navigation is hidden
+  const standalone = getUrlParam(URL_PARAMS.standalone);
+  if (standalone || uiConfig.hideNav) {
+    return null;
+  }
 
   // Memoize bootstrap data to prevent re-fetching on every render
   const announcementConfig = useMemo(() => {
