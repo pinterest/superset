@@ -24,11 +24,20 @@ import { createMemoryHistory } from 'history';
 import { ChartCreation } from 'src/pages/ChartCreation';
 import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
 
+import { Provider } from 'react-redux';
+import React from 'react';
+import configureStore from 'redux-mock-store';
+import thunk from 'redux-thunk';
+
 jest.mock('src/components/DynamicPlugins', () => ({
   usePluginContext: () => ({
     mountedPluginMetadata: { table: { name: 'Table', tags: [] } },
   }),
 }));
+
+// Mock store for withToasts
+const mockStore = configureStore([thunk]);
+const store = mockStore({});
 
 const mockDatasourceResponse = {
   result: [
@@ -81,6 +90,7 @@ const routeProps = {
   history,
   location: {} as any,
   match: {} as any,
+  addDangerToast: jest.fn(),
 };
 
 const renderOptions = {
@@ -89,7 +99,9 @@ const renderOptions = {
 
 async function renderComponent(user = mockUser) {
   render(
-    <ChartCreation user={user} addSuccessToast={() => null} {...routeProps} />,
+    <Provider store={store}>
+      <ChartCreation user={user} addSuccessToast={() => null} {...routeProps} />
+    </Provider>,
     renderOptions,
   );
   await waitFor(() => new Promise(resolve => setTimeout(resolve, 0)));
