@@ -243,10 +243,17 @@ export function getClientErrorObject(
         .catch(() => {
           // fall back to reading as text
           responseObject.text().then((errorText: any) => {
+            // If there's no error text but we have a status code, use that
+            const errorMessage = errorText
+              ? retrieveErrorMessage(errorText, responseObject)
+              : getErrorFromStatusCode(responseObject.status) ||
+                responseObject.statusText ||
+                t('An error occurred');
+
             resolve({
               // Destructuring not necessary here
               ...responseObject,
-              error: retrieveErrorMessage(errorText, responseObject),
+              error: errorMessage
             });
           });
         });

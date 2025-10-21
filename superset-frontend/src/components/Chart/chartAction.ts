@@ -874,16 +874,21 @@ export function exploreJSON(
             return logAndFail(response as JsonObject);
           }
 
-          return getClientErrorObject(
-            response as unknown as Parameters<typeof getClientErrorObject>[0],
-          ).then((parsedResponse: JsonObject) => {
-            if (
-              (response as { statusText?: string }).statusText === 'timeout'
-            ) {
-              return logAndFail(parsedResponse, 'timeout');
-            }
-            return logAndFail(parsedResponse.error);
-          });
+          // Check if response needs parsing or is already a parsed error object
+          if (
+            response instanceof Response ||
+            ((response as JsonObject)?.status &&
+              !(response as JsonObject)?.error)
+          ) {
+            // Raw Response object (HTTP errors like 504) - parse it first
+            return getClientErrorObject(
+              response as unknown as Parameters<typeof getClientErrorObject>[0],
+            ).then((parsedResponse: JsonObject) =>
+              logAndFail(parsedResponse),
+            );
+          }
+
+          return logAndFail(response as JsonObject);
         },
       );
 
