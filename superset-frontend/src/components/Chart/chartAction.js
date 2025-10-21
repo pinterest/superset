@@ -519,13 +519,19 @@ export function exploreJSON(
         if (isFeatureEnabled(FeatureFlag.GlobalAsyncQueries)) {
           return logAndFail(response);
         }
+        
+        // Check if response needs parsing or is already a parsed error object
+        if (
+          response instanceof Response ||
+          (response?.status && !response?.error)
+        ) {
+          // Raw Response object (HTTP errors like 504) - parse it first
+          return getClientErrorObject(response).then(parsedResponse =>
+            logAndFail(parsedResponse),
+          );
+        }
 
-        return getClientErrorObject(response).then(parsedResponse => {
-          if (response.statusText === 'timeout') {
-            return logAndFail(parsedResponse, 'timeout');
-          }
-          return logAndFail(parsedResponse.error);
-        });
+        return logAndFail(response);
       });
 
     // only retrieve annotations when calling the legacy API
