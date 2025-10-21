@@ -500,6 +500,10 @@ export function exploreJSON(
           return dispatch(chartUpdateFailed([parsedResponse], key));
         };
 
+        if (isFeatureEnabled(FeatureFlag.GlobalAsyncQueries)) {
+          return logAndFail(response);
+        }
+        
         // Check if response needs parsing or is already a parsed error object
         if (
           response instanceof Response ||
