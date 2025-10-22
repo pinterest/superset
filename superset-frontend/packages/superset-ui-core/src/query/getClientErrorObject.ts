@@ -253,7 +253,7 @@ export function getClientErrorObject(
             resolve({
               // Destructuring not necessary here
               ...responseObject,
-              error: errorMessage
+              error: errorMessage,
             });
           });
         });
