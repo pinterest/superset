@@ -17,18 +17,26 @@
  * under the License.
  */
 
-import userEvent from '@testing-library/user-event';
-import { screen, waitFor, render } from 'spec/helpers/testing-library';
-import fetchMock from 'fetch-mock';
-import { createMemoryHistory } from 'history';
+import { render, screen, waitFor } from 'spec/helpers/testing-library';
+
 import { ChartCreation } from 'src/pages/ChartCreation';
+import { Provider } from 'react-redux';
 import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
+import configureStore from 'redux-mock-store';
+import { createMemoryHistory } from 'history';
+import fetchMock from 'fetch-mock';
+import thunk from 'redux-thunk';
+import userEvent from '@testing-library/user-event';
 
 jest.mock('src/components/DynamicPlugins', () => ({
   usePluginContext: () => ({
     mountedPluginMetadata: { table: { name: 'Table', tags: [] } },
   }),
 }));
+
+// Mock store for withToasts
+const mockStore = configureStore([thunk]);
+const store = mockStore({});
 
 const mockDatasourceResponse = {
   result: [
@@ -81,6 +89,7 @@ const routeProps = {
   history,
   location: {} as any,
   match: {} as any,
+  addDangerToast: jest.fn(),
 };
 
 const renderOptions = {
@@ -89,7 +98,9 @@ const renderOptions = {
 
 async function renderComponent(user = mockUser) {
   render(
-    <ChartCreation user={user} addSuccessToast={() => null} {...routeProps} />,
+    <Provider store={store}>
+      <ChartCreation user={user} addSuccessToast={() => null} {...routeProps} />
+    </Provider>,
     renderOptions,
   );
   await waitFor(() => new Promise(resolve => setTimeout(resolve, 0)));
