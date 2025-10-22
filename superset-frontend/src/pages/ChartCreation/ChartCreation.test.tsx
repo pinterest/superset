@@ -17,17 +17,16 @@
  * under the License.
  */
 
-import userEvent from '@testing-library/user-event';
-import { screen, waitFor, render } from 'spec/helpers/testing-library';
-import fetchMock from 'fetch-mock';
-import { createMemoryHistory } from 'history';
-import { ChartCreation } from 'src/pages/ChartCreation';
-import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
+import { render, screen, waitFor } from 'spec/helpers/testing-library';
 
+import { ChartCreation } from 'src/pages/ChartCreation';
 import { Provider } from 'react-redux';
-import React from 'react';
+import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
 import configureStore from 'redux-mock-store';
+import { createMemoryHistory } from 'history';
+import fetchMock from 'fetch-mock';
 import thunk from 'redux-thunk';
+import userEvent from '@testing-library/user-event';
 
 jest.mock('src/components/DynamicPlugins', () => ({
   usePluginContext: () => ({

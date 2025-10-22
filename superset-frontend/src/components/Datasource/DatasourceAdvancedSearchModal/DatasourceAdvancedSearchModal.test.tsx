@@ -3,6 +3,7 @@ import {
   UserWithPermissionsAndRoles,
 } from 'src/types/bootstrapTypes';
 import { fireEvent, render, screen } from 'spec/helpers/testing-library';
+import { useListViewResource } from 'src/views/CRUD/hooks';
 
 import DatasourceAdvancedSearchModal from './DatasourceAdvancedSearchModal';
 
@@ -19,10 +20,7 @@ jest.mock('src/views/CRUD/hooks', () => ({
 }));
 
 jest.mock('src/explore/exploreUtils', () => ({
-  useDebouncedEffect: jest.fn((callback, delay, deps) => {
-    // Call the callback immediately for testing
-    callback();
-  }),
+  useDebouncedEffect: jest.fn(callback => callback()),
   formatSelectOptions: jest.fn(options => options),
 }));
 
@@ -32,55 +30,69 @@ jest.mock(
 );
 
 // Mock the child components
-jest.mock('./FilterSidebar', () => {
-  return function MockFilterSidebar({ onFilterChange, onClearFilters }: any) {
-    return (
-      <div data-test="filter-sidebar">
-        <button onClick={() => onFilterChange('table_name', 'test')}>
-          Test Filter
-        </button>
-        <button onClick={() => onFilterChange('certified', true)}>
-          Test Certified Filter
-        </button>
-        <button onClick={onClearFilters}>Clear Filters</button>
-        <button
-          onClick={() => {
-            onFilterChange('table_name', 'test');
-            onFilterChange('certified', true);
-          }}
-        >
-          Test Multiple Filters
-        </button>
-      </div>
-    );
-  };
-});
+jest.mock(
+  './FilterSidebar',
+  () =>
+    function MockFilterSidebar({ onFilterChange, onClearFilters }: any) {
+      return (
+        <div data-test="filter-sidebar">
+          <button
+            type="button"
+            onClick={() => onFilterChange('table_name', 'test')}
+          >
+            Test Filter
+          </button>
+          <button
+            type="button"
+            onClick={() => onFilterChange('certified', true)}
+          >
+            Test Certified Filter
+          </button>
+          <button type="button" onClick={onClearFilters}>
+            Clear Filters
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              onFilterChange('table_name', 'test');
+              onFilterChange('certified', true);
+            }}
+          >
+            Test Multiple Filters
+          </button>
+        </div>
+      );
+    },
+);
 
-jest.mock('./DatasetTable', () => {
-  return function MockDatasetTable({
-    onSelectDatasource,
-    onServerPagination,
-  }: any) {
-    return (
-      <div data-test="dataset-table">
-        <button
-          onClick={() =>
-            onSelectDatasource({
-              id: 1,
-              table_name: 'test_table',
-              type: 'table',
-            })
-          }
-        >
-          Select Dataset
-        </button>
-        <button onClick={() => onServerPagination({ pageIndex: 1 })}>
-          Next Page
-        </button>
-      </div>
-    );
-  };
-});
+jest.mock(
+  './DatasetTable',
+  () =>
+    function MockDatasetTable({ onSelectDatasource, onServerPagination }: any) {
+      return (
+        <div data-test="dataset-table">
+          <button
+            type="button"
+            onClick={() =>
+              onSelectDatasource({
+                id: 1,
+                table_name: 'test_table',
+                type: 'table',
+              })
+            }
+          >
+            Select Dataset
+          </button>
+          <button
+            type="button"
+            onClick={() => onServerPagination({ pageIndex: 1 })}
+          >
+            Next Page
+          </button>
+        </div>
+      );
+    },
+);
 
 const mockUser: UserWithPermissionsAndRoles = {
   userId: 1,
@@ -146,9 +158,8 @@ describe('DatasourceAdvancedSearchModal', () => {
   });
 
   test('handles filter changes', () => {
-    const { useListViewResource } = require('src/views/CRUD/hooks');
     const mockFetchData = jest.fn();
-    useListViewResource.mockReturnValue({
+    (useListViewResource as jest.Mock).mockReturnValue({
       state: {
         loading: false,
         resourceCollection: [],
@@ -167,9 +178,8 @@ describe('DatasourceAdvancedSearchModal', () => {
   });
 
   test('builds filter query correctly for table_name', () => {
-    const { useListViewResource } = require('src/views/CRUD/hooks');
     const mockFetchData = jest.fn();
-    useListViewResource.mockReturnValue({
+    (useListViewResource as jest.Mock).mockReturnValue({
       state: {
         loading: false,
         resourceCollection: [],
@@ -198,9 +208,8 @@ describe('DatasourceAdvancedSearchModal', () => {
   });
 
   test('builds filter query correctly for certified filter', () => {
-    const { useListViewResource } = require('src/views/CRUD/hooks');
     const mockFetchData = jest.fn();
-    useListViewResource.mockReturnValue({
+    (useListViewResource as jest.Mock).mockReturnValue({
       state: {
         loading: false,
         resourceCollection: [],
@@ -210,17 +219,22 @@ describe('DatasourceAdvancedSearchModal', () => {
     });
 
     // Mock FilterSidebar to trigger certified filter
-    jest.doMock('./FilterSidebar', () => {
-      return function MockFilterSidebar({ onFilterChange }: any) {
-        return (
-          <div data-testid="filter-sidebar">
-            <button onClick={() => onFilterChange('certified', true)}>
-              Test Certified Filter
-            </button>
-          </div>
-        );
-      };
-    });
+    jest.doMock(
+      './FilterSidebar',
+      () =>
+        function MockFilterSidebar({ onFilterChange }: any) {
+          return (
+            <div data-testid="filter-sidebar">
+              <button
+                type="button"
+                onClick={() => onFilterChange('certified', true)}
+              >
+                Test Certified Filter
+              </button>
+            </div>
+          );
+        },
+    );
 
     render(<DatasourceAdvancedSearchModal {...defaultProps} />);
 
@@ -241,9 +255,8 @@ describe('DatasourceAdvancedSearchModal', () => {
   });
 
   test('handles empty filter values', () => {
-    const { useListViewResource } = require('src/views/CRUD/hooks');
     const mockFetchData = jest.fn();
-    useListViewResource.mockReturnValue({
+    (useListViewResource as jest.Mock).mockReturnValue({
       state: {
         loading: false,
         resourceCollection: [],
@@ -263,9 +276,8 @@ describe('DatasourceAdvancedSearchModal', () => {
   });
 
   test('handles null and undefined filter values', () => {
-    const { useListViewResource } = require('src/views/CRUD/hooks');
     const mockFetchData = jest.fn();
-    useListViewResource.mockReturnValue({
+    (useListViewResource as jest.Mock).mockReturnValue({
       state: {
         loading: false,
         resourceCollection: [],
@@ -275,23 +287,34 @@ describe('DatasourceAdvancedSearchModal', () => {
     });
 
     // Mock FilterSidebar to trigger null/undefined filters
-    jest.doMock('./FilterSidebar', () => {
-      return function MockFilterSidebar({ onFilterChange }: any) {
-        return (
-          <div data-testid="filter-sidebar">
-            <button onClick={() => onFilterChange('table_name', null)}>
-              Test Null Filter
-            </button>
-            <button onClick={() => onFilterChange('table_name', undefined)}>
-              Test Undefined Filter
-            </button>
-            <button onClick={() => onFilterChange('table_name', '')}>
-              Test Empty Filter
-            </button>
-          </div>
-        );
-      };
-    });
+    jest.doMock(
+      './FilterSidebar',
+      () =>
+        function MockFilterSidebar({ onFilterChange }: any) {
+          return (
+            <div data-testid="filter-sidebar">
+              <button
+                type="button"
+                onClick={() => onFilterChange('table_name', null)}
+              >
+                Test Null Filter
+              </button>
+              <button
+                type="button"
+                onClick={() => onFilterChange('table_name', undefined)}
+              >
+                Test Undefined Filter
+              </button>
+              <button
+                type="button"
+                onClick={() => onFilterChange('table_name', '')}
+              >
+                Test Empty Filter
+              </button>
+            </div>
+          );
+        },
+    );
 
     render(<DatasourceAdvancedSearchModal {...defaultProps} />);
 
@@ -329,9 +352,8 @@ describe('DatasourceAdvancedSearchModal', () => {
   });
 
   test('calls fetchData with correct parameters', () => {
-    const { useListViewResource } = require('src/views/CRUD/hooks');
     const mockFetchData = jest.fn();
-    useListViewResource.mockReturnValue({
+    (useListViewResource as jest.Mock).mockReturnValue({
       state: {
         loading: false,
         resourceCollection: [],
@@ -353,9 +375,8 @@ describe('DatasourceAdvancedSearchModal', () => {
   });
 
   test('handles multiple filter changes', () => {
-    const { useListViewResource } = require('src/views/CRUD/hooks');
     const mockFetchData = jest.fn();
-    useListViewResource.mockReturnValue({
+    (useListViewResource as jest.Mock).mockReturnValue({
       state: {
         loading: false,
         resourceCollection: [],
@@ -365,22 +386,25 @@ describe('DatasourceAdvancedSearchModal', () => {
     });
 
     // Mock FilterSidebar to trigger multiple filters
-    jest.doMock('./FilterSidebar', () => {
-      return function MockFilterSidebar({ onFilterChange }: any) {
-        return (
-          <div data-testid="filter-sidebar">
-            <button
-              onClick={() => {
-                onFilterChange('table_name', 'test');
-                onFilterChange('certified', true);
-              }}
-            >
-              Test Multiple Filters
-            </button>
-          </div>
-        );
-      };
-    });
+    jest.doMock(
+      './FilterSidebar',
+      () =>
+        function MockFilterSidebar({ onFilterChange }: any) {
+          return (
+            <div data-testid="filter-sidebar">
+              <button
+                type="button"
+                onClick={() => {
+                  onFilterChange('table_name', 'test');
+                  onFilterChange('certified', true);
+                }}
+              >
+                Test Multiple Filters
+              </button>
+            </div>
+          );
+        },
+    );
 
     render(<DatasourceAdvancedSearchModal {...defaultProps} />);
 

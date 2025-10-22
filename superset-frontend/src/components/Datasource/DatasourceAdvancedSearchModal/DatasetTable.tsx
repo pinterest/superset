@@ -1,9 +1,9 @@
-import React, { useMemo } from 'react';
 import TableView, { EmptyWrapperType } from 'src/components/TableView';
 import { styled, t } from '@superset-ui/core';
 
 import FacePile from 'src/components/FacePile';
 import Loading from 'src/components/Loading';
+import { useMemo } from 'react';
 
 const TableContainer = styled.div`
   flex: 1;

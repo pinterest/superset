@@ -1,11 +1,11 @@
 import { FilterOperator, Filters } from 'src/components/ListView';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   createErrorHandler,
   createFetchDistinct,
   createFetchRelated,
 } from 'src/views/CRUD/utils';
 import { styled, t } from '@superset-ui/core';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { AntdInput } from 'src/components';
 import Button from 'src/components/Button';
@@ -44,19 +44,6 @@ const createFilterDefinitions = (user: any): Filters => [
     input: 'search',
     operator: FilterOperator.Contains,
     unfilteredLabel: t('All'),
-  },
-  {
-    Header: t('Certified'),
-    key: 'certified',
-    id: 'certified',
-    urlDisplay: 'certified',
-    input: 'select',
-    operator: FilterOperator.DatasetIsCertified,
-    unfilteredLabel: t('Any'),
-    selects: [
-      { label: t('Yes'), value: true },
-      { label: t('No'), value: false },
-    ],
   },
   {
     Header: t('Owner'),
@@ -206,6 +193,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
         name: filterType.id,
         initialValue: appliedFilters[filterType.id],
         ref: (ref: any) => {
+          // eslint-disable-next-line no-param-reassign
           filterRefs.current[filterType.id] = ref;
         },
       };
@@ -223,7 +211,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                 name={filterType.id}
                 value={searchValue}
                 onChange={e => handleSearchChange(e.target.value)}
-                prefix={<SearchIcon size="l" />}
+                prefix={<SearchIcon iconSize="l" />}
               />
             </FilterSection>
           );

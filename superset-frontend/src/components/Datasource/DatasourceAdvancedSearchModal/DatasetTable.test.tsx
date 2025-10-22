@@ -10,9 +10,6 @@ jest.mock('src/components/TableView', () => {
     onServerPagination,
     loading,
     totalCount,
-    pageSize,
-    initialPageIndex,
-    initialSortBy,
   }: any) {
     return (
       <div data-test="table-view">
@@ -21,22 +18,17 @@ jest.mock('src/components/TableView', () => {
           {data.map((item: any, index: number) => (
             <div key={index} data-test={`table-row-${index}`}>
               <button
+                type="button"
                 data-test="datasource-link"
                 onClick={() => {
                   // Simulate the datasource selection by calling the Cell component
                   const nameColumn = columns.find(
                     (col: any) => col.accessor === 'table_name',
                   );
-                  if (nameColumn && nameColumn.Cell) {
+                  if (nameColumn?.Cell) {
                     const cellProps = { row: { original: item } };
                     const cellElement = nameColumn.Cell(cellProps);
-                    if (
-                      cellElement &&
-                      cellElement.props &&
-                      cellElement.props.onClick
-                    ) {
-                      cellElement.props.onClick();
-                    }
+                    cellElement?.props?.onClick?.();
                   }
                 }}
               >
@@ -64,6 +56,7 @@ jest.mock('src/components/TableView', () => {
         </div>
         <div data-test="pagination">
           <button
+            type="button"
             onClick={() => onServerPagination({ pageIndex: 1, sortBy: [] })}
             data-test="next-page"
           >
@@ -87,26 +80,20 @@ jest.mock('src/components/TableView', () => {
 });
 
 // Mock the Loading component
-jest.mock('src/components/Loading', () => {
-  return function MockLoading() {
-    return <div data-test="loading-component">Loading...</div>;
-  };
-});
+jest.mock('src/components/Loading', () => () => (
+  <div data-test="loading-component">Loading...</div>
+));
 
 // Mock the FacePile component
-jest.mock('src/components/FacePile', () => {
-  return function MockFacePile({ users }: any) {
-    return (
-      <div data-test="face-pile">
-        {users?.map((user: any, index: number) => (
-          <span key={index} data-test={`owner-${index}`}>
-            {user.firstName} {user.lastName}
-          </span>
-        ))}
-      </div>
-    );
-  };
-});
+jest.mock('src/components/FacePile', () => ({ users }: any) => (
+  <div data-test="face-pile">
+    {users?.map((user: any, index: number) => (
+      <span key={index} data-test={`owner-${index}`}>
+        {user.firstName} {user.lastName}
+      </span>
+    ))}
+  </div>
+));
 
 const mockData = [
   {
@@ -219,7 +206,7 @@ describe('DatasetTable', () => {
   });
 
   test('shows loading state', () => {
-    render(<DatasetTable {...defaultProps} loading={true} />);
+    render(<DatasetTable {...defaultProps} loading />);
 
     expect(screen.getByTestId('loading-component')).toBeInTheDocument();
     expect(screen.getByText('Loading...')).toBeInTheDocument();

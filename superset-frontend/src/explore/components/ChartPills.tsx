@@ -22,6 +22,8 @@ import RowCountLabel from 'src/explore/components/RowCountLabel';
 import CachedLabel from 'src/components/CachedLabel';
 import Timer from 'src/components/Timer';
 import { Type } from 'src/components/Label';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
 import { getPinterestChartPills } from '@pinterest-plugins/src/explore/components/pinterestChartPills';
 
 const CHART_STATUS_MAP = {
