@@ -2888,13 +2888,16 @@ class ExploreMixin:  # pylint: disable=too-many-public-methods
             if isinstance(col, dict):
                 col = cast(AdhocMetric, col)
                 if col.get("sqlExpression"):
-                    col["sqlExpression"] = self._process_orderby_expression(
+                    # Create a copy to avoid modifying the original query object
+                    col_copy = col.copy()
+                    col_copy["sqlExpression"] = self._process_orderby_expression(
                         expression=col["sqlExpression"],
                         database_id=self.database_id,
                         engine=self.database.backend,
                         schema=self.schema,
                         template_processor=template_processor,
                     )
+                    col = col_copy
                 if utils.is_adhoc_metric(col):
                     # add adhoc sort by column to columns_by_name if not exists
                     col = self.adhoc_metric_to_sqla(
