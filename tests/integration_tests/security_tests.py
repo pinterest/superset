@@ -1551,6 +1551,7 @@ class TestRolePermission(SupersetTestCase):
             ["Superset", "log"],
             ["Superset", "theme"],
             ["Superset", "welcome"],
+            ["Superset", "dashboard_permalink"],
             ["SecurityApi", "login"],
             ["SecurityApi", "refresh"],
             ["SupersetIndexView", "index"],

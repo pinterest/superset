@@ -882,7 +882,6 @@ class Superset(BaseSupersetView):
             standalone_mode=ReservedUrlParameters.is_standalone_mode(),
         )
 
-    @has_access
     @expose("/dashboard/p/<key>/", methods=("GET",))
     def dashboard_permalink(
         self,
