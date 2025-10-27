@@ -19,7 +19,11 @@ from typing import Optional
 
 from sqlalchemy.exc import SQLAlchemyError
 
-from superset.commands.dashboard.exceptions import DashboardNotFoundError
+from superset.commands.dashboard.exceptions import (
+    DashboardAccessDeniedError,
+    DashboardNotFoundError,
+)
+from superset.exceptions import SupersetSecurityException
 from superset.commands.dashboard.permalink.base import BaseDashboardPermalinkCommand
 from superset.daos.dashboard import DashboardDAO
 from superset.daos.key_value import KeyValueDAO
@@ -45,9 +49,12 @@ class GetDashboardPermalinkCommand(BaseDashboardPermalinkCommand):
             key = decode_permalink_id(self.key, salt=self.salt)
             value = KeyValueDAO.get_value(self.resource, key, self.codec)
             if value:
-                DashboardDAO.get_by_id_or_slug(value["dashboardId"])
+                dashboard = DashboardDAO.get_by_id_or_slug(value["dashboardId"])
+                dashboard.raise_for_access()
                 return value
             return None
+        except SupersetSecurityException as ex:
+            raise DashboardAccessDeniedError() from ex
         except (
             DashboardNotFoundError,
             KeyValueCodecDecodeException,
