@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { memo,useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback, useEffect, memo } from 'react';
 
 import { ResizeCallback, ResizeStartCallback } from 're-resizable';
 import cx from 'classnames';
@@ -338,11 +338,10 @@ const ChartHolder: React.FC<ChartHolderProps> = ({
  * Custom comparison function for React.memo
  * Only re-render if these specific props change
  */
-const arePropsEqual = (prevProps: ChartHolderProps, nextProps: ChartHolderProps) => {
-  console.log('Chart holder memo arePropsEqual');
-  console.log('prevProps', prevProps);
-  console.log('nextProps', nextProps);
-  console.log('--------------------------------');
+const arePropsEqual = (
+  prevProps: ChartHolderProps,
+  nextProps: ChartHolderProps,
+) => {
   // Always re-render if these critical props change
   if (
     prevProps.dashboardId !== nextProps.dashboardId ||
@@ -373,4 +372,5 @@ const arePropsEqual = (prevProps: ChartHolderProps, nextProps: ChartHolderProps)
   return true;
 };
 
+// Wrap with React.memo to prevent unnecessary re-renders
 export default memo(ChartHolder, arePropsEqual);
