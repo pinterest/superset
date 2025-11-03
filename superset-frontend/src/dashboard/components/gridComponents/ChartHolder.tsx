@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { memo,useState, useMemo, useCallback, useEffect } from 'react';
 
 import { ResizeCallback, ResizeStartCallback } from 're-resizable';
 import cx from 'classnames';
@@ -332,4 +332,45 @@ const ChartHolder: React.FC<ChartHolderProps> = ({
   );
 };
 
-export default ChartHolder;
+// export default ChartHolder;
+
+/**
+ * Custom comparison function for React.memo
+ * Only re-render if these specific props change
+ */
+const arePropsEqual = (prevProps: ChartHolderProps, nextProps: ChartHolderProps) => {
+  console.log('Chart holder memo arePropsEqual');
+  console.log('prevProps', prevProps);
+  console.log('nextProps', nextProps);
+  console.log('--------------------------------');
+  // Always re-render if these critical props change
+  if (
+    prevProps.dashboardId !== nextProps.dashboardId ||
+    prevProps.depth !== nextProps.depth ||
+    prevProps.directPathLastUpdated !== nextProps.directPathLastUpdated ||
+    prevProps.editMode !== nextProps.editMode ||
+    prevProps.fullSizeChartId !== nextProps.fullSizeChartId ||
+    prevProps.id !== nextProps.id ||
+    prevProps.isComponentVisible !== nextProps.isComponentVisible ||
+    prevProps.isInView !== nextProps.isInView ||
+    prevProps.parentId !== nextProps.parentId
+  ) {
+    return false;
+  }
+
+  // Check if component or dimensions changed
+  if (
+    prevProps.component.id !== nextProps.component.id ||
+    prevProps.component.meta.width !== nextProps.component.meta.width ||
+    prevProps.component.meta.height !== nextProps.component.meta.height ||
+    prevProps.columnWidth !== nextProps.columnWidth ||
+    prevProps.availableColumnCount !== nextProps.availableColumnCount
+  ) {
+    return false;
+  }
+
+  // Props are equal, skip re-render
+  return true;
+};
+
+export default memo(ChartHolder, arePropsEqual);
