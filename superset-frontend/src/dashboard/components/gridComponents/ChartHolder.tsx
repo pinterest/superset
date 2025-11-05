@@ -335,42 +335,42 @@ const ChartHolder: React.FC<ChartHolderProps> = ({
 // export default ChartHolder;
 
 /**
- * Custom comparison function for React.memo
- * Only re-render if these specific props change
+ * Conservative memoization for ChartHolder
+ * Only skips re-render if we're CERTAIN nothing important changed
+ * 
+ * Strategy: Check scalar props and component metadata, but ALLOW re-render by default
+ * This is safer than blocking re-renders - we'd rather re-render unnecessarily
+ * than miss an important update.
  */
-const arePropsEqual = (
-  prevProps: ChartHolderProps,
-  nextProps: ChartHolderProps,
-) => {
-  // Always re-render if these critical props change
+const ChartHolderMemo = memo(ChartHolder, (prevProps, nextProps) => {
+  // If any of these critical props changed, definitely re-render
   if (
-    prevProps.dashboardId !== nextProps.dashboardId ||
-    prevProps.depth !== nextProps.depth ||
-    prevProps.directPathLastUpdated !== nextProps.directPathLastUpdated ||
     prevProps.editMode !== nextProps.editMode ||
-    prevProps.fullSizeChartId !== nextProps.fullSizeChartId ||
-    prevProps.id !== nextProps.id ||
     prevProps.isComponentVisible !== nextProps.isComponentVisible ||
     prevProps.isInView !== nextProps.isInView ||
-    prevProps.parentId !== nextProps.parentId
-  ) {
-    return false;
-  }
-
-  // Check if component or dimensions changed
-  if (
-    prevProps.component.id !== nextProps.component.id ||
-    prevProps.component.meta.width !== nextProps.component.meta.width ||
-    prevProps.component.meta.height !== nextProps.component.meta.height ||
+    prevProps.fullSizeChartId !== nextProps.fullSizeChartId ||
     prevProps.columnWidth !== nextProps.columnWidth ||
     prevProps.availableColumnCount !== nextProps.availableColumnCount
   ) {
-    return false;
+    return false; // Props changed, allow re-render
   }
 
-  // Props are equal, skip re-render
-  return true;
-};
+  // Check component metadata
+  if (
+    prevProps.component.id !== nextProps.component.id ||
+    prevProps.component.meta.chartId !== nextProps.component.meta.chartId ||
+    prevProps.component.meta.width !== nextProps.component.meta.width ||
+    prevProps.component.meta.height !== nextProps.component.meta.height ||
+    prevProps.component.meta.sliceName !== nextProps.component.meta.sliceName ||
+    prevProps.component.meta.sliceNameOverride !== nextProps.component.meta.sliceNameOverride
+  ) {
+    return false; // Component changed, allow re-render
+  }
 
-// Wrap with React.memo to prevent unnecessary re-renders
-export default memo(ChartHolder, arePropsEqual);
+  // If we got here, props seem equal - skip re-render
+  // Note: We intentionally DON'T check function props (deleteComponent, updateComponents, etc.)
+  // because they're recreated every render but their behavior is the same
+  return true;
+});
+
+export default ChartHolderMemo;
