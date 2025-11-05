@@ -17,7 +17,7 @@
  * under the License.
  */
 import cx from 'classnames';
-import { Component, memo } from 'react';
+import { Component } from 'react';
 import PropTypes from 'prop-types';
 import { styled, t, logging } from '@superset-ui/core';
 import { debounce, isEqual } from 'lodash';
@@ -538,28 +538,4 @@ class Chart extends Component {
 Chart.propTypes = propTypes;
 Chart.defaultProps = defaultProps;
 
-// export default withRouter(Chart);
-
-/**
- * Memo wrapper around Chart to prevent unnecessary re-renders
- * from react-router location changes when location doesn't affect this chart
- *
- * Note: The Chart class component already has shouldComponentUpdate for
- * internal optimization. This memo prevents re-renders from parent/HOC changes.
- */
-const MemoizedChart = memo(
-  withRouter(Chart),
-  (prevProps, nextProps) => {
-    // Let the component's shouldComponentUpdate handle most logic
-    // Only prevent re-render if location hasn't meaningfully changed
-    if (prevProps.location?.pathname !== nextProps.location?.pathname) {
-      return false; // Location changed, allow re-render
-    }
-
-    // For other props, return true to skip re-render and let
-    // shouldComponentUpdate decide based on its internal logic
-    return true;
-  },
-);
-
-export default MemoizedChart;
+export default withRouter(Chart);
