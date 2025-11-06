@@ -130,7 +130,6 @@ class Dashboard extends PureComponent {
   }
 
   componentDidUpdate() {
-    // this.applyCharts();
     this.debouncedApplyCharts();
   }
 
@@ -199,6 +198,7 @@ class Dashboard extends PureComponent {
 
   componentWillUnmount() {
     window.removeEventListener('visibilitychange', this.onVisibilityChange);
+    this.debouncedApplyCharts?.cancel();
     this.props.actions.clearDataMaskState();
     this.debouncedApplyCharts?.cancel();
   }
