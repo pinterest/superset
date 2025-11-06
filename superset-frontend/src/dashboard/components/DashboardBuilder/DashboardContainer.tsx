@@ -89,11 +89,11 @@ const DashboardContainer: FC<DashboardContainerProps> = ({ topLevelTabs }) => {
     Object.values(state.charts).map(chart => chart.id),
   );
 
-  const prevTabIndexRef = useRef();
+  const prevTabIndexRef = useRef<number>();
   const tabIndex = useMemo(() => {
     const nextTabIndex = findTabIndexByComponentId({
       currentComponent: getRootLevelTabsComponent(dashboardLayout),
-      directPathToChild,
+      directPathToChild: directPathToChild as any,
     });
 
     if (nextTabIndex === -1) {
@@ -103,11 +103,17 @@ const DashboardContainer: FC<DashboardContainerProps> = ({ topLevelTabs }) => {
     return nextTabIndex;
   }, [dashboardLayout, directPathToChild]);
 
-  useEffect(() => {
+  const filterScopes = useMemo<
+    Array<{
+      filterId: string;
+      chartsInScope: number[];
+      tabsInScope: string[];
+    }>
+  >(() => {
     if (nativeFilterScopes.length === 0) {
-      return;
+      return [];
     }
-    const scopes = nativeFilterScopes.map(filterScope => {
+    return nativeFilterScopes.map(filterScope => {
       if (filterScope.id.startsWith(NATIVE_FILTER_DIVIDER_PREFIX)) {
         return {
           filterId: filterScope.id,
@@ -130,8 +136,13 @@ const DashboardContainer: FC<DashboardContainerProps> = ({ topLevelTabs }) => {
         chartsInScope,
       };
     });
-    dispatch(setInScopeStatusOfFilters(scopes));
-  }, [nativeFilterScopes, dashboardLayout, dispatch]);
+  }, [nativeFilterScopes, chartIds, dashboardLayout]);
+
+  useEffect(() => {
+    if (filterScopes.length > 0) {
+      dispatch(setInScopeStatusOfFilters(filterScopes));
+    }
+  }, [filterScopes, dispatch]);
 
   const childIds: string[] = topLevelTabs
     ? topLevelTabs.children

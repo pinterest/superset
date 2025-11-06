@@ -147,6 +147,10 @@ class Row extends PureComponent {
       FAST_DEBOUNCE,
     );
 
+    this.debouncedSetInView = debounce((isInView) => {
+      this.setState({ isInView });
+    }, FAST_DEBOUNCE);
+
     this.containerRef = createRef();
     this.observerEnabler = null;
     this.observerDisabler = null;
@@ -162,7 +166,7 @@ class Row extends PureComponent {
       this.observerEnabler = new IntersectionObserver(
         ([entry]) => {
           if (entry.isIntersecting && !this.state.isInView) {
-            this.setState({ isInView: true });
+            this.debouncedSetInView(true);
           }
         },
         {
@@ -172,7 +176,7 @@ class Row extends PureComponent {
       this.observerDisabler = new IntersectionObserver(
         ([entry]) => {
           if (!entry.isIntersecting && this.state.isInView) {
-            this.setState({ isInView: false });
+            this.debouncedSetInView(false);
           }
         },
         {
@@ -208,6 +212,9 @@ class Row extends PureComponent {
   componentWillUnmount() {
     this.observerEnabler?.disconnect();
     this.observerDisabler?.disconnect();
+
+    this.debouncedSetInView?.cancel();
+    this.setVerticalEmptyContainerHeight?.cancel();
   }
 
   handleChangeFocus(nextFocus) {

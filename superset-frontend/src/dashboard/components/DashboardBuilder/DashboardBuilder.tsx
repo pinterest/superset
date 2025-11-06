@@ -32,6 +32,7 @@ import {
 } from '@superset-ui/core';
 import { Global } from '@emotion/react';
 import { useDispatch, useSelector } from 'react-redux';
+import { debounce } from 'lodash';
 import ErrorBoundary from 'src/components/ErrorBoundary';
 import BuilderComponentPane from 'src/dashboard/components/BuilderComponentPane';
 import DashboardHeader from 'src/dashboard/containers/DashboardHeader';
@@ -56,6 +57,7 @@ import {
   deleteTopLevelTabs,
   handleComponentDrop,
 } from 'src/dashboard/actions/dashboardLayout';
+import { FAST_DEBOUNCE } from 'src/constants';
 import {
   DASHBOARD_GRID_ID,
   DASHBOARD_ROOT_DEPTH,
@@ -445,12 +447,18 @@ const DashboardBuilder: FC<DashboardBuilderProps> = () => {
   useEffect(() => {
     setBarTopOffset(headerRef.current?.getBoundingClientRect()?.height || 0);
 
+    // Debounce ResizeObserver callback to reduce state updates during resize
+    const debouncedSetBarTopOffset = debounce((height: number) => {
+      setBarTopOffset(height);
+    }, FAST_DEBOUNCE);
+
     let observer: ResizeObserver;
     if (global.hasOwnProperty('ResizeObserver') && headerRef.current) {
       observer = new ResizeObserver(entries => {
-        setBarTopOffset(
-          current => entries?.[0]?.contentRect?.height || current,
-        );
+        const height = entries?.[0]?.contentRect?.height;
+        if (height) {
+          debouncedSetBarTopOffset(height);
+        }
       });
 
       observer.observe(headerRef.current);
@@ -458,6 +466,7 @@ const DashboardBuilder: FC<DashboardBuilderProps> = () => {
 
     return () => {
       observer?.disconnect();
+      debouncedSetBarTopOffset?.cancel();
     };
   }, []);
 
