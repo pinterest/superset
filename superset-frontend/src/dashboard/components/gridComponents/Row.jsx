@@ -147,6 +147,10 @@ class Row extends PureComponent {
       FAST_DEBOUNCE,
     );
 
+    this.debouncedSetInView = debounce((isInView) => {
+      this.setState({ isInView });
+    }, FAST_DEBOUNCE);
+
     this.containerRef = createRef();
     this.observerEnabler = null;
     this.observerDisabler = null;
