@@ -111,10 +111,10 @@ const DashboardContainer: FC<DashboardContainerProps> = ({ topLevelTabs }) => {
     if (nativeFilterScopes.length === 0) {
       return;
     }
-    
+
     // Calculate chartIds inside effect to avoid dependency issues
     const chartIds = Object.values(charts).map((chart: any) => chart.id);
-    
+
     const scopes = nativeFilterScopes.map(filterScope => {
       if (filterScope.id.startsWith(NATIVE_FILTER_DIVIDER_PREFIX)) {
         return {
