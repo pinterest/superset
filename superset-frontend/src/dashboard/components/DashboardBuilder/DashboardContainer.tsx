@@ -19,7 +19,7 @@
 // ParentSize uses resize observer so the dashboard will update size
 // when its container size changes, due to e.g., builder side panel opening
 import { FC, useEffect, useMemo, useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { isEqual, pick } from 'lodash';
 import {
   Filter,
@@ -85,8 +85,9 @@ const DashboardContainer: FC<DashboardContainerProps> = ({ topLevelTabs }) => {
   const directPathToChild = useSelector<RootState, string[]>(
     state => state.dashboardState.directPathToChild,
   );
-  const chartIds = useSelector<RootState, number[]>(state =>
-    Object.values(state.charts).map(chart => chart.id),
+  const charts = useSelector<RootState, any>(
+    state => state.charts,
+    shallowEqual, // Only update when charts object actually changes
   );
 
   const prevTabIndexRef = useRef<number>();
@@ -110,6 +111,10 @@ const DashboardContainer: FC<DashboardContainerProps> = ({ topLevelTabs }) => {
     if (nativeFilterScopes.length === 0) {
       return;
     }
+    
+    // Calculate chartIds inside effect to avoid dependency issues
+    const chartIds = Object.values(charts).map((chart: any) => chart.id);
+    
     const scopes = nativeFilterScopes.map(filterScope => {
       if (filterScope.id.startsWith(NATIVE_FILTER_DIVIDER_PREFIX)) {
         return {
@@ -140,7 +145,7 @@ const DashboardContainer: FC<DashboardContainerProps> = ({ topLevelTabs }) => {
       prevFilterScopesRef.current = scopes;
       dispatch(setInScopeStatusOfFilters(scopes));
     }
-  }, [nativeFilterScopes, chartIds, dashboardLayout, dispatch]);
+  }, [nativeFilterScopes, charts, dashboardLayout, dispatch]);
 
   const childIds: string[] = topLevelTabs
     ? topLevelTabs.children
