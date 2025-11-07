@@ -454,9 +454,13 @@ const DashboardBuilder: FC<DashboardBuilderProps> = () => {
     let observer: ResizeObserver;
     if (global.hasOwnProperty('ResizeObserver') && headerRef.current) {
       observer = new ResizeObserver(entries => {
-        setBarTopOffset(
-          current => entries?.[0]?.contentRect?.height || current,
-        );
+        // setBarTopOffset(
+        //   current => entries?.[0]?.contentRect?.height || current,
+        // );
+        const height = entries?.[0]?.contentRect?.height;
+        if (height) {
+          debouncedSetBarTopOffset(height);
+        }
       });
 
       observer.observe(headerRef.current);
