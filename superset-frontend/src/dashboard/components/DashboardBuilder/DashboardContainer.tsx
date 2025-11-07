@@ -20,7 +20,7 @@
 // when its container size changes, due to e.g., builder side panel opening
 import { FC, useEffect, useMemo, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { isEqual } from 'lodash';
+import { isEqual, pick } from 'lodash';
 import {
   Filter,
   Filters,
@@ -28,7 +28,6 @@ import {
   getLabelsColorMap,
 } from '@superset-ui/core';
 import { ParentSize } from '@visx/responsive';
-import { pick } from 'lodash';
 import Tabs from 'src/components/Tabs';
 import DashboardGrid from 'src/dashboard/containers/DashboardGrid';
 import {
@@ -134,7 +133,7 @@ const DashboardContainer: FC<DashboardContainerProps> = ({ topLevelTabs }) => {
         chartsInScope,
       };
     });
-    
+
     // Only dispatch if scopes have actually changed (deep comparison)
     // This prevents unnecessary Redux updates when layout changes but scopes remain the same
     if (!isEqual(prevFilterScopesRef.current, scopes)) {
