@@ -20,6 +20,7 @@
 // when its container size changes, due to e.g., builder side panel opening
 import { FC, useEffect, useMemo, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { isEqual } from 'lodash';
 import {
   Filter,
   Filters,
@@ -103,17 +104,14 @@ const DashboardContainer: FC<DashboardContainerProps> = ({ topLevelTabs }) => {
     return nextTabIndex;
   }, [dashboardLayout, directPathToChild]);
 
-  const filterScopes = useMemo<
-    Array<{
-      filterId: string;
-      chartsInScope: number[];
-      tabsInScope: string[];
-    }>
-  >(() => {
+  // Track previous filter scopes to prevent unnecessary dispatches
+  const prevFilterScopesRef = useRef<any>(null);
+
+  useEffect(() => {
     if (nativeFilterScopes.length === 0) {
-      return [];
+      return;
     }
-    return nativeFilterScopes.map(filterScope => {
+    const scopes = nativeFilterScopes.map(filterScope => {
       if (filterScope.id.startsWith(NATIVE_FILTER_DIVIDER_PREFIX)) {
         return {
           filterId: filterScope.id,
@@ -136,13 +134,14 @@ const DashboardContainer: FC<DashboardContainerProps> = ({ topLevelTabs }) => {
         chartsInScope,
       };
     });
-  }, [nativeFilterScopes, chartIds, dashboardLayout]);
-
-  useEffect(() => {
-    if (filterScopes.length > 0) {
-      dispatch(setInScopeStatusOfFilters(filterScopes));
+    
+    // Only dispatch if scopes have actually changed (deep comparison)
+    // This prevents unnecessary Redux updates when layout changes but scopes remain the same
+    if (!isEqual(prevFilterScopesRef.current, scopes)) {
+      prevFilterScopesRef.current = scopes;
+      dispatch(setInScopeStatusOfFilters(scopes));
     }
-  }, [filterScopes, dispatch]);
+  }, [nativeFilterScopes, chartIds, dashboardLayout, dispatch]);
 
   const childIds: string[] = topLevelTabs
     ? topLevelTabs.children
