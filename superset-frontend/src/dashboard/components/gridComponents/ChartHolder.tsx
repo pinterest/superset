@@ -337,7 +337,7 @@ const ChartHolder: React.FC<ChartHolderProps> = ({
 /**
  * Conservative memoization for ChartHolder
  * Only skips re-render if we're CERTAIN nothing important changed
- * 
+ *
  * Strategy: Check scalar props and component metadata, but ALLOW re-render by default
  * This is safer than blocking re-renders - we'd rather re-render unnecessarily
  * than miss an important update.
@@ -362,7 +362,8 @@ const ChartHolderMemo = memo(ChartHolder, (prevProps, nextProps) => {
     prevProps.component.meta.width !== nextProps.component.meta.width ||
     prevProps.component.meta.height !== nextProps.component.meta.height ||
     prevProps.component.meta.sliceName !== nextProps.component.meta.sliceName ||
-    prevProps.component.meta.sliceNameOverride !== nextProps.component.meta.sliceNameOverride
+    prevProps.component.meta.sliceNameOverride !==
+      nextProps.component.meta.sliceNameOverride
   ) {
     return false; // Component changed, allow re-render
   }

@@ -42,7 +42,7 @@ import { Droppable } from 'src/dashboard/components/dnd/DragDroppable';
 import DashboardComponent from 'src/dashboard/containers/DashboardComponent';
 import WithPopoverMenu from 'src/dashboard/components/menu/WithPopoverMenu';
 import getDirectPathToTabIndex from 'src/dashboard/util/getDirectPathToTabIndex';
-import { URL_PARAMS } from 'src/constants';
+import { URL_PARAMS, FAST_DEBOUNCE } from 'src/constants';
 import { getUrlParam } from 'src/utils/urlUtils';
 import {
   DashboardLayout,
@@ -57,7 +57,6 @@ import {
   deleteTopLevelTabs,
   handleComponentDrop,
 } from 'src/dashboard/actions/dashboardLayout';
-import { FAST_DEBOUNCE } from 'src/constants';
 import {
   DASHBOARD_GRID_ID,
   DASHBOARD_ROOT_DEPTH,
