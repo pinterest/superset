@@ -166,6 +166,7 @@ class Row extends PureComponent {
       this.observerEnabler = new IntersectionObserver(
         ([entry]) => {
           if (entry.isIntersecting && !this.state.isInView) {
+            // this.setState({ isInView: true });
             this.debouncedSetInView(true);
           }
         },
@@ -176,6 +177,7 @@ class Row extends PureComponent {
       this.observerDisabler = new IntersectionObserver(
         ([entry]) => {
           if (!entry.isIntersecting && this.state.isInView) {
+            // this.setState({ isInView: false });
             this.debouncedSetInView(false);
           }
         },
