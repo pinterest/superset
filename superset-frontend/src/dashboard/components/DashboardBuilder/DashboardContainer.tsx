@@ -19,8 +19,8 @@
 // ParentSize uses resize observer so the dashboard will update size
 // when its container size changes, due to e.g., builder side panel opening
 import { FC, useEffect, useMemo, useRef } from 'react';
-import { useDispatch, useSelector, shallowEqual } from 'react-redux';
-import { isEqual, pick } from 'lodash';
+import { useDispatch, useSelector } from 'react-redux';
+import { pick } from 'lodash';
 import {
   Filter,
   Filters,
@@ -85,9 +85,8 @@ const DashboardContainer: FC<DashboardContainerProps> = ({ topLevelTabs }) => {
   const directPathToChild = useSelector<RootState, string[]>(
     state => state.dashboardState.directPathToChild,
   );
-  const charts = useSelector<RootState, any>(
-    state => state.charts,
-    shallowEqual, // Only update when charts object actually changes
+  const chartIds = useSelector<RootState, number[]>(state =>
+    Object.values(state.charts).map(chart => chart.id),
   );
 
   const prevTabIndexRef = useRef<number>();
@@ -104,17 +103,10 @@ const DashboardContainer: FC<DashboardContainerProps> = ({ topLevelTabs }) => {
     return nextTabIndex;
   }, [dashboardLayout, directPathToChild]);
 
-  // Track previous filter scopes to prevent unnecessary dispatches
-  const prevFilterScopesRef = useRef<any>(null);
-
   useEffect(() => {
     if (nativeFilterScopes.length === 0) {
       return;
     }
-
-    // Calculate chartIds inside effect to avoid dependency issues
-    const chartIds = Object.values(charts).map((chart: any) => chart.id);
-
     const scopes = nativeFilterScopes.map(filterScope => {
       if (filterScope.id.startsWith(NATIVE_FILTER_DIVIDER_PREFIX)) {
         return {
@@ -138,14 +130,8 @@ const DashboardContainer: FC<DashboardContainerProps> = ({ topLevelTabs }) => {
         chartsInScope,
       };
     });
-
-    // Only dispatch if scopes have actually changed (deep comparison)
-    // This prevents unnecessary Redux updates when layout changes but scopes remain the same
-    if (!isEqual(prevFilterScopesRef.current, scopes)) {
-      prevFilterScopesRef.current = scopes;
-      dispatch(setInScopeStatusOfFilters(scopes));
-    }
-  }, [nativeFilterScopes, charts, dashboardLayout, dispatch]);
+    dispatch(setInScopeStatusOfFilters(scopes));
+  }, [nativeFilterScopes, dashboardLayout, dispatch]);
 
   const childIds: string[] = topLevelTabs
     ? topLevelTabs.children
