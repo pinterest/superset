@@ -107,6 +107,9 @@ const ChartHolder: React.FC<ChartHolderProps> = ({
   const isFullSize = fullSizeChartId === chartId;
 
   const focusHighlightStyles = useFilterFocusHighlightStyles(chartId);
+  // const dashboardState = useSelector(
+  //   (state: RootState) => state.dashboardState,
+  // );
 
   // Use granular selectors instead of selecting entire dashboardState
   // This prevents re-renders when unrelated dashboard state changes
