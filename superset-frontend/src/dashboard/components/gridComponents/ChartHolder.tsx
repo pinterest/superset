@@ -16,11 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { useState, useMemo, useCallback, useEffect, memo } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 
 import { ResizeCallback, ResizeStartCallback } from 're-resizable';
 import cx from 'classnames';
-import { useSelector } from 'react-redux';
+import { useSelector, shallowEqual } from 'react-redux';
 import { css, useTheme } from '@superset-ui/core';
 import { LayoutItem, RootState } from 'src/dashboard/types';
 import AnchorLink from 'src/dashboard/components/AnchorLink';
@@ -107,9 +107,18 @@ const ChartHolder: React.FC<ChartHolderProps> = ({
   const isFullSize = fullSizeChartId === chartId;
 
   const focusHighlightStyles = useFilterFocusHighlightStyles(chartId);
-  const dashboardState = useSelector(
-    (state: RootState) => state.dashboardState,
+
+  // Use granular selectors instead of selecting entire dashboardState
+  // This prevents re-renders when unrelated dashboard state changes
+  const directPathToChild = useSelector(
+    (state: RootState) => state.dashboardState?.directPathToChild ?? [],
+    shallowEqual,
   );
+
+  const directPathLastUpdated = useSelector(
+    (state: RootState) => state.dashboardState?.directPathLastUpdated ?? 0,
+  );
+
   const [extraControls, setExtraControls] = useState<Record<string, unknown>>(
     {},
   );
@@ -118,15 +127,15 @@ const ChartHolder: React.FC<ChartHolderProps> = ({
   const [currentDirectPathLastUpdated, setCurrentDirectPathLastUpdated] =
     useState(0);
 
-  const directPathToChild = useMemo(
-    () => dashboardState?.directPathToChild ?? [],
-    [dashboardState],
-  );
+  // const directPathToChild = useMemo(
+  //   () => dashboardState?.directPathToChild ?? [],
+  //   [dashboardState],
+  // );
 
-  const directPathLastUpdated = useMemo(
-    () => dashboardState?.directPathLastUpdated ?? 0,
-    [dashboardState],
-  );
+  // const directPathLastUpdated = useMemo(
+  //   () => dashboardState?.directPathLastUpdated ?? 0,
+  //   [dashboardState],
+  // );
 
   const infoFromPath = useMemo(
     () => getChartAndLabelComponentIdFromPath(directPathToChild) as any,
@@ -332,46 +341,4 @@ const ChartHolder: React.FC<ChartHolderProps> = ({
   );
 };
 
-// export default ChartHolder;
-
-/**
- * Conservative memoization for ChartHolder
- * Only skips re-render if we're CERTAIN nothing important changed
- *
- * Strategy: Check scalar props and component metadata, but ALLOW re-render by default
- * This is safer than blocking re-renders - we'd rather re-render unnecessarily
- * than miss an important update.
- */
-const ChartHolderMemo = memo(ChartHolder, (prevProps, nextProps) => {
-  // If any of these critical props changed, definitely re-render
-  if (
-    prevProps.editMode !== nextProps.editMode ||
-    prevProps.isComponentVisible !== nextProps.isComponentVisible ||
-    prevProps.isInView !== nextProps.isInView ||
-    prevProps.fullSizeChartId !== nextProps.fullSizeChartId ||
-    prevProps.columnWidth !== nextProps.columnWidth ||
-    prevProps.availableColumnCount !== nextProps.availableColumnCount
-  ) {
-    return false; // Props changed, allow re-render
-  }
-
-  // Check component metadata
-  if (
-    prevProps.component.id !== nextProps.component.id ||
-    prevProps.component.meta.chartId !== nextProps.component.meta.chartId ||
-    prevProps.component.meta.width !== nextProps.component.meta.width ||
-    prevProps.component.meta.height !== nextProps.component.meta.height ||
-    prevProps.component.meta.sliceName !== nextProps.component.meta.sliceName ||
-    prevProps.component.meta.sliceNameOverride !==
-      nextProps.component.meta.sliceNameOverride
-  ) {
-    return false; // Component changed, allow re-render
-  }
-
-  // If we got here, props seem equal - skip re-render
-  // Note: We intentionally DON'T check function props (deleteComponent, updateComponents, etc.)
-  // because they're recreated every render but their behavior is the same
-  return true;
-});
-
-export default ChartHolderMemo;
+export default ChartHolder;
