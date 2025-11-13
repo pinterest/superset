@@ -89,7 +89,7 @@ const DashboardContainer: FC<DashboardContainerProps> = ({ topLevelTabs }) => {
     Object.values(state.charts).map(chart => chart.id),
   );
 
-  const prevTabIndexRef = useRef<>();
+  const prevTabIndexRef = useRef();
   const tabIndex = useMemo(() => {
     const nextTabIndex = findTabIndexByComponentId({
       currentComponent: getRootLevelTabsComponent(dashboardLayout),
