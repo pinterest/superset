@@ -20,7 +20,6 @@
 // when its container size changes, due to e.g., builder side panel opening
 import { FC, useEffect, useMemo, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { pick } from 'lodash';
 import {
   Filter,
   Filters,
@@ -28,6 +27,7 @@ import {
   getLabelsColorMap,
 } from '@superset-ui/core';
 import { ParentSize } from '@visx/responsive';
+import { pick } from 'lodash';
 import Tabs from 'src/components/Tabs';
 import DashboardGrid from 'src/dashboard/containers/DashboardGrid';
 import {
@@ -89,11 +89,11 @@ const DashboardContainer: FC<DashboardContainerProps> = ({ topLevelTabs }) => {
     Object.values(state.charts).map(chart => chart.id),
   );
 
-  const prevTabIndexRef = useRef<number>();
+  const prevTabIndexRef = useRef<>();
   const tabIndex = useMemo(() => {
     const nextTabIndex = findTabIndexByComponentId({
       currentComponent: getRootLevelTabsComponent(dashboardLayout),
-      directPathToChild: directPathToChild as any,
+      directPathToChild,
     });
 
     if (nextTabIndex === -1) {
