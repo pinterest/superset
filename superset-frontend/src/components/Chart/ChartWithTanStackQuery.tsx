@@ -33,7 +33,7 @@
  * - Automatic retries
  */
 
-import React, { useMemo, useRef, useCallback } from 'react';
+import { useMemo, useRef, useCallback } from 'react';
 import {
   ensureIsArray,
   FeatureFlag,
@@ -130,13 +130,13 @@ interface ChartWithTanStackQueryProps {
   datasource?: PlainObject;
   datasetsStatus?: 'loading' | 'error' | 'complete';
   annotationData?: AnnotationData;
-  setControlValue?: (...args: any[]) => void;
-  postTransformProps?: (props: any) => any;
+  setControlValue?: (...args: unknown[]) => void;
+  postTransformProps?: (props: unknown) => unknown;
   labelsColor?: JsonObject;
   labelsColorMap?: JsonObject;
-  addFilter?: (...args: any[]) => void;
-  onFilterMenuOpen?: (...args: any[]) => void;
-  onFilterMenuClose?: (...args: any[]) => void;
+  addFilter?: (...args: unknown[]) => void;
+  onFilterMenuOpen?: (...args: unknown[]) => void;
+  onFilterMenuClose?: (...args: unknown[]) => void;
   onQuery?: () => void;
   initialValues?: DataRecordFilters;
   isInView?: boolean;
@@ -150,7 +150,7 @@ function ChartWithTanStackQuery({
   chartId,
   formData,
   dashboardId,
-  timeout,
+  timeout, // eslint-disable-line @typescript-eslint/no-unused-vars
   force = false,
   ownState,
   width,
@@ -223,9 +223,7 @@ function ChartWithTanStackQuery({
       // Only fetch when:
       // - Chart is in view (viewport)
       // - Filters are initialized (if applicable)
-      enabled:
-        isInView &&
-        isFiltersInitialized !== false,
+      enabled: isInView && isFiltersInitialized !== false,
     },
   );
 
@@ -242,54 +240,53 @@ function ChartWithTanStackQuery({
   // chartStatus === 'failed' -> isError
   // chartStatus === 'success' -> !isLoading && !isError && !!chartData
   const chartStatus =
-    isLoading || isFetching
-      ? 'loading'
-      : isError
-        ? 'failed'
-        : 'success';
+    isLoading || isFetching ? 'loading' : isError ? 'failed' : 'success';
 
   // Track render container start time for logging (like Chart.jsx line 296)
   renderContainerStartTime.current = Logger.getTimestamp();
 
   // Handle failed state with error message
   if (chartStatus === 'failed') {
-    return queriesResponse?.map(queryResponse => {
-      const message = error?.message || queryResponse?.message;
+    return (
+      queriesResponse?.map((queryResponse: PlainObject) => {
+        const message =
+          (error as Error | undefined)?.message || queryResponse?.message;
 
-      if (
-        error !== undefined &&
-        error?.message !== NONEXISTENT_DATASET &&
-        datasource === PLACEHOLDER_DATASOURCE &&
-        datasetsStatus !== ResourceStatus.Error
-      ) {
+        if (
+          error !== undefined &&
+          (error as Error)?.message !== NONEXISTENT_DATASET &&
+          datasource === PLACEHOLDER_DATASOURCE &&
+          datasetsStatus !== ResourceStatus.Error
+        ) {
+          return (
+            <Styles
+              key={chartId}
+              data-ui-anchor="chart"
+              className="chart-container"
+              data-test="chart-container"
+              height={height}
+            >
+              <Loading />
+            </Styles>
+          );
+        }
+
         return (
-          <Styles
+          <ChartErrorMessage
             key={chartId}
-            data-ui-anchor="chart"
-            className="chart-container"
-            data-test="chart-container"
-            height={height}
-          >
-            <Loading />
-          </Styles>
+            chartId={String(chartId)}
+            error={queryResponse?.errors?.[0]}
+            {...({
+              subtitle: <MonospaceDiv>{message}</MonospaceDiv>,
+              copyText: message,
+              link: queryResponse?.link ?? null,
+              source: dashboardId ? ChartSource.Dashboard : ChartSource.Explore,
+              stackTrace: null,
+            } as Record<string, unknown>)}
+          />
         );
-      }
-
-      return (
-        <ChartErrorMessage
-          key={chartId}
-          chartId={String(chartId)}
-          error={queryResponse?.errors?.[0]}
-          {...({
-            subtitle: <MonospaceDiv>{message}</MonospaceDiv>,
-            copyText: message,
-            link: queryResponse?.link || null,
-            source: dashboardId ? ChartSource.Dashboard : ChartSource.Explore,
-            stackTrace: null,
-          } as Record<string, unknown>)}
-        />
-      );
-    });
+      }) ?? null
+    );
   }
 
   // Handle missing required fields (like Chart.jsx line 301-309)
@@ -373,17 +370,16 @@ function ChartWithTanStackQuery({
     <div className="slice_container" data-test="slice-container">
       {isInView ||
       !isFeatureEnabled(FeatureFlag.DashboardVirtualization) ||
-      isCurrentUserBot()
-        ? renderChart()
-        : <Loading />}
+      isCurrentUserBot() ? (
+        renderChart()
+      ) : (
+        <Loading />
+      )}
     </div>
   );
 
   return (
-    <ErrorBoundary
-      onError={handleRenderContainerFailure}
-      showMessage={false}
-    >
+    <ErrorBoundary onError={handleRenderContainerFailure} showMessage={false}>
       <Styles
         data-ui-anchor="chart"
         className="chart-container"

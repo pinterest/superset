@@ -60,8 +60,7 @@ export const chartQueryKeys = {
    * Key for specific chart by ID
    * @param {number|string} id Chart/slice ID
    */
-  detail: (id: number | string) =>
-    [...chartQueryKeys.details(), id] as const,
+  detail: (id: number | string) => [...chartQueryKeys.details(), id] as const,
 
   /**
    * Key for all charts in a specific dashboard
@@ -89,8 +88,7 @@ export const chartQueryKeys = {
    * const chart1 = useChartData({ formData: config });
    * const chart2 = useChartData({ formData: config }); // Uses chart1's cache!
    */
-  byFormData: (formData: any) =>
-    [...chartQueryKeys.all, formData] as const,
+  byFormData: (formData: any) => [...chartQueryKeys.all, formData] as const,
 };
 
 /**

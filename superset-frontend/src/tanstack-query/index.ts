@@ -19,21 +19,24 @@
 
 /**
  * TanStack Query integration for Superset Charts
- * 
+ *
  * This module provides hooks and utilities for fetching chart data
  * using TanStack Query (React Query).
- * 
+ *
  * Usage:
  * import { useChartData, chartQueryKeys } from 'src/tanstack-query';
  * import { queryClient } from 'src/views/QueryClientProvider';
- * 
+ *
  * Note: QueryClient is already set up in src/views/QueryClientProvider
  * and wrapped around the app in RootContextProviders.
  */
 
 export { useChartData } from './hooks/useChartData';
-export { chartQueryKeys, dashboardQueryKeys, datasourceQueryKeys } from './queryKeys';
+export {
+  chartQueryKeys,
+  dashboardQueryKeys,
+  datasourceQueryKeys,
+} from './queryKeys';
 
 // Re-export queryClient from existing setup
 export { queryClient } from '../views/QueryClientProvider';
-

@@ -181,11 +181,7 @@ export function useChartData(
 
     // Only enable query if we have required data
     // Prevents unnecessary API calls for charts that aren't ready
-    enabled: !!(
-      formData &&
-      formData.datasource &&
-      options?.enabled !== false
-    ),
+    enabled: !!formData && formData.datasource && options?.enabled !== false,
 
     // Stale time configuration
     // - If force=true, data is immediately stale (refetch right away)
