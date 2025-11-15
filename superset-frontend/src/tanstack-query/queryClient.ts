@@ -20,7 +20,7 @@ import { QueryClient } from '@tanstack/react-query';
 
 /**
  * Global QueryClient configuration for TanStack Query
- * 
+ *
  * This replaces Redux for async data fetching with:
  * - Automatic caching
  * - Request deduplication
@@ -35,28 +35,28 @@ export const queryClient = new QueryClient({
       // Cache chart data for 5 minutes before considering it stale
       // Stale data can still be shown while fresh data is being fetched in background
       staleTime: 5 * 60 * 1000,
-      
+
       // Keep unused data in cache for 10 minutes
       // After this time, cached data will be garbage collected
       cacheTime: 10 * 60 * 1000, // v4: cacheTime, v5: gcTime
-      
+
       // Retry failed requests 2 times before giving up
       retry: 2,
-      
+
       // Exponential backoff for retries: 1s, 2s, 4s (max 30s)
-      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-      
+      retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
+
       // Don't refetch on window focus - too aggressive for dashboards
       // Users explicitly refresh when needed
       refetchOnWindowFocus: false,
-      
+
       // Don't refetch on component mount if data is still fresh
       // This enables instant navigation back to dashboards!
       refetchOnMount: false,
-      
+
       // DO refetch when network reconnects (user was offline)
       refetchOnReconnect: true,
-      
+
       // Enable network-mode optimizations
       // 'online' = only fetch when online (better for mobile)
       networkMode: 'online',
@@ -64,7 +64,7 @@ export const queryClient = new QueryClient({
     mutations: {
       // Retry mutations once (POST/PUT/DELETE operations)
       retry: 1,
-      
+
       // Network mode for mutations
       networkMode: 'online',
     },
@@ -77,22 +77,29 @@ let activeQueries = 0;
 const MAX_CONCURRENT_QUERIES = 6; // Adjust based on your server capacity
 const queryQueue: Array<() => void> = [];
 
-export const acquireQuerySlot = () => {
-  return new Promise<void>((resolve) => {
+/**
+ * Acquires a query slot for concurrency control.
+ * Returns a promise that resolves when a slot is available.
+ */
+export const acquireQuerySlot = (): Promise<void> =>
+  new Promise(resolve => {
     if (activeQueries < MAX_CONCURRENT_QUERIES) {
-      activeQueries++;
+      activeQueries += 1;
       resolve();
     } else {
       queryQueue.push(() => {
-        activeQueries++;
+        activeQueries += 1;
         resolve();
       });
     }
   });
-};
 
-export const releaseQuerySlot = () => {
-  activeQueries--;
+/**
+ * Releases a previously acquired query slot.
+ * Triggers the next waiting promise in the queue if present.
+ */
+export const releaseQuerySlot = (): void => {
+  activeQueries -= 1;
   const next = queryQueue.shift();
   if (next) {
     next();

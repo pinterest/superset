@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
@@ -26,16 +27,13 @@ const queryClient = new QueryClient({
       retry: 2,
 
       // Exponential backoff for retries
-      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+      retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
 
       // Don't refetch on window focus
       refetchOnWindowFocus: false,
 
       // Cache for 5 minutes
       staleTime: 5 * 60 * 1000,
-
-      // Keep in cache for 10 minutes after last use
-      gcTime: 10 * 60 * 1000,
 
       // Don't refetch on mount if data is fresh
       refetchOnMount: false,
@@ -50,9 +48,9 @@ interface QueryClientProviderWrapperProps {
   children: React.ReactNode;
 }
 
-export const QueryClientProviderWrapper: React.FC<
-  QueryClientProviderWrapperProps
-> = ({ children }) => (
+export const QueryClientProviderWrapper: React.FC<QueryClientProviderWrapperProps> = ({
+  children,
+}) => (
   <QueryClientProvider client={queryClient}>
     {children}
     {/* React Query DevTools - only in development */}

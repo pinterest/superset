@@ -19,13 +19,13 @@
 
 /**
  * Centralized query key factory for TanStack Query
- * 
+ *
  * Benefits:
  * - Type-safe query keys across the app
  * - Easy to invalidate related queries
  * - Consistent key structure
  * - Self-documenting query organization
- * 
+ *
  * Query Key Structure:
  * - ['chartData'] = all chart queries
  * - ['chartData', 'dashboard', 123] = all charts in dashboard 123
@@ -38,52 +38,52 @@ export const chartQueryKeys = {
    * queryClient.invalidateQueries({ queryKey: chartQueryKeys.all })
    */
   all: ['chartData'] as const,
-  
+
   /**
    * Key for chart lists
    */
   lists: () => [...chartQueryKeys.all, 'list'] as const,
-  
+
   /**
    * Key for filtered chart list
-   * @param filters - Filter criteria
+   * @param {Record<string, any>} filters Filter criteria
    */
-  list: (filters: Record<string, any>) => 
+  list: (filters: Record<string, any>) =>
     [...chartQueryKeys.lists(), filters] as const,
-  
+
   /**
    * Base key for individual chart details
    */
   details: () => [...chartQueryKeys.all, 'detail'] as const,
-  
+
   /**
    * Key for specific chart by ID
-   * @param id - Chart/slice ID
+   * @param {number|string} id Chart/slice ID
    */
-  detail: (id: number | string) => 
+  detail: (id: number | string) =>
     [...chartQueryKeys.details(), id] as const,
-  
+
   /**
    * Key for all charts in a specific dashboard
    * Useful for invalidating all dashboard charts at once
-   * @param dashboardId - Dashboard ID
-   * 
+   * @param {number} dashboardId Dashboard ID
+   *
    * Example:
    * // Refresh all charts in dashboard 123
-   * queryClient.invalidateQueries({ 
-   *   queryKey: chartQueryKeys.byDashboard(123) 
+   * queryClient.invalidateQueries({
+   *   queryKey: chartQueryKeys.byDashboard(123),
    * })
    */
   byDashboard: (dashboardId: number) =>
     [...chartQueryKeys.all, 'dashboard', dashboardId] as const,
-  
+
   /**
    * Key for chart query by formData configuration
    * This enables automatic deduplication - if multiple charts have
    * the same formData, they'll share the same cache entry!
-   * 
-   * @param formData - Chart configuration object
-   * 
+   *
+   * @param {any} formData Chart configuration object
+   *
    * Example:
    * // Two charts with identical formData will fetch once and share cache
    * const chart1 = useChartData({ formData: config });
@@ -98,14 +98,14 @@ export const chartQueryKeys = {
  */
 export const dashboardQueryKeys = {
   all: ['dashboard'] as const,
-  
+
   lists: () => [...dashboardQueryKeys.all, 'list'] as const,
-  
+
   list: (filters: Record<string, any>) =>
     [...dashboardQueryKeys.lists(), filters] as const,
-  
+
   details: () => [...dashboardQueryKeys.all, 'detail'] as const,
-  
+
   detail: (id: number | string) =>
     [...dashboardQueryKeys.details(), id] as const,
 };
@@ -115,37 +115,36 @@ export const dashboardQueryKeys = {
  */
 export const datasourceQueryKeys = {
   all: ['datasource'] as const,
-  
+
   detail: (datasourceId: string) =>
     [...datasourceQueryKeys.all, datasourceId] as const,
-  
+
   samples: (datasourceId: string) =>
     [...datasourceQueryKeys.all, datasourceId, 'samples'] as const,
 };
 
 /**
  * Example Usage:
- * 
+ *
  * // In a component:
  * const { data } = useQuery({
  *   queryKey: chartQueryKeys.byFormData(formData),
  *   queryFn: () => fetchChartData(formData),
  * });
- * 
+ *
  * // Invalidate specific dashboard's charts:
- * queryClient.invalidateQueries({ 
- *   queryKey: chartQueryKeys.byDashboard(123) 
+ * queryClient.invalidateQueries({
+ *   queryKey: chartQueryKeys.byDashboard(123),
  * });
- * 
+ *
  * // Invalidate all chart queries:
- * queryClient.invalidateQueries({ 
- *   queryKey: chartQueryKeys.all 
+ * queryClient.invalidateQueries({
+ *   queryKey: chartQueryKeys.all,
  * });
- * 
+ *
  * // Prefetch a chart (before user navigates):
  * queryClient.prefetchQuery({
  *   queryKey: chartQueryKeys.byFormData(formData),
  *   queryFn: () => fetchChartData(formData),
  * });
  */
-

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import React, { ReactNode } from 'react';
+import React, { type ReactNode } from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { queryClient } from './queryClient';
@@ -27,14 +27,14 @@ interface QueryProviderProps {
 
 /**
  * QueryProvider wraps the app with TanStack Query context
- * 
+ *
  * This enables:
  * - useQuery hooks throughout the app
  * - Global query cache
  * - DevTools for debugging (development only)
- * 
+ *
  * Usage in preamble.tsx:
- * 
+ *
  * root.render(
  *   <QueryProvider>
  *     <Provider store={store}>
@@ -43,30 +43,23 @@ interface QueryProviderProps {
  *   </QueryProvider>
  * );
  */
-export const QueryProvider: React.FC<QueryProviderProps> = ({ children }) => {
-  return (
-    <QueryClientProvider client={queryClient}>
-      {children}
-      {/* 
-        React Query Devtools - shows all queries, their state, and cache
-        Only included in development builds
-        Access via floating icon in bottom-right corner
-        
-        Features:
-        - View all active/inactive queries
-        - See query state (loading, success, error)
-        - Inspect cached data
-        - Manually invalidate/refetch queries
-        - Monitor network requests
-      */}
-      {process.env.NODE_ENV === 'development' && (
-        <ReactQueryDevtools 
-          initialIsOpen={false} 
-          position="bottom-right"
-          buttonPosition="bottom-right"
-        />
-      )}
-    </QueryClientProvider>
-  );
-};
+export const QueryProvider: React.FC<QueryProviderProps> = ({ children }) => (
+  <QueryClientProvider client={queryClient}>
+    {children}
+    {/* 
+      React Query Devtools - shows all queries, their state, and cache
+      Only included in development builds
+      Access via floating icon in bottom-right corner
 
+      Features:
+      - View all active/inactive queries
+      - See query state (loading, success, error)
+      - Inspect cached data
+      - Manually invalidate/refetch queries
+      - Monitor network requests
+    */}
+    {process.env.NODE_ENV === 'development' && (
+      <ReactQueryDevtools initialIsOpen={false} position="bottom-right" />
+    )}
+  </QueryClientProvider>
+);

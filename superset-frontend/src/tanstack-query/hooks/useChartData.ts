@@ -16,9 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { useQuery, UseQueryOptions } from '@tanstack/react-query';
+import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
 import { getChartDataRequest } from 'src/components/Chart/chartAction';
-import { ChartDataResponseResult } from '@superset-ui/core';
+import { type ChartDataResponseResult } from '@superset-ui/core';
 import { chartQueryKeys } from '../queryKeys';
 import { acquireQuerySlot, releaseQuerySlot } from '../queryClient';
 
@@ -41,7 +41,7 @@ interface ChartDataResponse {
 
 /**
  * Custom hook to fetch chart data using TanStack Query
- * 
+ *
  * This replaces Redux-based chart data fetching with automatic:
  * - Caching (charts with same formData reuse cached data)
  * - Request deduplication (multiple charts with same config fetch once)
@@ -49,7 +49,7 @@ interface ChartDataResponse {
  * - Background refetching
  * - Loading and error states
  * - Concurrency control (max 6 concurrent requests)
- * 
+ *
  * Benefits over Redux approach:
  * 1. Automatic caching - navigate back to dashboard and charts load instantly!
  * 2. Request deduplication - 10 charts with same config = 1 API call
@@ -57,19 +57,19 @@ interface ChartDataResponse {
  * 4. Better UX - loading states, error boundaries, retry logic
  * 5. Less boilerplate - no actions, reducers, selectors needed
  * 6. DevTools - see all queries, cache state, network requests in real-time
- * 
+ *
  * @example Basic usage
  * const { data, isLoading, error } = useChartData({
  *   formData: chartFormData,
  *   dashboardId: 123,
  * });
- * 
+ *
  * @example With force refresh
  * const { data, refetch } = useChartData({
  *   formData: chartFormData,
  *   force: true, // Skip cache, fetch fresh data
  * });
- * 
+ *
  * @example With loading state
  * const { data, isLoading, isFetching } = useChartData({
  *   formData: chartFormData,
@@ -105,43 +105,43 @@ export function useChartData(
         slice_id: formData?.slice_id,
         datasource: formData?.datasource,
         viz_type: formData?.viz_type,
-        
+
         // Filters that affect data
         filters: formData?.filters,
         adhoc_filters: formData?.adhoc_filters,
         extra_filters: formData?.extra_filters,
-        
+
         // Time range
         time_range: formData?.time_range,
         time_grain_sqla: formData?.time_grain_sqla,
         granularity_sqla: formData?.granularity_sqla,
-        
+
         // Grouping and columns
         groupby: formData?.groupby,
         columns: formData?.columns,
         all_columns: formData?.all_columns,
-        
+
         // Metrics
         metrics: formData?.metrics,
-        
+
         // Sorting and limits
         timeseries_limit_metric: formData?.timeseries_limit_metric,
         limit: formData?.limit,
         row_limit: formData?.row_limit,
-        
+
         // Other query params
         order_desc: formData?.order_desc,
         truncate_metric: formData?.truncate_metric,
-        
+
         // Include result format/type in key
         resultFormat,
         resultType,
-        
+
         // Include force flag so forced refreshes don't use stale cache
         force,
       },
     ],
-    
+
     // Query function: how to fetch the data
     // TanStack Query provides:
     // - signal: AbortSignal for request cancellation
@@ -149,16 +149,16 @@ export function useChartData(
     queryFn: async ({ signal }) => {
       // Acquire a query slot (limits concurrent requests)
       await acquireQuerySlot();
-      
+
       try {
-        const requestParams: any = {
+        const requestParams: Record<string, unknown> = {
           signal, // Allows TanStack Query to cancel in-flight requests
         };
-        
+
         if (dashboardId) {
           requestParams.dashboard_id = dashboardId;
         }
-        
+
         // Use existing Superset API wrapper
         // This maintains compatibility with existing backend expectations
         const response = await getChartDataRequest({
@@ -171,14 +171,14 @@ export function useChartData(
           ownState,
           setDataMask,
         });
-        
+
         return response;
       } finally {
         // Always release the slot, even if request fails
         releaseQuerySlot();
       }
     },
-    
+
     // Only enable query if we have required data
     // Prevents unnecessary API calls for charts that aren't ready
     enabled: !!(
@@ -186,17 +186,17 @@ export function useChartData(
       formData.datasource &&
       options?.enabled !== false
     ),
-    
+
     // Stale time configuration
     // - If force=true, data is immediately stale (refetch right away)
     // - Otherwise use default from queryClient (5 minutes)
     staleTime: force ? 0 : undefined,
-    
+
     // Refetch on mount configuration
     // - If force=true, always refetch (ignore cache)
     // - Otherwise respect default (false = use cache if fresh)
     refetchOnMount: force ? 'always' : false,
-    
+
     // Allow component to override any options
     ...options,
   });
@@ -204,17 +204,17 @@ export function useChartData(
 
 /**
  * Example usage in a Chart component:
- * 
+ *
  * function Chart({ formData, dashboardId }) {
  *   const { data, isLoading, error, refetch } = useChartData({
  *     formData,
  *     dashboardId,
  *   });
- *   
+ *
  *   if (isLoading) {
  *     return <LoadingSpinner />;
  *   }
- *   
+ *
  *   if (error) {
  *     return (
  *       <ErrorBoundary>
@@ -223,23 +223,22 @@ export function useChartData(
  *       </ErrorBoundary>
  *     );
  *   }
- *   
+ *
  *   if (data) {
  *     return <ChartRenderer data={data.json.result[0]} />;
  *   }
- *   
+ *
  *   return null;
  * }
- * 
+ *
  * Performance comparison:
- * 
+ *
  * Dashboard with 50 charts:
  * - Before (Redux): 50 API calls simultaneously (server overwhelmed!)
- * - After (TanStack): 
+ * - After (TanStack):
  *   - Max 6 concurrent requests (server-friendly)
  *   - 40 unique queries (dedupe 10 identical configs)
  *   - 0 on revisit (cached!)
- * 
+ *
  * Result: 60-90% fewer API calls + controlled concurrency! 🚀
  */
-
