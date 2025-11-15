@@ -16,10 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { useQuery, UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
+import { useQuery, UseQueryOptions } from '@tanstack/react-query';
 import { getChartDataRequest } from 'src/components/Chart/chartAction';
 import { ChartDataResponseResult } from '@superset-ui/core';
 import { chartQueryKeys } from '../queryKeys';
+import { acquireQuerySlot, releaseQuerySlot } from '../queryClient';
 
 interface UseChartDataParams {
   formData: any;
@@ -28,7 +29,7 @@ interface UseChartDataParams {
   dashboardId?: number;
   resultFormat?: 'json' | 'csv';
   resultType?: 'full' | 'query' | 'results' | 'samples';
-  setDataMask?: (dataMask: any) => void;
+  setDataMask?: () => void;
 }
 
 interface ChartDataResponse {
@@ -47,13 +48,15 @@ interface ChartDataResponse {
  * - Retries on failure
  * - Background refetching
  * - Loading and error states
+ * - Concurrency control (max 6 concurrent requests)
  * 
  * Benefits over Redux approach:
  * 1. Automatic caching - navigate back to dashboard and charts load instantly!
  * 2. Request deduplication - 10 charts with same config = 1 API call
- * 3. Better UX - loading states, error boundaries, retry logic
- * 4. Less boilerplate - no actions, reducers, selectors needed
- * 5. DevTools - see all queries, cache state, network requests in real-time
+ * 3. Concurrency limiting - prevents overwhelming server with 50+ simultaneous requests
+ * 4. Better UX - loading states, error boundaries, retry logic
+ * 5. Less boilerplate - no actions, reducers, selectors needed
+ * 6. DevTools - see all queries, cache state, network requests in real-time
  * 
  * @example Basic usage
  * const { data, isLoading, error } = useChartData({
@@ -88,8 +91,8 @@ export function useChartData(
     UseQueryOptions<ChartDataResponse, Error>,
     'queryKey' | 'queryFn'
   >,
-): UseQueryResult<ChartDataResponse, Error> {
-  return useQuery<ChartDataResponse, Error>({
+) {
+  return useQuery({
     // Query key: uniquely identifies this query for caching and deduplication
     // TanStack Query will:
     // - Cache responses by this key
@@ -144,28 +147,36 @@ export function useChartData(
     // - signal: AbortSignal for request cancellation
     // - queryKey: the key (in case you need it)
     queryFn: async ({ signal }) => {
-      const requestParams: any = {
-        signal, // Allows TanStack Query to cancel in-flight requests
-      };
+      // Acquire a query slot (limits concurrent requests)
+      await acquireQuerySlot();
       
-      if (dashboardId) {
-        requestParams.dashboard_id = dashboardId;
+      try {
+        const requestParams: any = {
+          signal, // Allows TanStack Query to cancel in-flight requests
+        };
+        
+        if (dashboardId) {
+          requestParams.dashboard_id = dashboardId;
+        }
+        
+        // Use existing Superset API wrapper
+        // This maintains compatibility with existing backend expectations
+        const response = await getChartDataRequest({
+          formData,
+          resultFormat,
+          resultType,
+          force,
+          method: 'POST',
+          requestParams,
+          ownState,
+          setDataMask,
+        });
+        
+        return response;
+      } finally {
+        // Always release the slot, even if request fails
+        releaseQuerySlot();
       }
-      
-      // Use existing Superset API wrapper
-      // This maintains compatibility with existing backend expectations
-      const response = await getChartDataRequest({
-        formData,
-        resultFormat,
-        resultType,
-        force,
-        method: 'POST',
-        requestParams,
-        ownState,
-        setDataMask,
-      });
-      
-      return response;
     },
     
     // Only enable query if we have required data
@@ -223,10 +234,12 @@ export function useChartData(
  * Performance comparison:
  * 
  * Dashboard with 50 charts:
- * - Before (Redux): 50 API calls on every load
- * - After (TanStack): 40 initial (dedupe 10 identical configs)
- *                     0 on revisit (cached!)
+ * - Before (Redux): 50 API calls simultaneously (server overwhelmed!)
+ * - After (TanStack): 
+ *   - Max 6 concurrent requests (server-friendly)
+ *   - 40 unique queries (dedupe 10 identical configs)
+ *   - 0 on revisit (cached!)
  * 
- * Result: 60-90% fewer API calls! 🚀
+ * Result: 60-90% fewer API calls + controlled concurrency! 🚀
  */
 

@@ -27,6 +27,7 @@ import { QueryClient } from '@tanstack/react-query';
  * - Background refetching
  * - Automatic retries
  * - Better loading/error states
+ * - Concurrency control (max 6 concurrent queries)
  */
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -37,7 +38,7 @@ export const queryClient = new QueryClient({
       
       // Keep unused data in cache for 10 minutes
       // After this time, cached data will be garbage collected
-      gcTime: 10 * 60 * 1000, // renamed from cacheTime in v5
+      cacheTime: 10 * 60 * 1000, // v4: cacheTime, v5: gcTime
       
       // Retry failed requests 2 times before giving up
       retry: 2,
@@ -69,4 +70,32 @@ export const queryClient = new QueryClient({
     },
   },
 });
+
+// Concurrency limiter: limits concurrent queries to prevent overwhelming server
+// This is especially important for dashboards with many charts
+let activeQueries = 0;
+const MAX_CONCURRENT_QUERIES = 6; // Adjust based on your server capacity
+const queryQueue: Array<() => void> = [];
+
+export const acquireQuerySlot = () => {
+  return new Promise<void>((resolve) => {
+    if (activeQueries < MAX_CONCURRENT_QUERIES) {
+      activeQueries++;
+      resolve();
+    } else {
+      queryQueue.push(() => {
+        activeQueries++;
+        resolve();
+      });
+    }
+  });
+};
+
+export const releaseQuerySlot = () => {
+  activeQueries--;
+  const next = queryQueue.shift();
+  if (next) {
+    next();
+  }
+};
 
