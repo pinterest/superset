@@ -17,8 +17,12 @@
  * under the License.
  */
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
-import { getChartDataRequest } from 'src/components/Chart/chartAction';
+import {
+  getChartDataRequest,
+  handleChartDataResponse,
+} from 'src/components/Chart/chartAction';
 import { type ChartDataResponseResult } from '@superset-ui/core';
+import { getQuerySettings } from 'src/explore/exploreUtils';
 import { chartQueryKeys } from '../queryKeys';
 import { acquireQuerySlot, releaseQuerySlot } from '../queryClient';
 
@@ -161,7 +165,7 @@ export function useChartData(
 
         // Use existing Superset API wrapper
         // This maintains compatibility with existing backend expectations
-        const response = await getChartDataRequest({
+        const chartDataResponse = await getChartDataRequest({
           formData,
           resultFormat,
           resultType,
@@ -172,7 +176,24 @@ export function useChartData(
           setDataMask,
         });
 
-        return response;
+        // Handle async queries (polling for long-running queries)
+        // If GlobalAsyncQueries is enabled and query returns 202:
+        // - Initial response contains job_id
+        // - handleChartDataResponse calls waitForAsyncData()
+        // - waitForAsyncData() polls /api/v1/async_event/ until job completes
+        // - Once done, fetches final result from result_url
+        const [useLegacyApi] = getQuerySettings(formData);
+        const queriesResponse = await handleChartDataResponse(
+          chartDataResponse.response,
+          chartDataResponse.json,
+          useLegacyApi,
+        );
+
+        // Return in the expected format
+        return {
+          response: chartDataResponse.response,
+          json: { result: queriesResponse },
+        };
       } finally {
         // Always release the slot, even if request fails
         releaseQuerySlot();
@@ -227,6 +248,20 @@ export function useChartData(
  *   return null;
  * }
  *
+ * How async queries work:
+ * 1. Initial request returns:
+ *    - Status 200: Query already cached, return results immediately
+ *    - Status 202: Query running async, return job_id
+ * 2. If 202, handleChartDataResponse() calls waitForAsyncData():
+ *    - Registers listener for job_id
+ *    - Background polling/WebSocket checks /api/v1/async_event/
+ *    - Waits for job status = 'done'
+ *    - Fetches final result from result_url
+ * 3. TanStack Query sees this as a single async operation
+ *    - Chart shows loading spinner while polling
+ *    - Once complete, chart renders with data
+ *    - Result is cached for future use
+ *
  * Performance comparison:
  *
  * Dashboard with 50 charts:
@@ -235,6 +270,7 @@ export function useChartData(
  *   - Max 6 concurrent requests (server-friendly)
  *   - 40 unique queries (dedupe 10 identical configs)
  *   - 0 on revisit (cached!)
+ *   - Async queries work seamlessly (polling handled internally)
  *
- * Result: 60-90% fewer API calls + controlled concurrency! 🚀
+ * Result: 60-90% fewer API calls + controlled concurrency + async query support! 🚀
  */
