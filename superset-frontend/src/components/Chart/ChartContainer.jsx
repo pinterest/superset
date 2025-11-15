@@ -21,7 +21,8 @@ import { bindActionCreators } from 'redux';
 
 import * as actions from './chartAction';
 import { logEvent } from '../../logger/actions';
-import Chart from './Chart';
+// import Chart from './Chart';
+import Chart from './ChartWithTanStackQuery';
 import { updateDataMask } from '../../dataMask/actions';
 
 function mapDispatchToProps(dispatch) {
