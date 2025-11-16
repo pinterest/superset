@@ -134,21 +134,26 @@ class BaseReportState:
         try:
             for recipient in self._report_schedule.recipients:
                 if recipient.type == ReportRecipientType.SLACK:
-                    recipient.type = ReportRecipientType.SLACKV2
                     slack_recipients = json.loads(recipient.recipient_config_json)
+                    new_target = get_channels_with_search(
+                        slack_recipients["target"],
+                        types=[
+                            SlackChannelTypes.PRIVATE,
+                            SlackChannelTypes.PUBLIC,
+                        ],
+                    )
                     # we need to ensure that existing reports can also fetch
                     # ids from private channels
                     recipient.recipient_config_json = json.dumps(
                         {
-                            "target": get_channels_with_search(
-                                slack_recipients["target"],
-                                types=[
-                                    SlackChannelTypes.PRIVATE,
-                                    SlackChannelTypes.PUBLIC,
-                                ],
-                            )
+                            "target": ",".join(new_target),
+                            # Save the original target to correctly add
+                            # IMs to new target in future.
+                            "slackV1Target": slack_recipients["target"],
                         }
                     )
+                    # Ensure recipient type updated after new recipient config is set
+                    recipient.type = ReportRecipientType.SLACKV2
         except Exception as ex:
             logger.warning(
                 "Failed to update slack recipients to v2: %s", str(ex), exc_info=True
