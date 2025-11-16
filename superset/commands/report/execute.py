@@ -136,36 +136,26 @@ class BaseReportState:
         try:
             for recipient in self._report_schedule.recipients:
                 if recipient.type == ReportRecipientType.SLACK:
-                    recipient.type = ReportRecipientType.SLACKV2
                     slack_recipients = json.loads(recipient.recipient_config_json)
-                    # V1 method allowed to use leading `#` in the channel name
-                    channel_names = (slack_recipients["target"] or "").replace("#", "")
-                    # we need to ensure that existing reports can also fetch
-                    # ids from private channels
-                    channels = get_channels_with_search(
-                        search_string=channel_names,
+                    new_target = get_channels_with_search(
+                        slack_recipients["target"],
                         types=[
                             SlackChannelTypes.PRIVATE,
                             SlackChannelTypes.PUBLIC,
                         ],
-                        exact_match=True,
                     )
-                    channels_list = recipients_string_to_list(channel_names)
-                    if len(channels_list) != len(channels):
-                        missing_channels = set(channels_list) - {
-                            channel["name"] for channel in channels
-                        }
-                        msg = (
-                            "Could not find the following channels: "
-                            f"{', '.join(missing_channels)}"
-                        )
-                        raise UpdateFailedError(msg)
-                    channel_ids = ",".join(channel["id"] for channel in channels)
+                    # we need to ensure that existing reports can also fetch
+                    # ids from private channels
                     recipient.recipient_config_json = json.dumps(
                         {
-                            "target": channel_ids,
+                            "target": ",".join(new_target),
+                            # Save the original target to correctly add
+                            # IMs to new target in future.
+                            "slackV1Target": slack_recipients["target"],
                         }
                     )
+                    # Ensure recipient type updated after new recipient config is set
+                    recipient.type = ReportRecipientType.SLACKV2
         except Exception as ex:
             # Revert to v1 to preserve configuration (requires manual fix)
             recipient.type = ReportRecipientType.SLACK
