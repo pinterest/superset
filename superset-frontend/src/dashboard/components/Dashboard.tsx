@@ -17,12 +17,14 @@
  * under the License.
  */
 import { PureComponent, ReactNode } from 'react';
+import { debounce, DebouncedFunc } from 'lodash';
 import { t } from '@apache-superset/core/translation';
 import { JsonObject } from '@superset-ui/core';
 
 import { Loading } from '@superset-ui/core/components';
 import { PluginContext } from 'src/components';
 import type { PluginContextType } from 'src/components/DynamicPlugins/types';
+import { FAST_DEBOUNCE } from 'src/constants';
 import getBootstrapData from 'src/utils/getBootstrapData';
 import type { Slice } from 'src/dashboard/types';
 import getChartIdsFromLayout from '../util/getChartIdsFromLayout';
@@ -107,6 +109,8 @@ class Dashboard extends PureComponent<DashboardProps> {
 
   visibilityEventData: VisibilityEventData;
 
+  debouncedApplyCharts: DebouncedFunc<() => void>;
+
   static onBeforeUnload(hasChanged: boolean): void {
     if (hasChanged) {
       window.addEventListener('beforeunload', Dashboard.unload);
@@ -128,6 +132,12 @@ class Dashboard extends PureComponent<DashboardProps> {
     this.appliedOwnDataCharts = props.ownDataCharts ?? {};
     this.visibilityEventData = { start_offset: 0, ts: 0 };
     this.onVisibilityChange = this.onVisibilityChange.bind(this);
+
+    // Debounce applyCharts to prevent expensive deep equality checks on every update
+    this.debouncedApplyCharts = debounce(
+      this.applyCharts.bind(this),
+      FAST_DEBOUNCE,
+    );
   }
 
   componentDidMount(): void {
@@ -159,7 +169,7 @@ class Dashboard extends PureComponent<DashboardProps> {
   }
 
   componentDidUpdate(prevProps: DashboardProps): void {
-    this.applyCharts();
+    this.debouncedApplyCharts();
     const currentChartIds = getChartIdsFromLayout(prevProps.layout);
     const nextChartIds = getChartIdsFromLayout(this.props.layout);
 
@@ -227,6 +237,7 @@ class Dashboard extends PureComponent<DashboardProps> {
     window.removeEventListener('visibilitychange', this.onVisibilityChange);
     this.props.actions.clearDataMaskState();
     this.props.actions.clearAllChartStates();
+    this.debouncedApplyCharts?.cancel();
   }
 
   onVisibilityChange(): void {
