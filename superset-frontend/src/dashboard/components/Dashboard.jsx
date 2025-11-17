@@ -18,10 +18,12 @@
  */
 import { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import { debounce } from 'lodash';
 import { t } from '@superset-ui/core';
 
 import { Loading } from '@superset-ui/core/components';
 import { PluginContext } from 'src/components';
+import { FAST_DEBOUNCE } from 'src/constants';
 import getBootstrapData from 'src/utils/getBootstrapData';
 import getChartIdsFromLayout from '../util/getChartIdsFromLayout';
 import getLayoutComponentFromChartId from '../util/getLayoutComponentFromChartId';
@@ -90,6 +92,12 @@ class Dashboard extends PureComponent {
     this.appliedFilters = props.activeFilters ?? {};
     this.appliedOwnDataCharts = props.ownDataCharts ?? {};
     this.onVisibilityChange = this.onVisibilityChange.bind(this);
+
+    // Debounce applyCharts to prevent expensive deep equality checks on every update
+    this.debouncedApplyCharts = debounce(
+      this.applyCharts.bind(this),
+      FAST_DEBOUNCE,
+    );
   }
 
   componentDidMount() {
@@ -121,7 +129,8 @@ class Dashboard extends PureComponent {
   }
 
   componentDidUpdate() {
-    this.applyCharts();
+    // this.applyCharts();
+    this.debouncedApplyCharts();
   }
 
   UNSAFE_componentWillReceiveProps(nextProps) {
@@ -191,6 +200,7 @@ class Dashboard extends PureComponent {
   componentWillUnmount() {
     window.removeEventListener('visibilitychange', this.onVisibilityChange);
     this.props.actions.clearDataMaskState();
+    this.debouncedApplyCharts?.cancel();
   }
 
   onVisibilityChange() {

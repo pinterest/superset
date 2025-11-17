@@ -31,6 +31,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { EmptyState, Loading } from '@superset-ui/core/components';
 import { ErrorBoundary, BasicErrorAlert } from 'src/components';
+import { debounce } from 'lodash';
 import BuilderComponentPane from 'src/dashboard/components/BuilderComponentPane';
 import DashboardHeader from 'src/dashboard/components/Header';
 import { Icons } from '@superset-ui/core/components/Icons';
@@ -39,7 +40,7 @@ import { Droppable } from 'src/dashboard/components/dnd/DragDroppable';
 import DashboardComponent from 'src/dashboard/containers/DashboardComponent';
 import WithPopoverMenu from 'src/dashboard/components/menu/WithPopoverMenu';
 import getDirectPathToTabIndex from 'src/dashboard/util/getDirectPathToTabIndex';
-import { URL_PARAMS } from 'src/constants';
+import { URL_PARAMS, FAST_DEBOUNCE } from 'src/constants';
 import { getUrlParam } from 'src/utils/urlUtils';
 import {
   DashboardLayout,
@@ -433,12 +434,21 @@ const DashboardBuilder = () => {
   useEffect(() => {
     setBarTopOffset(headerRef.current?.getBoundingClientRect()?.height || 0);
 
+    // Debounce ResizeObserver callback to reduce state updates during resize
+    const debouncedSetBarTopOffset = debounce((height: number) => {
+      setBarTopOffset(height);
+    }, FAST_DEBOUNCE);
+
     let observer: ResizeObserver;
     if (global.hasOwnProperty('ResizeObserver') && headerRef.current) {
       observer = new ResizeObserver(entries => {
-        setBarTopOffset(
-          current => entries?.[0]?.contentRect?.height || current,
-        );
+        // setBarTopOffset(
+        //   current => entries?.[0]?.contentRect?.height || current,
+        // );
+        const height = entries?.[0]?.contentRect?.height;
+        if (height) {
+          debouncedSetBarTopOffset(height);
+        }
       });
 
       observer.observe(headerRef.current);
@@ -446,6 +456,7 @@ const DashboardBuilder = () => {
 
     return () => {
       observer?.disconnect();
+      debouncedSetBarTopOffset?.cancel();
     };
   }, []);
 
