@@ -143,6 +143,7 @@ class BaseReportState:
                             SlackChannelTypes.PRIVATE,
                             SlackChannelTypes.PUBLIC,
                         ],
+                        exact_match=True,
                     )
                     # we need to ensure that existing reports can also fetch
                     # ids from private channels
