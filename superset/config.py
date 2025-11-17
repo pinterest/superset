@@ -534,7 +534,7 @@ DEFAULT_FEATURE_FLAGS: dict[str, bool] = {
     "DRILL_TO_DETAIL": True,
     "DRILL_BY": True,
     "DATAPANEL_CLOSED_BY_DEFAULT": False,
-    "HORIZONTAL_FILTER_BAR": False,
+    "HORIZONTAL_FILTER_BAR": True,
     # The feature is off by default, and currently only supported in Presto and Postgres,
     # and Bigquery.
     # It also needs to be enabled on a per-database basis, by adding the key/value pair
@@ -1802,11 +1802,11 @@ WELCOME_PAGE_LAST_TAB: Literal["examples", "all"] | tuple[str, list[dict[str, An
 # Set this to display an announcement banner at the top of Superset
 # The banner will be shown until dismissed by the user. The dismiss state is stored in localStorage.
 # Example:
-# ANNOUNCEMENTS = {
+# ANNOUNCEMENTS = [{
 #     "id": "announcement-2025-01-15",  # Change this ID to show a new announcement
 #     "message": "<strong>Maintenance Notice:</strong> System will be down on Jan 20th",
 #     "type": "info",  # "info", "warning", "error", or "success"
-# }
+# }]
 ANNOUNCEMENTS: list[dict[str, str]] | None = []
 
 # Max allowed size for a zipped file
