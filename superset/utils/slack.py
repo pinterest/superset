@@ -105,7 +105,7 @@ def get_channels_with_search(
             ]
 
             channels = [
-                channel["id"]
+                channel
                 for channel in channels
                 if any(
                     (
