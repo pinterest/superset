@@ -129,31 +129,98 @@ class BaseReportState:
         self._report_schedule.last_state = state
         self._report_schedule.last_eval_dttm = datetime.utcnow()
 
+    def migrate_slack_im_recipients_to_email(self, im_targets: list[str]) -> None:
+        # Convert @user to user@emaildomain.com
+        new_emails = [
+            target.lstrip("@") + "@" + app.config["PINTEREST_EMAIL_DOMAIN"]
+            for target in im_targets
+        ]
+
+        # Find existing email recipient or create a new one
+        email_recipient = None
+        for existing_recipient in self._report_schedule.recipients:
+            if existing_recipient.type == ReportRecipientType.EMAIL:
+                email_recipient = existing_recipient
+                break
+
+        if email_recipient:
+            # Update existing email recipient
+            email_config = json.loads(email_recipient.recipient_config_json)
+            existing_target = email_config.get("target", "")
+            existing_emails = [
+                email.strip() for email in existing_target.split(",") if email.strip()
+            ]
+
+            # Add new emails, avoiding duplicates
+            for email in new_emails:
+                if email not in existing_emails:
+                    existing_emails.append(email)
+
+            email_config["target"] = ",".join(existing_emails)
+            email_recipient.recipient_config_json = json.dumps(email_config)
+        else:
+            # Create new email recipient
+            new_email_config_json = {
+                "target": ",".join(new_emails),
+                "ccTarget": "",
+                "bccTarget": "",
+            }
+            new_email_recipient = ReportRecipients(
+                type=ReportRecipientType.EMAIL,
+                recipient_config_json=json.dumps(new_email_config_json),
+                report_schedule_id=self._report_schedule.id,
+            )
+            db.session.add(new_email_recipient)
+
     def update_report_schedule_slack_v2(self) -> None:
         """
         Update the report schedule type and channels for all slack recipients to v2.
         V2 uses ids instead of names for channels.
+        DMs (starting with @) are migrated to email recipients.
         """
         try:
             for recipient in self._report_schedule.recipients:
                 if recipient.type == ReportRecipientType.SLACK:
                     slack_recipients = json.loads(recipient.recipient_config_json)
-                    new_target = get_channels_with_search(
-                        slack_recipients["target"],
-                        types=[
-                            SlackChannelTypes.PRIVATE,
-                            SlackChannelTypes.PUBLIC,
-                        ],
-                        exact_match=True,
+                    original_target = slack_recipients["target"]
+
+                    # Parse target to separate channels (#) from DMs (@)
+                    target_items = [
+                        item.strip()
+                        for item in original_target.split(",")
+                        if item.strip()
+                    ]
+                    im_targets = [item for item in target_items if item.startswith("@")]
+                    channel_targets = [
+                        item for item in target_items if not item.startswith("@")
+                    ]
+
+                    # Get channel IDs for channels (only returns IDs for channels starting with #)
+                    channel_target_str = (
+                        ",".join(channel_targets) if channel_targets else ""
                     )
-                    # we need to ensure that existing reports can also fetch
-                    # ids from private channels
+                    new_target = []
+                    if channel_target_str:
+                        new_target = get_channels_with_search(
+                            channel_target_str,
+                            types=[
+                                SlackChannelTypes.PRIVATE,
+                                SlackChannelTypes.PUBLIC,
+                            ],
+                            exact_match=True,
+                        )
+
+                    # Migrate DMs to email recipients
+                    if im_targets:
+                        self.migrate_slack_im_recipients_to_email(im_targets)
+
+                    # Update Slack recipient with only channel IDs
                     recipient.recipient_config_json = json.dumps(
                         {
-                            "target": ",".join(new_target),
+                            "target": ",".join([t["id"] for t in new_target]),
                             # Save the original target to correctly add
                             # IMs to new target in future.
-                            "slackV1Target": slack_recipients["target"],
+                            "slackV1Target": original_target,
                         }
                     )
                     # Ensure recipient type updated after new recipient config is set

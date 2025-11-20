@@ -2472,6 +2472,8 @@ PINTEREST_WELCOME_TOP_SECTIONS: list[PinterestWelcomeTopSections] | None = []
 # Tag ID used to filter all top dashboards
 PINTEREST_TOP_TAG_ID = 1
 
+PINTEREST_EMAIL_DOMAIN = ""
+
 # Cache timeout for column values cache (if enabled)
 COLUMN_VALUES_CACHE_TIMEOUT = 25 * 60 * 60  # 25 hours
 
