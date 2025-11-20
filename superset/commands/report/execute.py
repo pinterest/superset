@@ -15,6 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 import logging
+import re
 from datetime import datetime, timedelta
 from typing import Any, Optional, Union
 from uuid import UUID
@@ -148,7 +149,9 @@ class BaseReportState:
             email_config = json.loads(email_recipient.recipient_config_json)
             existing_target = email_config.get("target", "")
             existing_emails = [
-                email.strip() for email in existing_target.split(",") if email.strip()
+                email.strip()
+                for email in re.split(r"[,;]", existing_target)
+                if email.strip()
             ]
 
             # Add new emails, avoiding duplicates
@@ -187,7 +190,7 @@ class BaseReportState:
                     # Parse target to separate channels (#) from DMs (@)
                     target_items = [
                         item.strip()
-                        for item in original_target.split(",")
+                        for item in re.split(r"[,;]", original_target)
                         if item.strip()
                     ]
                     im_targets = [item for item in target_items if item.startswith("@")]
