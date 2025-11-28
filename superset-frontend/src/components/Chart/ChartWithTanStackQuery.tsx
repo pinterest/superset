@@ -331,19 +331,13 @@ function ChartWithTanStackQuery({
     );
   }
 
-  const isPollingAsyncResults =
-    chartData?.asyncStatus &&
-    chartData.asyncStatus !== 'done' &&
-    chartData.asyncStatus !== 'error';
-
   if (
     !isLoading &&
     !isFetching &&
     !isError &&
     !error &&
     fetchStatus === 'idle' &&
-    ensureIsArray(queriesResponse).length === 0 &&
-    !isPollingAsyncResults
+    ensureIsArray(queriesResponse).length === 0
   ) {
     return (
       <EmptyStateBig

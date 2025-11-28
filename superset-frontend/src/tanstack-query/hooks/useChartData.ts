@@ -17,13 +17,15 @@
  * under the License.
  */
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
-import { useRef } from 'react';
-import { getChartDataRequest } from 'src/components/Chart/chartAction';
+import {
+  getChartDataRequest,
+  handleChartDataResponse,
+} from 'src/components/Chart/chartAction';
 import {
   type ChartDataResponseResult,
-  SupersetClient,
   ensureIsArray,
 } from '@superset-ui/core';
+import { getQuerySettings } from 'src/explore/exploreUtils';
 import { chartQueryKeys } from '../queryKeys';
 
 interface UseChartDataParams {
@@ -36,27 +38,12 @@ interface UseChartDataParams {
   setDataMask?: () => void;
 }
 
-interface AsyncEvent {
-  id?: string | null;
-  channel_id: string;
-  job_id: string;
-  user_id?: string;
-  status: 'pending' | 'running' | 'done' | 'error';
-  errors?: any[];
-  result_url: string | null;
-}
-
 interface ChartDataResponse {
   json: {
     result: ChartDataResponseResult[];
   };
   response: Response;
-  // Fields for async query tracking
-  asyncJobId?: string;
-  asyncStatus?: 'pending' | 'running' | 'done' | 'error';
 }
-
-const POLLING_INTERVAL = 500;
 
 /**
  * Custom hook to fetch chart data using TanStack Query
@@ -102,13 +89,6 @@ export function useChartData(
     'queryKey' | 'queryFn'
   >,
 ) {
-  // Track async job state across refetches
-  const asyncJobRef = useRef<{
-    jobId: string | null;
-  }>({
-    jobId: null,
-  });
-
   const query = useQuery({
     // Query key: uniquely identifies this query for caching and deduplication
     // TanStack Query will:
@@ -162,76 +142,6 @@ export function useChartData(
     queryFn: async ({ signal }: { signal?: AbortSignal }) => {
       const chartIdForLog = formData?.slice_id || 'unknown';
 
-      // If we have a job ID, we're polling for async results
-      if (asyncJobRef.current.jobId) {
-        try {
-          // Fetch async event status
-          const { json } = await SupersetClient.get({
-            endpoint: '/api/v1/async_event/',
-          });
-
-          const events = (json.result || []) as AsyncEvent[];
-          const event = events.find(
-            e => e.job_id === asyncJobRef.current.jobId,
-          );
-
-          if (!event) {
-            return {
-              response: new Response(),
-              json: { result: [] },
-              asyncJobId: asyncJobRef.current.jobId,
-              asyncStatus: 'pending' as const,
-            };
-          }
-
-          if (event.status === 'done') {
-            // Fetch the cached result
-            if (!event.result_url) {
-              throw new Error(
-                'Async query completed but no result_url provided',
-              );
-            }
-
-            const { json: resultJson } = await SupersetClient.get({
-              endpoint: event.result_url,
-            });
-
-            // Clear job ID so we don't keep polling
-            asyncJobRef.current.jobId = null;
-
-            const data = ensureIsArray(resultJson);
-
-            return {
-              response: new Response(),
-              json: { result: data },
-              asyncStatus: 'done' as const,
-            };
-          }
-
-          if (event.status === 'error') {
-            // Clear job ID and throw error
-            asyncJobRef.current.jobId = null;
-            const errorMessage =
-              event.errors?.[0]?.message || 'Async query failed';
-            throw new Error(errorMessage);
-          }
-
-          // Still pending or running, keep polling
-          return {
-            response: new Response(),
-            json: { result: [] },
-            asyncJobId: asyncJobRef.current.jobId,
-            asyncStatus: event.status,
-          };
-        } catch (error) {
-          console.error(
-            `[Chart ${chartIdForLog}] Error polling async job:`,
-            error,
-          );
-          throw error;
-        }
-      }
-
       try {
         const requestParams: Record<string, unknown> = {
           signal,
@@ -253,34 +163,21 @@ export function useChartData(
           setDataMask,
         });
 
-        // Check if this is an async query (202 response)
-        if (chartDataResponse.response.status === 202) {
-          const asyncResponse = chartDataResponse.json as { job_id?: string };
-
-          if (asyncResponse?.job_id) {
-            // Store job ID for polling
-            asyncJobRef.current.jobId = asyncResponse.job_id;
-
-            return {
-              response: chartDataResponse.response,
-              json: { result: [] },
-              asyncJobId: asyncResponse.job_id,
-              asyncStatus: 'pending' as const,
-            };
-          }
-        }
-
-        // Synchronous response (200)
-        const result = chartDataResponse.json.result || chartDataResponse.json;
-        const queriesResponse = ensureIsArray(result);
+        // Use the existing global polling system for async queries
+        // This handles 202 responses by registering with the shared polling loop
+        // instead of creating per-chart polling requests
+        const [useLegacyApi] = getQuerySettings(formData);
+        const queriesResponse = await handleChartDataResponse(
+          chartDataResponse.response,
+          chartDataResponse.json,
+          useLegacyApi,
+        );
 
         return {
           response: chartDataResponse.response,
-          json: { result: queriesResponse },
-          asyncStatus: 'done' as const,
+          json: { result: ensureIsArray(queriesResponse) },
         };
       } catch (error) {
-        asyncJobRef.current.jobId = null;
         console.error(`[Chart ${chartIdForLog}] Query failed:`, error);
         throw error;
       }
@@ -306,24 +203,6 @@ export function useChartData(
     // - If force=true, always refetch (ignore cache)
     // - Otherwise respect default (false = use cache if fresh)
     refetchOnMount: force ? 'always' : false,
-
-    // Use native polling for async queries
-    // Only poll if we have an async job in progress
-    refetchInterval: (data: ChartDataResponse | undefined) => {
-      const isPolling =
-        data?.asyncStatus &&
-        data.asyncStatus !== 'done' &&
-        data.asyncStatus !== 'error';
-
-      if (isPolling) {
-        return POLLING_INTERVAL;
-      }
-
-      return false;
-    },
-
-    // Prevent query from being disabled while polling
-    refetchIntervalInBackground: false,
 
     // Allow component to override any options
     ...options,
