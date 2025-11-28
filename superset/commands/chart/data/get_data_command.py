@@ -22,6 +22,7 @@ from flask_babel import gettext as _
 from superset.commands.base import BaseCommand
 from superset.commands.chart.exceptions import (
     ChartDataCacheLoadError,
+    ChartDataQueryAuthenticationError,
     ChartDataQueryFailedError,
 )
 from superset.common.query_context import QueryContext
@@ -50,6 +51,19 @@ class ChartDataCommand(BaseCommand):
 
         for query in payload["queries"]:
             if query.get("error"):
+                error_msg = str(query["error"])
+                # Check if this is an authentication error
+                auth_error_indicators = [
+                    "not identified",
+                    "authentication",
+                    "USER_NOT_FOUND",
+                    "unauthorized",
+                    "not authorized",
+                ]
+                if any(indicator.lower() in error_msg.lower() for indicator in auth_error_indicators):
+                    raise ChartDataQueryAuthenticationError(
+                        _("Error: %(error)s", error=query["error"])
+                    )
                 raise ChartDataQueryFailedError(
                     _("Error: %(error)s", error=query["error"])
                 )

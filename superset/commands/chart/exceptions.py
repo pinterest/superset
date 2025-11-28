@@ -136,7 +136,11 @@ class ChartForbiddenError(ForbiddenError):
 
 
 class ChartDataQueryFailedError(CommandException):
-    pass
+    status = 400
+
+
+class ChartDataQueryAuthenticationError(CommandException):
+    status = 401
 
 
 class ChartDataCacheLoadError(CommandException):
