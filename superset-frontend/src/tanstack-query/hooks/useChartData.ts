@@ -67,15 +67,6 @@ const POLLING_INTERVAL = 500;
  * - Retries on failure
  * - Background refetching
  * - Loading and error states
- * - Concurrency control (max 6 concurrent requests)
- *
- * Benefits over Redux approach:
- * 1. Automatic caching - navigate back to dashboard and charts load instantly!
- * 2. Request deduplication - 10 charts with same config = 1 API call
- * 3. Concurrency limiting - prevents overwhelming server with 50+ simultaneous requests
- * 4. Better UX - loading states, error boundaries, retry logic
- * 5. Less boilerplate - no actions, reducers, selectors needed
- * 6. DevTools - see all queries, cache state, network requests in real-time
  *
  * @example Basic usage
  * const { data, isLoading, error } = useChartData({
