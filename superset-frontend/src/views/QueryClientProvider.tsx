@@ -23,7 +23,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: 2,
+      retry: 1,
 
       // Exponential backoff for retries
       retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
@@ -37,7 +37,7 @@ const queryClient = new QueryClient({
       // Don't refetch on mount if data is fresh
       refetchOnMount: false,
 
-      // DO refetch when reconnecting
+      // Refetch when reconnecting
       refetchOnReconnect: true,
     },
   },
@@ -52,7 +52,6 @@ export const QueryClientProviderWrapper: React.FC<
 > = ({ children }) => (
   <QueryClientProvider client={queryClient}>
     {children}
-    {/* React Query DevTools - only in development */}
     {process.env.NODE_ENV === 'development' && (
       <ReactQueryDevtools initialIsOpen={false} position="bottom-right" />
     )}

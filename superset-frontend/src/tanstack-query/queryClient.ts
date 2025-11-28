@@ -18,17 +18,6 @@
  */
 import { QueryClient } from '@tanstack/react-query';
 
-/**
- * Global QueryClient configuration for TanStack Query
- *
- * This replaces Redux for async data fetching with:
- * - Automatic caching
- * - Request deduplication
- * - Background refetching
- * - Automatic retries
- * - Better loading/error states
- * - Concurrency control (max 6 concurrent queries)
- */
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -40,8 +29,8 @@ export const queryClient = new QueryClient({
       // After this time, cached data will be garbage collected
       cacheTime: 10 * 60 * 1000, // v4: cacheTime, v5: gcTime
 
-      // Retry failed requests 2 times before giving up
-      retry: 2,
+      // Retry failed requests 1 time before giving up
+      retry: 1,
 
       // Exponential backoff for retries: 1s, 2s, 4s (max 30s)
       retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),

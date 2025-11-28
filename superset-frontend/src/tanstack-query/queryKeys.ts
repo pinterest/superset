@@ -120,29 +120,3 @@ export const datasourceQueryKeys = {
   samples: (datasourceId: string) =>
     [...datasourceQueryKeys.all, datasourceId, 'samples'] as const,
 };
-
-/**
- * Example Usage:
- *
- * // In a component:
- * const { data } = useQuery({
- *   queryKey: chartQueryKeys.byFormData(formData),
- *   queryFn: () => fetchChartData(formData),
- * });
- *
- * // Invalidate specific dashboard's charts:
- * queryClient.invalidateQueries({
- *   queryKey: chartQueryKeys.byDashboard(123),
- * });
- *
- * // Invalidate all chart queries:
- * queryClient.invalidateQueries({
- *   queryKey: chartQueryKeys.all,
- * });
- *
- * // Prefetch a chart (before user navigates):
- * queryClient.prefetchQuery({
- *   queryKey: chartQueryKeys.byFormData(formData),
- *   queryFn: () => fetchChartData(formData),
- * });
- */
