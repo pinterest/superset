@@ -17,14 +17,14 @@
  * under the License.
  */
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
+import { useRef } from 'react';
+import { getChartDataRequest } from 'src/components/Chart/chartAction';
 import {
-  getChartDataRequest,
-  handleChartDataResponse,
-} from 'src/components/Chart/chartAction';
-import { type ChartDataResponseResult } from '@superset-ui/core';
-import { getQuerySettings } from 'src/explore/exploreUtils';
+  type ChartDataResponseResult,
+  SupersetClient,
+  ensureIsArray,
+} from '@superset-ui/core';
 import { chartQueryKeys } from '../queryKeys';
-import { acquireQuerySlot, releaseQuerySlot } from '../queryClient';
 
 interface UseChartDataParams {
   formData: any;
@@ -36,12 +36,27 @@ interface UseChartDataParams {
   setDataMask?: () => void;
 }
 
+interface AsyncEvent {
+  id?: string | null;
+  channel_id: string;
+  job_id: string;
+  user_id?: string;
+  status: 'pending' | 'running' | 'done' | 'error';
+  errors?: any[];
+  result_url: string | null;
+}
+
 interface ChartDataResponse {
   json: {
     result: ChartDataResponseResult[];
   };
   response: Response;
+  // Fields for async query tracking
+  asyncJobId?: string;
+  asyncStatus?: 'pending' | 'running' | 'done' | 'error';
 }
+
+const POLLING_INTERVAL = 500;
 
 /**
  * Custom hook to fetch chart data using TanStack Query
@@ -96,7 +111,14 @@ export function useChartData(
     'queryKey' | 'queryFn'
   >,
 ) {
-  return useQuery({
+  // Track async job state across refetches
+  const asyncJobRef = useRef<{
+    jobId: string | null;
+  }>({
+    jobId: null,
+  });
+
+  const query = useQuery({
     // Query key: uniquely identifies this query for caching and deduplication
     // TanStack Query will:
     // - Cache responses by this key
@@ -146,25 +168,89 @@ export function useChartData(
       },
     ],
 
-    // Query function: how to fetch the data
-    // TanStack Query provides:
-    // - signal: AbortSignal for request cancellation
-    // - queryKey: the key (in case you need it)
-    queryFn: async ({ signal }) => {
-      // Acquire a query slot (limits concurrent requests)
-      await acquireQuerySlot();
+    queryFn: async ({ signal }: { signal?: AbortSignal }) => {
+      const chartIdForLog = formData?.slice_id || 'unknown';
+
+      // If we have a job ID, we're polling for async results
+      if (asyncJobRef.current.jobId) {
+        try {
+          // Fetch async event status
+          const { json } = await SupersetClient.get({
+            endpoint: '/api/v1/async_event/',
+          });
+
+          const events = (json.result || []) as AsyncEvent[];
+          const event = events.find(
+            e => e.job_id === asyncJobRef.current.jobId,
+          );
+
+          if (!event) {
+            return {
+              response: new Response(),
+              json: { result: [] },
+              asyncJobId: asyncJobRef.current.jobId,
+              asyncStatus: 'pending' as const,
+            };
+          }
+
+          if (event.status === 'done') {
+            // Fetch the cached result
+            if (!event.result_url) {
+              throw new Error(
+                'Async query completed but no result_url provided',
+              );
+            }
+
+            const { json: resultJson } = await SupersetClient.get({
+              endpoint: event.result_url,
+            });
+
+            // Clear job ID so we don't keep polling
+            asyncJobRef.current.jobId = null;
+
+            const data = ensureIsArray(resultJson);
+
+            return {
+              response: new Response(),
+              json: { result: data },
+              asyncStatus: 'done' as const,
+            };
+          }
+
+          if (event.status === 'error') {
+            // Clear job ID and throw error
+            asyncJobRef.current.jobId = null;
+            const errorMessage =
+              event.errors?.[0]?.message || 'Async query failed';
+            throw new Error(errorMessage);
+          }
+
+          // Still pending or running, keep polling
+          return {
+            response: new Response(),
+            json: { result: [] },
+            asyncJobId: asyncJobRef.current.jobId,
+            asyncStatus: event.status,
+          };
+        } catch (error) {
+          console.error(
+            `[Chart ${chartIdForLog}] Error polling async job:`,
+            error,
+          );
+          throw error;
+        }
+      }
 
       try {
         const requestParams: Record<string, unknown> = {
-          signal, // Allows TanStack Query to cancel in-flight requests
+          signal,
         };
 
         if (dashboardId) {
           requestParams.dashboard_id = dashboardId;
         }
 
-        // Use existing Superset API wrapper
-        // This maintains compatibility with existing backend expectations
+        // Make the initial API request
         const chartDataResponse = await getChartDataRequest({
           formData,
           resultFormat,
@@ -176,33 +262,49 @@ export function useChartData(
           setDataMask,
         });
 
-        // Handle async queries (polling for long-running queries)
-        // If GlobalAsyncQueries is enabled and query returns 202:
-        // - Initial response contains job_id
-        // - handleChartDataResponse calls waitForAsyncData()
-        // - waitForAsyncData() polls /api/v1/async_event/ until job completes
-        // - Once done, fetches final result from result_url
-        const [useLegacyApi] = getQuerySettings(formData);
-        const queriesResponse = await handleChartDataResponse(
-          chartDataResponse.response,
-          chartDataResponse.json,
-          useLegacyApi,
-        );
+        // Check if this is an async query (202 response)
+        if (chartDataResponse.response.status === 202) {
+          const asyncResponse = chartDataResponse.json as { job_id?: string };
 
-        // Return in the expected format
+          if (asyncResponse?.job_id) {
+            // Store job ID for polling
+            asyncJobRef.current.jobId = asyncResponse.job_id;
+
+            return {
+              response: chartDataResponse.response,
+              json: { result: [] },
+              asyncJobId: asyncResponse.job_id,
+              asyncStatus: 'pending' as const,
+            };
+          }
+        }
+
+        // Synchronous response (200)
+        const result = chartDataResponse.json.result || chartDataResponse.json;
+        const queriesResponse = ensureIsArray(result);
+
         return {
           response: chartDataResponse.response,
           json: { result: queriesResponse },
+          asyncStatus: 'done' as const,
         };
-      } finally {
-        // Always release the slot, even if request fails
-        releaseQuerySlot();
+      } catch (error) {
+        asyncJobRef.current.jobId = null;
+        console.error(`[Chart ${chartIdForLog}] Query failed:`, error);
+        throw error;
       }
     },
 
     // Only enable query if we have required data
     // Prevents unnecessary API calls for charts that aren't ready
-    enabled: !!formData && formData.datasource && options?.enabled !== false,
+    enabled: (() => {
+      const hasFormData = !!formData;
+      const hasDatasource = !!formData?.datasource;
+      const optionsEnabled = options?.enabled !== false;
+      const isEnabled = hasFormData && hasDatasource && optionsEnabled;
+
+      return isEnabled;
+    })(),
 
     // Stale time configuration
     // - If force=true, data is immediately stale (refetch right away)
@@ -214,63 +316,27 @@ export function useChartData(
     // - Otherwise respect default (false = use cache if fresh)
     refetchOnMount: force ? 'always' : false,
 
+    // Use native polling for async queries
+    // Only poll if we have an async job in progress
+    refetchInterval: (data: ChartDataResponse | undefined) => {
+      const isPolling =
+        data?.asyncStatus &&
+        data.asyncStatus !== 'done' &&
+        data.asyncStatus !== 'error';
+
+      if (isPolling) {
+        return POLLING_INTERVAL;
+      }
+
+      return false;
+    },
+
+    // Prevent query from being disabled while polling
+    refetchIntervalInBackground: false,
+
     // Allow component to override any options
     ...options,
   });
-}
 
-/**
- * Example usage in a Chart component:
- *
- * function Chart({ formData, dashboardId }) {
- *   const { data, isLoading, error, refetch } = useChartData({
- *     formData,
- *     dashboardId,
- *   });
- *
- *   if (isLoading) {
- *     return <LoadingSpinner />;
- *   }
- *
- *   if (error) {
- *     return (
- *       <ErrorBoundary>
- *         <div>Error: {error.message}</div>
- *         <button onClick={() => refetch()}>Retry</button>
- *       </ErrorBoundary>
- *     );
- *   }
- *
- *   if (data) {
- *     return <ChartRenderer data={data.json.result[0]} />;
- *   }
- *
- *   return null;
- * }
- *
- * How async queries work:
- * 1. Initial request returns:
- *    - Status 200: Query already cached, return results immediately
- *    - Status 202: Query running async, return job_id
- * 2. If 202, handleChartDataResponse() calls waitForAsyncData():
- *    - Registers listener for job_id
- *    - Background polling/WebSocket checks /api/v1/async_event/
- *    - Waits for job status = 'done'
- *    - Fetches final result from result_url
- * 3. TanStack Query sees this as a single async operation
- *    - Chart shows loading spinner while polling
- *    - Once complete, chart renders with data
- *    - Result is cached for future use
- *
- * Performance comparison:
- *
- * Dashboard with 50 charts:
- * - Before (Redux): 50 API calls simultaneously (server overwhelmed!)
- * - After (TanStack):
- *   - Max 6 concurrent requests (server-friendly)
- *   - 40 unique queries (dedupe 10 identical configs)
- *   - 0 on revisit (cached!)
- *   - Async queries work seamlessly (polling handled internally)
- *
- * Result: 60-90% fewer API calls + controlled concurrency + async query support! 🚀
- */
+  return query;
+}

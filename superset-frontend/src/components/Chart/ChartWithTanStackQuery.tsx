@@ -16,24 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-/**
- * Chart component using TanStack Query for data fetching
- *
- * This is a modernized version of Chart.jsx that uses:
- * - Functional component instead of class component
- * - useChartData hook instead of Redux actions
- * - Automatic caching and request deduplication
- *
- * Benefits:
- * - Less code (no Redux boilerplate)
- * - Automatic caching (5 min)
- * - Request deduplication
- * - Better error handling
- * - Automatic retries
- */
-
-import { useMemo, useRef, useCallback } from 'react';
+import { useMemo, useRef, useCallback, memo } from 'react';
 import {
   ensureIsArray,
   FeatureFlag,
@@ -44,9 +27,10 @@ import {
   QueryFormData,
   AnnotationData,
   JsonObject,
-  DataRecordFilters,
   PlainObject,
+  SqlaFormData,
 } from '@superset-ui/core';
+import type { Datasource } from 'src/explore/types';
 import { PLACEHOLDER_DATASOURCE } from 'src/dashboard/constants';
 import Loading from 'src/components/Loading';
 import { EmptyStateBig } from 'src/components/EmptyState';
@@ -58,9 +42,67 @@ import { isCurrentUserBot } from 'src/utils/isBot';
 import { ChartSource } from 'src/types/ChartSource';
 import { ResourceStatus } from 'src/hooks/apiResources/apiResources';
 import { useChartData } from 'src/tanstack-query';
+import { Dispatch } from 'redux';
 import ChartRenderer from './ChartRenderer';
 import { ChartErrorMessage } from './ChartErrorMessage';
 import { getChartRequiredFieldsMissingMessage } from '../../utils/getChartRequiredFieldsMissingMessage';
+
+type Actions = {
+  logEvent(
+    LOG_ACTIONS_RENDER_CHART: string,
+    arg1: {
+      slice_id: number;
+      has_err: boolean;
+      error_details: string;
+      start_offset: number;
+      ts: number;
+      duration: number;
+    },
+  ): Dispatch;
+  chartRenderingFailed(
+    arg0: string,
+    chartId: number,
+    arg2: string | null,
+  ): Dispatch;
+  postChartFormData(
+    formData: SqlaFormData,
+    arg1: boolean,
+    timeout: number | undefined,
+    chartId: number,
+    dashboardId: number | undefined,
+    ownState: JsonObject | undefined,
+  ): Dispatch;
+};
+
+interface ChartWithTanStackQueryProps {
+  annotationData?: AnnotationData;
+  actions: Actions;
+  chartId: number;
+  datasource?: Datasource;
+  dashboardId?: number;
+  initialValues?: object;
+  formData: QueryFormData;
+  labelsColor?: string;
+  labelsColorMap?: string;
+  sharedLabelColors?: string;
+  width: number;
+  height: number;
+  setControlValue: Function;
+  timeout?: number;
+  vizType: string;
+  triggerRender?: boolean;
+  force?: boolean;
+  isFiltersInitialized?: boolean;
+  addFilter?: (type: string) => void;
+  onQuery?: () => void;
+  onFilterMenuOpen?: (chartId: number, column: string) => void;
+  onFilterMenuClose?: (chartId: number, column: string) => void;
+  ownState?: JsonObject;
+  postTransformProps?: Function;
+  datasetsStatus?: 'loading' | 'error' | 'complete';
+  isInView?: boolean;
+  emitCrossFilters?: boolean;
+}
 
 const BLANK = {};
 const NONEXISTENT_DATASET = t(
@@ -116,41 +158,11 @@ const MonospaceDiv = styled.div`
   white-space: pre-wrap;
 `;
 
-interface ChartWithTanStackQueryProps {
-  actions?: JsonObject;
-  chartId: number;
-  formData: QueryFormData;
-  dashboardId?: number;
-  timeout?: number;
-  force?: boolean;
-  ownState?: JsonObject;
-  width?: number;
-  height?: number;
-  vizType: string;
-  datasource?: PlainObject;
-  datasetsStatus?: 'loading' | 'error' | 'complete';
-  annotationData?: AnnotationData;
-  setControlValue?: (...args: unknown[]) => void;
-  postTransformProps?: (props: unknown) => unknown;
-  labelsColor?: JsonObject;
-  labelsColorMap?: JsonObject;
-  addFilter?: (...args: unknown[]) => void;
-  onFilterMenuOpen?: (...args: unknown[]) => void;
-  onFilterMenuClose?: (...args: unknown[]) => void;
-  onQuery?: () => void;
-  initialValues?: DataRecordFilters;
-  isInView?: boolean;
-  emitCrossFilters?: boolean;
-  triggerRender?: boolean;
-  isFiltersInitialized?: boolean;
-}
-
 function ChartWithTanStackQuery({
   actions,
   chartId,
   formData,
   dashboardId,
-  timeout, // eslint-disable-line @typescript-eslint/no-unused-vars
   force = false,
   ownState,
   width,
@@ -163,6 +175,7 @@ function ChartWithTanStackQuery({
   postTransformProps,
   labelsColor,
   labelsColorMap,
+  sharedLabelColors,
   addFilter = () => BLANK,
   onFilterMenuOpen = () => BLANK,
   onFilterMenuClose = () => BLANK,
@@ -176,30 +189,49 @@ function ChartWithTanStackQuery({
   const renderStartTime = useRef<number>(0);
   const renderContainerStartTime = useRef<number>(0);
 
+  // Memoize formData to prevent re-renders when parent recreates the object
+  // The object references change on every Redux update, even though content is the same.
+  // This defensive memoization prevents unnecessary re-renders at the component level.
+  const memoizedFormData = useMemo(
+    () => formData,
+    [
+      // Only re-memoize if actual content changes
+      chartId,
+      formData?.slice_id,
+      formData?.datasource,
+      formData?.viz_type,
+      JSON.stringify(formData?.filters || []),
+      JSON.stringify(formData?.adhoc_filters || []),
+      JSON.stringify(formData?.extra_filters || []),
+      formData?.time_range,
+      JSON.stringify(formData?.groupby || []),
+      JSON.stringify(formData?.metrics || []),
+      formData?.limit,
+      formData?.row_limit,
+      // Add other critical formData fields that affect queries
+    ],
+  );
+
   const handleRenderContainerFailure = useCallback(
     (error: Error, info: { componentStack: string }) => {
       logging.warn(error);
 
       // Call Redux action for backward compatibility
-      if (actions?.chartRenderingFailed) {
-        actions.chartRenderingFailed(
-          error.toString(),
-          chartId,
-          info ? info.componentStack : null,
-        );
-      }
+      actions.chartRenderingFailed(
+        error.toString(),
+        chartId,
+        info ? info.componentStack : null,
+      );
 
       // Log to analytics
-      if (actions?.logEvent) {
-        actions.logEvent(LOG_ACTIONS_RENDER_CHART, {
-          slice_id: chartId,
-          has_err: true,
-          error_details: error.toString(),
-          start_offset: renderStartTime.current,
-          ts: new Date().getTime(),
-          duration: Logger.getTimestamp() - renderStartTime.current,
-        });
-      }
+      actions.logEvent(LOG_ACTIONS_RENDER_CHART, {
+        slice_id: chartId,
+        has_err: true,
+        error_details: error.toString(),
+        start_offset: renderStartTime.current,
+        ts: new Date().getTime(),
+        duration: Logger.getTimestamp() - renderStartTime.current,
+      });
     },
     [chartId, actions],
   );
@@ -208,13 +240,12 @@ function ChartWithTanStackQuery({
     data: chartData,
     isLoading,
     error,
-    // refetch,
     isFetching,
     isError,
-    isStale,
+    fetchStatus,
   } = useChartData(
     {
-      formData,
+      formData: memoizedFormData,
       dashboardId,
       force: force || getUrlParam(URL_PARAMS.force) || false,
       ownState,
@@ -242,51 +273,51 @@ function ChartWithTanStackQuery({
   const chartStatus =
     isLoading || isFetching ? 'loading' : isError ? 'failed' : 'success';
 
-  // Track render container start time for logging (like Chart.jsx line 296)
+  // Track render container start time for logging
   renderContainerStartTime.current = Logger.getTimestamp();
 
   // Handle failed state with error message
   if (chartStatus === 'failed') {
-    return (
-      queriesResponse?.map((queryResponse: PlainObject) => {
-        const message =
-          (error as Error | undefined)?.message || queryResponse?.message;
+    const errorElements = queriesResponse?.map((queryResponse: PlainObject) => {
+      const message =
+        (error as Error | undefined)?.message || queryResponse?.message;
 
-        if (
-          error !== undefined &&
-          (error as Error)?.message !== NONEXISTENT_DATASET &&
-          datasource === PLACEHOLDER_DATASOURCE &&
-          datasetsStatus !== ResourceStatus.Error
-        ) {
-          return (
-            <Styles
-              key={chartId}
-              data-ui-anchor="chart"
-              className="chart-container"
-              data-test="chart-container"
-              height={height}
-            >
-              <Loading />
-            </Styles>
-          );
-        }
-
+      if (
+        error !== undefined &&
+        (error as Error)?.message !== NONEXISTENT_DATASET &&
+        datasource === PLACEHOLDER_DATASOURCE &&
+        datasetsStatus !== ResourceStatus.Error
+      ) {
         return (
-          <ChartErrorMessage
+          <Styles
             key={chartId}
-            chartId={String(chartId)}
-            error={queryResponse?.errors?.[0]}
-            {...({
-              subtitle: <MonospaceDiv>{message}</MonospaceDiv>,
-              copyText: message,
-              link: queryResponse?.link ?? null,
-              source: dashboardId ? ChartSource.Dashboard : ChartSource.Explore,
-              stackTrace: null,
-            } as Record<string, unknown>)}
-          />
+            data-ui-anchor="chart"
+            className="chart-container"
+            data-test="chart-container"
+            height={height}
+          >
+            <Loading />
+          </Styles>
         );
-      }) ?? null
-    );
+      }
+
+      return (
+        <ChartErrorMessage
+          key={chartId}
+          chartId={String(chartId)}
+          error={queryResponse?.errors?.[0]}
+          {...({
+            subtitle: <MonospaceDiv>{message}</MonospaceDiv>,
+            copyText: message,
+            link: queryResponse?.link ?? null,
+            source: dashboardId ? ChartSource.Dashboard : ChartSource.Explore,
+            stackTrace: null,
+          } as Record<string, unknown>)}
+        />
+      );
+    });
+
+    return <>{errorElements}</>;
   }
 
   // Handle missing required fields (like Chart.jsx line 301-309)
@@ -300,12 +331,19 @@ function ChartWithTanStackQuery({
     );
   }
 
+  const isPollingAsyncResults =
+    chartData?.asyncStatus &&
+    chartData.asyncStatus !== 'done' &&
+    chartData.asyncStatus !== 'error';
+
   if (
     !isLoading &&
+    !isFetching &&
     !isError &&
     !error &&
-    isStale &&
-    ensureIsArray(queriesResponse).length === 0
+    fetchStatus === 'idle' &&
+    ensureIsArray(queriesResponse).length === 0 &&
+    !isPollingAsyncResults
   ) {
     return (
       <EmptyStateBig
@@ -348,11 +386,12 @@ function ChartWithTanStackQuery({
       data-test={vizType}
       datasource={datasource}
       emitCrossFilters={emitCrossFilters}
-      formData={formData}
+      formData={memoizedFormData}
       height={height}
       initialValues={initialValues}
       labelsColor={labelsColor}
       labelsColorMap={labelsColorMap}
+      sharedLabelColors={sharedLabelColors}
       onFilterMenuClose={onFilterMenuClose}
       onFilterMenuOpen={onFilterMenuOpen}
       ownState={ownState}
@@ -387,12 +426,79 @@ function ChartWithTanStackQuery({
         height={height}
         width={width}
       >
-        {chartData && queriesResponse
+        {chartData &&
+        queriesResponse &&
+        ensureIsArray(queriesResponse).length > 0
           ? renderChartContainer()
-          : renderSpinner(datasource?.database?.name)}
+          : // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion, @typescript-eslint/no-unsafe-member-access
+            renderSpinner((datasource?.database as any)?.name)}
       </Styles>
     </ErrorBoundary>
   );
 }
 
-export default ChartWithTanStackQuery;
+// Custom comparison function for React.memo
+// Since parent creates new formData object references even when content is same,
+// we need to compare the actual content, not just references
+function arePropsEqual(
+  prevProps: ChartWithTanStackQueryProps,
+  nextProps: ChartWithTanStackQueryProps,
+): boolean {
+  // Quick checks for primitives and stable references
+  if (
+    prevProps.chartId !== nextProps.chartId ||
+    prevProps.dashboardId !== nextProps.dashboardId ||
+    prevProps.force !== nextProps.force ||
+    prevProps.width !== nextProps.width ||
+    prevProps.height !== nextProps.height ||
+    prevProps.vizType !== nextProps.vizType ||
+    prevProps.isInView !== nextProps.isInView ||
+    prevProps.triggerRender !== nextProps.triggerRender ||
+    prevProps.isFiltersInitialized !== nextProps.isFiltersInitialized
+  ) {
+    return false; // Props changed, need to re-render
+  }
+
+  // Deep comparison for formData (the expensive one that changes reference frequently)
+  const prevFormData = prevProps.formData;
+  const nextFormData = nextProps.formData;
+
+  // Check key formData fields that affect the query
+  if (
+    prevFormData?.slice_id !== nextFormData?.slice_id ||
+    prevFormData?.datasource !== nextFormData?.datasource ||
+    prevFormData?.viz_type !== nextFormData?.viz_type ||
+    prevFormData?.time_range !== nextFormData?.time_range ||
+    prevFormData?.limit !== nextFormData?.limit ||
+    prevFormData?.row_limit !== nextFormData?.row_limit ||
+    JSON.stringify(prevFormData?.filters) !==
+      JSON.stringify(nextFormData?.filters) ||
+    JSON.stringify(prevFormData?.adhoc_filters) !==
+      JSON.stringify(nextFormData?.adhoc_filters) ||
+    JSON.stringify(prevFormData?.extra_filters) !==
+      JSON.stringify(nextFormData?.extra_filters) ||
+    JSON.stringify(prevFormData?.groupby) !==
+      JSON.stringify(nextFormData?.groupby) ||
+    JSON.stringify(prevFormData?.metrics) !==
+      JSON.stringify(nextFormData?.metrics)
+  ) {
+    return false; // formData content changed
+  }
+
+  // For other object props, do shallow comparison
+  // (These might also be changing reference, but less frequently)
+  if (
+    prevProps.datasource !== nextProps.datasource ||
+    prevProps.annotationData !== nextProps.annotationData ||
+    prevProps.labelsColor !== nextProps.labelsColor ||
+    prevProps.labelsColorMap !== nextProps.labelsColorMap
+  ) {
+    return false;
+  }
+
+  // All checks passed - props are effectively equal
+  return true;
+}
+
+// Wrap in React.memo to prevent render calls when props haven't changed
+export default memo(ChartWithTanStackQuery, arePropsEqual);

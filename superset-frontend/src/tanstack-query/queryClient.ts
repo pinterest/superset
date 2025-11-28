@@ -70,38 +70,3 @@ export const queryClient = new QueryClient({
     },
   },
 });
-
-// Concurrency limiter: limits concurrent queries to prevent overwhelming server
-// This is especially important for dashboards with many charts
-let activeQueries = 0;
-const MAX_CONCURRENT_QUERIES = 6; // Adjust based on your server capacity
-const queryQueue: Array<() => void> = [];
-
-/**
- * Acquires a query slot for concurrency control.
- * Returns a promise that resolves when a slot is available.
- */
-export const acquireQuerySlot = (): Promise<void> =>
-  new Promise(resolve => {
-    if (activeQueries < MAX_CONCURRENT_QUERIES) {
-      activeQueries += 1;
-      resolve();
-    } else {
-      queryQueue.push(() => {
-        activeQueries += 1;
-        resolve();
-      });
-    }
-  });
-
-/**
- * Releases a previously acquired query slot.
- * Triggers the next waiting promise in the queue if present.
- */
-export const releaseQuerySlot = (): void => {
-  activeQueries -= 1;
-  const next = queryQueue.shift();
-  if (next) {
-    next();
-  }
-};
