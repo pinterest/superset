@@ -33,7 +33,9 @@ import { bindActionCreators } from 'redux';
 import {
   LOG_ACTIONS_PERIODIC_RENDER_DASHBOARD,
   LOG_ACTIONS_FORCE_REFRESH_DASHBOARD,
+  LOG_ACTIONS_LOAD_DASHBOARD_WITH_CHARTS,
   LOG_ACTIONS_TOGGLE_EDIT_DASHBOARD,
+  Logger,
 } from 'src/logger/LogUtils';
 import { Icons } from '@superset-ui/core/components/Icons';
 import {
@@ -219,6 +221,7 @@ const Header = () => {
   const ctrlYTimeout = useRef(0);
   const ctrlZTimeout = useRef(0);
   const previousThemeRef = useRef(dashboardInfo.theme);
+  const prevIsLoadingRef = useRef();
 
   const dashboardTitle = layout[DASHBOARD_HEADER_ID]?.meta?.text;
   const { slug } = dashboardInfo;
@@ -322,6 +325,11 @@ const Header = () => {
     [boundActionCreators, chartIds, dashboardInfo],
   );
 
+  // mark time origin for dashboard load time measurement
+  useEffect(() => {
+    Logger.markTimeOrigin();
+  }, []);
+
   useEffect(() => {
     startPeriodicRender(refreshFrequency * 1000);
   }, [refreshFrequency, startPeriodicRender]);
@@ -358,6 +366,17 @@ const Header = () => {
     },
     [boundActionCreators],
   );
+
+  useEffect(() => {
+    if (prevIsLoadingRef.current && !isLoading) {
+      boundActionCreators.logEvent(LOG_ACTIONS_LOAD_DASHBOARD_WITH_CHARTS, {
+        duration: Logger.getTimestamp(),
+        dashboard_id: dashboardInfo.id,
+        chartCount: Object.keys(charts).length,
+      });
+    }
+    prevIsLoadingRef.current = isLoading;
+  }, [boundActionCreators,dashboardInfo.id, isLoading, charts]);
 
   const handleChangeText = useCallback(
     nextText => {

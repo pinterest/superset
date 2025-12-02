@@ -178,6 +178,7 @@ class AbstractEventLogger(ABC):
         object_ref: str | None = None,
         log_to_statsd: bool = True,
         database: Any | None = None,
+        payload: dict[str, Any] | None = None,
         **payload_override: dict[str, Any] | None,
     ) -> None:
         # pylint: disable=import-outside-toplevel
@@ -202,7 +203,10 @@ class AbstractEventLogger(ABC):
             except Exception as ex:
                 logging.warning("Failed to add user to db session: %s", ex)
                 user_id = None
-        payload = collect_request_payload()
+
+        if payload is None:
+            payload = collect_request_payload()
+
         if object_ref:
             payload["object_ref"] = object_ref
         if payload_override:
