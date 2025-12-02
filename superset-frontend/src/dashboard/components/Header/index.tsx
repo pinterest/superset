@@ -28,7 +28,11 @@ import { t } from '@apache-superset/core/translation';
 import { Global } from '@emotion/react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { LOG_ACTIONS_TOGGLE_EDIT_DASHBOARD } from 'src/logger/LogUtils';
+import {
+  LOG_ACTIONS_LOAD_DASHBOARD_WITH_CHARTS,
+  LOG_ACTIONS_TOGGLE_EDIT_DASHBOARD,
+  Logger,
+} from 'src/logger/LogUtils';
 import { Icons } from '@superset-ui/core/components/Icons';
 import {
   Button,
@@ -288,6 +292,7 @@ const Header = (): JSX.Element => {
   const ctrlYTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const ctrlZTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const previousThemeRef = useRef(dashboardInfo.theme);
+  const prevIsLoadingRef = useRef();
 
   const dashboardTitle = layout[DASHBOARD_HEADER_ID]?.meta?.text ?? '';
   const slug = dashboardInfo.slug ?? '';
@@ -353,6 +358,11 @@ const Header = (): JSX.Element => {
     logEvent: boundActionCreators.logEvent,
   });
 
+  // mark time origin for dashboard load time measurement
+  useEffect(() => {
+    Logger.markTimeOrigin();
+  }, []);
+
   // Track theme changes as unsaved changes, and sync ref when navigating between dashboards
   useEffect(() => {
     if (editMode && dashboardInfo.theme !== previousThemeRef.current) {
@@ -387,6 +397,17 @@ const Header = (): JSX.Element => {
     },
     [],
   );
+
+  useEffect(() => {
+    if (prevIsLoadingRef.current && !isLoading) {
+      boundActionCreators.logEvent(LOG_ACTIONS_LOAD_DASHBOARD_WITH_CHARTS, {
+        duration: Logger.getTimestamp(),
+        dashboard_id: dashboardInfo.id,
+        chartCount: Object.keys(charts).length,
+      });
+    }
+    prevIsLoadingRef.current = isLoading;
+  }, [boundActionCreators,dashboardInfo.id, isLoading, charts]);
 
   const handleChangeText = useCallback(
     (nextText: string) => {

@@ -136,7 +136,7 @@ class Dashboard extends PureComponent<DashboardProps> {
     const eventData: Record<string, unknown> = {
       is_soft_navigation: Logger.timeOriginOffset > 0,
       is_edit_mode: editMode,
-      mount_duration: Logger.getTimestamp(),
+      duration: Logger.getTimestamp(),
       is_empty: isDashboardEmpty(layout),
       is_published: isPublished,
       bootstrap_data_length: JSON.stringify(bootstrapData).length,

@@ -505,7 +505,7 @@ const SliceHeaderControls = (
         modalTitle={t('View table info')}
         modalBody={
           <ViewTableInfoModal
-            datasetId={Number(props.slice.datasource.split('__')[0])}
+            datasetId={Number(props.slice?.datasource?.split('__')[0])}
           />
         }
         draggable
