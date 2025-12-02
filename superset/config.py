@@ -568,6 +568,8 @@ DEFAULT_FEATURE_FLAGS: dict[str, bool] = {
     # domains in your TALISMAN_CONFIG
     "SLACK_ENABLE_AVATARS": False,
     "ENABLE_COLUMN_VALUES_CACHE": True,
+    # Enable dashboard automatic refresh
+    "ENABLE_DASHBOARD_AUTO_REFRESH": True,
 }
 
 # ------------------------------

@@ -23,6 +23,7 @@ import userEvent from '@testing-library/user-event';
 import fetchMock from 'fetch-mock';
 import { HeaderDropdownProps } from 'src/dashboard/components/Header/types';
 import injectCustomCss from 'src/dashboard/util/injectCustomCss';
+import * as uiCore from '@superset-ui/core';
 import { HeaderActionsDropdown } from '.';
 
 const createProps = (): HeaderDropdownProps => ({
@@ -225,6 +226,24 @@ test('should show the properties modal', async () => {
   setup(editModeOnProps);
   userEvent.click(screen.getByText('Edit properties'));
   expect(editModeOnProps.showPropertiesModal).toHaveBeenCalledTimes(1);
+});
+
+test('should NOT render "Set auto-refresh interval" when ENABLE_DASHBOARD_AUTO_REFRESH feature flag is false', async () => {
+  const isFeatureEnabledMock = jest
+    .spyOn(uiCore, 'isFeatureEnabled')
+    .mockImplementation(
+      (featureFlag: uiCore.FeatureFlag) =>
+        featureFlag !== uiCore.FeatureFlag.EnableDashboardAutoRefresh,
+    );
+
+  const mockedProps = createProps();
+  setup(mockedProps);
+
+  expect(
+    screen.queryByText('Set auto-refresh interval'),
+  ).not.toBeInTheDocument();
+
+  isFeatureEnabledMock.mockRestore();
 });
 
 describe('UNSAFE_componentWillReceiveProps', () => {

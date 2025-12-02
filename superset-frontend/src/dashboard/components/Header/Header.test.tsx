@@ -22,6 +22,7 @@ import fetchMock from 'fetch-mock';
 import { getExtensionsRegistry } from '@superset-ui/core';
 import setupExtensions from 'src/setup/setupExtensions';
 import getOwnerName from 'src/utils/getOwnerName';
+import * as uiCore from '@superset-ui/core';
 import { HeaderProps } from './types';
 import Header from '.';
 
@@ -417,4 +418,30 @@ test('should render MetadataBar when not in edit mode and not embedded', () => {
   expect(
     screen.getByText(mockedProps.dashboardInfo.changed_on_delta_humanized),
   ).toBeInTheDocument();
+});
+
+test('should call startPeriodicRender with 0 when ENABLE_DASHBOARD_AUTO_REFRESH feature flag is false', () => {
+  // Save original feature flags
+  // @ts-ignore
+  const originalFeatureFlags = global.featureFlags;
+
+  // @ts-ignore
+  global.featureFlags = {
+    [uiCore.FeatureFlag.EnableDashboardAutoRefresh]: false,
+  };
+
+  const startPeriodicRenderSpy = jest.spyOn(
+    Header.prototype,
+    'startPeriodicRender',
+  );
+
+  const mockedProps = createProps();
+  setup(mockedProps);
+
+  expect(startPeriodicRenderSpy).toHaveBeenCalledWith(0);
+
+  startPeriodicRenderSpy.mockRestore();
+  // Restore original feature flags
+  // @ts-ignore
+  global.featureFlags = originalFeatureFlags;
 });
