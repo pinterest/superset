@@ -24,6 +24,8 @@ import {
   Timer,
 } from '@superset-ui/core/components';
 import RowCountLabel from 'src/components/RowCountLabel';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
 import { getPinterestChartPills } from '@pinterest-plugins/src/explore/components/pinterestChartPills';
 
 const CHART_STATUS_MAP = {

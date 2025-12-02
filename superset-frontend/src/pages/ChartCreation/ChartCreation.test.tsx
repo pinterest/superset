@@ -86,6 +86,7 @@ const routeProps = {
   history,
   location: {} as any,
   match: {} as any,
+  addDangerToast: jest.fn(),
 };
 
 async function renderComponent(user = mockUser) {
