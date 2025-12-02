@@ -44,11 +44,13 @@ import {
   DatasetSelectLabel,
 } from 'src/features/datasets/DatasetSelectLabel';
 import { Icons } from '@superset-ui/core/components/Icons';
+import DatasourceAdvancedSearchModal from 'src/components/Datasource/DatasourceAdvancedSearchModal';
 
 export interface ChartCreationProps extends RouteComponentProps {
   user: UserWithPermissionsAndRoles;
   addSuccessToast: (arg: string) => void;
   theme: Theme;
+  addDangerToast: (arg: string) => void;
 }
 
 export type ChartCreationState = {
@@ -57,6 +59,7 @@ export type ChartCreationState = {
   vizType: string | null;
   canCreateDataset: boolean;
   loading: boolean;
+  showAdvancedSearch: boolean;
 };
 
 const ESTIMATED_NAV_HEIGHT = 56;
@@ -93,15 +96,22 @@ const StyledContainer = styled.div`
       flex-direction: row;
       align-items: center;
       margin-bottom: ${theme.marginMD}px;
+      gap: ${theme.marginXS}px;
 
-      & > div {
+      & .dataset-select {
+        flex: 1;
         min-width: 200px;
-        width: 300px;
       }
 
-      & > span {
+      & .dataset-actions {
+        display: flex;
+        align-items: center;
+        gap: ${theme.marginXS}px;
+        flex-shrink: 0;
+      }
+
+      & .help-text {
         color: ${theme.colorText};
-        margin-left: ${theme.margin}px;
       }
     }
 
@@ -190,6 +200,7 @@ export class ChartCreation extends PureComponent<
         props.user.roles,
       ),
       loading: hasDatasetParam,
+      showAdvancedSearch: false,
     };
 
     this.changeDatasource = this.changeDatasource.bind(this);
@@ -197,6 +208,10 @@ export class ChartCreation extends PureComponent<
     this.gotoSlice = this.gotoSlice.bind(this);
     this.loadDatasources = this.loadDatasources.bind(this);
     this.onVizTypeDoubleClick = this.onVizTypeDoubleClick.bind(this);
+    this.openAdvancedSearch = this.openAdvancedSearch.bind(this);
+    this.closeAdvancedSearch = this.closeAdvancedSearch.bind(this);
+    this.handleAdvancedSearchSelect =
+      this.handleAdvancedSearchSelect.bind(this);
   }
 
   componentDidMount() {
@@ -243,6 +258,18 @@ export class ChartCreation extends PureComponent<
     if (!this.isBtnDisabled()) {
       this.gotoSlice();
     }
+  }
+
+  openAdvancedSearch() {
+    this.setState({ showAdvancedSearch: true });
+  }
+
+  closeAdvancedSearch() {
+    this.setState({ showAdvancedSearch: false });
+  }
+
+  handleAdvancedSearchSelect(datasource: { label: string; value: string }) {
+    this.setState({ datasource });
   }
 
   loadDatasources(
@@ -336,18 +363,28 @@ export class ChartCreation extends PureComponent<
             status={this.state.datasource?.value ? 'finish' : 'process'}
             description={
               <StyledStepDescription className="dataset">
-                <AsyncSelect
-                  autoFocus
-                  ariaLabel={t('Dataset')}
-                  name="select-datasource"
-                  onChange={this.changeDatasource}
-                  options={this.loadDatasources}
-                  optionFilterProps={['id', 'table_name']}
-                  placeholder={t('Choose a dataset')}
-                  showSearch
-                  value={this.state.datasource}
-                />
-                {datasetHelpText}
+                <div className="dataset-select">
+                  <AsyncSelect
+                    autoFocus
+                    ariaLabel={t('Dataset')}
+                    name="select-datasource"
+                    onChange={this.changeDatasource}
+                    options={this.loadDatasources}
+                    optionFilterProps={['id', 'table_name']}
+                    placeholder={t('Choose a dataset')}
+                    showSearch
+                    value={this.state.datasource}
+                  />
+                </div>
+                <div className="dataset-actions">
+                  <Button
+                    buttonStyle="secondary"
+                    onClick={this.openAdvancedSearch}
+                  >
+                    {t('Advanced Search')}
+                  </Button>
+                  <span className="help-text">{datasetHelpText}</span>
+                </div>
               </StyledStepDescription>
             }
           />
@@ -381,6 +418,14 @@ export class ChartCreation extends PureComponent<
             {t('Create new chart')}
           </Button>
         </div>
+        <DatasourceAdvancedSearchModal
+          show={this.state.showAdvancedSearch}
+          onHide={this.closeAdvancedSearch}
+          onDatasourceSelect={this.handleAdvancedSearchSelect}
+          user={this.props.user}
+          addSuccessToast={this.props.addSuccessToast}
+          addDangerToast={this.props.addDangerToast}
+        />
       </StyledContainer>
     );
   }
