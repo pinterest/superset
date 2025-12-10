@@ -160,7 +160,8 @@ const ExploreChartPanel = ({
   const ChartHeaderExtension =
     extensionsRegistry.get('explore.chart.header') ?? DefaultHeader;
   const [splitSizes, setSplitSizes] = useState<PanelSizes>(
-    isFeatureEnabled(FeatureFlag.DatapanelClosedByDefault)
+    isFeatureEnabled(FeatureFlag.DatapanelClosedByDefault) ||
+      showMinimalChartView()
       ? INITIAL_SIZES
       : getItem(LocalStorageKeys.ChartSplitSizes, INITIAL_SIZES),
   );
@@ -214,7 +215,9 @@ const ExploreChartPanel = ({
   }, [updateQueryContext]);
 
   useEffect(() => {
-    setItem(LocalStorageKeys.ChartSplitSizes, splitSizes);
+    if (!showMinimalChartView()) {
+      setItem(LocalStorageKeys.ChartSplitSizes, splitSizes);
+    }
   }, [splitSizes]);
 
   const onDragEnd = useCallback((sizes: PanelSizes) => {
@@ -251,11 +254,11 @@ const ExploreChartPanel = ({
   const renderChart = useCallback(
     () => (
       <div
-        css={css`
-          min-height: 0;
-          flex: 1;
-          overflow: auto;
-        `}
+        css={css({
+          minHeight: 0,
+          flex: 1,
+          overflow: !showMinimalChartView() ? 'auto' : undefined,
+        })}
         ref={chartPanelRef}
       >
         {chartPanelWidth && chartPanelHeight && (
