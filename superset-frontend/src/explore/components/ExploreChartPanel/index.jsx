@@ -152,7 +152,8 @@ const ExploreChartPanel = ({
     height: chartPanelHeight,
   } = useResizeDetectorByObserver();
   const [splitSizes, setSplitSizes] = useState(
-    isFeatureEnabled(FeatureFlag.DatapanelClosedByDefault)
+    isFeatureEnabled(FeatureFlag.DatapanelClosedByDefault) ||
+      showMinimalChartView()
       ? INITIAL_SIZES
       : getItem(LocalStorageKeys.ChartSplitSizes, INITIAL_SIZES),
   );
@@ -206,7 +207,9 @@ const ExploreChartPanel = ({
   }, [updateQueryContext]);
 
   useEffect(() => {
-    setItem(LocalStorageKeys.ChartSplitSizes, splitSizes);
+    if (!showMinimalChartView()) {
+      setItem(LocalStorageKeys.ChartSplitSizes, splitSizes);
+    }
   }, [splitSizes]);
 
   const onDragEnd = useCallback(sizes => {
@@ -243,11 +246,11 @@ const ExploreChartPanel = ({
   const renderChart = useCallback(
     () => (
       <div
-        css={css`
-          min-height: 0;
-          flex: 1;
-          overflow: auto;
-        `}
+        css={css({
+          minHeight: 0,
+          flex: 1,
+          overflow: !showMinimalChartView() ? 'auto' : undefined,
+        })}
         ref={chartPanelRef}
       >
         {chartPanelWidth && chartPanelHeight && (
