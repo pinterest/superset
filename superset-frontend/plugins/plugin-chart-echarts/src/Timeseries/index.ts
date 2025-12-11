@@ -24,8 +24,6 @@ import thumbnail from './images/thumbnail.png';
 import {
   EchartsTimeseriesChartProps,
   EchartsTimeseriesFormData,
-  EchartsTimeseriesSeriesType,
-  TimeseriesChartTransformedProps,
 } from './types';
 
 // Re-export enums (runtime values)

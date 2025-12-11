@@ -33,7 +33,8 @@ export function getAdjustedAnomalyPointColor(
   if (score >= ANOMALY_SCORE_THRESHOLDS.HIGH) return theme.colors.error.base;
   if (score >= ANOMALY_SCORE_THRESHOLDS.MEDIUM)
     return theme.colors.warning.base;
-  return theme.colors.alert.base;
+  // theme.colors.alert was removed from SupersetTheme
+  return theme.colors.info.base;
 }
 
 export function getAdjustedAnomalyPointSize(
