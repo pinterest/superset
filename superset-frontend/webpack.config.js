@@ -701,16 +701,7 @@ if (isDevMode) {
     liveReload: false,
     host: devserverHost,
     port: devserverPort,
-    allowedHosts: [
-      ...new Set([
-        devserverHost,
-        'localhost',
-        '.localhost',
-        '127.0.0.1',
-        '::1',
-        '.local',
-      ]),
-    ],
+    allowedHosts: 'all', // Allow all hosts (needed for Docker networking)
     proxy: [() => proxyConfig],
     client: {
       overlay: {

@@ -96,8 +96,6 @@ services:
     restart: unless-stopped
     ports:
       - ${SUPERSET_PORT:-8088}:8088
-      # When in cypress-mode ->
-      - ${CYPRESS_PORT:-8081}:8081
     extra_hosts:
       - "host.docker.internal:host-gateway"
     user: *superset-user
@@ -180,6 +178,9 @@ services:
       WEBPACK_DEVSERVER_HOST: "0.0.0.0"
     ports:
       - "127.0.0.1:${NODE_PORT:-9000}:9000"  # exposing the dynamic webpack dev server
+    container_name: superset_node
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     command: ["/app/docker/docker-frontend.sh"]
     env_file:
       - path: docker/.env # default

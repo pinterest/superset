@@ -19,7 +19,7 @@ import functools
 import logging
 from datetime import datetime
 from io import BytesIO
-from typing import Any, Callable, cast
+from typing import Any, Callable, Optional, cast
 from zipfile import is_zipfile, ZipFile
 
 import prison
@@ -33,6 +33,7 @@ from flask_appbuilder.const import (
     API_LIST_TITLE_RIS_KEY,
     API_ORDER_COLUMNS_RIS_KEY,
 )
+from flask_appbuilder.hooks import before_request
 from flask_appbuilder.models.sqla.interface import SQLAInterface
 from flask_babel import gettext, ngettext
 from marshmallow import ValidationError
@@ -40,7 +41,7 @@ from sqlalchemy import case, func
 from werkzeug.wrappers import Response as WerkzeugResponse
 from werkzeug.wsgi import FileWrapper
 
-from superset import db
+from superset import db, is_feature_enabled
 from superset.charts.schemas import ChartEntityResponseSchema
 from superset.commands.dashboard.copy import CopyDashboardCommand
 from superset.commands.dashboard.create import CreateDashboardCommand

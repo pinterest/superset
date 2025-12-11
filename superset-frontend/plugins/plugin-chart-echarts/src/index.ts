@@ -75,12 +75,15 @@ export {
   buildQuery as buildQueryEchartsTimeseriesLine,
   lineTransformProps as lineTransformPropsEchartsTimeseriesLine,
 } from './Timeseries/Regular/Line';
-export {
+// Export enums as values
+export { EchartsTimeseriesSeriesType } from './Timeseries';
+
+// Export types explicitly
+export type {
   EchartsTimeseriesChartProps,
   EchartsTimeseriesFormData,
-  EchartsTimeseriesSeriesType,
   TimeseriesChartTransformedProps,
-} from './Timeseries/types';
+} from './Timeseries';
 export { default as EchartsTimeseriesVisualization } from './Timeseries/EchartsTimeseries';
 
 /**
