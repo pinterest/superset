@@ -2,7 +2,6 @@ import pandas as pd
 from typing import Optional
 
 from superset.utils.core import DTTM_ALIAS
-from superset.config import ANOMALY_DETECTION
 
 def anomaly_detection(
     df: pd.DataFrame,
@@ -33,6 +32,9 @@ def anomaly_detection(
     :param index: the name of the column containing the x-axis data
     :return: DataFrame with anomaly detection results, with temporal column at beginning if present
     """
+    # Lazy import to avoid circular import with superset.config
+    from superset.config import ANOMALY_DETECTION
+    
     if not ANOMALY_DETECTION:
         raise ValueError("ANOMALY_DETECTION function is not configured.")
 

@@ -581,6 +581,7 @@ if (isDevMode) {
     historyApiFallback: true,
     hot: true,
     port: devserverPort,
+    allowedHosts: 'all', // Allow all hosts (needed for Docker networking)
     proxy: [() => proxyConfig],
     client: {
       overlay: {

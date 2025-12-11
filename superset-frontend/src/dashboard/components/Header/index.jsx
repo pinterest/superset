@@ -372,11 +372,11 @@ const Header = () => {
       boundActionCreators.logEvent(LOG_ACTIONS_LOAD_DASHBOARD_WITH_CHARTS, {
         duration: Logger.getTimestamp(),
         dashboard_id: dashboardInfo.id,
-        chartCount: Object.keys(charts).length,
+        chartCount: chartIds.length, // chartIds is from useChartIds() hook
       });
     }
     prevIsLoadingRef.current = isLoading;
-  }, [boundActionCreators,dashboardInfo.id, isLoading, charts]);
+  }, [boundActionCreators, dashboardInfo.id, isLoading, chartIds]);
 
   const handleChangeText = useCallback(
     nextText => {

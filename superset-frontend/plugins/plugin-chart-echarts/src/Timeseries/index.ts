@@ -24,7 +24,17 @@ import thumbnail from './images/thumbnail.png';
 import {
   EchartsTimeseriesChartProps,
   EchartsTimeseriesFormData,
+  EchartsTimeseriesSeriesType,
+  TimeseriesChartTransformedProps,
 } from './types';
+
+// Re-export enums (runtime values)
+export { EchartsTimeseriesSeriesType, OrientationType } from './types';
+
+// Re-export types explicitly (webpack needs explicit exports, not export *)
+export type { EchartsTimeseriesChartProps } from './types';
+export type { EchartsTimeseriesFormData } from './types';
+export type { TimeseriesChartTransformedProps } from './types';
 import example from './images/Time-series_Chart.jpg';
 import { EchartsChartPlugin } from '../types';
 

@@ -98,8 +98,6 @@ services:
     restart: unless-stopped
     ports:
       - 8088:8088
-      # When in cypress-mode ->
-      - 8081:8081
     extra_hosts:
       - "host.docker.internal:host-gateway"
     user: *superset-user
@@ -181,8 +179,10 @@ services:
       # configuring the dev-server to use the host.docker.internal to connect to the backend
       superset: "http://superset:8088"
     ports:
-      - "127.0.0.1:9000:9000" 
+      - "9000:9000"
     container_name: superset_node
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     command: ["/app/docker/docker-frontend.sh"]
     env_file:
       - path: docker/.env # default
