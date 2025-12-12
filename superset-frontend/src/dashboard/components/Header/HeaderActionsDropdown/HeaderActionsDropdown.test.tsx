@@ -98,6 +98,9 @@ const guestUserProps = {
 };
 
 function setup(props: HeaderDropdownProps) {
+  window.featureFlags = {
+    [uiCore.FeatureFlag.EnableDashboardAutoRefresh]: true,
+  };
   return render(
     <div className="dashboard-header">
       <HeaderActionsDropdown {...props} />

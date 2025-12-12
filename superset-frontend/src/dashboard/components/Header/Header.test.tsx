@@ -133,6 +133,9 @@ const redoProps = {
 fetchMock.get('glob:*/csstemplateasyncmodelview/api/read', {});
 
 function setup(props: HeaderProps, initialState = {}) {
+  window.featureFlags = {
+    [uiCore.FeatureFlag.EnableDashboardAutoRefresh]: true,
+  };
   return render(
     <div className="dashboard">
       <Header {...props} />
