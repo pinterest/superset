@@ -204,7 +204,12 @@ class Header extends PureComponent {
 
   componentDidMount() {
     const { refreshFrequency } = this.props;
-    this.startPeriodicRender(refreshFrequency * 1000);
+    const refreshInterval = isFeatureEnabled(
+      FeatureFlag.EnableDashboardAutoRefresh,
+    )
+      ? refreshFrequency * 1000
+      : 0;
+    this.startPeriodicRender(refreshInterval);
     Logger.markTimeOrigin();
   }
 
