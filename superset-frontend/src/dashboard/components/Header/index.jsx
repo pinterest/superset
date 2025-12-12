@@ -331,6 +331,9 @@ const Header = () => {
   }, []);
 
   useEffect(() => {
+    if (!isFeatureEnabled(FeatureFlag.EnableDashboardAutoRefresh)) {
+      return;
+    }
     startPeriodicRender(refreshFrequency * 1000);
   }, [refreshFrequency, startPeriodicRender]);
 

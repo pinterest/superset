@@ -624,6 +624,8 @@ DEFAULT_FEATURE_FLAGS: dict[str, bool] = {
     # in addition to relative timeshifts (e.g., "1 day ago")
     "DATE_RANGE_TIMESHIFTS_ENABLED": False,
     "ENABLE_COLUMN_VALUES_CACHE": True,
+    # Enable dashboard automatic refresh
+    "ENABLE_DASHBOARD_AUTO_REFRESH": True,
 }
 
 # ------------------------------

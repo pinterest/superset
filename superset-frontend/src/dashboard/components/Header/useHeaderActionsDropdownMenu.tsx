@@ -19,7 +19,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Menu, MenuItem } from '@superset-ui/core/components/Menu';
-import { t } from '@superset-ui/core';
+import { FeatureFlag, isFeatureEnabled, t } from '@superset-ui/core';
 import { isEmpty } from 'lodash';
 import { URL_PARAMS } from 'src/constants';
 import { useShareMenuItems } from 'src/dashboard/components/menu/ShareMenuItems';
@@ -329,21 +329,23 @@ export const useHeaderActionsMenu = ({
     }
 
     // Auto-refresh interval
-    menuItems.push(
-      createModalMenuItem(
-        MenuKeys.AutorefreshModal,
-        <RefreshIntervalModal
-          addSuccessToast={addSuccessToast}
-          refreshFrequency={refreshFrequency}
-          refreshLimit={refreshLimit}
-          refreshWarning={refreshWarning}
-          onChange={changeRefreshInterval}
-          editMode={editMode}
-          refreshIntervalOptions={refreshIntervalOptions}
-          triggerNode={<div>{t('Set auto-refresh interval')}</div>}
-        />,
-      ),
-    );
+    if (isFeatureEnabled(FeatureFlag.EnableDashboardAutoRefresh)) {
+      menuItems.push(
+        createModalMenuItem(
+          MenuKeys.AutorefreshModal,
+          <RefreshIntervalModal
+            addSuccessToast={addSuccessToast}
+            refreshFrequency={refreshFrequency}
+            refreshLimit={refreshLimit}
+            refreshWarning={refreshWarning}
+            onChange={changeRefreshInterval}
+            editMode={editMode}
+            refreshIntervalOptions={refreshIntervalOptions}
+            triggerNode={<div>{t('Set auto-refresh interval')}</div>}
+          />,
+        ),
+      );
+    }
 
     return (
       <Menu
