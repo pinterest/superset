@@ -18,6 +18,7 @@
  */
 import { useCallback, useEffect, useRef } from 'react';
 import { useStore } from 'react-redux';
+import { FeatureFlag, isFeatureEnabled } from '@superset-ui/core';
 import { ChartState } from 'src/explore/types';
 import {
   LOG_ACTIONS_FORCE_REFRESH_DASHBOARD,
@@ -311,6 +312,9 @@ export const useHeaderAutoRefresh = ({
   );
 
   useEffect(() => {
+    if (!isFeatureEnabled(FeatureFlag.EnableDashboardAutoRefresh)) {
+      return;
+    }
     if (isPaused) {
       stopPeriodicRender();
       return;

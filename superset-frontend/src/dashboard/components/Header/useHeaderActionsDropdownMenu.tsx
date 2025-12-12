@@ -22,6 +22,7 @@ import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { Menu, MenuItem } from '@superset-ui/core/components/Menu';
 import { t } from '@apache-superset/core/translation';
+import { FeatureFlag, isFeatureEnabled } from '@superset-ui/core';
 import { isEmpty } from 'lodash';
 import { URL_PARAMS } from 'src/constants';
 import { useShareMenuItems } from 'src/dashboard/components/menu/ShareMenuItems';
@@ -202,14 +203,16 @@ export const useHeaderActionsMenu = ({
       });
 
       // Auto-refresh settings (session-only in view mode)
-      menuItems.push({
-        key: MenuKeys.AutorefreshModal,
-        label:
-          refreshFrequency > 0
-            ? t('Update auto-refresh')
-            : t('Set auto-refresh'),
-        disabled: isLoading,
-      });
+      if (isFeatureEnabled(FeatureFlag.EnableDashboardAutoRefresh)) {
+        menuItems.push({
+          key: MenuKeys.AutorefreshModal,
+          label:
+            refreshFrequency > 0
+              ? t('Update auto-refresh')
+              : t('Set auto-refresh'),
+          disabled: isLoading,
+        });
+      }
     }
 
     // Toggle fullscreen

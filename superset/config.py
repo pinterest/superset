@@ -807,6 +807,8 @@ DEFAULT_FEATURE_FLAGS: dict[str, bool] = {
     "ENABLE_JAVASCRIPT_CONTROLS": False,
     # Cache column values for filter controls
     "ENABLE_COLUMN_VALUES_CACHE": True,
+    # Enable dashboard automatic refresh
+    "ENABLE_DASHBOARD_AUTO_REFRESH": True,
 }
 
 # ------------------------------
