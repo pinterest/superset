@@ -13,7 +13,7 @@ const mockTheme: SupersetTheme = {
   colors: {
     error: { base: '#ff4d4f' },
     warning: { base: '#faad14' },
-    alert: { base: '#52c41a' },
+    info: { base: '#52c41a' },
   },
 } as SupersetTheme;
 
@@ -189,7 +189,7 @@ describe('anomalyDetection utils', () => {
       const dataPoint3 = series.data![2] as any;
       expect(dataPoint3.value).toEqual(['2025-01-10', 35]);
       expect(dataPoint3.anomalyScore).toBe(0.1);
-      expect(dataPoint3.itemStyle.color).toBe(mockTheme.colors.alert.base);
+      expect(dataPoint3.itemStyle.color).toBe(mockTheme.colors.info.base);
       expect(dataPoint3.symbolSize).toBe(6 + 0.1 * 4);
     });
 
