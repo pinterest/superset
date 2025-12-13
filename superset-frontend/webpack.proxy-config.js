@@ -159,6 +159,21 @@ module.exports = newManifest => {
     changeOrigin: true,
     cookieDomainRewrite: '', // remove cookie domain
     selfHandleResponse: true, // so that the onProxyRes takes care of sending the response
+    onProxyReq(proxyReq, req) {
+      // Forward X-Forwarded-* headers from nginx to Flask for proper OAuth redirects
+      const forwardedHost = req.headers['x-forwarded-host'];
+      const forwardedProto = req.headers['x-forwarded-proto'];
+      const forwardedFor = req.headers['x-forwarded-for'];
+      if (forwardedHost) {
+        proxyReq.setHeader('X-Forwarded-Host', forwardedHost);
+      }
+      if (forwardedProto) {
+        proxyReq.setHeader('X-Forwarded-Proto', forwardedProto);
+      }
+      if (forwardedFor) {
+        proxyReq.setHeader('X-Forwarded-For', forwardedFor);
+      }
+    },
     onProxyRes(proxyResponse, request, response) {
       try {
         copyHeaders(proxyResponse, response);
