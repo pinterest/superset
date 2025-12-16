@@ -492,6 +492,8 @@ const config = {
       'moment/min/moment-with-locales': false,
       // Alias for pinterest-plugins to make it accessible to other React components
       '@pinterest-plugins': path.resolve(APP_DIR, './pinterest-plugins'),
+      // Alias for superset-plugin-chart-dex to build from source (no pre-build needed)
+      'superset-plugin-chart-dex': path.resolve(APP_DIR, './pinterest-plugins/superset-plugin-chart-dex/src'),
       // Alias for superset-frontend to make it accessible by Pinterest plugins
       '@superset-frontend': path.resolve(APP_DIR, './'),
       // Fix deck.gl ecosystem ESM module issues by using CommonJS builds
