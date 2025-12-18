@@ -64,7 +64,8 @@
       // Needed to resolve @pinterest-plugins/ from superset-frontend/
       "@superset-frontend/src": ["./src"],
       "@pinterest-plugins/src": ["./pinterest-plugins/src"],
-      "superset-plugin-chart-dex": ["./pinterest-plugins/superset-plugin-chart-dex"],
+      "@pinterest-plugins/src/*": ["./pinterest-plugins/src/*"],
+      "superset-plugin-chart-dex": ["./pinterest-plugins/superset-plugin-chart-dex/src"],
       // Needed to resolve @superset-frontend/ from pinterst-plugins/
       "@superset-frontend": ["./"],
       "@superset-frontend/*": ["./*"]
