@@ -73,6 +73,7 @@ export interface Props {
   onChange: (annotations: Annotation[]) => void;
   refreshAnnotationData: (payload: Payload) => void;
   theme: SupersetTheme;
+  chartKey: string;
 }
 
 export interface PopoverState {
@@ -142,6 +143,7 @@ class AnnotationLayerControl extends PureComponent<Props, PopoverState> {
 
     this.props.refreshAnnotationData({
       annotation: newAnnotation,
+      key: this.props.chartKey,
       force: true,
     });
 
@@ -298,6 +300,7 @@ function mapStateToProps({
     annotationError: chart.annotationError ?? {},
     annotationQuery: chart.annotationQuery ?? {},
     vizType: explore.controls?.viz_type.value,
+    chartKey,
   };
 }
 
