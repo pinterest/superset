@@ -71,7 +71,6 @@ def test_fetch_url(
 
     result = fetch_url(data, initial_headers)
 
-<<<<<<< HEAD
     expected_url = (
         f"{base_url}/api/v1/chart/warm_up_cache"
         if not base_url.endswith("/")
