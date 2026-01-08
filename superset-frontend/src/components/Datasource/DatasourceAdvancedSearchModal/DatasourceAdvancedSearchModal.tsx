@@ -19,7 +19,7 @@ import DatasetTable from './DatasetTable';
 import FilterSidebar from './FilterSidebar';
 
 const StyledModal = styled(Modal)`
-  .ant-modal-body {
+  .antd5-modal-body {
     display: flex;
     flex-direction: row;
     padding: 0;
