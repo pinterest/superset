@@ -36,7 +36,7 @@ from superset.tasks.exceptions import ExecutorNotFoundError, InvalidExecutorErro
 from superset.tasks.utils import get_executor
 from superset.utils import json
 from superset.utils.date_parser import parse_human_datetime
-from superset.utils.urls import get_url_path
+from superset.utils.urls import get_url_path, is_secure_url
 
 logger = get_task_logger(__name__)
 logger.setLevel(logging.INFO)
@@ -295,6 +295,10 @@ def fetch_url(data: str, headers: dict[str, str]) -> dict[str, str]:
     result = {}
     try:
         url = get_url_path("ChartRestApi.warm_up_cache")
+
+        if is_secure_url(url):
+            logger.info("URL '%s' is secure. Adding Referer header.", url)
+            headers.update({"Referer": url})
 
         logger.info("Fetching %s with payload %s", url, data)
         req = request.Request(  # noqa: S310

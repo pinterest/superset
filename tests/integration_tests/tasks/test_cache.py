@@ -61,12 +61,13 @@ def test_fetch_url(
 
     initial_headers = {"Cookie": "cookie", "key": "value"}
     csrf_headers = initial_headers | {"X-CSRF-Token": "csrf_token"}
-    mock_fetch_csrf_token.return_value = csrf_headers
 
     # Conditionally add the Referer header and assert its presence
     if expected_referer:
         csrf_headers = csrf_headers | {"Referer": expected_referer}
         assert csrf_headers["Referer"] == expected_referer
+
+    mock_fetch_csrf_token.return_value = csrf_headers
 
     app.config["WEBDRIVER_BASEURL"] = base_url
     data = "data"
@@ -84,7 +85,7 @@ def test_fetch_url(
     mock_request_cls.assert_called_once_with(
         expected_url,  # Use the dynamic URL based on base_url
         data=data_encoded,
-        headers=initial_headers,
+        headers=csrf_headers,
         method="PUT",
     )
     # assert the same Request object is used
