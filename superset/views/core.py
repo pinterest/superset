@@ -18,7 +18,6 @@
 from __future__ import annotations
 
 import contextlib
-import json
 import logging
 from datetime import datetime, timedelta
 from typing import Any, Callable, cast

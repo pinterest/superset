@@ -36,6 +36,7 @@ from tests.integration_tests.test_app import app
         "With trailing slash (HTTPS)",
     ],
 )
+@mock.patch("superset.tasks.cache.fetch_csrf_token")
 @mock.patch("superset.tasks.cache.request.Request")
 @mock.patch("superset.tasks.cache.request.urlopen")
 @mock.patch("superset.tasks.cache.is_secure_url")
@@ -43,6 +44,7 @@ def test_fetch_url(
     mock_is_secure_url,
     mock_urlopen,
     mock_request_cls,
+    mock_fetch_csrf_token,
     base_url,
     expected_referer,
 ):
@@ -59,6 +61,7 @@ def test_fetch_url(
 
     initial_headers = {"Cookie": "cookie", "key": "value"}
     csrf_headers = initial_headers | {"X-CSRF-Token": "csrf_token"}
+    mock_fetch_csrf_token.return_value = csrf_headers
 
     # Conditionally add the Referer header and assert its presence
     if expected_referer:
@@ -71,7 +74,6 @@ def test_fetch_url(
 
     result = fetch_url(data, initial_headers)
 
-<<<<<<< HEAD
     expected_url = (
         f"{base_url}/api/v1/chart/warm_up_cache"
         if not base_url.endswith("/")

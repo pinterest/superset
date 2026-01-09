@@ -174,7 +174,6 @@ MODEL_API_RW_METHOD_PERMISSION_MAP = {
     "put_filters": "write",
     "put_colors": "write",
     "template_columns": "read",
-    "table_metadata": "read",
 }
 
 EXTRA_FORM_DATA_APPEND_KEYS = {

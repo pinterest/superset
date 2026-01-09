@@ -258,8 +258,8 @@ class DashboardMetadataStrategy(Strategy):  # pylint: disable=too-few-public-met
         super().__init__()
         self.schedule = schedule  # "hourly" or "daily"
 
-    def get_payloads(self) -> list[dict[str, int]]:
-        payloads = []
+    def get_tasks(self) -> list[dict[str, int]]:
+        tasks = []
 
         # add dashboards that have cache warmup configured
         cache_configured_dashboards = (
@@ -275,8 +275,8 @@ class DashboardMetadataStrategy(Strategy):  # pylint: disable=too-few-public-met
         ]
         for dashboard in cache_configured_dashboards:
             for chart in dashboard.slices:
-                payloads.append(get_payload(chart))
-        return payloads
+                tasks.append(get_task(chart))
+        return tasks
 
 
 strategies = [
