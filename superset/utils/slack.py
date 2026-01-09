@@ -68,7 +68,12 @@ def get_channels(types: Optional[list[SlackChannelTypes]] = None, limit: int = 9
                 limit=limit, cursor=cursor, exclude_archived=True, **extra_params
             )
         except SlackApiError as ex:
-            if ex.response.status_code == 429:
+            # Check if this is a rate limit error (429)
+            # ex.response may be a SlackResponse object or just a string
+            if (
+                hasattr(ex.response, "status_code")
+                and ex.response.status_code == 429
+            ):
                 logger.warning(
                     "Slack API rate limited. Retrying after %d seconds",
                     ex.response.headers["retry-after"],
@@ -76,6 +81,8 @@ def get_channels(types: Optional[list[SlackChannelTypes]] = None, limit: int = 9
                 wait_time = int(ex.response.headers["retry-after"]) + 1
                 time.sleep(wait_time)
                 continue
+            # Re-raise non-rate-limit errors
+            raise
         channels.extend(response.data["channels"])
         cursor = response.data.get("response_metadata", {}).get("next_cursor")
         if not cursor:

@@ -1331,7 +1331,6 @@ class DashboardRestApi(BaseSupersetModelRestApi):
         return self.response_404()
 
     @expose("/<pk>/thumbnail/<digest>/", methods=("GET",))
-    @validate_feature_flags(["THUMBNAILS"])
     @protect()
     @safe
     @rison(thumbnail_query_schema)
