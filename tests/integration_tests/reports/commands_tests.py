@@ -1411,7 +1411,7 @@ def test_slack_chart_report_schedule_converts_to_v2_channel_with_hash(
 
             # Assert that the report recipients were updated
             assert report_schedule.recipients[0].recipient_config_json == json.dumps(
-                {"target": channel_id}
+                {"target": channel_id, "slackV1Target": "#slack_channel"}
             )
             assert report_schedule.recipients[0].type == ReportRecipientType.SLACKV2
 
