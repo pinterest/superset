@@ -210,6 +210,17 @@ class BaseReportState:
                             ],
                             exact_match=True,
                         )
+                        # Validate all channels were found
+                        if len(new_target) != len(channel_targets):
+                            found_names = {t["name"].lower() for t in new_target}
+                            missing = [
+                                c
+                                for c in channel_targets
+                                if c.lower().strip("#") not in found_names
+                            ]
+                            raise ValueError(
+                                f"Could not find Slack channels: {', '.join(missing)}"
+                            )
 
                     # Migrate DMs to email recipients
                     if im_targets:
