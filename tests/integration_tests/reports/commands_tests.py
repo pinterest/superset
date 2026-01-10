@@ -1370,7 +1370,7 @@ def test_slack_chart_report_schedule_converts_to_v2(
             # Assert that the report recipients were updated
             assert create_report_slack_chart.recipients[
                 0
-            ].recipient_config_json == json.dumps({"target": channel_id})
+            ].recipient_config_json == json.dumps({"target": channel_id, "slackV1Target": "slack_channel"})
             assert (
                 create_report_slack_chart.recipients[0].type
                 == ReportRecipientType.SLACKV2
@@ -1434,7 +1434,7 @@ def test_slack_chart_report_schedule_converts_to_v2_channel_with_hash(
 
             # Assert that the report recipients were updated
             assert report_schedule.recipients[0].recipient_config_json == json.dumps(
-                {"target": channel_id}
+                {"target": channel_id, "slackV1Target": "#slack_channel"}
             )
             assert report_schedule.recipients[0].type == ReportRecipientType.SLACKV2
 
@@ -1483,10 +1483,10 @@ def test_slack_chart_report_schedule_fails_to_converts_to_v2(
             TEST_ID, report_schedule.id, datetime.utcnow()
         ).run()
 
-    # Assert failuer with proper log
+    # Assert failure with proper log
     expected_message = (
         "Failed to update slack recipients to v2: "
-        "Could not find the following channels: my_member_ID"
+        "Could not find Slack channels: my_member_ID"
     )
     assert_log(ReportState.ERROR, error_message=expected_message)
 
