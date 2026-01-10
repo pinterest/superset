@@ -36,7 +36,6 @@ from tests.integration_tests.test_app import app
         "With trailing slash (HTTPS)",
     ],
 )
-@mock.patch("superset.tasks.cache.fetch_csrf_token")
 @mock.patch("superset.tasks.cache.request.Request")
 @mock.patch("superset.tasks.cache.request.urlopen")
 @mock.patch("superset.tasks.cache.is_secure_url")
@@ -44,7 +43,6 @@ def test_fetch_url(
     mock_is_secure_url,
     mock_urlopen,
     mock_request_cls,
-    mock_fetch_csrf_token,
     base_url,
     expected_referer,
 ):
@@ -60,14 +58,11 @@ def test_fetch_url(
     mock_is_secure_url.return_value = base_url.startswith("https")
 
     initial_headers = {"Cookie": "cookie", "key": "value"}
-    csrf_headers = initial_headers | {"X-CSRF-Token": "csrf_token"}
 
     # Conditionally add the Referer header and assert its presence
     if expected_referer:
         csrf_headers = csrf_headers | {"Referer": expected_referer}
         assert csrf_headers["Referer"] == expected_referer
-
-    mock_fetch_csrf_token.return_value = csrf_headers
 
     app.config["WEBDRIVER_BASEURL"] = base_url
     data = "data"
@@ -81,11 +76,10 @@ def test_fetch_url(
         else f"{base_url}api/v1/chart/warm_up_cache"
     )
 
-    mock_fetch_csrf_token.assert_called_once_with(initial_headers)
     mock_request_cls.assert_called_once_with(
         expected_url,  # Use the dynamic URL based on base_url
         data=data_encoded,
-        headers=csrf_headers,
+        headers=initial_headers,
         method="PUT",
     )
     # assert the same Request object is used
