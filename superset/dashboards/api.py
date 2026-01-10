@@ -229,6 +229,7 @@ class DashboardRestApi(BaseSupersetModelRestApi):
         "changed_by.first_name",
         "changed_by.last_name",
         "changed_by.id",
+        "changed_by.username",
         "changed_by_name",
         "changed_on_utc",
         "changed_on_delta_humanized",
@@ -1342,7 +1343,6 @@ class DashboardRestApi(BaseSupersetModelRestApi):
         return self.response_404()
 
     @expose("/<pk>/thumbnail/<digest>/", methods=("GET",))
-    @validate_feature_flags(["THUMBNAILS"])
     @protect()
     @safe
     @rison(thumbnail_query_schema)

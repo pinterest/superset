@@ -3,11 +3,13 @@ from typing import List
 
 from celery.utils.log import get_task_logger
 
-from superset import db
+from superset import app, db
 from superset.extensions import celery_app
 from superset.models.dashboard import Dashboard
 from superset.tags.models import Tag
 from superset.tasks.thumbnails import cache_dashboard_thumbnail
+from superset.utils.core import apply_max_row_limit
+from superset.daos.datasource import DatasourceDAO
 
 logger = get_task_logger(__name__)
 logger.setLevel(logging.INFO)
