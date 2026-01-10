@@ -300,6 +300,9 @@ def fetch_url(data: str, headers: dict[str, str]) -> dict[str, str]:
             logger.info("URL '%s' is secure. Adding Referer header.", url)
             headers.update({"Referer": url})
 
+        # Fetch CSRF token for API request
+        headers.update(fetch_csrf_token(headers))
+
         logger.info("Fetching %s with payload %s", url, data)
         req = request.Request(  # noqa: S310
             url, data=bytes(data, "utf-8"), headers=headers, method="PUT"
