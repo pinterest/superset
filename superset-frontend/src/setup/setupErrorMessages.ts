@@ -59,6 +59,10 @@ export default function setupErrorMessages() {
     DatabaseErrorMessage,
   );
   errorMessageComponentRegistry.registerValue(
+    ErrorTypeEnum.GENERIC_COMMAND_ERROR,
+    DatabaseErrorMessage,
+  );
+  errorMessageComponentRegistry.registerValue(
     ErrorTypeEnum.COLUMN_DOES_NOT_EXIST_ERROR,
     DatabaseErrorMessage,
   );
