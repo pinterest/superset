@@ -228,11 +228,19 @@ const FilterValue: FC<FilterControlProps> = ({
                   setState(asyncResult);
                   handleFilterLoadFinish();
                 })
-                .catch((error: Response) => {
-                  getClientErrorObject(error).then(clientErrorObject => {
-                    setError(clientErrorObject);
+                .catch((error: ClientErrorObject | Response) => {
+                  // Check if error is already a parsed error object with errors array
+                  if ('errors' in error && Array.isArray(error.errors)) {
+                    setError(error as ClientErrorObject);
                     handleFilterLoadFinish();
-                  });
+                  } else {
+                    getClientErrorObject(error as Response).then(
+                      clientErrorObject => {
+                        setError(clientErrorObject);
+                        handleFilterLoadFinish();
+                      },
+                    );
+                  }
                 });
             } else {
               throw new Error(
@@ -245,11 +253,17 @@ const FilterValue: FC<FilterControlProps> = ({
             handleFilterLoadFinish();
           }
         })
-        .catch((error: Response) => {
-          getClientErrorObject(error).then(clientErrorObject => {
-            setError(clientErrorObject);
+        .catch((error: ClientErrorObject | Response) => {
+          // Check if error is already a parsed error object with errors array
+          if ('errors' in error && Array.isArray(error.errors)) {
+            setError(error as ClientErrorObject);
             handleFilterLoadFinish();
-          });
+          } else {
+            getClientErrorObject(error as Response).then(clientErrorObject => {
+              setError(clientErrorObject);
+              handleFilterLoadFinish();
+            });
+          }
         });
     }
   }, [
