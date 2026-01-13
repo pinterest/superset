@@ -33,17 +33,6 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Preflight - Artifactory reachable?
-        if: steps.check.outputs.frontend
-        shell: bash
-        run: |
-          set -euo pipefail
-          # Check the npm virtual repo endpoint (closer to what `npm ci` actually hits)
-          # Treat any HTTP response as "reachable"; we mainly want to catch DNS/TLS/connect/timeouts.
-          curl -sSIL --connect-timeout 5 --max-time 10 \
-            https://artifacts-prod-use1.pinadmin.com/artifactory/api/npm/node-npm-yarn-prod-virtual/-/ping \
-            >/dev/null
-
       - name: Build Docker Image
         if: steps.check.outputs.frontend
         shell: bash
