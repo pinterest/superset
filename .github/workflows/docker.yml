@@ -64,7 +64,7 @@ jobs:
         if: steps.check.outputs.python || steps.check.outputs.frontend || steps.check.outputs.docker
         uses: ./.github/actions/setup-supersetbot/
 
-      - name: Preflight: Artifactory reachable?
+      - name: Preflight - Artifactory reachable?
         if: steps.check.outputs.python || steps.check.outputs.frontend || steps.check.outputs.docker
         shell: bash
         run: |
