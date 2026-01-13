@@ -64,17 +64,6 @@ jobs:
         if: steps.check.outputs.python || steps.check.outputs.frontend || steps.check.outputs.docker
         uses: ./.github/actions/setup-supersetbot/
 
-      - name: Preflight - Artifactory reachable?
-        if: steps.check.outputs.python || steps.check.outputs.frontend || steps.check.outputs.docker
-        shell: bash
-        run: |
-          set -euo pipefail
-          # Check the npm virtual repo endpoint (closer to what `npm ci` actually hits)
-          # Treat any HTTP response as "reachable"; we mainly want to catch DNS/TLS/connect/timeouts.
-          curl -sSIL --connect-timeout 5 --max-time 10 \
-            https://artifacts-prod-use1.pinadmin.com/artifactory/api/npm/node-npm-yarn-prod-virtual/-/ping \
-            >/dev/null
-
       - name: Build Docker Image
         if: steps.check.outputs.python || steps.check.outputs.frontend || steps.check.outputs.docker
         shell: bash

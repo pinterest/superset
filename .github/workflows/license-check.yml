@@ -5,6 +5,11 @@ name: License Template Check
 #   pull_request:
 #     types: [synchronize, opened, reopened, ready_for_review]
 
+# This workflow is intentionally opt-in (manual) for this repo.
+# Some CI validators require `on` to be present, so keep a minimal trigger here.
+on:
+  workflow_dispatch:
+
 # cancel previous workflow jobs for PRs
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
