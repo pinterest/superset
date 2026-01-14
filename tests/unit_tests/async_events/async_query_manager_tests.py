@@ -62,6 +62,25 @@ def test_parse_channel_id_from_request(async_query_manager):
     )
 
 
+def test_parse_channel_id_from_request_with_null_sub(async_query_manager):
+    """
+    Regression test for PyJWT InvalidSubjectError: "Subject must be a string".
+
+    Older async query cookies could include `sub: null`, which PyJWT rejects by
+    default during decode. We only need the `channel` claim.
+    """
+    encoded_token = encode(
+        {"channel": "test_channel_id", "sub": None}, JWT_TOKEN_SECRET, algorithm="HS256"
+    )
+
+    request = Mock()
+    request.cookies = {"superset_async_jwt": encoded_token}
+
+    assert (
+        async_query_manager.parse_channel_id_from_request(request) == "test_channel_id"
+    )
+
+
 def test_parse_channel_id_from_request_no_cookie(async_query_manager):
     request = Mock()
     request.cookies = {}
