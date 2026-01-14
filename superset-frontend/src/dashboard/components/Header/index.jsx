@@ -825,6 +825,7 @@ const Header = () => {
           colorScheme={colorScheme}
           onSubmit={handleOnPropertiesChange}
           onlyApply
+          user={user}
         />
       )}
 
