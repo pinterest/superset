@@ -176,12 +176,14 @@ class AsyncQueryManager:
                 session["async_channel_id"] = async_channel_id
                 session["async_user_id"] = user_id
 
-                sub = str(user_id) if user_id else None
-                token = jwt.encode(
-                    {"channel": async_channel_id, "sub": sub},
-                    self._jwt_secret,
-                    algorithm="HS256",
-                )
+                # NOTE: PyJWT validates that `sub` is a string (if present). Since we
+                # don't use `sub` for async query channel routing, omit it when we
+                # don't have a user_id, and always stringify when we do.
+                payload: dict[str, Any] = {"channel": async_channel_id}
+                if user_id is not None:
+                    payload["sub"] = str(user_id)
+
+                token = jwt.encode(payload, self._jwt_secret, algorithm="HS256")
 
                 response.set_cookie(
                     self._jwt_cookie_name,
@@ -200,7 +202,15 @@ class AsyncQueryManager:
             raise AsyncQueryTokenException("Token not preset")
 
         try:
-            return jwt.decode(token, self._jwt_secret, algorithms=["HS256"])["channel"]
+            # Be tolerant of older cookies that might include `sub` with a non-string
+            # value (eg. null), which PyJWT rejects by default.
+            payload = jwt.decode(
+                token,
+                self._jwt_secret,
+                algorithms=["HS256"],
+                options={"verify_sub": False},
+            )
+            return payload["channel"]
         except Exception as ex:
             logger.warning("Parse jwt failed", exc_info=True)
             raise AsyncQueryTokenException("Failed to parse token") from ex
