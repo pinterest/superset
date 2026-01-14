@@ -872,6 +872,7 @@ const Header = (): JSX.Element => {
           colorScheme={colorScheme}
           onSubmit={handleOnPropertiesChange}
           onlyApply
+          user={user}
         />
       )}
       {showingRefreshModal && (
