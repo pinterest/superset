@@ -327,7 +327,8 @@ describe('DatabaseModal', () => {
 
       // ---------- Components ----------
       // <TabHeader> - AntD header
-      const closeButton = await screen.findByLabelText('Close');
+      const modal = await screen.findByRole('dialog');
+      const closeButton = within(modal).getByRole('button', { name: "Close" });
       const step1Header = screen.getByRole('heading', {
         name: /connect a database/i,
       });
@@ -371,8 +372,6 @@ describe('DatabaseModal', () => {
         name: /down/i,
         hidden: true,
       });
-
-      const modal = screen.getByRole('dialog');
       const footer = modal.querySelector('.ant-modal-footer');
       // ---------- TODO (lyndsiWilliams): Selector options, can't seem to get these to render properly.
 

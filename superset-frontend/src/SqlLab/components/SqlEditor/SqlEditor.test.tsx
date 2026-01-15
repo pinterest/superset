@@ -40,6 +40,24 @@ import setupExtensions from 'src/setup/setupExtensions';
 import type { Action, Middleware, Store } from 'redux';
 import SqlEditor, { Props } from '.';
 
+// In Jest we don't have a real bootstrap DOM with `#csrf_token`, so `setupClient()`
+// would configure SupersetClient with an empty csrfToken, causing request headers
+// to have `X-CSRFToken: ""` and making assertions brittle.
+jest.mock('src/setup/setupClient', () => {
+  const { SupersetClient } = jest.requireActual('@superset-ui/core');
+  return {
+    __esModule: true,
+    default: (customConfig: Record<string, unknown> = {}) => {
+      SupersetClient.configure({
+        protocol: 'http',
+        host: 'localhost',
+        csrfToken: '1234',
+        ...customConfig,
+      }).init();
+    },
+  };
+});
+
 jest.mock('src/components/AsyncAceEditor', () => ({
   ...jest.requireActual('src/components/AsyncAceEditor'),
   FullSQLEditor: ({
