@@ -30,6 +30,7 @@ from superset.utils.core import (
     FilterOperator,
     get_x_axis_label,
     QueryObjectFilterClause,
+    to_int,
 )
 
 if TYPE_CHECKING:
@@ -54,7 +55,7 @@ class QueryObjectFactory:  # pylint: disable=too-few-public-methods
         parent_result_type: ChartDataResultType,
         datasource: DatasourceDict | None = None,
         extras: dict[str, Any] | None = None,
-        row_limit: int | None = None,
+        row_limit: int | str | None = None,
         time_range: str | None = None,
         time_shift: str | None = None,
         server_pagination: bool | None = None,
@@ -103,7 +104,7 @@ class QueryObjectFactory:  # pylint: disable=too-few-public-methods
 
     def _process_row_limit(
         self,
-        row_limit: int | None,
+        row_limit: int | str | None,
         result_type: ChartDataResultType,
         server_pagination: bool | None = None,
     ) -> int:
@@ -119,8 +120,14 @@ class QueryObjectFactory:  # pylint: disable=too-few-public-methods
             if result_type == ChartDataResultType.SAMPLES
             else self._config["ROW_LIMIT"]
         )
+        # `row_limit` can come from persisted `query_context` JSON, and may be a string.
+        # Coerce safely to int to avoid TypeError in apply_max_row_limit.
+        if row_limit is None:
+            resolved_row_limit = default_row_limit
+        else:
+            resolved_row_limit = to_int(row_limit, default_row_limit)
         return apply_max_row_limit(
-            row_limit or default_row_limit,
+            resolved_row_limit,
             server_pagination=server_pagination,
         )
 
