@@ -199,7 +199,10 @@ test('Removing a tab', async () => {
   userEvent.click(screen.getAllByRole('button', { name: 'remove' })[0]);
   expect(props.deleteComponent).not.toHaveBeenCalled();
 
-  expect(await screen.findByText('Delete dashboard tab?')).toBeInTheDocument();
+  const confirmDialog = await screen.findByRole('dialog', {
+    name: 'Delete dashboard tab?',
+  });
+  expect(confirmDialog).toBeInTheDocument();
 
   expect(props.deleteComponent).not.toHaveBeenCalled();
   userEvent.click(screen.getByRole('button', { name: 'DELETE' }));
