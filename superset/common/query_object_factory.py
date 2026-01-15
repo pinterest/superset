@@ -30,6 +30,7 @@ from superset.utils.core import (
     FilterOperator,
     get_x_axis_label,
     QueryObjectFilterClause,
+    to_int,
 )
 
 if TYPE_CHECKING:
@@ -54,7 +55,8 @@ class QueryObjectFactory:  # pylint: disable=too-few-public-methods
         parent_result_type: ChartDataResultType,
         datasource: DatasourceDict | None = None,
         extras: dict[str, Any] | None = None,
-        row_limit: int | None = None,
+        # row_limit: int | None = None,
+        row_limit: Any = None,
         time_range: str | None = None,
         time_shift: str | None = None,
         **kwargs: Any,
@@ -96,14 +98,23 @@ class QueryObjectFactory:  # pylint: disable=too-few-public-methods
         return extras
 
     def _process_row_limit(
-        self, row_limit: int | None, result_type: ChartDataResultType
+        # self, row_limit: int | None, result_type: ChartDataResultType
+        self, row_limit: Any, result_type: ChartDataResultType
     ) -> int:
         default_row_limit = (
             self._config["SAMPLES_ROW_LIMIT"]
             if result_type == ChartDataResultType.SAMPLES
             else self._config["ROW_LIMIT"]
         )
-        return apply_max_row_limit(row_limit or default_row_limit)
+        # return apply_max_row_limit(row_limit or default_row_limit)
+
+        # `row_limit` can come from persisted `query_context` JSON, and may be a string.
+        # Coerce safely to int to avoid TypeError in apply_max_row_limit.
+        if row_limit is None:
+            resolved_row_limit = default_row_limit
+        else:
+            resolved_row_limit = to_int(row_limit, default_row_limit)
+        return apply_max_row_limit(resolved_row_limit)
 
     @staticmethod
     def _process_time_range(
