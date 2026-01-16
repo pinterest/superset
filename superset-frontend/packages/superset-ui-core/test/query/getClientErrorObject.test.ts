@@ -190,6 +190,29 @@ test('Handles Response with empty body by falling back to status code message', 
   });
 });
 
+test('Handles response-like object with unparseable JSON and empty text body', async () => {
+  // This test avoids relying on the runtime's Response.json() behavior for empty bodies.
+  // It deterministically forces the `.json()` branch to reject, then `.text()` to resolve
+  // to an empty string so we hit the status-code fallback.
+  const fakeResponse = {
+    bodyUsed: false,
+    url: 'http://example.test',
+    status: 404,
+    statusText: '',
+    redirected: false,
+    type: 'basic',
+    clone: () => ({
+      json: () => Promise.reject(new Error('not json')),
+    }),
+    text: () => Promise.resolve(''),
+  };
+
+  // @ts-ignore - we intentionally pass a Response-like object
+  expect(await getClientErrorObject({ response: fakeResponse })).toMatchObject({
+    error: 'Not found',
+  });
+});
+
 test('Handles error with status text and message', async () => {
   const statusText = 'status';
   const message = 'message';
