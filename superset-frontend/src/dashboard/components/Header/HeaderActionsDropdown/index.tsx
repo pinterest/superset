@@ -305,7 +305,7 @@ export class HeaderActionsDropdown extends PureComponent<
           </Menu.Item>
         )}
 
-      {!isFeatureEnabled(FeatureFlag.EnableDashboardAutoRefresh) && (
+      {isFeatureEnabled(FeatureFlag.EnableDashboardAutoRefresh) && (
         <Menu.Item key={MenuKeys.AutorefreshModal}>
           <RefreshIntervalModal
             addSuccessToast={addSuccessToast}

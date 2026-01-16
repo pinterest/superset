@@ -104,6 +104,7 @@ const guestUserProps = {
 function setup(props: HeaderDropdownProps) {
   window.featureFlags = {
     [uiCore.FeatureFlag.EnableDashboardAutoRefresh]: true,
+    ...(window.featureFlags || {}),
   };
   return render(
     <div className="dashboard-header">
@@ -238,12 +239,12 @@ test('should show the properties modal', async () => {
 });
 
 test('should NOT render "Set auto-refresh interval" when ENABLE_DASHBOARD_AUTO_REFRESH feature flag is false', async () => {
-  const isFeatureEnabledMock = jest
-    .spyOn(uiCore, 'isFeatureEnabled')
-    .mockImplementation(
-      (featureFlag: uiCore.FeatureFlag) =>
-        featureFlag !== uiCore.FeatureFlag.EnableDashboardAutoRefresh,
-    );
+  // Don't spy on `isFeatureEnabled` (non-configurable in this build); use the real flag source.
+  const originalFeatureFlags = window.featureFlags;
+  window.featureFlags = {
+    ...(window.featureFlags || {}),
+    [uiCore.FeatureFlag.EnableDashboardAutoRefresh]: false,
+  };
 
   const mockedProps = createProps();
   setup(mockedProps);
@@ -252,7 +253,7 @@ test('should NOT render "Set auto-refresh interval" when ENABLE_DASHBOARD_AUTO_R
     screen.queryByText('Set auto-refresh interval'),
   ).not.toBeInTheDocument();
 
-  isFeatureEnabledMock.mockRestore();
+  window.featureFlags = originalFeatureFlags;
 });
 
 describe('UNSAFE_componentWillReceiveProps', () => {

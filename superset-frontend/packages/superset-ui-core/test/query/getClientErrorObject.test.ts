@@ -180,6 +180,16 @@ test('Handles error with status code', async () => {
   });
 });
 
+test('Handles Response with empty body by falling back to status code message', async () => {
+  // Ensure we hit the "empty error text" fallback branch in getClientErrorObject
+  // (i.e. response.text() resolves to an empty string).
+  const status404EmptyBody = new Response('', { status: 404, statusText: '' });
+
+  expect(await getClientErrorObject(status404EmptyBody)).toMatchObject({
+    error: 'Not found',
+  });
+});
+
 test('Handles error with status text and message', async () => {
   const statusText = 'status';
   const message = 'message';

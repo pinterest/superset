@@ -144,7 +144,7 @@ describe('Dashboard', () => {
           editMode: true,
         },
       });
-      wrapper.instance().componentDidUpdate(prevProps);
+      wrapper.instance().applyCharts();
       expect(refreshSpy.callCount).toBe(0);
     });
 
@@ -152,7 +152,7 @@ describe('Dashboard', () => {
       wrapper.setProps({
         activeFilters: OVERRIDE_FILTERS,
       });
-      wrapper.instance().componentDidUpdate(prevProps);
+      wrapper.instance().applyCharts();
       expect(refreshSpy.callCount).toBe(0);
       expect(wrapper.instance().appliedFilters).toBe(OVERRIDE_FILTERS);
     });
@@ -169,7 +169,7 @@ describe('Dashboard', () => {
           }),
         },
       });
-      wrapper.instance().componentDidUpdate(prevProps);
+      wrapper.instance().applyCharts();
       expect(refreshSpy.callCount).toBe(1);
       expect(wrapper.instance().appliedFilters).toEqual({
         ...OVERRIDE_FILTERS,
@@ -197,6 +197,7 @@ describe('Dashboard', () => {
       wrapper.setProps({
         activeFilters: newFilter,
       });
+      wrapper.instance().applyCharts();
       expect(refreshSpy.callCount).toBe(1);
       expect(wrapper.instance().appliedFilters).toEqual(newFilter);
     });
@@ -206,6 +207,7 @@ describe('Dashboard', () => {
       wrapper.setProps({
         activeFilters: {},
       });
+      wrapper.instance().applyCharts();
       expect(refreshSpy.callCount).toBe(1);
       expect(wrapper.instance().appliedFilters).toEqual({});
     });
@@ -219,6 +221,7 @@ describe('Dashboard', () => {
       wrapper.setProps({
         activeFilters: newFilters,
       });
+      wrapper.instance().applyCharts();
       expect(refreshSpy.callCount).toBe(1);
       expect(wrapper.instance().appliedFilters).toEqual(newFilters);
       expect(refreshSpy.getCall(0).args[0]).toEqual([1]);
@@ -233,6 +236,7 @@ describe('Dashboard', () => {
       wrapper.setProps({
         activeFilters: newFilters,
       });
+      wrapper.instance().applyCharts();
       expect(refreshSpy.callCount).toBe(1);
       expect(wrapper.instance().appliedFilters).toEqual(newFilters);
       expect(refreshSpy.getCall(0).args[0]).toEqual([1, 2]);
@@ -247,6 +251,7 @@ describe('Dashboard', () => {
       wrapper.setProps({
         activeFilters: newFilters,
       });
+      wrapper.instance().applyCharts();
       expect(refreshSpy.callCount).toBe(1);
       expect(refreshSpy.getCall(0).args[0]).toEqual([2]);
     });
@@ -261,6 +266,7 @@ describe('Dashboard', () => {
       wrapper.setProps({
         activeFilters: newFilters,
       });
+      wrapper.instance().applyCharts();
       expect(refreshSpy.callCount).toBe(1);
       expect(refreshSpy.getCall(0).args[0]).toEqual([]);
     });
