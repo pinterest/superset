@@ -20,6 +20,7 @@ import { isValidElement } from 'react';
 import { render, screen } from 'spec/helpers/testing-library';
 import userEvent from '@testing-library/user-event';
 import fetchMock from 'fetch-mock';
+import { FeatureFlag } from '@superset-ui/core';
 
 import RefreshIntervalModal from 'src/dashboard/components/RefreshIntervalModal';
 import { HeaderActionsDropdown } from 'src/dashboard/components/Header/HeaderActionsDropdown';
@@ -86,6 +87,14 @@ const editModeOnProps = {
 
 const mockStore = configureStore([thunk]);
 const store = mockStore({});
+
+beforeEach(() => {
+  // HeaderActionsDropdown gates the refresh interval modal behind this feature flag.
+  window.featureFlags = {
+    ...(window.featureFlags || {}),
+    [FeatureFlag.EnableDashboardAutoRefresh]: true,
+  };
+});
 
 const setup = (overrides?: any) => (
   <Provider store={store}>
