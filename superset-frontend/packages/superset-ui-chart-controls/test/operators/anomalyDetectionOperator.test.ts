@@ -76,6 +76,3 @@ test('returns undefined when enabled but x-axis label is missing', () => {
   // @ts-ignore
   expect(anomalyDetectionOperator(formData, {})).toBeUndefined();
 });
-
-
-

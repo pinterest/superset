@@ -305,20 +305,20 @@ export class HeaderActionsDropdown extends PureComponent<
           </Menu.Item>
         )}
 
-      {isFeatureEnabled(FeatureFlag.EnableDashboardAutoRefresh) && (
-        <Menu.Item key={MenuKeys.AutorefreshModal}>
-          <RefreshIntervalModal
-            addSuccessToast={addSuccessToast}
-            refreshFrequency={refreshFrequency}
-            refreshLimit={refreshLimit}
-            refreshWarning={refreshWarning}
-            onChange={this.changeRefreshInterval}
-            editMode={editMode}
-            refreshIntervalOptions={refreshIntervalOptions}
-            triggerNode={<div>{t('Set auto-refresh interval')}</div>}
-          />
-        </Menu.Item>
-      )}
+        {isFeatureEnabled(FeatureFlag.EnableDashboardAutoRefresh) && (
+          <Menu.Item key={MenuKeys.AutorefreshModal}>
+            <RefreshIntervalModal
+              addSuccessToast={addSuccessToast}
+              refreshFrequency={refreshFrequency}
+              refreshLimit={refreshLimit}
+              refreshWarning={refreshWarning}
+              onChange={this.changeRefreshInterval}
+              editMode={editMode}
+              refreshIntervalOptions={refreshIntervalOptions}
+              triggerNode={<div>{t('Set auto-refresh interval')}</div>}
+            />
+          </Menu.Item>
+        )}
       </Menu>
     );
   }

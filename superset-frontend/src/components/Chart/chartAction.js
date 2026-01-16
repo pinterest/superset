@@ -488,6 +488,7 @@ export function exploreJSON(
         }
 
         const logAndFail = (parsedResponse, overrideErrorDetails) => {
+          let responseForDispatch = parsedResponse;
           try {
             const errorDetails =
               overrideErrorDetails ||
@@ -501,12 +502,12 @@ export function exploreJSON(
               typeof parsedResponse === 'object' &&
               !parsedResponse?.error
             ) {
-              parsedResponse = { ...parsedResponse, error: errorDetails };
+              responseForDispatch = { ...parsedResponse, error: errorDetails };
             }
           } catch (e) {
             // best-effort logging, ignore secondary errors
           }
-          return dispatch(chartUpdateFailed([parsedResponse], key));
+          return dispatch(chartUpdateFailed([responseForDispatch], key));
         };
 
         if (isFeatureEnabled(FeatureFlag.GlobalAsyncQueries)) {

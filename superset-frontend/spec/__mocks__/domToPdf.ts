@@ -23,5 +23,3 @@
 export default function domToPdf(..._args: unknown[]): Promise<void> {
   return Promise.resolve();
 }
-
-

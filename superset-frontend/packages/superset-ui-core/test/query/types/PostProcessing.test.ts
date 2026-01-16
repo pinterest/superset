@@ -253,7 +253,9 @@ test('PostProcessingProphet type guard', () => {
 });
 
 test('PostProcessingAnomalyDetection type guard', () => {
-  expect(isPostProcessingAnomalyDetection(ANOMALY_DETECTION_RULE)).toEqual(true);
+  expect(isPostProcessingAnomalyDetection(ANOMALY_DETECTION_RULE)).toEqual(
+    true,
+  );
   expect(isPostProcessingAnomalyDetection(AGGREGATE_RULE)).toEqual(false);
   expect(isPostProcessingAnomalyDetection(undefined)).toEqual(false);
 });

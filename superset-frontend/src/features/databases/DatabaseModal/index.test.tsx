@@ -328,7 +328,7 @@ describe('DatabaseModal', () => {
       // ---------- Components ----------
       // <TabHeader> - AntD header
       const modal = await screen.findByRole('dialog');
-      const closeButton = within(modal).getByRole('button', { name: "Close" });
+      const closeButton = within(modal).getByRole('button', { name: 'Close' });
       const step1Header = screen.getByRole('heading', {
         name: /connect a database/i,
       });

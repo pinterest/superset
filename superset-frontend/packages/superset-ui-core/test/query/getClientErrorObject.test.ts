@@ -213,6 +213,46 @@ test('Handles response-like object with unparseable JSON and empty text body', a
   });
 });
 
+test('Handles response-like object empty text body by falling back to statusText when status is unknown', async () => {
+  const fakeResponse = {
+    bodyUsed: false,
+    url: 'http://example.test',
+    status: 499, // not in ERROR_CODE_LOOKUP
+    statusText: 'Custom status',
+    redirected: false,
+    type: 'basic',
+    clone: () => ({
+      json: () => Promise.reject(new Error('not json')),
+    }),
+    text: () => Promise.resolve(''),
+  };
+
+  // @ts-ignore - we intentionally pass a Response-like object
+  expect(await getClientErrorObject({ response: fakeResponse })).toMatchObject({
+    error: 'Custom status',
+  });
+});
+
+test('Handles response-like object empty text body by falling back to generic message when status is unknown and statusText is empty', async () => {
+  const fakeResponse = {
+    bodyUsed: false,
+    url: 'http://example.test',
+    status: 499, // not in ERROR_CODE_LOOKUP
+    statusText: '',
+    redirected: false,
+    type: 'basic',
+    clone: () => ({
+      json: () => Promise.reject(new Error('not json')),
+    }),
+    text: () => Promise.resolve(''),
+  };
+
+  // @ts-ignore - we intentionally pass a Response-like object
+  expect(await getClientErrorObject({ response: fakeResponse })).toMatchObject({
+    error: 'An error occurred',
+  });
+});
+
 test('Handles error with status text and message', async () => {
   const statusText = 'status';
   const message = 'message';

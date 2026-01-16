@@ -21,7 +21,6 @@ import {
   screen,
   waitFor,
   fireEvent,
-  within,
 } from 'spec/helpers/testing-library';
 import configureStore from 'redux-mock-store';
 import { Store } from 'redux';
@@ -510,7 +509,9 @@ describe('ResultSet', () => {
     );
     const downloadButton = getByTestId('export-csv-button');
     fireEvent.click(downloadButton);
-    const warningModal = await findByRole('dialog', { name: 'Download is on the way' });
+    const warningModal = await findByRole('dialog', {
+      name: 'Download is on the way',
+    });
     expect(warningModal).toBeInTheDocument();
   });
 

@@ -18,10 +18,10 @@
  */
 import { supersetTheme } from '@superset-ui/core';
 import { Tooltip as AntdTooltip } from 'antd-v5';
-import type React from 'react';
+import type { ComponentProps } from 'react';
 
 // Extract TooltipProps from the actual AntdTooltip component
-export type TooltipProps = React.ComponentProps<typeof AntdTooltip>;
+export type TooltipProps = ComponentProps<typeof AntdTooltip>;
 
 // Export as both type and value for webpack compatibility
 // This allows JSX files to import it (even though using a type in PropTypes.oneOf is incorrect)

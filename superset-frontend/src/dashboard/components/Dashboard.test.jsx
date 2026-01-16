@@ -122,13 +122,11 @@ describe('Dashboard', () => {
 
   describe('componentDidUpdate', () => {
     let wrapper;
-    let prevProps;
     let refreshSpy;
 
     beforeEach(() => {
       wrapper = setup({ activeFilters: OVERRIDE_FILTERS });
       wrapper.instance().appliedFilters = OVERRIDE_FILTERS;
-      prevProps = wrapper.instance().props;
       refreshSpy = sinon.spy(wrapper.instance(), 'refreshCharts');
     });
 
