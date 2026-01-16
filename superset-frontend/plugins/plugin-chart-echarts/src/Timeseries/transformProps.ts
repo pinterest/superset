@@ -605,7 +605,8 @@ export default function transformProps(
 
             const formatter = forcePercentFormatter
               ? percentFormatter
-              : getCustomFormatter(customFormatters, metrics) ?? defaultFormatter;
+              : (getCustomFormatter(customFormatters, metrics) ??
+                  defaultFormatter);
 
             const rows: string[][] = [];
             const total = Object.values(forecastValues).reduce(
