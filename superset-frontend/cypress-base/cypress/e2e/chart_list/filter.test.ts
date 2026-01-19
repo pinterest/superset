@@ -31,13 +31,13 @@ describe('Charts filters', () => {
   });
 
   it('should allow filtering by "Owner"', () => {
-    setFilter('Owner', 'alpha user');
-    setFilter('Owner', 'admin user');
+    setFilter('Owner', 'alpha user (alpha)');
+    setFilter('Owner', 'admin user (admin)');
   });
 
   it('should allow filtering by "Modified by" correctly', () => {
-    setFilter('Modified by', 'alpha user');
-    setFilter('Modified by', 'admin user');
+    setFilter('Modified by', 'alpha user (alpha)');
+    setFilter('Modified by', 'admin user (admin)');
   });
 
   it('should allow filtering by "Type" correctly', () => {
