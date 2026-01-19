@@ -18,7 +18,47 @@
  */
 import { CHART_LIST } from 'cypress/utils/urls';
 import { setGridMode, clearAllInputs } from 'cypress/utils';
-import { setFilter } from '../explore/utils';
+import { interceptFiltering, setFilter } from '../explore/utils';
+
+function logOpenAntdDropdownOptions(context: string) {
+  cy.get('.ant-select-dropdown:visible').then($dropdown => {
+    const options = Array.from(
+      $dropdown[0].querySelectorAll<HTMLElement>('.ant-select-item-option'),
+    ).map(el => ({
+      title: el.getAttribute('title'),
+      text: (el.textContent || '').trim(),
+    }));
+
+    cy.task('log', {
+      context,
+      optionCount: options.length,
+      options,
+    });
+  });
+}
+
+function openFilterAndLogOptions(filterLabel: string, search?: string) {
+  cy.get(`[aria-label="${filterLabel}"]`).first().click({ force: true });
+  logOpenAntdDropdownOptions(`${filterLabel}:initial`);
+  if (search) {
+    cy.get(`[aria-label="${filterLabel}"]`)
+      .first()
+      .then($el => {
+        const $select = $el.closest('.ant-select');
+        if ($select.length) {
+          cy.wrap($select)
+            .find('input.ant-select-selection-search-input')
+            .filter(':visible')
+            .first()
+            .clear({ force: true })
+            .type(search, { force: true });
+        } else {
+          cy.focused().clear({ force: true }).type(search, { force: true });
+        }
+      });
+    logOpenAntdDropdownOptions(`${filterLabel}:afterSearch(${search})`);
+  }
+}
 
 describe('Charts filters', () => {
   before(() => {
@@ -31,13 +71,31 @@ describe('Charts filters', () => {
   });
 
   it('should allow filtering by "Owner"', () => {
-    setFilter('Owner', 'alpha user (alpha)');
-    setFilter('Owner', 'admin user (admin)');
+    // Debug: log what the dropdown actually contains in CI/local env
+    openFilterAndLogOptions('Owner', 'admin');
+
+    // Keep existing behavior (so we can compare logs vs. failures)
+    interceptFiltering();
+    cy.get(`[aria-label="Owner"]`).first().click({ force: true });
+    logOpenAntdDropdownOptions('Owner:beforeSelect(admin user (admin))');
+    cy.get(`[aria-label="Owner"] [title="admin user (admin)"]`).click({
+      force: true,
+    });
+    cy.wait('@filtering');
   });
 
   it('should allow filtering by "Modified by" correctly', () => {
-    setFilter('Modified by', 'alpha user (alpha)');
-    setFilter('Modified by', 'admin user (admin)');
+    // Debug: log what the dropdown actually contains in CI/local env
+    openFilterAndLogOptions('Modified by', 'admin');
+
+    // Keep existing behavior (so we can compare logs vs. failures)
+    interceptFiltering();
+    cy.get(`[aria-label="Modified by"]`).first().click({ force: true });
+    logOpenAntdDropdownOptions('Modified by:beforeSelect(admin user (admin))');
+    cy.get(`[aria-label="Modified by"] [title="admin user (admin)"]`).click({
+      force: true,
+    });
+    cy.wait('@filtering');
   });
 
   it('should allow filtering by "Type" correctly', () => {
