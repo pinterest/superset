@@ -41,7 +41,7 @@ def cache_thumbnails_by_tags(tags: List[str]):
 
 @celery_app.task(name="cache_column_values")
 def cache_column_values(datasource_id: int, column_name: str):
-    """This job is used to cache column values for a given datasource and column name."""
+    """Cache column values for a given datasource and column name."""
     datasource = DatasourceDAO.get_datasource(datasource_id)
     row_limit = apply_max_row_limit(app.config["FILTER_SELECT_ROW_LIMIT"])
     denormalize_column = not datasource.normalize_columns

@@ -236,7 +236,7 @@ def test_values_for_column_enable_cache_false(
         table_name="t",
         columns=[TableColumn(column_name="a")],
     )
-    result = table.values_for_column("a", use_cache=True)
+    table.values_for_column("a", use_cache=True)
     mock_cache.get.assert_not_called()
 
 
@@ -261,7 +261,7 @@ def test_values_for_column_use_cache_false(
         table_name="t",
         columns=[TableColumn(column_name="a")],
     )
-    result = table.values_for_column("a", use_cache=False)
+    table.values_for_column("a", use_cache=False)
     mock_cache.get.assert_not_called()
 
 

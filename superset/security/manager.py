@@ -578,11 +578,16 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
 
         if required_external_groups:
             external_groups_str = ", ".join(str(g) for g in required_external_groups)
-            message += f"Join one of the following external groups: {external_groups_str}. "
+            message += (
+                f"Join one of the following external groups: {external_groups_str}. "
+            )
 
             wiki_url = current_app.config.get("AUTH_ROLES_WIKI_URL", None)
             if wiki_url:
-                message += f"Learn more about roles <a target='_blank' href='{wiki_url}'>here</a>."
+                message += (
+                    "Learn more about roles <a target='_blank' "
+                    f"href='{wiki_url}'>here</a>."
+                )
 
         return SupersetError(
             error_type=SupersetErrorType.DASHBOARD_SECURITY_ACCESS_ERROR,
@@ -2456,7 +2461,8 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
 
     # ==================== Role Mapping Interface Methods ====================
     # These methods provide abstracted access to AUTH_ROLES_MAPPING without
-    # exposing the raw configuration. They can be overridden in custom security managers.
+    # exposing the raw configuration. They can be overridden in custom security
+    # managers.
 
     def get_mapped_roles_for_external_group(self, external_group: str) -> List[str]:
         """
@@ -2491,7 +2497,9 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
                 return external_group
         return None
 
-    def get_external_groups_for_superset_roles(self, superset_roles: List[str]) -> List[str]:
+    def get_external_groups_for_superset_roles(
+        self, superset_roles: List[str]
+    ) -> List[str]:
         """
         Get the external group names for a list of Superset roles.
 

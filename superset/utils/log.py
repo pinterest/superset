@@ -180,7 +180,7 @@ class AbstractEventLogger(ABC):
         database: Any | None = None,
         payload: dict[str, Any] | None = None,
         **payload_override: dict[str, Any] | None,
-    ) -> None:
+    ) -> None:  # noqa: C901
         # pylint: disable=import-outside-toplevel
         from superset import db
         from superset.views.core import get_form_data

@@ -1872,7 +1872,8 @@ WELCOME_PAGE_LAST_TAB: Literal["examples", "all"] | tuple[str, list[dict[str, An
 
 # Announcement banner configuration
 # Set this to display an announcement banner at the top of Superset
-# The banner will be shown until dismissed by the user. The dismiss state is stored in localStorage.
+# The banner will be shown until dismissed by the user. The dismiss state is stored
+# in localStorage.
 # Example:
 # ANNOUNCEMENTS = {
 #     "id": "announcement-2025-01-15",  # Change this ID to show a new announcement
@@ -1979,7 +1980,8 @@ EXTRA_DYNAMIC_QUERY_FILTERS: ExtraDynamicQueryFilters = {}
 CATALOGS_SIMPLIFIED_MIGRATION: bool = False
 
 # plug in your own anomaly detection function here
-# see superset/utils/pandas_postprocessing/anomaly_detection.py for parameter descriptions
+# see superset/utils/pandas_postprocessing/anomaly_detection.py for parameter
+# descriptions
 ANOMALY_DETECTION: Optional[Callable[
         [
             DataFrame,

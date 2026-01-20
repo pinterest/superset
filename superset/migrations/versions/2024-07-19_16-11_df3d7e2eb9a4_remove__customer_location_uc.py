@@ -55,16 +55,20 @@ def upgrade():
 def downgrade():
     # Remove duplicate entries before re-adding the unique constraint
     bind = op.get_bind()
-    logger.info("Removing duplicate entries from tables before re-adding unique constraint")
+    logger.info(
+        "Removing duplicate entries from tables before re-adding unique constraint"
+    )
     bind.execute(
         text(
             """
-            DELETE t1 FROM tables t1
-            INNER JOIN tables t2
-            WHERE t1.id > t2.id
-              AND t1.database_id = t2.database_id
-              AND t1.`schema` = t2.`schema`
-              AND t1.table_name = t2.table_name
+            DELETE FROM tables
+            WHERE id NOT IN (
+                SELECT min_id FROM (
+                    SELECT MIN(id) AS min_id
+                    FROM tables
+                    GROUP BY database_id, `schema`, table_name
+                ) AS rows_to_keep
+            )
             """
         )
     )

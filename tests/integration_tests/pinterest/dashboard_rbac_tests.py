@@ -85,8 +85,8 @@ class TestPinterestDashboardRBAC(SupersetTestCase):
     def test_non_rbac_editor_editing_dashboard_roles(
         self,
     ):
-        """Test that Alpha users (or users without can_edit PinterestDashboardRoles permission)
-        cannot edit dashboard roles"""
+        """Test that Alpha users (or users without can_edit
+        PinterestDashboardRoles permission) cannot edit dashboard roles"""
         dashboard_id = get_dashboards_ids(["births"])[0]
         self._add_user_to_dashboard(dashboard_id, "alpha")
 
@@ -107,8 +107,9 @@ class TestPinterestDashboardRBAC(SupersetTestCase):
     def test_non_rbac_editor_editing_dashboard_properties(
         self,
     ):
-        """Test that Alpha users (or users without can_edit PinterestDashboardRoles permission)
-        can edit dashboard properties (that are not roles)"""
+        """Test that Alpha users (or users without can_edit
+        PinterestDashboardRoles permission) can edit dashboard properties
+        (that are not roles)"""
         dashboard_id = get_dashboards_ids(["births"])[0]
         self._add_user_to_dashboard(dashboard_id, "alpha")
 

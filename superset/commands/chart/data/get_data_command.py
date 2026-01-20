@@ -60,7 +60,10 @@ class ChartDataCommand(BaseCommand):
                     "unauthorized",
                     "not authorized",
                 ]
-                if any(indicator.lower() in error_msg.lower() for indicator in auth_error_indicators):
+                if any(
+                    indicator.lower() in error_msg.lower()
+                    for indicator in auth_error_indicators
+                ):
                     raise ChartDataQueryAuthenticationError(
                         _("Error: %(error)s", error=query["error"])
                     )

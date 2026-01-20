@@ -90,7 +90,7 @@ def json_error_response(
     )
 
 
-def handle_api_exception(
+def handle_api_exception(  # noqa: C901
     f: Callable[..., FlaskResponse],
 ) -> Callable[..., FlaskResponse]:
     """

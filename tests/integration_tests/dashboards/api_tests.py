@@ -3359,7 +3359,8 @@ class TestDashboardApi(ApiOwnersTestCaseMixin, InsertChartMixin, SupersetTestCas
     @pytest.mark.usefixtures("load_birth_names_dashboard_with_slices")
     def test_dashboard_chart_owners_sync(self):
         """
-        Dashboard API: Test chart owners get updated when added to a dashboard with auto sync enabled
+        Dashboard API: Test chart owners get updated when added to a dashboard with
+        auto sync enabled
         """
         user_alpha1 = self.create_user(
             "alpha1",
@@ -3406,25 +3407,25 @@ class TestDashboardApi(ApiOwnersTestCaseMixin, InsertChartMixin, SupersetTestCas
         self.login(ADMIN_USERNAME)
         uri = f"api/v1/dashboard/{dashboard.id}"
         rv = self.client.put(uri, json=dashboard_data)
-        self.assertEqual(rv.status_code, 200)
+        assert rv.status_code == 200
 
         boys = db.session.query(Slice).filter_by(slice_name="Boys").one()
         girls = db.session.query(Slice).filter_by(slice_name="Girls").one()
         trends = db.session.query(Slice).filter_by(slice_name="Trends").one()
 
         # Check that chart owners were updated to match dashboard owners
-        self.assertIn(user_alpha1, boys.owners)
-        self.assertIn(admin, boys.owners)
+        assert user_alpha1 in boys.owners
+        assert admin in boys.owners
         # user_alpha2 is not an owner of the dashboard
-        self.assertNotIn(user_alpha2, boys.owners)
+        assert user_alpha2 not in boys.owners
 
-        self.assertIn(user_alpha2, girls.owners)
+        assert user_alpha2 in girls.owners
         # owners of Girls does not have mutual owners of the dashboard
-        self.assertNotIn(user_alpha1, girls.owners)
-        self.assertNotIn(admin, girls.owners)
+        assert user_alpha1 not in girls.owners
+        assert admin not in girls.owners
 
         # Trends has no owners so there should be no updates
-        self.assertEqual(trends.owners, [])
+        assert trends.owners == []
 
         # Revert owners on slice
         for slice in [boys, girls, trends]:

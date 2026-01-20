@@ -163,7 +163,10 @@ class ChartEntityResponseSchema(Schema):
     certification_details = fields.String(
         metadata={"description": certification_details_description}
     )
-    owners = fields.List(fields.Nested(UserSchema), metadata={"description": owners_description})
+    owners = fields.List(
+        fields.Nested(UserSchema),
+        metadata={"description": owners_description},
+    )
 
 
 class ChartPostSchema(Schema):

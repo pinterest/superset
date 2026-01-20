@@ -169,8 +169,8 @@ def with_dashboard(
 class DashboardRestApi(BaseSupersetModelRestApi):
     datamodel = SQLAInterface(Dashboard)
 
-    # Removing thumbnail endpoint from this list to support caching top Pinterest homepage
-    # dashboards without THUMBNAILS feature enabled to cache all dashboards
+    # Removing thumbnail endpoint from this list to support caching top Pinterest
+    # homepage dashboards without THUMBNAILS feature enabled to cache all dashboards
     @before_request(only=["cache_dashboard_screenshot", "screenshot"])
     def ensure_thumbnails_enabled(self) -> Optional[Response]:
         if not is_feature_enabled("THUMBNAILS"):
@@ -394,16 +394,41 @@ class DashboardRestApi(BaseSupersetModelRestApi):
                     case(
                         [
                             (Dashboard.dashboard_title.is_(None), MISSING_TITLE_PENALTY),
-                            (func.lower(func.trim(Dashboard.dashboard_title)).like('[ untitled ]%'), MISSING_TITLE_PENALTY),
+                            (
+                                func.lower(
+                                    func.trim(Dashboard.dashboard_title)
+                                ).like("[ untitled ]%"),
+                                MISSING_TITLE_PENALTY,
+                            ),
                         ],
                         else_=0,
                     )
                     + case(
                         [
-                            (func.lower(func.trim(Dashboard.dashboard_title)).like('[deprecated]%'), DEPRECATED_TITLE_PENALTY),
-                            (func.lower(func.trim(Dashboard.dashboard_title)).like('%[deprecated]'), DEPRECATED_TITLE_PENALTY),
-                            (func.lower(func.trim(Dashboard.dashboard_title)).like('(deprecated)%'), DEPRECATED_TITLE_PENALTY),
-                            (func.lower(func.trim(Dashboard.dashboard_title)).like('%(deprecated)'), DEPRECATED_TITLE_PENALTY),
+                            (
+                                func.lower(
+                                    func.trim(Dashboard.dashboard_title)
+                                ).like("[deprecated]%"),
+                                DEPRECATED_TITLE_PENALTY,
+                            ),
+                            (
+                                func.lower(
+                                    func.trim(Dashboard.dashboard_title)
+                                ).like("%[deprecated]"),
+                                DEPRECATED_TITLE_PENALTY,
+                            ),
+                            (
+                                func.lower(
+                                    func.trim(Dashboard.dashboard_title)
+                                ).like("(deprecated)%"),
+                                DEPRECATED_TITLE_PENALTY,
+                            ),
+                            (
+                                func.lower(
+                                    func.trim(Dashboard.dashboard_title)
+                                ).like("%(deprecated)"),
+                                DEPRECATED_TITLE_PENALTY,
+                            ),
                         ],
                         else_=0,
                     )

@@ -519,9 +519,13 @@ def test_update_recipient_to_slack_v2(mocker: MockerFixture):
     )
     mock_cmmd.update_report_schedule_slack_v2()
 
+    expected_recipient_config = (
+        '{"target": "abc124f,blah_!channel_2", '
+        '"slackV1Target": "Channel-1, Channel_2"}'
+    )
     assert (
         mock_cmmd._report_schedule.recipients[0].recipient_config_json
-        == '{"target": "abc124f,blah_!channel_2", "slackV1Target": "Channel-1, Channel_2"}'
+        == expected_recipient_config
     )
     assert mock_cmmd._report_schedule.recipients[0].type == ReportRecipientType.SLACKV2
 

@@ -131,8 +131,8 @@ def extract_all_events_from_request() -> list[dict]:
             json_data = request.get_json(cache=True, silent=True) or {}
             if 'events' in json_data and isinstance(json_data['events'], list):
                 return json_data['events']
-    except Exception:
-        pass
+    except Exception as ex:
+        logger.exception("Failed to extract events from request: %s", ex)
     return []
 
 def extract_event_duration(event: dict) -> timedelta:
@@ -154,12 +154,12 @@ def extract_event_context(event: dict) -> dict:
             context['duration'] = extract_event_duration(event)
 
         # Special handling for dashboards and slices
-        if (action == 'load_chart' or action == 'render_chart' or action == 'mount_dashboard') and source == 'dashboard':
-            context['dashboard_id'] = event.get('source_id', 0)
+        if action in {"load_chart", "render_chart", "mount_dashboard"} and source == "dashboard":
+            context["dashboard_id"] = event.get("source_id", 0)
 
         return context
-    except Exception:
-        pass
+    except Exception as ex:
+        logger.exception("Failed to extract event context: %s", ex)
 
     return event
 

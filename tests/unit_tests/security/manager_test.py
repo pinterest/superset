@@ -1220,7 +1220,11 @@ def test_get_dashboard_access_error_object_external_groups_with_wiki(
     assert isinstance(error, SupersetError)
     assert error.error_type == SupersetErrorType.DASHBOARD_SECURITY_ACCESS_ERROR
     assert error.level == ErrorLevel.WARNING
-    expected_message = f"You don't have access to this dashboard. Join one of the following external groups: group1. Learn more about roles <a target='_blank' href='{wiki_url}'>here</a>."
+    expected_message = (
+        "You don't have access to this dashboard. Join one of the following "
+        "external groups: group1. Learn more about roles "
+        f"<a target='_blank' href='{wiki_url}'>here</a>."
+    )
     assert error.message == expected_message
 
 def test_get_dashboard_access_error_object_external_groups_without_wiki(
@@ -1249,7 +1253,10 @@ def test_get_dashboard_access_error_object_external_groups_without_wiki(
     assert isinstance(error, SupersetError)
     assert error.error_type == SupersetErrorType.DASHBOARD_SECURITY_ACCESS_ERROR
     assert error.level == ErrorLevel.WARNING
-    expected_message = f"You don't have access to this dashboard. Join one of the following external groups: group1, group2."
+    expected_message = (
+        "You don't have access to this dashboard. Join one of the following "
+        "external groups: group1, group2."
+    )
     assert error.message == expected_message
 
 def test_get_dashboard_access_error_object_default_message(

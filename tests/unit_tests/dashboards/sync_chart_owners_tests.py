@@ -14,8 +14,10 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-import pytest
 from unittest.mock import MagicMock
+
+import json
+import pytest
 from superset.models.dashboard import Dashboard
 
 
@@ -124,7 +126,8 @@ def test_sync_skips_charts_that_already_have_all_dashboard_owners() -> None:
     # Execute
     dashboard.sync_dashboard_chart_owners()
 
-    # Slice should be skipped and owners attribute should never have been accessed for modification
+    # Slice should be skipped and owners attribute should never have been accessed
+    # for modification
     assert len(slice_mock.method_calls) == 0
     assert len(slice_mock.owners) == 3  # Should remain unchanged
     assert len(dashboard.owners) == 2  # Dashboard owners should remain unchanged
@@ -255,8 +258,8 @@ def test_sync_with_malformed_json_metadata() -> None:
     dashboard = Dashboard()
     dashboard.json_metadata = 'invalid'
 
-    # Execute - should raise JSONDecodeError or handle gracefully
-    with pytest.raises(Exception):  # Could be JSONDecodeError or ValueError
+    # Execute - should raise JSONDecodeError
+    with pytest.raises(json.JSONDecodeError):
         dashboard.sync_dashboard_chart_owners()
 
 

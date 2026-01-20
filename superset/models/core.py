@@ -1076,7 +1076,7 @@ class Database(Model, AuditMixinNullable, ImportExportMixin):  # pylint: disable
         return f"[{self.database_name}].(id:{self.id})"
 
     @perm.expression  # type: ignore
-    def perm(cls) -> str:  # pylint: disable=no-self-argument
+    def perm(cls) -> str:  # pylint: disable=no-self-argument  # noqa: N805
         if db.engine.dialect.name == "sqlite":
             return (
                 "["

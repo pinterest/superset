@@ -196,7 +196,8 @@ class BaseReportState:
                         item for item in target_items if not item.startswith("@")
                     ]
 
-                    # Get channel IDs for channels (only returns IDs for channels starting with #)
+                    # Get channel IDs for channels (only returns IDs for channels
+                    # starting with #)
                     channel_target_str = (
                         ",".join(channel_targets) if channel_targets else ""
                     )

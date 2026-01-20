@@ -71,7 +71,7 @@ class UpdateDashboardCommand(UpdateMixin, BaseCommand):
             )
         return dashboard
 
-    def validate(self) -> None:
+    def validate(self) -> None:  # noqa: C901
         exceptions: list[ValidationError] = []
         owner_ids: Optional[list[int]] = self._properties.get("owners")
         roles_ids: Optional[list[int]] = self._properties.get("roles")

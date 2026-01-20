@@ -210,7 +210,7 @@ class TestThumbnails(SupersetTestCase):
         rv = self.client.get(thumbnail_url)
         # For Pinterest fork, thumbnail endpoint is available
         # even when the feature flag is disabled
-        self.assertEqual(rv.status_code, 202)
+        assert rv.status_code == 202
 
     @pytest.mark.usefixtures("load_birth_names_dashboard_with_slices")
     @with_feature_flags(THUMBNAILS=False)
