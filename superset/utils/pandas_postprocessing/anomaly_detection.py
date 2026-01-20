@@ -1,7 +1,9 @@
-import pandas as pd
 from typing import Optional
 
+import pandas as pd
+
 from superset.utils.core import DTTM_ALIAS
+
 
 def anomaly_detection(
     df: pd.DataFrame,
@@ -37,7 +39,7 @@ def anomaly_detection(
     """
     # Lazy import to avoid circular import with superset.config
     from superset.config import ANOMALY_DETECTION
-    
+
     if not ANOMALY_DETECTION:
         raise ValueError("ANOMALY_DETECTION function is not configured.")
 

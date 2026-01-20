@@ -9,8 +9,8 @@ from superset.commands.dataset.table_metadata.exceptions import (
 )
 from superset.commands.dataset.table_metadata.get import GetDatasetTableMetadataCommand
 from superset.sql.parse import Table
-from superset import app
 from tests.integration_tests.base_tests import SupersetTestCase
+
 
 def mock_db_table_metadata(database, schema, table):
     """
@@ -33,6 +33,7 @@ def mock_db_table_metadata(database, schema, table):
             "type": "string",
         },
     ]
+
 
 class TestGetDatasetTableMetadataCommand(SupersetTestCase):
     def setUp(self):
@@ -73,28 +74,19 @@ class TestGetDatasetTableMetadataCommand(SupersetTestCase):
         self.mock_dataset_find_by_id.return_value = MagicMock(
             sql="SELECT *", table_name=None, schema=None
         )
-        self.mock_database_find_by_id.return_value = MagicMock(
-            database_name="test_db"
-        )
+        self.mock_database_find_by_id.return_value = MagicMock(database_name="test_db")
         result = GetDatasetTableMetadataCommand(1).run()
         assert result == {
             "database_name": "test_db",
             "table_metadata": [],
         }
 
-
     def test_schema_name_not_available(self):
-        self.mock_extract_tables.return_value = {
-            Table(
-                table="table_1", schema=None
-            )
-        }
+        self.mock_extract_tables.return_value = {Table(table="table_1", schema=None)}
         self.mock_dataset_find_by_id.return_value = MagicMock(
             sql="SELECT * FROM table_1", table_name=None, schema=None
         )
-        self.mock_database_find_by_id.return_value = MagicMock(
-            database_name="test_db"
-        )
+        self.mock_database_find_by_id.return_value = MagicMock(database_name="test_db")
         result = GetDatasetTableMetadataCommand(1).run()
         assert result == {
             "database_name": "test_db",
@@ -108,16 +100,12 @@ class TestGetDatasetTableMetadataCommand(SupersetTestCase):
 
     def test_schema_name_returnedc(self):
         self.mock_extract_tables.return_value = {
-            Table(
-                table="table_1", schema="schema_a"
-            )
+            Table(table="table_1", schema="schema_a")
         }
         self.mock_dataset_find_by_id.return_value = MagicMock(
             sql="SELECT * FROM table_1", table_name=None, schema=None
         )
-        self.mock_database_find_by_id.return_value = MagicMock(
-            database_name="test_db"
-        )
+        self.mock_database_find_by_id.return_value = MagicMock(database_name="test_db")
         result = GetDatasetTableMetadataCommand(1).run()
         assert result == {
             "database_name": "test_db",
@@ -129,21 +117,16 @@ class TestGetDatasetTableMetadataCommand(SupersetTestCase):
             ],
         }
 
-
     @mock.patch(
         "superset.commands.dataset.table_metadata.get.DB_TABLE_METADATA",
         mock_db_table_metadata,
-    ) 
+    )
     def test_with_db_table_metadata_config(self):
         self.mock_extract_tables.return_value = {
-            Table(
-                table="table_1", schema="schema_a"
-            )
+            Table(table="table_1", schema="schema_a")
         }
         # self.mock_database_find_by_id.database_name = "test_db"
-        self.mock_database_find_by_id.return_value = MagicMock(
-            database_name="test_db"
-        )
+        self.mock_database_find_by_id.return_value = MagicMock(database_name="test_db")
         result = GetDatasetTableMetadataCommand(1).run()
         assert result == {
             "database_name": "test_db",
@@ -166,7 +149,7 @@ class TestGetDatasetTableMetadataCommand(SupersetTestCase):
                             "value": "schema_a",
                             "type": "string",
                         },
-                    ]
+                    ],
                 },
             ],
         }
@@ -177,22 +160,12 @@ class TestGetDatasetTableMetadataCommand(SupersetTestCase):
             table_name=None,
             schema=None,
         )
-        self.mock_extract_tables.return_value = {
-            Table(
-                table="table_1", schema=None
-            )
-        }
+        self.mock_extract_tables.return_value = {Table(table="table_1", schema=None)}
         command = GetDatasetTableMetadataCommand(1)
         command.validate()
         tables = command._get_dataset_tables()
         assert self.mock_extract_tables.call_count == 1
-        assert tables == {
-            Table(
-                table="table_1", schema=None
-            )
-        }
-
-
+        assert tables == {Table(table="table_1", schema=None)}
 
     def test__get_dataset_tables_physical_dataset(self):
         self.mock_dataset_find_by_id.return_value = MagicMock(
@@ -204,8 +177,4 @@ class TestGetDatasetTableMetadataCommand(SupersetTestCase):
         command.validate()
         tables = command._get_dataset_tables()
         assert self.mock_extract_tables.call_count == 0
-        assert tables == {
-            Table(
-                table="tablea", schema="schemaa", catalog="schemaa"
-            )
-        }
+        assert tables == {Table(table="tablea", schema="schemaa", catalog="schemaa")}
