@@ -32,12 +32,12 @@ describe('Dashboards filters', () => {
 
   it('should allow filtering by "Owner" correctly', () => {
     setFilter('Owner', 'alpha user (alpha)');
-    setFilter('Owner', 'admin user (admin)');
+    setFilter('Owner', 'admin user');
   });
 
   it('should allow filtering by "Modified by" correctly', () => {
     setFilter('Modified by', 'alpha user (alpha)');
-    setFilter('Modified by', 'admin user (admin)');
+    setFilter('Modified by', 'admin user');
   });
 
   it('should allow filtering by "Status" correctly', () => {

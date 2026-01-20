@@ -18,81 +18,7 @@
  */
 import { CHART_LIST } from 'cypress/utils/urls';
 import { setGridMode, clearAllInputs } from 'cypress/utils';
-import { interceptFiltering, setFilter } from '../explore/utils';
-
-const DROPDOWN_SELECTOR = '.ant-select-dropdown, .antd5-select-dropdown, .Select__menu';
-const OPTION_SELECTOR =
-  '.ant-select-item-option, .antd5-select-item-option, .Select__option';
-
-function getFilterControl(filterLabel: string) {
-  // Prefer the stable data-test selector used across list pages.
-  return cy.get('body').then($body => {
-    const preferred = $body.find(
-      `[data-test="filters-select"][aria-label="${filterLabel}"]`,
-    );
-    if (preferred.length) {
-      return cy.wrap(preferred.first());
-    }
-
-    const fallback = $body.find(`[aria-label="${filterLabel}"]`);
-    if (fallback.length) {
-      return cy.wrap(fallback.first());
-    }
-
-    cy.task('log', {
-      context: `${filterLabel}:controlNotFound`,
-      foundAriaLabels: Array.from(
-        $body.find('[aria-label]').slice(0, 50),
-      ).map(el => (el as HTMLElement).getAttribute('aria-label')),
-    });
-    throw new Error(`Could not find filter control for aria-label="${filterLabel}"`);
-  });
-}
-
-function logOpenAntdDropdownOptions(context: string) {
-  cy.get(DROPDOWN_SELECTOR)
-    .filter(':visible')
-    .should('have.length.greaterThan', 0)
-    .first()
-    .then($dropdown => {
-      const options = Array.from(
-        $dropdown[0].querySelectorAll<HTMLElement>(OPTION_SELECTOR),
-      ).map(el => ({
-        title: el.getAttribute('title'),
-        text: (el.textContent || '').trim(),
-      }));
-
-      cy.task('log', {
-        context,
-        dropdownClass: $dropdown[0].className,
-        optionCount: options.length,
-        options,
-      });
-    });
-}
-
-function openFilterAndLogOptions(filterLabel: string, search?: string) {
-  getFilterControl(filterLabel).click({ force: true });
-  logOpenAntdDropdownOptions(`${filterLabel}:initial`);
-  if (search) {
-    getFilterControl(filterLabel).then($el => {
-      const $select = $el.closest('.ant-select, .antd5-select');
-      if ($select.length) {
-        cy.wrap($select)
-          .find(
-            'input.ant-select-selection-search-input, input.antd5-select-selection-search-input',
-          )
-          .filter(':visible')
-          .first()
-          .clear({ force: true })
-          .type(search, { force: true });
-      } else {
-        cy.focused().clear({ force: true }).type(search, { force: true });
-      }
-    });
-    logOpenAntdDropdownOptions(`${filterLabel}:afterSearch(${search})`);
-  }
-}
+import { setFilter } from '../explore/utils';
 
 describe('Charts filters', () => {
   before(() => {
@@ -105,31 +31,13 @@ describe('Charts filters', () => {
   });
 
   it('should allow filtering by "Owner"', () => {
-    // Debug: log what the dropdown actually contains in CI/local env
-    openFilterAndLogOptions('Owner', 'admin');
-
-    // Keep existing behavior (so we can compare logs vs. failures)
-    interceptFiltering();
-    getFilterControl('Owner').click({ force: true });
-    logOpenAntdDropdownOptions('Owner:beforeSelect(admin user (admin))');
-    cy.get(`[aria-label="Owner"] [title="admin user (admin)"]`).click({
-      force: true,
-    });
-    cy.wait('@filtering');
+    setFilter('Owner', 'alpha user (alpha)');
+    setFilter('Owner', 'admin user');
   });
 
   it('should allow filtering by "Modified by" correctly', () => {
-    // Debug: log what the dropdown actually contains in CI/local env
-    openFilterAndLogOptions('Modified by', 'admin');
-
-    // Keep existing behavior (so we can compare logs vs. failures)
-    interceptFiltering();
-    getFilterControl('Modified by').click({ force: true });
-    logOpenAntdDropdownOptions('Modified by:beforeSelect(admin user (admin))');
-    cy.get(`[aria-label="Modified by"] [title="admin user (admin)"]`).click({
-      force: true,
-    });
-    cy.wait('@filtering');
+    setFilter('Modified by', 'alpha user (alpha)');
+    setFilter('Modified by', 'admin user');
   });
 
   it('should allow filtering by "Type" correctly', () => {
