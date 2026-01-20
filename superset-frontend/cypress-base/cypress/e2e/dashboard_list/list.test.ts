@@ -28,6 +28,9 @@ import {
 } from '../dashboard/utils';
 
 function orderAlphabetical() {
+  // Default sort is already 'Alphabetical', so we need to change to something else first
+  // to ensure selecting 'Alphabetical' triggers an API request
+  setFilter('Sort', 'Recently modified');
   setFilter('Sort', 'Alphabetical');
 }
 
@@ -44,15 +47,8 @@ function confirmDelete(bulk = false) {
   interceptDelete();
   interceptBulkDelete();
 
-  // Wait for modal dialog to be present and visible
-  cy.get('[role="dialog"][aria-modal="true"]').should('be.visible');
-  cy.getBySel('delete-modal-input')
-    .should('be.visible')
-    .then($input => {
-      cy.wrap($input).clear();
-      cy.wrap($input).type('DELETE');
-    });
-  cy.getBySel('modal-confirm-button').should('be.visible').click();
+  cy.getBySel('delete-modal-input').should('be.visible').type('DELETE');
+  cy.getBySel('modal-confirm-button').click();
 
   if (bulk) {
     cy.wait('@bulkDelete');
