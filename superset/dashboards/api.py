@@ -362,7 +362,7 @@ class DashboardRestApi(BaseSupersetModelRestApi):
             self.appbuilder.app.config["VERSION_SHA"],
         )
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         original_apply_order_by = self.datamodel.apply_order_by
 

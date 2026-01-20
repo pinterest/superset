@@ -14,7 +14,11 @@ from superset.models.core import Database
 from superset.sql.parse import Table
 from superset.sql_parse import extract_tables_from_jinja_sql
 from superset.utils.decorators import on_error, transaction
-from superset.pinterest.types import DatasetTableMetadata, TableMetadataField
+from superset.pinterest.types import (
+    DatasetTableMetadata,
+    TableMetadata,
+    TableMetadataField,
+)
 
 config = app.config
 
@@ -46,7 +50,7 @@ class GetDatasetTableMetadataCommand(BaseCommand):
         assert self._database is not None
         dataset_tables = self._get_dataset_tables()
         database_name = self._database.database_name
-        table_metadata = []
+        table_metadata: list[TableMetadata] = []
         for table in dataset_tables:
             if table.schema:
                 table_name = f"{table.schema}.{table.table}"
@@ -61,10 +65,13 @@ class GetDatasetTableMetadataCommand(BaseCommand):
                 else None
             )
             table_metadata.append(
-                {
-                    "table_name": table_name,
-                    "metadata_fields": metadata_fields,
-                }
+                cast(
+                    TableMetadata,
+                    {
+                        "table_name": table_name,
+                        "metadata_fields": metadata_fields,
+                    },
+                )
             )
         return {
             "database_name": database_name,
