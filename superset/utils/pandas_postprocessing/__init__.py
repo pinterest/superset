@@ -15,6 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 from superset.utils.pandas_postprocessing.aggregate import aggregate
+from superset.utils.pandas_postprocessing.anomaly_detection import anomaly_detection
 from superset.utils.pandas_postprocessing.boxplot import boxplot
 from superset.utils.pandas_postprocessing.compare import compare
 from superset.utils.pandas_postprocessing.contribution import contribution
@@ -29,7 +30,6 @@ from superset.utils.pandas_postprocessing.geography import (
 from superset.utils.pandas_postprocessing.histogram import histogram
 from superset.utils.pandas_postprocessing.pivot import pivot
 from superset.utils.pandas_postprocessing.prophet import prophet
-from superset.utils.pandas_postprocessing.anomaly_detection import anomaly_detection
 from superset.utils.pandas_postprocessing.rank import rank
 from superset.utils.pandas_postprocessing.rename import rename
 from superset.utils.pandas_postprocessing.resample import resample

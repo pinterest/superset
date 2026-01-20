@@ -21,7 +21,7 @@ import logging
 import re
 import time
 from collections import defaultdict
-from typing import Any, Callable, cast, Dict, List, NamedTuple, Optional, TYPE_CHECKING
+from typing import Any, Callable, cast, List, NamedTuple, Optional, TYPE_CHECKING
 
 from flask import current_app, Flask, g, Request
 from flask_appbuilder import Model
@@ -2422,8 +2422,7 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
             )
             raise SupersetSecurityException(
                 self.get_dashboard_access_error_object(
-                    dashboard,
-                    required_external_groups=required_external_groups
+                    dashboard, required_external_groups=required_external_groups
                 )
             )
 
@@ -2484,9 +2483,7 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
         auth_roles_mapping = current_app.config.get("AUTH_ROLES_MAPPING", {})
         return external_group in auth_roles_mapping
 
-    def get_external_group_for_superset_role(
-        self, superset_role: str
-    ) -> Optional[str]:
+    def get_external_group_for_superset_role(self, superset_role: str) -> Optional[str]:
         """
         Get the external group name for an internal group.
 

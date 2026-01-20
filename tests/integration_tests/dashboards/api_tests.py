@@ -73,6 +73,7 @@ from tests.integration_tests.fixtures.world_bank_dashboard import (
 
 DASHBOARDS_FIXTURE_COUNT = 10
 
+
 class TestDashboardApi(ApiOwnersTestCaseMixin, InsertChartMixin, SupersetTestCase):
     resource_name = "dashboard"
 
@@ -540,7 +541,7 @@ class TestDashboardApi(ApiOwnersTestCaseMixin, InsertChartMixin, SupersetTestCas
                         "id": 1,
                         "first_name": "admin",
                         "last_name": "user",
-                        "username": "admin"
+                        "username": "admin",
                     }
                 ],
                 "roles": [],
@@ -3384,10 +3385,7 @@ class TestDashboardApi(ApiOwnersTestCaseMixin, InsertChartMixin, SupersetTestCas
 
         # Insert dashboard with owners
         dashboard = self.insert_dashboard(
-            "title1",
-            "slug1",
-            [user_alpha1.id, admin.id],
-            slices=[boys, girls, trends]
+            "title1", "slug1", [user_alpha1.id, admin.id], slices=[boys, girls, trends]
         )
 
         boys.owners = [user_alpha1]
@@ -3397,11 +3395,7 @@ class TestDashboardApi(ApiOwnersTestCaseMixin, InsertChartMixin, SupersetTestCas
         db.session.commit()
 
         dashboard_data = {
-            "json_metadata": json.dumps(
-                {
-                    "auto_sync_chart_owners": True
-                }
-            ),
+            "json_metadata": json.dumps({"auto_sync_chart_owners": True}),
         }
 
         self.login(ADMIN_USERNAME)

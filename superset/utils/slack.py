@@ -25,11 +25,10 @@ from slack_sdk.errors import SlackApiError
 
 from superset import feature_flag_manager
 from superset.exceptions import SupersetException
-from superset.reports.schemas import SlackChannelSchema
-from superset.utils.backports import StrEnum
-from superset.utils.core import recipients_string_to_list
-from superset.utils import cache as cache_util
 from superset.extensions import cache_manager
+from superset.reports.schemas import SlackChannelSchema
+from superset.utils import cache as cache_util
+from superset.utils.backports import StrEnum
 
 logger = logging.getLogger(__name__)
 
@@ -72,10 +71,7 @@ def get_channels(
         except SlackApiError as ex:
             # Check if this is a rate limit error (429)
             # ex.response may be a SlackResponse object or just a string
-            if (
-                hasattr(ex.response, "status_code")
-                and ex.response.status_code == 429
-            ):
+            if hasattr(ex.response, "status_code") and ex.response.status_code == 429:
                 logger.warning(
                     "Slack API rate limited. Retrying after %d seconds",
                     ex.response.headers["retry-after"],

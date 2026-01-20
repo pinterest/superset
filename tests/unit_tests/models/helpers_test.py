@@ -28,6 +28,7 @@ from pytest_mock import MockerFixture
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm.session import Session
 from sqlalchemy.pool import StaticPool
+
 from superset.connectors.sqla.models import SqlaTable, TableColumn
 from superset.extensions import cache_manager
 from tests.unit_tests.conftest import with_feature_flags

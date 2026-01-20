@@ -141,9 +141,9 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         from superset.databases.api import DatabaseRestApi
         from superset.datasets.api import DatasetRestApi
         from superset.datasets.columns.api import DatasetColumnsRestApi
-        from superset.datasets.template_columns.api import DatasetTemplateColumnsRestApi
-        from superset.datasets.table_metadata.api import DatasetTableMetadataRestApi
         from superset.datasets.metrics.api import DatasetMetricRestApi
+        from superset.datasets.table_metadata.api import DatasetTableMetadataRestApi
+        from superset.datasets.template_columns.api import DatasetTemplateColumnsRestApi
         from superset.datasource.api import DatasourceRestApi
         from superset.embedded.api import EmbeddedDashboardRestApi
         from superset.embedded.view import EmbeddedView

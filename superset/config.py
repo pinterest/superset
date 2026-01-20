@@ -36,16 +36,15 @@ from contextlib import contextmanager
 from datetime import timedelta
 from email.mime.multipart import MIMEMultipart
 from importlib.resources import files
-from typing import Any, Callable, Iterator, Literal, TYPE_CHECKING, TypedDict, Optional
+from typing import Any, Callable, Iterator, Literal, Optional, TYPE_CHECKING, TypedDict
 
 import click
 from celery.schedules import crontab
 from flask import Blueprint
 from flask_appbuilder.security.manager import AUTH_DB
 from flask_caching.backends.base import BaseCache
-from pandas import Series
+from pandas import DataFrame, Series
 from pandas._libs.parsers import STR_NA_VALUES
-from pandas import DataFrame
 from sqlalchemy.engine.url import URL
 from sqlalchemy.orm.query import Query
 
@@ -55,7 +54,11 @@ from superset.advanced_data_type.types import AdvancedDataType
 from superset.constants import CHANGE_ME_SECRET_KEY
 from superset.jinja_context import BaseTemplateProcessor
 from superset.key_value.types import JsonKeyValueCodec
-from superset.pinterest.types import PinterestCustomLink, PinterestMenuItems, PinterestWelcomeTopSections
+from superset.pinterest.types import (
+    PinterestCustomLink,
+    PinterestMenuItems,
+    PinterestWelcomeTopSections,
+)
 from superset.stats_logger import DummyStatsLogger
 from superset.superset_typing import CacheConfig
 from superset.tasks.types import ExecutorType
@@ -1951,6 +1954,7 @@ PINTEREST_EMAIL_DOMAIN = ""
 # Cache timeout for column values cache (if enabled)
 COLUMN_VALUES_CACHE_TIMEOUT = 25 * 60 * 60  # 25 hours
 
+
 # Extra dynamic query filters make it possible to limit which objects are shown
 # in the UI before any other filtering is applied. Useful for example when
 # considering to filter using Feature Flags along with regular role filters
@@ -1982,7 +1986,8 @@ CATALOGS_SIMPLIFIED_MIGRATION: bool = False
 # plug in your own anomaly detection function here
 # see superset/utils/pandas_postprocessing/anomaly_detection.py for parameter
 # descriptions
-ANOMALY_DETECTION: Optional[Callable[
+ANOMALY_DETECTION: Optional[
+    Callable[
         [
             DataFrame,
             float,
@@ -1993,7 +1998,8 @@ ANOMALY_DETECTION: Optional[Callable[
             Optional[str],
         ],
         DataFrame,
-]] = None
+    ]
+] = None
 
 # -------------------------------------------------------------------
 # *                WARNING:  STOP EDITING  HERE                    *

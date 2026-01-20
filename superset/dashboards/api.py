@@ -19,7 +19,7 @@ import functools
 import logging
 from datetime import datetime
 from io import BytesIO
-from typing import Any, Callable, Optional, cast
+from typing import Any, Callable, cast, Optional
 from zipfile import is_zipfile, ZipFile
 
 from flask import g, redirect, request, Response, send_file, url_for
@@ -378,67 +378,66 @@ class DashboardRestApi(BaseSupersetModelRestApi):
                 query = query.order_by(None)
 
                 # Create a pre-aggregated subquery that counts favorites per dashboard
-                favstar_counts = db.session.query(
-                    FavStar.obj_id.label('dashboard_id'),
-                    func.count(FavStar.id).label('favorite_count')
-                ).filter(
-                    FavStar.class_name == FavStarClassName.DASHBOARD
-                ).group_by(FavStar.obj_id).subquery()
+                favstar_counts = (
+                    db.session.query(
+                        FavStar.obj_id.label("dashboard_id"),
+                        func.count(FavStar.id).label("favorite_count"),
+                    )
+                    .filter(FavStar.class_name == FavStarClassName.DASHBOARD)
+                    .group_by(FavStar.obj_id)
+                    .subquery()
+                )
 
                 # Join with the pre-aggregated favorite counts
                 query = query.outerjoin(
-                    favstar_counts,
-                    favstar_counts.c.dashboard_id == Dashboard.id
+                    favstar_counts, favstar_counts.c.dashboard_id == Dashboard.id
                 )
 
                 favorite_count = func.coalesce(favstar_counts.c.favorite_count, 0)
 
                 # Calculate title penalties (same logic as in the model)
-                title_penalty = (
-                    case(
-                        [
-                            (
-                                Dashboard.dashboard_title.is_(None),
-                                MISSING_TITLE_PENALTY,
+                title_penalty = case(
+                    [
+                        (
+                            Dashboard.dashboard_title.is_(None),
+                            MISSING_TITLE_PENALTY,
+                        ),
+                        (
+                            func.lower(func.trim(Dashboard.dashboard_title)).like(
+                                "[ untitled ]%"
                             ),
-                            (
-                                func.lower(
-                                    func.trim(Dashboard.dashboard_title)
-                                ).like("[ untitled ]%"),
-                                MISSING_TITLE_PENALTY,
+                            MISSING_TITLE_PENALTY,
+                        ),
+                    ],
+                    else_=0,
+                ) + case(
+                    [
+                        (
+                            func.lower(func.trim(Dashboard.dashboard_title)).like(
+                                "[deprecated]%"
                             ),
-                        ],
-                        else_=0,
-                    )
-                    + case(
-                        [
-                            (
-                                func.lower(
-                                    func.trim(Dashboard.dashboard_title)
-                                ).like("[deprecated]%"),
-                                DEPRECATED_TITLE_PENALTY,
+                            DEPRECATED_TITLE_PENALTY,
+                        ),
+                        (
+                            func.lower(func.trim(Dashboard.dashboard_title)).like(
+                                "%[deprecated]"
                             ),
-                            (
-                                func.lower(
-                                    func.trim(Dashboard.dashboard_title)
-                                ).like("%[deprecated]"),
-                                DEPRECATED_TITLE_PENALTY,
+                            DEPRECATED_TITLE_PENALTY,
+                        ),
+                        (
+                            func.lower(func.trim(Dashboard.dashboard_title)).like(
+                                "(deprecated)%"
                             ),
-                            (
-                                func.lower(
-                                    func.trim(Dashboard.dashboard_title)
-                                ).like("(deprecated)%"),
-                                DEPRECATED_TITLE_PENALTY,
+                            DEPRECATED_TITLE_PENALTY,
+                        ),
+                        (
+                            func.lower(func.trim(Dashboard.dashboard_title)).like(
+                                "%(deprecated)"
                             ),
-                            (
-                                func.lower(
-                                    func.trim(Dashboard.dashboard_title)
-                                ).like("%(deprecated)"),
-                                DEPRECATED_TITLE_PENALTY,
-                            ),
-                        ],
-                        else_=0,
-                    )
+                            DEPRECATED_TITLE_PENALTY,
+                        ),
+                    ],
+                    else_=0,
                 )
 
                 # Calculate relevance score (same logic as in the model)
@@ -448,13 +447,13 @@ class DashboardRestApi(BaseSupersetModelRestApi):
                     return query.order_by(
                         relevance_score.desc(),
                         Dashboard.published.desc(),
-                        Dashboard.dashboard_title.asc()
+                        Dashboard.dashboard_title.asc(),
                     )
                 else:
                     return query.order_by(
                         relevance_score.asc(),
                         Dashboard.published.asc(),
-                        Dashboard.dashboard_title.asc()
+                        Dashboard.dashboard_title.asc(),
                     )
 
             # For all other columns, use the original method

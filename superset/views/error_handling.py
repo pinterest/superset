@@ -19,11 +19,11 @@ from __future__ import annotations
 import dataclasses
 import functools
 import logging
+import traceback
 import typing
+from datetime import datetime
 from importlib.resources import files
 from typing import Any, Callable, cast
-from datetime import datetime
-import traceback
 
 from flask import (
     Flask,
@@ -37,7 +37,6 @@ from sqlalchemy import exc
 from werkzeug.exceptions import HTTPException
 
 from superset import appbuilder
-from superset.extensions import event_logger
 from superset.commands.exceptions import CommandException, CommandInvalidError
 from superset.errors import ErrorLevel, SupersetError, SupersetErrorType
 from superset.exceptions import (
@@ -46,6 +45,7 @@ from superset.exceptions import (
     SupersetException,
     SupersetSecurityException,
 )
+from superset.extensions import event_logger
 from superset.superset_typing import FlaskResponse
 from superset.utils import core as utils, json
 from superset.utils.log import get_logger_from_status
@@ -118,6 +118,7 @@ def handle_api_exception(  # noqa: C901
                 )
             except Exception as log_ex:  # pylint: disable=broad-except
                 logger.debug("Failed to persist api_exception log: %s", log_ex)
+
         try:
             return f(self, *args, **kwargs)
         except SupersetSecurityException as ex:

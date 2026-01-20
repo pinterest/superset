@@ -23,12 +23,12 @@ from superset.commands.dashboard.exceptions import (
     DashboardAccessDeniedError,
     DashboardNotFoundError,
 )
-from superset.exceptions import SupersetSecurityException
 from superset.commands.dashboard.permalink.base import BaseDashboardPermalinkCommand
 from superset.daos.dashboard import DashboardDAO
 from superset.daos.key_value import KeyValueDAO
 from superset.dashboards.permalink.exceptions import DashboardPermalinkGetFailedError
 from superset.dashboards.permalink.types import DashboardPermalinkValue
+from superset.exceptions import SupersetSecurityException
 from superset.key_value.exceptions import (
     KeyValueCodecDecodeException,
     KeyValueGetFailedError,

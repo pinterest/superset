@@ -118,40 +118,43 @@ PARAMETER_MISSING_ERR = __(
 
 SqlResults = dict[str, Any]
 
+
 def extract_all_events_from_request() -> list[dict[str, Any]]:
     """Extract all events from the request payload as a list of dicts"""
     try:
         # Try to get events from form data
-        if request.form.get('events'):
-            events = json.loads(request.form.get('events'))
+        if request.form.get("events"):
+            events = json.loads(request.form.get("events"))
             if isinstance(events, list):
                 return events
         # Try to get events from JSON payload
         elif request.is_json:
             json_data = request.get_json(cache=True, silent=True) or {}
-            if 'events' in json_data and isinstance(json_data['events'], list):
-                return json_data['events']
+            if "events" in json_data and isinstance(json_data["events"], list):
+                return json_data["events"]
     except Exception as ex:
         logger.exception("Failed to extract events from request: %s", ex)
     return []
 
+
 def extract_event_duration(event: dict[str, Any]) -> timedelta:
     """Extract the event duration from the request payload"""
-    return timedelta(milliseconds=event.get('duration', 0))
+    return timedelta(milliseconds=event.get("duration", 0))
+
 
 def extract_event_context(event: dict[str, Any]) -> dict[str, Any]:
     """Extract the event context from the request payload"""
     try:
-        action = event.get('event_name', 'log')
-        source = event.get('source', None)
+        action = event.get("event_name", "log")
+        source = event.get("source", None)
 
         context = {
             "action": action,
             **event,
         }
 
-        if 'duration' in event:
-            context['duration'] = extract_event_duration(event)
+        if "duration" in event:
+            context["duration"] = extract_event_duration(event)
 
         # Special handling for dashboards and slices
         if (

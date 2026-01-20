@@ -29,7 +29,7 @@ class TestSyncDashboardChartOwners(SupersetTestCase):
             # Create dashboard with auto_sync enabled
             dashboard = Dashboard(
                 dashboard_title="Test Dashboard",
-                json_metadata='{"auto_sync_chart_owners": true}'
+                json_metadata='{"auto_sync_chart_owners": true}',
             )
 
             # Create users (owners)
@@ -38,9 +38,7 @@ class TestSyncDashboardChartOwners(SupersetTestCase):
 
             # Create a chart
             chart = Slice(
-                slice_name="Test Chart",
-                datasource_id=1,
-                datasource_type="table"
+                slice_name="Test Chart", datasource_id=1, datasource_type="table"
             )
 
             # Set up relationships
@@ -70,7 +68,7 @@ class TestSyncDashboardChartOwners(SupersetTestCase):
             assert set(chart.owners) == {
                 dashboard_owner,
                 chart_owner,
-                new_dashboard_owner
+                new_dashboard_owner,
             }
 
             # Clean up
