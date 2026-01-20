@@ -62,8 +62,8 @@ class TestTemplateColumnReferencesProcessor(SupersetTestCase):
 class TestGetDatasetTemplateColumnsCommand(SupersetTestCase):
     @mock.patch("superset.daos.dataset.DatasetDAO.find_by_id")
     def test_validate_dataset_not_found(self, mock_dataset_find_by_id):
+        mock_dataset_find_by_id.return_value = None
         with pytest.raises(DatasetNotFoundError):
-            mock_dataset_find_by_id.return_value = None
             GetDatasetTemplateColumnsCommand(1).validate()
 
     @mock.patch("superset.daos.dataset.DatasetDAO.find_by_id")

@@ -171,7 +171,7 @@ class AbstractEventLogger(ABC):
     ) -> None:
         pass
 
-    def log_with_context(  # pylint: disable=too-many-locals,too-many-arguments
+    def log_with_context(  # pylint: disable=too-many-locals,too-many-arguments  # noqa: C901
         self,
         action: str,
         duration: timedelta | None = None,
@@ -180,7 +180,7 @@ class AbstractEventLogger(ABC):
         database: Any | None = None,
         payload: dict[str, Any] | None = None,
         **payload_override: dict[str, Any] | None,
-    ) -> None:  # noqa: C901
+    ) -> None:
         # pylint: disable=import-outside-toplevel
         from superset import db
         from superset.views.core import get_form_data

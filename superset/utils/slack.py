@@ -56,7 +56,9 @@ def get_slack_client() -> WebClient:
     key="slack_conversations_list",
     cache=cache_manager.cache,
 )
-def get_channels(types: Optional[list[SlackChannelTypes]] = None, limit: int = 999):
+def get_channels(
+    types: Optional[list[SlackChannelTypes]] = None, limit: int = 999
+) -> list[SlackChannelSchema]:
     client = get_slack_client()
     channels = []
     cursor = None

@@ -753,6 +753,10 @@ class ExploreMixin:  # pylint: disable=too-many-public-methods
         raise NotImplementedError()
 
     @property
+    def id(self) -> int:
+        raise NotImplementedError()
+
+    @property
     def is_rls_supported(self) -> bool:
         raise NotImplementedError()
 

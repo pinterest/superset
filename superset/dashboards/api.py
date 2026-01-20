@@ -30,6 +30,7 @@ from flask_appbuilder.models.sqla.interface import SQLAInterface
 from flask_babel import gettext, ngettext
 from marshmallow import ValidationError
 from sqlalchemy import case, func
+from sqlalchemy.orm import Query
 from werkzeug.wrappers import Response as WerkzeugResponse
 from werkzeug.wsgi import FileWrapper
 
@@ -367,8 +368,11 @@ class DashboardRestApi(BaseSupersetModelRestApi):
 
         # Override the apply_order_by method to handle relevance_score ordering
         def custom_apply_order_by(
-            query, order_column, order_direction, **kwargs
-        ):
+            query: Query,
+            order_column: str,
+            order_direction: str,
+            **kwargs: Any,
+        ) -> Query:
             if order_column == "relevance_score":
                 # Clear any existing ordering
                 query = query.order_by(None)
@@ -393,7 +397,10 @@ class DashboardRestApi(BaseSupersetModelRestApi):
                 title_penalty = (
                     case(
                         [
-                            (Dashboard.dashboard_title.is_(None), MISSING_TITLE_PENALTY),
+                            (
+                                Dashboard.dashboard_title.is_(None),
+                                MISSING_TITLE_PENALTY,
+                            ),
                             (
                                 func.lower(
                                     func.trim(Dashboard.dashboard_title)

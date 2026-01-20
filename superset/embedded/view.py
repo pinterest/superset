@@ -53,6 +53,7 @@ class EmbeddedView(BaseSupersetView):
             abort(404)
 
         embedded = EmbeddedDashboardDAO.find_by_id(uuid)
+        embedded_dashboard_id: str | None = uuid
 
         # [pinterest-specific] Allow embedding by dashboard id or slug
         if not embedded and is_feature_enabled(
@@ -68,7 +69,7 @@ class EmbeddedView(BaseSupersetView):
                     )
                 )
                 embedded.dashboard_id = dashboard.id
-                uuid = None
+                embedded_dashboard_id = None
 
         if not embedded:
             abort(404)
@@ -92,10 +93,14 @@ class EmbeddedView(BaseSupersetView):
             login_user(AnonymousUserMixin(), force=True)
 
         add_extra_log_payload(
-            embedded_dashboard_id=uuid,
+            embedded_dashboard_id=embedded_dashboard_id,
             dashboard_version="v2",
             # [pinterest-specific] Only add extra log payload if uuid is None.
-            **({"embedded_by_id_or_slug": True} if uuid is None else {}),
+            **(
+                {"embedded_by_id_or_slug": True}
+                if embedded_dashboard_id is None
+                else {}
+            ),
         )
 
         bootstrap_data = {

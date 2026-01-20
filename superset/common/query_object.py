@@ -352,7 +352,7 @@ class QueryObject:  # pylint: disable=too-many-instance-attributes
             default=str,
         )
 
-    def _remove_option_name_from_cache_dict(self, cache_dict: Any) -> dict[str, Any]:
+    def _remove_option_name_from_cache_dict(self, cache_dict: Any) -> Any:
         """
         Recursively search cache_dict and remove any key named 'optionName'.
         """

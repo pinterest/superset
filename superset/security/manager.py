@@ -557,7 +557,7 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
     def get_dashboard_access_error_object(  # pylint: disable=invalid-name
         self,
         dashboard: "Dashboard",  # pylint: disable=unused-argument
-        required_external_groups: Optional[list] = None,
+        required_external_groups: Optional[list[str]] = None,
     ) -> SupersetError:
         """
         Return the error object for the denied Superset dashboard.
@@ -2484,7 +2484,9 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
         auth_roles_mapping = current_app.config.get("AUTH_ROLES_MAPPING", {})
         return external_group in auth_roles_mapping
 
-    def get_external_group_for_superset_role(self, superset_role: str) -> str:
+    def get_external_group_for_superset_role(
+        self, superset_role: str
+    ) -> Optional[str]:
         """
         Get the external group name for an internal group.
 

@@ -18,7 +18,6 @@ class PinterestCustomLink(TypedDict):
     icon: Optional[str]
     category: Optional[str]
     category_icon: Optional[str]
-    icon: Optional[str]
 
 
 class TableMetadataField(TypedDict):

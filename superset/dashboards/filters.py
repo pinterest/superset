@@ -278,7 +278,7 @@ class DashboardIsRecommended(BaseFilter):
     arg_name = "dashboard_is_recommended"
     limit = 5
 
-    def _get_most_viewed_in_last_month(self, user_id):
+    def _get_most_viewed_in_last_month(self, user_id: int | None) -> list[int]:
         """Logic here is similar to get_recent_activity in superset/daos/log.py
         but is adjusted to use 30 day time frame and return most viewed"""
         one_month_ago = datetime.today() - timedelta(days=30)
@@ -310,7 +310,7 @@ class DashboardIsRecommended(BaseFilter):
         )
         return [d.id for d in qry.all()]
 
-    def _get_user_recent_dashboards(self, user_id):
+    def _get_user_recent_dashboards(self, user_id: int | None) -> list[int]:
         """Get the most recent dashboards viewed by the user in the last year."""
         one_year_ago = datetime.today() - timedelta(days=365)
         subqry = (

@@ -50,14 +50,14 @@ class TestGetDatasetTableMetadataCommand(SupersetTestCase):
         self.addCleanup(mock.patch.stopall)
 
     def test_validate_dataset_not_found(self):
+        self.mock_dataset_find_by_id.return_value = None
         with pytest.raises(DatasetNotFoundError):
-            self.mock_dataset_find_by_id.return_value = None
             GetDatasetTableMetadataCommand(1).validate()
 
     def test_validate_database_not_found(self):
+        self.mock_dataset_find_by_id.return_value = MagicMock()
+        self.mock_database_find_by_id.return_value = None
         with pytest.raises(DatasetGetTableMetadataError):
-            self.mock_dataset_find_by_id.return_value = MagicMock()
-            self.mock_database_find_by_id.return_value = None
             GetDatasetTableMetadataCommand(1).validate()
 
     def test_validate_found(self):
