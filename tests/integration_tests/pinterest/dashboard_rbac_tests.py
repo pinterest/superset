@@ -11,6 +11,9 @@ from superset import db, security_manager
 from superset.models.dashboard import Dashboard
 from tests.integration_tests.base_tests import SupersetTestCase
 from tests.integration_tests.conftest import with_feature_flags
+from tests.integration_tests.fixtures.birth_names_dashboard import (
+    load_birth_names_dashboard_with_slices,  # noqa: F401
+)
 from tests.integration_tests.utils.get_dashboards import get_dashboards_ids
 
 TEST_RBAC_EDITOR_ROLE = "rbac_editor"

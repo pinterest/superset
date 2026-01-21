@@ -14,12 +14,12 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-import json
 from unittest.mock import MagicMock
 
 import pytest
 
 from superset.models.dashboard import Dashboard
+from superset.utils import json
 
 
 def test_sync_disabled_when_auto_sync_not_set() -> None:
