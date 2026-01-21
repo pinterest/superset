@@ -99,7 +99,9 @@ class QueryObjectFactory:  # pylint: disable=too-few-public-methods
 
     def _process_row_limit(
         # self, row_limit: int | None, result_type: ChartDataResultType
-        self, row_limit: Any, result_type: ChartDataResultType
+        self,
+        row_limit: Any,
+        result_type: ChartDataResultType,
     ) -> int:
         default_row_limit = (
             self._config["SAMPLES_ROW_LIMIT"]
