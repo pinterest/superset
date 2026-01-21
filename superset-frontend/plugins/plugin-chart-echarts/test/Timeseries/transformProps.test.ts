@@ -21,6 +21,7 @@ import {
   AnnotationStyle,
   AnnotationType,
   ChartProps,
+  ComparisonType,
   EventAnnotationLayer,
   FormulaAnnotationLayer,
   IntervalAnnotationLayer,
@@ -623,5 +624,51 @@ describe('Does transformProps transform series correctly', () => {
       'foo1, bar1': ['foo1', 'bar1'],
       'foo2, bar2': ['foo2', 'bar2'],
     });
+  });
+
+  it('should apply dashed line styles to single-metric time shifts', () => {
+    const chartProps = new ChartProps({
+      ...chartPropsConfig,
+      formData: {
+        ...formData,
+        groupby: [],
+        time_compare: ['1 year ago', '2 years ago'],
+        comparison_type: ComparisonType.Values,
+      },
+      queriesData: [
+        {
+          data: [
+            {
+              sum__num: 100,
+              '1 year ago': 80,
+              '2 years ago': 60,
+              __timestamp: 599616000000,
+            },
+          ],
+        },
+      ],
+    });
+    const transformedSeries = transformProps(
+      chartProps as unknown as EchartsTimeseriesChartProps,
+    ).echartOptions.series as unknown as {
+      name?: string;
+      lineStyle?: { type?: unknown };
+    }[];
+
+    const originalSeries = transformedSeries.find(
+      series => series.name === 'sum__num',
+    );
+    const shiftedSeries = transformedSeries.filter(series =>
+      ['1 year ago', '2 years ago'].includes(series.name ?? ''),
+    );
+
+    expect(originalSeries?.lineStyle?.type).toBeUndefined();
+    expect(shiftedSeries).toHaveLength(2);
+    shiftedSeries.forEach(series => {
+      expect(Array.isArray(series.lineStyle?.type)).toBe(true);
+    });
+    expect(shiftedSeries[0].lineStyle?.type).not.toEqual(
+      shiftedSeries[1].lineStyle?.type,
+    );
   });
 });
