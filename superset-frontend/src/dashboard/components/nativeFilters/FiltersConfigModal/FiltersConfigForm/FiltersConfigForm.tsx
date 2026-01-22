@@ -118,6 +118,11 @@ import DependencyList from './DependencyList';
 
 const FORM_ITEM_WIDTH = 260;
 
+const stringifyWithBigInt = (value: unknown) =>
+  JSON.stringify(value, (_key, item) =>
+    typeof item === 'bigint' ? item.toString() : item,
+  );
+
 const StyledSettings = styled.div`
   ${({ theme }) => `
     .ant-form-item {
@@ -469,7 +474,8 @@ const FiltersConfigForm = (
     });
   }
 
-  const dependenciesText = JSON.stringify(dependenciesDefaultValues);
+  // const dependenciesText = JSON.stringify(dependenciesDefaultValues);
+  const dependenciesText = stringifyWithBigInt(dependenciesDefaultValues);
 
   const refreshHandler = useCallback(
     (force = false) => {
@@ -758,9 +764,9 @@ const FiltersConfigForm = (
     });
     return excluded;
   }, [
-    JSON.stringify(Object.values(charts).map(chart => chart.id)),
+    stringifyWithBigInt(Object.values(charts).map(chart => chart.id)),
     formFilter?.dataset?.value,
-    JSON.stringify(loadedDatasets),
+    stringifyWithBigInt(loadedDatasets),
   ]);
 
   useEffect(() => {
