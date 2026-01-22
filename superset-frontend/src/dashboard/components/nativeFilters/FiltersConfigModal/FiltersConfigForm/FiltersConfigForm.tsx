@@ -108,6 +108,11 @@ import DependencyList from './DependencyList';
 
 const FORM_ITEM_WIDTH = 260;
 
+const stringifyWithBigInt = (value: unknown) =>
+  JSON.stringify(value, (_key, item) =>
+    typeof item === 'bigint' ? item.toString() : item,
+  );
+
 const TabPane = styled(Tabs.TabPane)`
   padding: ${({ theme }) => theme.gridUnit * 4}px 0px;
 `;
@@ -499,7 +504,8 @@ const FiltersConfigForm = (
     });
   }
 
-  const dependenciesText = JSON.stringify(dependenciesDefaultValues);
+  // const dependenciesText = JSON.stringify(dependenciesDefaultValues);
+  const dependenciesText = stringifyWithBigInt(dependenciesDefaultValues);
 
   const refreshHandler = useCallback(
     (force = false) => {
@@ -754,9 +760,12 @@ const FiltersConfigForm = (
     });
     return excluded;
   }, [
-    JSON.stringify(charts),
+    // JSON.stringify(charts),
+    // formFilter?.dataset?.value,
+    // JSON.stringify(loadedDatasets),
+    stringifyWithBigInt(charts),
     formFilter?.dataset?.value,
-    JSON.stringify(loadedDatasets),
+    stringifyWithBigInt(loadedDatasets),
   ]);
 
   useEffect(() => {
