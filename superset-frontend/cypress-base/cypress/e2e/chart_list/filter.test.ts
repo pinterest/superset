@@ -31,11 +31,15 @@ describe('Charts filters', () => {
   });
 
   it('should allow filtering by "Owner"', () => {
+    // Expect a username after this feature to show username was added:
+    // https://github.com/pinterest/superset/commit/579028c57caeb0da4326180537e230e4729a4134
     setFilter('Owner', 'alpha user (alpha)');
     setFilter('Owner', 'admin user');
   });
 
   it('should allow filtering by "Modified by" correctly', () => {
+    // Expect a username after this feature to show username was added:
+    // https://github.com/pinterest/superset/commit/579028c57caeb0da4326180537e230e4729a4134
     setFilter('Modified by', 'alpha user (alpha)');
     setFilter('Modified by', 'admin user');
   });

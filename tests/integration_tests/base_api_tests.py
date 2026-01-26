@@ -244,6 +244,8 @@ class ApiOwnersTestCaseMixin:
             assert rv.status_code == 200
             response = json.loads(rv.data.decode("utf-8"))
             response_users = [result["text"] for result in response["result"]]
+            # Expect a username after this feature to show username was added:
+            # https://github.com/pinterest/superset/commit/579028c57caeb0da4326180537e230e4729a4134
             assert response_users == ["alpha user (alpha)"]
 
     def test_get_related_owners_paginated(self):
