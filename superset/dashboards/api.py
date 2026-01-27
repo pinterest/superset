@@ -38,6 +38,7 @@ from flask_appbuilder.models.sqla.interface import SQLAInterface
 from flask_babel import gettext, ngettext
 from marshmallow import ValidationError
 from sqlalchemy import case, func
+from sqlalchemy.orm import Query
 from werkzeug.wrappers import Response as WerkzeugResponse
 from werkzeug.wsgi import FileWrapper
 
@@ -237,8 +238,8 @@ CUSTOM_TAG_LIST_COLUMNS = BASE_LIST_COLUMNS + [
 class DashboardRestApi(CustomTagsOptimizationMixin, BaseSupersetModelRestApi):
     datamodel = SQLAInterface(Dashboard)
 
-    # Removing thumbnail endpoint from this list to support caching top Pinterest homepage
-    # dashboards without THUMBNAILS feature enabled to cache all dashboards
+    # Removing thumbnail endpoint from this list to support caching top Pinterest
+    # homepage dashboards without THUMBNAILS feature enabled to cache all dashboards
     @before_request(only=["cache_dashboard_screenshot", "screenshot"])
     def ensure_thumbnails_enabled(self) -> Optional[Response]:
         if not is_feature_enabled("THUMBNAILS"):
@@ -506,14 +507,17 @@ class DashboardRestApi(CustomTagsOptimizationMixin, BaseSupersetModelRestApi):
             current_app.config["VERSION_SHA"],
         )
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         original_apply_order_by = self.datamodel.apply_order_by
 
         # Override the apply_order_by method to handle relevance_score ordering
         def custom_apply_order_by(
-            query, order_column, order_direction, **kwargs
-        ):
+            query: Query,
+            order_column: str,
+            order_direction: str,
+            **kwargs: Any,
+        ) -> Query:
             if order_column == "relevance_score":
                 # Clear any existing ordering
                 query = query.order_by(None)
@@ -538,17 +542,45 @@ class DashboardRestApi(CustomTagsOptimizationMixin, BaseSupersetModelRestApi):
                 title_penalty = (
                     case(
                         [
-                            (Dashboard.dashboard_title.is_(None), MISSING_TITLE_PENALTY),
-                            (func.lower(func.trim(Dashboard.dashboard_title)).like('[ untitled ]%'), MISSING_TITLE_PENALTY),
+                            (
+                                Dashboard.dashboard_title.is_(None),
+                                MISSING_TITLE_PENALTY,
+                            ),
+                            (
+                                func.lower(
+                                    func.trim(Dashboard.dashboard_title)
+                                ).like("[ untitled ]%"),
+                                MISSING_TITLE_PENALTY,
+                            ),
                         ],
                         else_=0,
                     )
                     + case(
                         [
-                            (func.lower(func.trim(Dashboard.dashboard_title)).like('[deprecated]%'), DEPRECATED_TITLE_PENALTY),
-                            (func.lower(func.trim(Dashboard.dashboard_title)).like('%[deprecated]'), DEPRECATED_TITLE_PENALTY),
-                            (func.lower(func.trim(Dashboard.dashboard_title)).like('(deprecated)%'), DEPRECATED_TITLE_PENALTY),
-                            (func.lower(func.trim(Dashboard.dashboard_title)).like('%(deprecated)'), DEPRECATED_TITLE_PENALTY),
+                            (
+                                func.lower(
+                                    func.trim(Dashboard.dashboard_title)
+                                ).like("[deprecated]%"),
+                                DEPRECATED_TITLE_PENALTY,
+                            ),
+                            (
+                                func.lower(
+                                    func.trim(Dashboard.dashboard_title)
+                                ).like("%[deprecated]"),
+                                DEPRECATED_TITLE_PENALTY,
+                            ),
+                            (
+                                func.lower(
+                                    func.trim(Dashboard.dashboard_title)
+                                ).like("(deprecated)%"),
+                                DEPRECATED_TITLE_PENALTY,
+                            ),
+                            (
+                                func.lower(
+                                    func.trim(Dashboard.dashboard_title)
+                                ).like("%(deprecated)"),
+                                DEPRECATED_TITLE_PENALTY,
+                            ),
                         ],
                         else_=0,
                     )

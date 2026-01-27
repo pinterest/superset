@@ -19,6 +19,7 @@
 import {
   Aggregates,
   isPostProcessingAggregation,
+  isPostProcessingAnomalyDetection,
   isPostProcessingBoxplot,
   isPostProcessingCompare,
   isPostProcessingContribution,
@@ -31,6 +32,7 @@ import {
   isPostProcessingSort,
   PandasAxis,
   PostProcessingAggregation,
+  PostProcessingAnomalyDetection,
   PostProcessingBoxplot,
   PostProcessingCompare,
   PostProcessingContribution,
@@ -130,6 +132,17 @@ const PROPHET_RULE: PostProcessingProphet = {
     yearly_seasonality: false,
     weekly_seasonality: false,
     daily_seasonality: false,
+  },
+};
+
+const ANOMALY_DETECTION_RULE: PostProcessingAnomalyDetection = {
+  operation: 'anomaly_detection',
+  options: {
+    contamination_rate: 0.1,
+    detrend: true,
+    yearly_seasonality: false,
+    monthly_seasonality: false,
+    weekly_seasonality: false,
   },
 };
 
@@ -237,6 +250,14 @@ test('PostProcessingProphet type guard', () => {
   expect(isPostProcessingProphet(PROPHET_RULE)).toEqual(true);
   expect(isPostProcessingProphet(AGGREGATE_RULE)).toEqual(false);
   expect(isPostProcessingProphet(undefined)).toEqual(false);
+});
+
+test('PostProcessingAnomalyDetection type guard', () => {
+  expect(isPostProcessingAnomalyDetection(ANOMALY_DETECTION_RULE)).toEqual(
+    true,
+  );
+  expect(isPostProcessingAnomalyDetection(AGGREGATE_RULE)).toEqual(false);
+  expect(isPostProcessingAnomalyDetection(undefined)).toEqual(false);
 });
 
 test('PostProcessingResample type guard', () => {

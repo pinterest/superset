@@ -1,6 +1,8 @@
 from unittest import mock
 from unittest.mock import MagicMock
 
+import pytest
+
 from sqlalchemy.dialects.mysql import dialect
 
 from superset.commands.dataset.exceptions import DatasetNotFoundError
@@ -21,7 +23,10 @@ class TestTemplateColumnReferencesProcessor(SupersetTestCase):
         )
 
     def test_extract_columns_with_filter_values(self):
-        sql = "SELECT name, count(*) FROM birth_names WHERE country = {{ filter_values('country', 'US')[0] }} GROUP BY name"
+        sql = (
+            "SELECT name, count(*) FROM birth_names WHERE country = "
+            "{{ filter_values('country', 'US')[0] }} GROUP BY name"
+        )
         assert self.processor.extract_column_names(sql) == {"country"}
 
     def test_extract_columns_with_get_filters(self):
@@ -57,8 +62,8 @@ class TestTemplateColumnReferencesProcessor(SupersetTestCase):
 class TestGetDatasetTemplateColumnsCommand(SupersetTestCase):
     @mock.patch("superset.daos.dataset.DatasetDAO.find_by_id")
     def test_validate_dataset_not_found(self, mock_dataset_find_by_id):
-        with self.assertRaises(DatasetNotFoundError):
-            mock_dataset_find_by_id.return_value = None
+        mock_dataset_find_by_id.return_value = None
+        with pytest.raises(DatasetNotFoundError):
             GetDatasetTemplateColumnsCommand(1).validate()
 
     @mock.patch("superset.daos.dataset.DatasetDAO.find_by_id")

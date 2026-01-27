@@ -168,7 +168,7 @@ class AbstractEventLogger(ABC):
     ) -> None:
         pass
 
-    def log_with_context(  # pylint: disable=too-many-locals,too-many-arguments
+    def log_with_context(  # pylint: disable=too-many-locals,too-many-arguments  # noqa: C901
         self,
         action: str,
         duration: timedelta | None = None,

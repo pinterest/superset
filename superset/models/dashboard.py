@@ -178,7 +178,8 @@ class Dashboard(CoreDashboard, AuditMixinNullable, ImportExportMixin):
         FavStar,
         primaryjoin="and_(Dashboard.id == foreign(FavStar.obj_id), "
         "FavStar.class_name == 'Dashboard')",
-        viewonly=True,  # cascading deletion already handled by superset.models.core.ObjectUpdater.after_delete
+        viewonly=True,  # cascading deletion already handled by
+        # superset.models.core.ObjectUpdater.after_delete
     )
     published = Column(Boolean, default=False)
     is_managed_externally = Column(Boolean, nullable=False, default=False)

@@ -17,9 +17,9 @@ class TemplateColumnReferencesProcessor(JinjaTemplateProcessor):
     """For extracting column names from a SQL query. Replace the Jinja functions
     with custom ones that only extract column names from the query."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
-        self._columns = set()
+        self._columns: set[str] = set()
 
     def filter_values(
         self, column: str, default: Optional[str] = None, remove_filter: bool = False
@@ -53,6 +53,7 @@ class GetDatasetTemplateColumnsCommand(BaseCommand):
     @transaction(on_error=partial(on_error, reraise=DatasetGetTemplateColumnsError))
     def run(self) -> List[str]:
         self.validate()
+        assert self._dataset is not None
 
         # Non-virtual datasets will return an empty list (no template to process)
         if self._dataset.type != DatasourceType.TABLE or not self._dataset.sql:

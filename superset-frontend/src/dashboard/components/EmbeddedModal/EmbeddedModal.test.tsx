@@ -126,16 +126,19 @@ test('shows and hides confirmation alert when deactivating', async () => {
   const deactivate = await screen.findByRole('button', { name: 'Deactivate' });
   await userEvent.click(deactivate);
 
-  expect(await screen.findByText('Disable embedding?')).toBeInTheDocument();
-  expect(
-    screen.getByText('This will remove your current embed configuration.'),
-  ).toBeInTheDocument();
+  const confirmContent = await screen.findByText(
+    'This will remove your current embed configuration.',
+  );
+  const confirmDialog = confirmContent.closest('[role="dialog"]');
+  expect(confirmDialog).not.toBeNull();
 
   const confirmBtn = screen.getByRole('button', { name: 'Deactivate' });
   await userEvent.click(confirmBtn);
 
   await waitFor(() => {
-    expect(screen.queryByText('Disable embedding?')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('This will remove your current embed configuration.'),
+    ).not.toBeInTheDocument();
   });
 });
 

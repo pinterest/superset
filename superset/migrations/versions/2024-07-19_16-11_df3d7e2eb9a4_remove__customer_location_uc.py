@@ -55,7 +55,9 @@ def upgrade():
 def downgrade():
     # Remove duplicate entries before re-adding the unique constraint
     bind = op.get_bind()
-    logger.info("Removing duplicate entries from tables before re-adding unique constraint")
+    logger.info(
+        "Removing duplicate entries from tables before re-adding unique constraint"
+    )
     bind.execute(
         text(
             """
