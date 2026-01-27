@@ -502,6 +502,7 @@ export function exploreJSON(
         }
 
         const logAndFail = (parsedResponse, overrideErrorDetails) => {
+          let responseForDispatch = parsedResponse;
           try {
             const errorDetails =
               overrideErrorDetails ||
@@ -510,10 +511,17 @@ export function exploreJSON(
               parsedResponse?.statusText ||
               safeStringify(parsedResponse);
             appendErrorLog(errorDetails, parsedResponse?.is_cached);
+            if (
+              parsedResponse &&
+              typeof parsedResponse === 'object' &&
+              !parsedResponse?.error
+            ) {
+              responseForDispatch = { ...parsedResponse, error: errorDetails };
+            }
           } catch (e) {
             // best-effort logging, ignore secondary errors
           }
-          return dispatch(chartUpdateFailed([parsedResponse], key));
+          return dispatch(chartUpdateFailed([responseForDispatch], key));
         };
 
         if (isFeatureEnabled(FeatureFlag.GlobalAsyncQueries)) {

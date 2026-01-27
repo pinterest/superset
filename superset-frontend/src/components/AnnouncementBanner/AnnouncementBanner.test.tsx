@@ -16,20 +16,33 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import type { ReactElement } from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { ThemeProvider, supersetTheme } from '@superset-ui/core';
+import { MemoryRouter } from 'react-router-dom';
 import getBootstrapData from 'src/utils/getBootstrapData';
 import AnnouncementBanner from '.';
 
 // Mock getBootstrapData
 jest.mock('src/utils/getBootstrapData', () => ({
   __esModule: true,
-  default: jest.fn(),
+  // Provide a safe default shape because some modules (e.g. `hostNamesConfig`)
+  // read bootstrap data at import-time, before individual tests set mockReturnValue.
+  default: jest.fn(() => ({
+    common: {
+      conf: {},
+      feature_flags: {},
+    },
+  })),
 }));
 
-const renderWithTheme = (component: React.ReactElement) =>
-  render(<ThemeProvider theme={supersetTheme}>{component}</ThemeProvider>);
+const renderWithTheme = (component: ReactElement) =>
+  render(
+    <MemoryRouter initialEntries={['/']}>
+      <ThemeProvider theme={supersetTheme}>{component}</ThemeProvider>
+    </MemoryRouter>,
+  );
 
 describe('AnnouncementBanner', () => {
   beforeEach(() => {

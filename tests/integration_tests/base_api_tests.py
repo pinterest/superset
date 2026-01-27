@@ -244,6 +244,8 @@ class ApiOwnersTestCaseMixin:
             assert rv.status_code == 200
             response = json.loads(rv.data.decode("utf-8"))
             response_users = [result["text"] for result in response["result"]]
+            # Expect a username after this feature to show username was added:
+            # https://github.com/pinterest/superset/commit/579028c57caeb0da4326180537e230e4729a4134
             assert response_users == ["alpha user (alpha)"]
 
     def test_get_related_owners_paginated(self):
@@ -300,22 +302,38 @@ class ApiOwnersTestCaseMixin:
         sorted_results = sorted(response["result"], key=lambda value: value["text"])
         expected_results = [
             {
-                "extra": {"active": True, "email": "gamma@fab.org", "username": "gamma"},
+                "extra": {
+                    "active": True,
+                    "email": "gamma@fab.org",
+                    "username": "gamma",
+                },
                 "text": "gamma user (gamma)",
                 "value": 2,
             },
             {
-                "extra": {"active": True, "email": "gamma2@fab.org", "username": "gamma2"},
+                "extra": {
+                    "active": True,
+                    "email": "gamma2@fab.org",
+                    "username": "gamma2",
+                },
                 "text": "gamma2 user (gamma2)",
                 "value": 3,
             },
             {
-                "extra": {"active": True, "email": "gamma_no_csv@fab.org", "username": "gamma_no_csv"},
+                "extra": {
+                    "active": True,
+                    "email": "gamma_no_csv@fab.org",
+                    "username": "gamma_no_csv",
+                },
                 "text": "gamma_no_csv user (gamma_no_csv)",
                 "value": 6,
             },
             {
-                "extra": {"active": True, "email": "gamma_sqllab@fab.org", "username": "gamma_sqllab"},
+                "extra": {
+                    "active": True,
+                    "email": "gamma_sqllab@fab.org",
+                    "username": "gamma_sqllab",
+                },
                 "text": "gamma_sqllab user (gamma_sqllab)",
                 "value": 4,
             },
@@ -387,12 +405,20 @@ class ApiOwnersTestCaseMixin:
         sorted_results = sorted(response["result"], key=lambda value: value["text"])
         expected_results = [
             {
-                "extra": {"active": True, "email": "gamma@fab.org", "username": "gamma"},
+                "extra": {
+                    "active": True,
+                    "email": "gamma@fab.org",
+                    "username": "gamma",
+                },
                 "text": "gamma user (gamma)",
                 "value": 2,
             },
             {
-                "extra": {"active": True, "email": "gamma_sqllab@fab.org", "username": "gamma_sqllab"},
+                "extra": {
+                    "active": True,
+                    "email": "gamma_sqllab@fab.org",
+                    "username": "gamma_sqllab",
+                },
                 "text": "gamma_sqllab user (gamma_sqllab)",
                 "value": 4,
             },
@@ -414,12 +440,20 @@ class ApiOwnersTestCaseMixin:
         sorted_results = sorted(response["result"], key=lambda value: value["text"])
         expected_results = [
             {
-                "extra": {"active": True, "email": "gamma@fab.org", "username": "gamma"},
+                "extra": {
+                    "active": True,
+                    "email": "gamma@fab.org",
+                    "username": "gamma",
+                },
                 "text": "gamma user (gamma)",
                 "value": 2,
             },
             {
-                "extra": {"active": True, "email": "gamma_sqllab@fab.org", "username": "gamma_sqllab"},
+                "extra": {
+                    "active": True,
+                    "email": "gamma_sqllab@fab.org",
+                    "username": "gamma_sqllab",
+                },
                 "text": "gamma_sqllab user (gamma_sqllab)",
                 "value": 4,
             },

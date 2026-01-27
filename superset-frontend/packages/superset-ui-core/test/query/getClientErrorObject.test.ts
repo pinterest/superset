@@ -180,6 +180,79 @@ test('Handles error with status code', async () => {
   });
 });
 
+test('Handles Response with empty body by falling back to status code message', async () => {
+  // Ensure we hit the "empty error text" fallback branch in getClientErrorObject
+  // (i.e. response.text() resolves to an empty string).
+  const status404EmptyBody = new Response('', { status: 404, statusText: '' });
+
+  expect(await getClientErrorObject(status404EmptyBody)).toMatchObject({
+    error: 'Not found',
+  });
+});
+
+test('Handles response-like object with unparseable JSON and empty text body', async () => {
+  // This test avoids relying on the runtime's Response.json() behavior for empty bodies.
+  // It deterministically forces the `.json()` branch to reject, then `.text()` to resolve
+  // to an empty string so we hit the status-code fallback.
+  const fakeResponse = {
+    bodyUsed: false,
+    url: 'http://example.test',
+    status: 404,
+    statusText: '',
+    redirected: false,
+    type: 'basic',
+    clone: () => ({
+      json: () => Promise.reject(new Error('not json')),
+    }),
+    text: () => Promise.resolve(''),
+  };
+
+  // @ts-ignore - we intentionally pass a Response-like object
+  expect(await getClientErrorObject({ response: fakeResponse })).toMatchObject({
+    error: 'Not found',
+  });
+});
+
+test('Handles response-like object empty text body by falling back to statusText when status is unknown', async () => {
+  const fakeResponse = {
+    bodyUsed: false,
+    url: 'http://example.test',
+    status: 499, // not in ERROR_CODE_LOOKUP
+    statusText: 'Custom status',
+    redirected: false,
+    type: 'basic',
+    clone: () => ({
+      json: () => Promise.reject(new Error('not json')),
+    }),
+    text: () => Promise.resolve(''),
+  };
+
+  // @ts-ignore - we intentionally pass a Response-like object
+  expect(await getClientErrorObject({ response: fakeResponse })).toMatchObject({
+    error: 'Custom status',
+  });
+});
+
+test('Handles response-like object empty text body by falling back to generic message when status is unknown and statusText is empty', async () => {
+  const fakeResponse = {
+    bodyUsed: false,
+    url: 'http://example.test',
+    status: 499, // not in ERROR_CODE_LOOKUP
+    statusText: '',
+    redirected: false,
+    type: 'basic',
+    clone: () => ({
+      json: () => Promise.reject(new Error('not json')),
+    }),
+    text: () => Promise.resolve(''),
+  };
+
+  // @ts-ignore - we intentionally pass a Response-like object
+  expect(await getClientErrorObject({ response: fakeResponse })).toMatchObject({
+    error: 'An error occurred',
+  });
+});
+
 test('Handles error with status text and message', async () => {
   const statusText = 'status';
   const message = 'message';

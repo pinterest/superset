@@ -198,7 +198,10 @@ if (process.env.USE_PINTEREST_PLUGINS !== 'true') {
     ),
     new webpack.NormalModuleReplacementPlugin(
       /@pinterest-plugins\/src\/explore\/components\/pinterestChartPills$/,
-      path.resolve(__dirname, 'pinterest-plugins/src/explore/components/pinterestChartPills.stub.tsx'),
+      path.resolve(
+        __dirname,
+        'pinterest-plugins/src/explore/components/pinterestChartPills.stub.tsx',
+      ),
     ),
   );
 }
@@ -366,26 +369,65 @@ const config = {
       // Alias for pinterest-plugins to make it accessible to other React components
       '@pinterest-plugins': path.resolve(APP_DIR, './pinterest-plugins'),
       // Alias for superset-plugin-chart-dex to build from source (no pre-build needed)
-      'superset-plugin-chart-dex': path.resolve(APP_DIR, './pinterest-plugins/superset-plugin-chart-dex/src'),
+      'superset-plugin-chart-dex': path.resolve(
+        APP_DIR,
+        './pinterest-plugins/superset-plugin-chart-dex/src',
+      ),
       // Alias for superset-frontend to make it accessible by Pinterest plugins
       '@superset-frontend': path.resolve(APP_DIR, './'),
       // Fix deck.gl ecosystem ESM module issues by using CommonJS builds
       // See: https://github.com/apache/superset/issues/34681
       // All packages are hoisted to root node_modules by npm workspaces
-      '@deck.gl/core': path.resolve(APP_DIR, './node_modules/@deck.gl/core/dist/index.cjs'),
-      '@deck.gl/layers': path.resolve(APP_DIR, './node_modules/@deck.gl/layers/dist/index.cjs'),
-      '@deck.gl/aggregation-layers': path.resolve(APP_DIR, './node_modules/@deck.gl/aggregation-layers/dist/index.cjs'),
-      '@deck.gl/react': path.resolve(APP_DIR, './node_modules/@deck.gl/react/dist/index.cjs'),
-      '@luma.gl/core': path.resolve(APP_DIR, './node_modules/@luma.gl/core/dist/index.cjs'),
-      '@luma.gl/engine': path.resolve(APP_DIR, './node_modules/@luma.gl/engine/dist/index.cjs'),
-      '@luma.gl/webgl': path.resolve(APP_DIR, './node_modules/@luma.gl/webgl/dist/index.cjs'),
-      '@luma.gl/shadertools': path.resolve(APP_DIR, './node_modules/@luma.gl/shadertools/dist/index.cjs'),
-      '@luma.gl/constants': path.resolve(APP_DIR, './node_modules/@luma.gl/constants/dist/index.cjs'),
-      '@math.gl/core': path.resolve(APP_DIR, './node_modules/@math.gl/core/dist/index.cjs'),
-      '@math.gl/web-mercator': path.resolve(APP_DIR, './node_modules/@math.gl/web-mercator/dist/index.cjs'),
+      '@deck.gl/core': path.resolve(
+        APP_DIR,
+        './node_modules/@deck.gl/core/dist/index.cjs',
+      ),
+      '@deck.gl/layers': path.resolve(
+        APP_DIR,
+        './node_modules/@deck.gl/layers/dist/index.cjs',
+      ),
+      '@deck.gl/aggregation-layers': path.resolve(
+        APP_DIR,
+        './node_modules/@deck.gl/aggregation-layers/dist/index.cjs',
+      ),
+      '@deck.gl/react': path.resolve(
+        APP_DIR,
+        './node_modules/@deck.gl/react/dist/index.cjs',
+      ),
+      '@luma.gl/core': path.resolve(
+        APP_DIR,
+        './node_modules/@luma.gl/core/dist/index.cjs',
+      ),
+      '@luma.gl/engine': path.resolve(
+        APP_DIR,
+        './node_modules/@luma.gl/engine/dist/index.cjs',
+      ),
+      '@luma.gl/webgl': path.resolve(
+        APP_DIR,
+        './node_modules/@luma.gl/webgl/dist/index.cjs',
+      ),
+      '@luma.gl/shadertools': path.resolve(
+        APP_DIR,
+        './node_modules/@luma.gl/shadertools/dist/index.cjs',
+      ),
+      '@luma.gl/constants': path.resolve(
+        APP_DIR,
+        './node_modules/@luma.gl/constants/dist/index.cjs',
+      ),
+      '@math.gl/core': path.resolve(
+        APP_DIR,
+        './node_modules/@math.gl/core/dist/index.cjs',
+      ),
+      '@math.gl/web-mercator': path.resolve(
+        APP_DIR,
+        './node_modules/@math.gl/web-mercator/dist/index.cjs',
+      ),
       // viewport-mercator-project is a legacy re-export of @math.gl/web-mercator
       // Alias it directly to avoid ESM issues with its nested dependency
-      'viewport-mercator-project': path.resolve(APP_DIR, './node_modules/@math.gl/web-mercator/dist/index.cjs'),
+      'viewport-mercator-project': path.resolve(
+        APP_DIR,
+        './node_modules/@math.gl/web-mercator/dist/index.cjs',
+      ),
     },
     extensions: ['.ts', '.tsx', '.js', '.jsx', '.yml'],
     fallback: {

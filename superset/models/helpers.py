@@ -756,6 +756,10 @@ class ExploreMixin:  # pylint: disable=too-many-public-methods
         raise NotImplementedError()
 
     @property
+    def id(self) -> int:
+        raise NotImplementedError()
+
+    @property
     def is_rls_supported(self) -> bool:
         raise NotImplementedError()
 
@@ -1584,13 +1588,13 @@ class ExploreMixin:  # pylint: disable=too-many-public-methods
                 # Convert RLS filters to string representation for cache key
                 rls_str = str(sorted([str(f) for f in rls_filters]))
                 cache_key_parts.append(rls_str)
-        except Exception:
+        except Exception as ex:
             # If RLS filters can't be determined, don't include them
-            pass
+            logger.debug("Failed to build RLS filter cache key: %s", ex)
 
         # Create hash of the cache key parts
         cache_key_string = "|".join(cache_key_parts)
-        return f"column_values_{hashlib.md5(cache_key_string.encode()).hexdigest()}"
+        return f"column_values_{hashlib.sha256(cache_key_string.encode()).hexdigest()}"
 
     def values_for_column(  # pylint: disable=too-many-locals
         self,

@@ -21,6 +21,8 @@ import buildQuery from './buildQuery';
 import controlPanel from './Regular/Line/controlPanel';
 import transformProps from './transformProps';
 import thumbnail from './images/thumbnail.png';
+import example from './images/Time-series_Chart.jpg';
+import { EchartsChartPlugin } from '../types';
 import {
   EchartsTimeseriesChartProps,
   EchartsTimeseriesFormData,
@@ -33,8 +35,6 @@ export { EchartsTimeseriesSeriesType, OrientationType } from './types';
 export type { EchartsTimeseriesChartProps } from './types';
 export type { EchartsTimeseriesFormData } from './types';
 export type { TimeseriesChartTransformedProps } from './types';
-import example from './images/Time-series_Chart.jpg';
-import { EchartsChartPlugin } from '../types';
 
 export default class EchartsTimeseriesChartPlugin extends EchartsChartPlugin<
   EchartsTimeseriesFormData,

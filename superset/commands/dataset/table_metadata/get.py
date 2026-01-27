@@ -1,5 +1,5 @@
 from functools import partial
-from typing import Optional
+from typing import Optional, cast
 
 from superset import app
 from superset.commands.base import BaseCommand
@@ -14,7 +14,11 @@ from superset.models.core import Database
 from superset.sql.parse import Table
 from superset.sql_parse import extract_tables_from_jinja_sql
 from superset.utils.decorators import on_error, transaction
-from superset.pinterest.types import DatasetTableMetadata
+from superset.pinterest.types import (
+    DatasetTableMetadata,
+    TableMetadata,
+    TableMetadataField,
+)
 
 config = app.config
 
@@ -31,6 +35,8 @@ class GetDatasetTableMetadataCommand(BaseCommand):
         """
         Get the tables referenced in the dataset SQL.
         """
+        assert self._dataset is not None
+        assert self._database is not None
 
         if self._dataset.sql:
             return extract_tables_from_jinja_sql(self._dataset.sql, self._database)
@@ -41,23 +47,31 @@ class GetDatasetTableMetadataCommand(BaseCommand):
     @transaction(on_error=partial(on_error, reraise=DatasetGetTableMetadataError))
     def run(self) -> DatasetTableMetadata:
         self.validate()
+        assert self._database is not None
         dataset_tables = self._get_dataset_tables()
         database_name = self._database.database_name
-        table_metadata = []
+        table_metadata: list[TableMetadata] = []
         for table in dataset_tables:
             if table.schema:
                 table_name = f"{table.schema}.{table.table}"
             else:
                 table_name = table.table
+            metadata_fields = (
+                cast(
+                    list[TableMetadataField],
+                    DB_TABLE_METADATA(self._database, table.schema, table.table),
+                )
+                if DB_TABLE_METADATA
+                else None
+            )
             table_metadata.append(
-                {
-                    "table_name": table_name,
-                    "metadata_fields": (
-                        DB_TABLE_METADATA(self._database, table.schema, table.table)
-                        if DB_TABLE_METADATA
-                        else None
-                    ),
-                }
+                cast(
+                    TableMetadata,
+                    {
+                        "table_name": table_name,
+                        "metadata_fields": metadata_fields,
+                    },
+                )
             )
         return {
             "database_name": database_name,
