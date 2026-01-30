@@ -16,9 +16,10 @@
 # under the License.
 from unittest.mock import MagicMock
 
-import json
 import pytest
+
 from superset.models.dashboard import Dashboard
+from superset.utils import json
 
 
 def test_sync_disabled_when_auto_sync_not_set() -> None:
@@ -27,7 +28,7 @@ def test_sync_disabled_when_auto_sync_not_set() -> None:
     """
     # Setup
     dashboard = Dashboard()
-    dashboard.json_metadata = '{}'
+    dashboard.json_metadata = "{}"
 
     owner1 = MagicMock(id=1)
     owner2 = MagicMock(id=2)
@@ -256,7 +257,7 @@ def test_sync_with_malformed_json_metadata() -> None:
     """
     # Setup
     dashboard = Dashboard()
-    dashboard.json_metadata = 'invalid'
+    dashboard.json_metadata = "invalid"
 
     # Execute - should raise JSONDecodeError
     with pytest.raises(json.JSONDecodeError):

@@ -68,7 +68,7 @@ from superset.exceptions import (
     SupersetSecurityException,
     SupersetSyntaxErrorException,
 )
-from superset.extensions import cache_manager, feature_flag_manager, event_logger
+from superset.extensions import cache_manager, event_logger, feature_flag_manager
 from superset.jinja_context import BaseTemplateProcessor
 from superset.sql.parse import sanitize_clause, SQLScript, SQLStatement
 from superset.superset_typing import (
@@ -827,9 +827,7 @@ class ExploreMixin:  # pylint: disable=too-many-public-methods
 
     def get_sqla_row_level_filters(
         self,
-        template_processor: Optional[
-            BaseTemplateProcessor
-        ] = None,  # pylint: disable=unused-argument
+        template_processor: Optional[BaseTemplateProcessor] = None,  # pylint: disable=unused-argument
     ) -> list[TextClause]:
         # TODO: We should refactor this mixin and remove this method
         # as it exists in the BaseDatasource and is not applicable
