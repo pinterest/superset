@@ -86,7 +86,7 @@ from superset.exceptions import (
     SupersetSecurityException,
     SupersetSyntaxErrorException,
 )
-from superset.extensions import cache_manager, feature_flag_manager, event_logger
+from superset.extensions import cache_manager, event_logger, feature_flag_manager
 from superset.jinja_context import BaseTemplateProcessor
 from superset.sql.parse import sanitize_clause, SQLScript, SQLStatement
 from superset.superset_typing import (

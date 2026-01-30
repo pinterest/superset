@@ -26,7 +26,7 @@ from celery.utils.log import get_task_logger
 from flask import current_app
 from sqlalchemy import and_, func
 
-from superset import app, db, security_manager
+from superset import db, security_manager
 from superset.extensions import celery_app, machine_auth_provider_factory
 from superset.models.core import Log
 from superset.models.dashboard import Dashboard

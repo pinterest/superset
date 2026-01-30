@@ -26,6 +26,7 @@ from pytest_mock import MockerFixture
 
 from superset.common.query_object import QueryObject
 from superset.connectors.sqla.models import Database, SqlaTable
+from superset.errors import ErrorLevel, SupersetError, SupersetErrorType
 from superset.exceptions import SupersetSecurityException
 from superset.extensions import appbuilder
 from superset.models.slice import Slice
@@ -36,7 +37,6 @@ from superset.security.manager import (
 from superset.sql.parse import Table
 from superset.superset_typing import AdhocColumn, AdhocMetric
 from superset.utils.core import DatasourceName, override_user
-from superset.errors import SupersetError, SupersetErrorType, ErrorLevel
 
 
 def test_security_manager(app_context: None) -> None:
@@ -1571,6 +1571,7 @@ def test_get_dashboard_access_error_object_guest_user_no_access(
     assert error.level == ErrorLevel.WARNING
     assert "You don't have access to this dashboard." in error.message
 
+
 def test_get_dashboard_access_error_object_external_groups_with_wiki(
     mocker: MockerFixture,
     app_context: None,
@@ -1591,8 +1592,7 @@ def test_get_dashboard_access_error_object_external_groups_with_wiki(
 
     external_groups = ["group1"]
     error = sm.get_dashboard_access_error_object(
-        mock_dashboard,
-        required_external_groups=external_groups
+        mock_dashboard, required_external_groups=external_groups
     )
 
     assert isinstance(error, SupersetError)
@@ -1604,6 +1604,7 @@ def test_get_dashboard_access_error_object_external_groups_with_wiki(
         f"<a target='_blank' href='{wiki_url}'>here</a>."
     )
     assert error.message == expected_message
+
 
 def test_get_dashboard_access_error_object_external_groups_without_wiki(
     mocker: MockerFixture,
@@ -1624,8 +1625,7 @@ def test_get_dashboard_access_error_object_external_groups_without_wiki(
 
     external_groups = ["group1", "group2"]
     error = sm.get_dashboard_access_error_object(
-        mock_dashboard,
-        required_external_groups=external_groups
+        mock_dashboard, required_external_groups=external_groups
     )
 
     assert isinstance(error, SupersetError)
@@ -1636,6 +1636,7 @@ def test_get_dashboard_access_error_object_external_groups_without_wiki(
         "external groups: group1, group2."
     )
     assert error.message == expected_message
+
 
 def test_get_dashboard_access_error_object_default_message(
     mocker: MockerFixture,

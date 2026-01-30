@@ -2,7 +2,6 @@ from unittest import mock
 from unittest.mock import MagicMock
 
 import pytest
-
 from sqlalchemy.dialects.mysql import dialect
 
 from superset.commands.dataset.exceptions import DatasetNotFoundError

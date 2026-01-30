@@ -38,7 +38,6 @@ from sqlalchemy import (
     UniqueConstraint,
 )
 from sqlalchemy.engine.base import Connection
-from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship, subqueryload
 from sqlalchemy.orm.mapper import Mapper
 from sqlalchemy.sql.elements import BinaryExpression
@@ -61,6 +60,7 @@ logger = logging.getLogger(__name__)
 
 MISSING_TITLE_PENALTY = 1000
 DEPRECATED_TITLE_PENALTY = 10000
+
 
 def copy_dashboard(_mapper: Mapper, _connection: Connection, target: Dashboard) -> None:
     dashboard_id = app.config["DASHBOARD_TEMPLATE_ID"]
@@ -381,7 +381,6 @@ class Dashboard(CoreDashboard, AuditMixinNullable, ImportExportMixin):
                 score -= DEPRECATED_TITLE_PENALTY
 
         return score
-
 
     def update_thumbnail(self) -> None:
         cache_dashboard_thumbnail.delay(

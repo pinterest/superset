@@ -1,5 +1,5 @@
 from functools import partial
-from typing import Optional, cast
+from typing import cast, Optional
 
 from superset import app
 from superset.commands.base import BaseCommand
@@ -11,14 +11,14 @@ from superset.connectors.sqla.models import SqlaTable
 from superset.daos.database import DatabaseDAO
 from superset.daos.dataset import DatasetDAO
 from superset.models.core import Database
-from superset.sql.parse import Table
-from superset.sql_parse import extract_tables_from_jinja_sql
-from superset.utils.decorators import on_error, transaction
 from superset.pinterest.types import (
     DatasetTableMetadata,
     TableMetadata,
     TableMetadataField,
 )
+from superset.sql.parse import Table
+from superset.sql_parse import extract_tables_from_jinja_sql
+from superset.utils.decorators import on_error, transaction
 
 config = app.config
 

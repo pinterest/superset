@@ -471,6 +471,7 @@ class DatasetTemplateColumnsResponseSchema(Schema):
         metadata={"description": "A list of columns extracted from the Jinja template"},
     )
 
+
 class DatasetTableMetadataResponseSchema(Schema):
     database_name = fields.String(
         required=True,
