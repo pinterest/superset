@@ -17,6 +17,7 @@
 import logging
 from typing import Any
 
+from flask import g
 from flask_babel import gettext as _
 
 from superset.commands.base import BaseCommand
@@ -38,6 +39,12 @@ class ChartDataCommand(BaseCommand):
         self._query_context = query_context
 
     def run(self, **kwargs: Any) -> dict[str, Any]:
+        # Set chart context in Flask globals for db_connection_mutator
+        if self._query_context.slice_:
+            g.chart_id = self._query_context.slice_.id
+        if self._query_context.form_data:
+            g.dashboard_id = self._query_context.form_data.get("dashboardId")
+
         # caching is handled in query_context.get_df_payload
         # (also evals `force` property)
         cache_query_context = kwargs.get("cache", False)
