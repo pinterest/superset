@@ -776,7 +776,7 @@ export default function transformProps(
         ? getDeltaTableTooltipFormatter(
             chartProps,
             () => focusedSeries,
-            primarySeries,
+            new Set(rawSeriesA.map(series => series.name as string)),
           )
         : (params: any) => {
             const xValue: number = richTooltip

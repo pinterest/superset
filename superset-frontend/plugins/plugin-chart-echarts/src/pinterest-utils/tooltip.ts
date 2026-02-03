@@ -86,7 +86,7 @@ class DeltaTableTooltipFormatter {
   constructor(
     chartProps: EchartsTimeseriesChartProps | EchartsMixedTimeseriesProps,
     getFocusedSeries: () => string | null,
-    primarySeriesKeys?: Set<string>,
+    seriesAKeys?: Set<string>,
   ) {
     this.getFocusedSeries = getFocusedSeries;
     const { datasource, queriesData, theme } = chartProps;
@@ -113,7 +113,7 @@ class DeltaTableTooltipFormatter {
           accum[timestamp] = { ...curr };
         } else {
           Object.entries(curr).forEach(([key, value]) => {
-            const currKey = primarySeriesKeys?.has(key)
+            const currKey = seriesAKeys?.has(key)
               ? `${key} (${queryIdx})`
               : key;
             // eslint-disable-next-line no-param-reassign
@@ -346,12 +346,12 @@ class DeltaTableTooltipFormatter {
 export const getDeltaTableTooltipFormatter = (
   chartProps: EchartsTimeseriesChartProps | EchartsMixedTimeseriesProps,
   getFocusedSeries: () => string | null,
-  primarySeriesKeys?: Set<string>,
+  seriesAKeys?: Set<string>,
 ) => {
   const tooltipFormatter = new DeltaTableTooltipFormatter(
     chartProps,
     getFocusedSeries,
-    primarySeriesKeys,
+    seriesAKeys,
   );
   return tooltipFormatter.getTooltipFormatter();
 };
