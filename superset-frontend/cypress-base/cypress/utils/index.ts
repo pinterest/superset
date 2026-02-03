@@ -96,6 +96,35 @@ export function waitForChartLoad(chart: ChartSpec) {
 }
 
 /**
+ * Wait for multiple charts to load in parallel.
+ * This collects all chart IDs first, then waits for all of them simultaneously
+ * rather than waiting for each chart sequentially.
+ */
+export function waitForChartsLoad(charts: readonly ChartSpec[]) {
+  const chartIds: string[] = [];
+
+  // Queue up all the chart container checks
+  charts.forEach(({ name, viz }) => {
+    cy.get(`[data-test-chart-name="${name}"]`)
+      .should('have.attr', 'data-test-viz-type', viz)
+      .invoke('attr', 'data-test-chart-id')
+      .then(chartId => {
+        if (chartId) chartIds.push(chartId);
+      });
+  });
+
+  // After all IDs are collected, wait for all charts to be visible
+  // Using a single cy.then() ensures we have all IDs before checking
+  return cy.then(() => {
+    // Create all the visibility checks at once - they'll run in Cypress's queue
+    // but the actual chart loading happens in parallel on the page
+    chartIds.forEach(chartId => {
+      cy.get(`#chart-id-${chartId}`, { timeout: 30000 }).should('be.visible');
+    });
+  });
+}
+
+/**
  * Drag an element and drop it to another element.
  * Usage:
  *    drag(source).to(target);

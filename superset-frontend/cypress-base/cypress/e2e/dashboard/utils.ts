@@ -18,7 +18,8 @@
  */
 
 import { dashboardView, nativeFilters } from 'cypress/support/directories';
-import { ChartSpec, waitForChartLoad } from 'cypress/utils';
+// import { ChartSpec, waitForChartLoad } from 'cypress/utils';
+import { ChartSpec, waitForChartsLoad } from 'cypress/utils';
 
 export const WORLD_HEALTH_CHARTS = [
   { name: '% Rural', viz: 'world_map' },
@@ -366,7 +367,8 @@ export function saveNativeFilterSettings(charts: ChartSpec[]) {
     .should('be.visible')
     .click();
   cy.get(nativeFilters.modal.container).should('not.exist');
-  charts.forEach(waitForChartLoad);
+  // charts.forEach(waitForChartLoad);
+  waitForChartsLoad(charts);
 }
 
 /** ************************************************************************

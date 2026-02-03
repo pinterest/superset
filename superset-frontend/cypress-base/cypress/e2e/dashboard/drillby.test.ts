@@ -18,7 +18,8 @@
  */
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Interception } from 'cypress/types/net-stubbing';
-import { waitForChartLoad } from 'cypress/utils';
+// import { waitForChartLoad } from 'cypress/utils';
+import { waitForChartsLoad } from 'cypress/utils';
 import { SUPPORTED_CHARTS_DASHBOARD } from 'cypress/utils/urls';
 import {
   openTopLevelTab,
@@ -238,7 +239,8 @@ describe('Drill by modal', () => {
     before(() => {
       closeModal();
       openTopLevelTab('Tier 1');
-      SUPPORTED_TIER1_CHARTS.forEach(waitForChartLoad);
+      // SUPPORTED_TIER1_CHARTS.forEach(waitForChartLoad);
+      waitForChartsLoad(SUPPORTED_TIER1_CHARTS);
     });
 
     it('opens the modal from the context menu', () => {
@@ -386,7 +388,8 @@ describe('Drill by modal', () => {
     before(() => {
       closeModal();
       openTopLevelTab('Tier 1');
-      SUPPORTED_TIER1_CHARTS.forEach(waitForChartLoad);
+      // SUPPORTED_TIER1_CHARTS.forEach(waitForChartLoad);
+      waitForChartsLoad(SUPPORTED_TIER1_CHARTS);
     });
 
     it('Pivot Table', () => {
@@ -549,7 +552,8 @@ describe('Drill by modal', () => {
     before(() => {
       closeModal();
       openTopLevelTab('Tier 2');
-      SUPPORTED_TIER2_CHARTS.forEach(waitForChartLoad);
+      // SUPPORTED_TIER2_CHARTS.forEach(waitForChartLoad);
+      waitForChartsLoad(SUPPORTED_TIER2_CHARTS);
     });
 
     it('Box Plot Chart', () => {

@@ -16,7 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { parsePostForm, JsonObject, waitForChartLoad } from 'cypress/utils';
+// import { parsePostForm, JsonObject, waitForChartLoad } from 'cypress/utils';
+import { parsePostForm, JsonObject, waitForChartsLoad } from 'cypress/utils';
 import { WORLD_HEALTH_DASHBOARD } from 'cypress/utils/urls';
 import { WORLD_HEALTH_CHARTS } from './utils';
 
@@ -40,6 +41,7 @@ describe.skip('Dashboard form data', () => {
       expect(requestParams.url_params).deep.eq(urlParams);
     });
 
-    WORLD_HEALTH_CHARTS.forEach(waitForChartLoad);
+    // WORLD_HEALTH_CHARTS.forEach(waitForChartLoad);
+    waitForChartsLoad(WORLD_HEALTH_CHARTS);
   });
 });

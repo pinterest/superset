@@ -17,13 +17,15 @@
  * under the License.
  */
 import { WORLD_HEALTH_DASHBOARD } from 'cypress/utils/urls';
-import { waitForChartLoad } from 'cypress/utils';
+// import { waitForChartLoad } from 'cypress/utils';
+import { waitForChartsLoad } from 'cypress/utils';
 import { WORLD_HEALTH_CHARTS, interceptLog } from './utils';
 
 describe('Dashboard load', () => {
   it('should load dashboard', () => {
     cy.visit(WORLD_HEALTH_DASHBOARD);
-    WORLD_HEALTH_CHARTS.forEach(waitForChartLoad);
+    // WORLD_HEALTH_CHARTS.forEach(waitForChartLoad);
+    waitForChartsLoad(WORLD_HEALTH_CHARTS);
   });
 
   it('should load in edit mode', () => {

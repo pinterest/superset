@@ -16,7 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { waitForChartLoad } from 'cypress/utils';
+// import { waitForChartLoad } from 'cypress/utils';
+import { waitForChartsLoad } from 'cypress/utils';
 import { SUPPORTED_CHARTS_DASHBOARD } from 'cypress/utils/urls';
 import {
   openTopLevelTab,
@@ -131,7 +132,8 @@ describe('Drill to detail modal', () => {
     before(() => {
       cy.visit(SUPPORTED_CHARTS_DASHBOARD);
       openTopLevelTab('Tier 1');
-      SUPPORTED_TIER1_CHARTS.forEach(waitForChartLoad);
+      // SUPPORTED_TIER1_CHARTS.forEach(waitForChartLoad);
+      waitForChartsLoad(SUPPORTED_TIER1_CHARTS);
     });
 
     describe('Modal actions', () => {
@@ -432,7 +434,8 @@ describe('Drill to detail modal', () => {
     before(() => {
       cy.visit(SUPPORTED_CHARTS_DASHBOARD);
       openTopLevelTab('Tier 2');
-      SUPPORTED_TIER2_CHARTS.forEach(waitForChartLoad);
+      // SUPPORTED_TIER2_CHARTS.forEach(waitForChartLoad);
+      waitForChartsLoad(SUPPORTED_TIER2_CHARTS);
     });
 
     describe.only('Modal actions', () => {

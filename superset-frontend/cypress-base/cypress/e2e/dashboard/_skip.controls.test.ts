@@ -18,6 +18,7 @@
  */
 import {
   waitForChartLoad,
+  waitForChartsLoad,
   ChartSpec,
   getChartAliasesBySpec,
 } from 'cypress/utils';
@@ -60,7 +61,8 @@ describe.skip('Dashboard top-level controls', () => {
   it('should allow dashboard level force refresh', () => {
     // when charts are not start loading, for example, under a secondary tab,
     // should allow force refresh
-    WORLD_HEALTH_CHARTS.forEach(waitForChartLoad);
+    // WORLD_HEALTH_CHARTS.forEach(waitForChartLoad);
+    waitForChartsLoad(WORLD_HEALTH_CHARTS);
     getChartAliasesBySpec(WORLD_HEALTH_CHARTS).then(aliases => {
       cy.get('[aria-label="more-horiz"]').click();
       cy.get('[data-test="refresh-dashboard-menu-item"]').should(
