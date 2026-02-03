@@ -79,6 +79,7 @@ class DashboardDAO(BaseDAO[Dashboard]):
     @staticmethod
     def get_datasets_for_dashboard(id_or_slug: str) -> list[Any]:
         dashboard = DashboardDAO.get_by_id_or_slug(id_or_slug)
+        g.dashboard_id = dashboard.id
         return dashboard.datasets_trimmed_for_slices()
 
     @staticmethod
