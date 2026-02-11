@@ -21,6 +21,7 @@ import { css, QueryData, SupersetTheme } from '@superset-ui/core';
 import RowCountLabel from 'src/explore/components/RowCountLabel';
 import CachedLabel from 'src/components/CachedLabel';
 import Timer from 'src/components/Timer';
+import AlertsLabel from 'src/components/AlertsLabel';
 import { Type } from 'src/components/Label';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
@@ -39,6 +40,7 @@ export type ChartPillsProps = {
   chartUpdateEndTime: number;
   refreshCachedQuery: () => void;
   rowLimit: string | number;
+  showAlerts?: boolean;
 };
 
 export const ChartPills = forwardRef(
@@ -50,6 +52,7 @@ export const ChartPills = forwardRef(
       chartUpdateEndTime,
       refreshCachedQuery,
       rowLimit,
+      showAlerts,
     }: ChartPillsProps,
     ref: RefObject<HTMLDivElement>,
   ) => {
@@ -92,6 +95,7 @@ export const ChartPills = forwardRef(
             isRunning={isLoading}
             status={CHART_STATUS_MAP[chartStatus]}
           />
+          {showAlerts && <AlertsLabel />}
         </div>
       </div>
     );

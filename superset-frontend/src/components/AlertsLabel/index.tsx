@@ -1,0 +1,89 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+import { useState, FC } from 'react';
+
+import { css, t, useTheme } from '@superset-ui/core';
+import { AntdDropdown } from 'src/components';
+import { Menu } from 'src/components/Menu';
+import Label from 'src/components/Label';
+import { Tooltip } from 'src/components/Tooltip';
+
+
+export interface AlertsLabelProps {
+  onWardenAlert?: () => void;
+  onSqlAlert?: () => void;
+  className?: string;
+}
+
+const ALERT_LIST_PATH = '/alert/list/';
+
+const AlertsLabel: FC<AlertsLabelProps> = ({
+  className,
+  onWardenAlert,
+  onSqlAlert = () => window.location.assign(ALERT_LIST_PATH),
+}) => {
+  const [hovered, setHovered] = useState(false);
+  const theme = useTheme();
+
+  const labelType = hovered ? 'primary' : 'default';
+
+  const menu = (
+    <Menu
+      onClick={({ key }) => {
+        if (key === 'warden-alert') {
+          onWardenAlert?.();
+        } else if (key === 'sql-alert') {
+          onSqlAlert?.();
+        }
+      }}
+    >
+      <Menu.Item key="warden-alert">{t('Warden Alert')}</Menu.Item>
+      <Menu.Item key="sql-alert">{t('SQL Alert')}</Menu.Item>
+    </Menu>
+  );
+
+  return (
+    <AntdDropdown
+      overlay={menu}
+      trigger={['click']}
+      overlayStyle={{ zIndex: theme.zIndex.max }}
+    >
+      <span>
+        <Tooltip
+          title={t('Create an alert for this chart')}
+          id="alerts-label-tooltip"
+        >
+          <Label
+            className={className}
+            css={css`
+              gap: ${theme.gridUnit * 0.5}px;
+            `}
+            type={labelType}
+            onMouseOver={() => setHovered(true)}
+            onMouseOut={() => setHovered(false)}
+          >
+            {t('Setup alert')}
+          </Label>
+        </Tooltip>
+      </span>
+    </AntdDropdown>
+  );
+};
+
+export default AlertsLabel;

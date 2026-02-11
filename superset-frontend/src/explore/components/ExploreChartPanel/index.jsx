@@ -46,6 +46,7 @@ import { SaveDatasetModal } from 'src/SqlLab/components/SaveDatasetModal';
 import { getDatasourceAsSaveableDataset } from 'src/utils/datasourceUtils';
 import { buildV1ChartDataPayload } from 'src/explore/exploreUtils';
 import { getChartRequiredFieldsMissingMessage } from 'src/utils/getChartRequiredFieldsMissingMessage';
+import { displayTimeRelatedControls } from '@superset-ui/chart-controls';
 import { DataTablesPane } from '../DataTablesPane';
 import { ChartPills } from '../ChartPills';
 import { ExploreAlert } from '../ExploreAlert';
@@ -141,10 +142,14 @@ const ExploreChartPanel = ({
   chartIsStale,
   chartAlert,
   can_download: canDownload,
+  controls,
 }) => {
   const theme = useTheme();
   const gutterMargin = theme.gridUnit * GUTTER_SIZE_FACTOR;
   const gutterHeight = theme.gridUnit * GUTTER_SIZE_FACTOR;
+  const showAlerts =
+    'anomalyDetectionEnabled' in (formData || {}) &&
+    displayTimeRelatedControls({ controls });
   const {
     ref: chartPanelRef,
     observerRef: resizeObserverRef,
@@ -376,6 +381,7 @@ const ExploreChartPanel = ({
           chartUpdateEndTime={chart.chartUpdateEndTime}
           refreshCachedQuery={refreshCachedQuery}
           rowLimit={formData?.row_limit}
+          showAlerts={showAlerts}
         />
         {renderChart()}
       </div>
@@ -391,6 +397,7 @@ const ExploreChartPanel = ({
       chart.chartUpdateEndTime,
       refreshCachedQuery,
       formData?.row_limit,
+      showAlerts,
       renderChart,
     ],
   );
