@@ -17,13 +17,16 @@
  * under the License.
  */
 import { useState, FC } from 'react';
+import { useSelector } from 'react-redux';
 
 import { css, t, useTheme } from '@superset-ui/core';
 import { AntdDropdown } from 'src/components';
 import { Menu } from 'src/components/Menu';
 import Label from 'src/components/Label';
 import { Tooltip } from 'src/components/Tooltip';
-
+import Button from 'src/components/Button';
+import ErrorAlert from 'src/components/ErrorMessage/ErrorAlert';
+import Modal from 'src/components/Modal';
 
 export interface AlertsLabelProps {
   onWardenAlert?: () => void;
@@ -39,15 +42,32 @@ const AlertsLabel: FC<AlertsLabelProps> = ({
   onSqlAlert = () => window.location.assign(ALERT_LIST_PATH),
 }) => {
   const [hovered, setHovered] = useState(false);
+  const [showErrorAlert, setShowErrorAlert] = useState(false);
   const theme = useTheme();
 
+  const datasource = useSelector((state: any) => state.explore?.datasource);
+  const databaseBackend = datasource?.database?.backend;
+  const databaseName = datasource?.database?.name;
+  const datasourceName = datasource?.name;
+
   const labelType = hovered ? 'primary' : 'default';
+
+  const handleWardenAlert = () => {
+    // eslint-disable-next-line no-console
+    console.log('Database backend:', databaseBackend);
+    // eslint-disable-next-line no-console
+    console.log('Database name:', databaseName);
+    // eslint-disable-next-line no-console
+    console.log('Datasource name:', datasourceName);
+    setShowErrorAlert(true);
+    onWardenAlert?.();
+  };
 
   const menu = (
     <Menu
       onClick={({ key }) => {
         if (key === 'warden-alert') {
-          onWardenAlert?.();
+          handleWardenAlert();
         } else if (key === 'sql-alert') {
           onSqlAlert?.();
         }
@@ -59,30 +79,52 @@ const AlertsLabel: FC<AlertsLabelProps> = ({
   );
 
   return (
-    <AntdDropdown
-      overlay={menu}
-      trigger={['click']}
-      overlayStyle={{ zIndex: theme.zIndex.max }}
-    >
-      <span>
-        <Tooltip
-          title={t('Create an alert for this chart')}
-          id="alerts-label-tooltip"
-        >
-          <Label
-            className={className}
-            css={css`
-              gap: ${theme.gridUnit * 0.5}px;
-            `}
-            type={labelType}
-            onMouseOver={() => setHovered(true)}
-            onMouseOut={() => setHovered(false)}
+    <>
+      <AntdDropdown
+        overlay={menu}
+        trigger={['click']}
+        overlayStyle={{ zIndex: theme.zIndex.max }}
+      >
+        <span>
+          <Tooltip
+            title={t('Create an alert for this chart')}
+            id="alerts-label-tooltip"
           >
-            {t('Setup alert')}
-          </Label>
-        </Tooltip>
-      </span>
-    </AntdDropdown>
+            <Label
+              className={className}
+              css={css`
+                gap: ${theme.gridUnit * 0.5}px;
+              `}
+              type={labelType}
+              onMouseOver={() => setHovered(true)}
+              onMouseOut={() => setHovered(false)}
+            >
+              {t('Setup alert')}
+            </Label>
+          </Tooltip>
+        </span>
+      </AntdDropdown>
+      <Modal
+        title={t('Unexpected error')}
+        show={showErrorAlert}
+        onHide={() => setShowErrorAlert(false)}
+        footer={
+          <Button
+            buttonStyle="primary"
+            onClick={() => setShowErrorAlert(false)}
+            cta
+          >
+            {t('Close')}
+          </Button>
+        }
+      >
+        <ErrorAlert
+          errorType={t('Unexpected error')}
+          message={`backend: ${databaseBackend}, database name: ${databaseName}, datasource name: ${datasourceName}`}
+          closable={false}
+        />
+      </Modal>
+    </>
   );
 };
 
