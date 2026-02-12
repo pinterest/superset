@@ -222,6 +222,13 @@ if (process.env.USE_PINTEREST_PLUGINS !== 'true') {
         'pinterest-plugins/src/governance/pinterestDashboardBanners.stub.tsx',
       ),
     ),
+    new webpack.NormalModuleReplacementPlugin(
+      /@pinterest-plugins\/src\/explore\/components\/warden\/createWardenAlertModal$/,
+      path.resolve(
+        __dirname,
+        'pinterest-plugins/src/explore/components/warden/createWardenAlertModal.stub.tsx',
+      ),
+    ),
   );
 }
 

@@ -25,6 +25,9 @@ import { Type } from 'src/components/Label';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
 import { getPinterestChartPills } from '@pinterest-plugins/src/explore/components/pinterestChartPills';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import CreateWardenAlertModal from '@pinterest-plugins/src/explore/components/warden/createWardenAlertModal';
 
 const CHART_STATUS_MAP = {
   failed: 'danger' as Type,
@@ -92,6 +95,7 @@ export const ChartPills = forwardRef(
             isRunning={isLoading}
             status={CHART_STATUS_MAP[chartStatus]}
           />
+          <CreateWardenAlertModal />
         </div>
       </div>
     );

@@ -52,6 +52,8 @@ module.exports = {
       '<rootDir>/pinterest-plugins/src/governance/pinterestTitlePanelAdditionalItems.stub.tsx',
     '^@pinterest-plugins/src/governance/pinterestDashboardBanners$':
       '<rootDir>/pinterest-plugins/src/governance/pinterestDashboardBanners.stub.tsx',
+    '^@pinterest-plugins/src/explore/components/warden/createWardenAlertModal$':
+      '<rootDir>/pinterest-plugins/src/explore/components/warden/createWardenAlertModal.stub.tsx',
     // general mapping for other @pinterest-plugins modules
     '^@pinterest-plugins/(.*)$': '<rootDir>/pinterest-plugins/$1',
   },
