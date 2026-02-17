@@ -40,6 +40,7 @@ import {
 import Icons from 'src/components/Icons';
 import { Button } from 'src/components/';
 import { findPermission } from 'src/utils/findPermission';
+import { isUserAdmin } from 'src/dashboard/util/permissionUtils';
 import { Tooltip } from 'src/components/Tooltip';
 import { safeStringify } from 'src/utils/safeStringify';
 import ConnectedHeaderActionsDropdown from 'src/dashboard/components/Header/HeaderActionsDropdown';
@@ -524,6 +525,7 @@ const Header = () => {
     dashboardInfo.common?.conf
       ?.SUPERSET_DASHBOARD_PERIODICAL_REFRESH_WARNING_MESSAGE;
   const isEmbedded = !dashboardInfo?.userId;
+  const userCanEditTieringInfo = isUserAdmin(user);
 
   const handleOnPropertiesChange = useCallback(
     updates => {
@@ -761,6 +763,7 @@ const Header = () => {
         userCanShare={userCanShare}
         userCanSave={userCanSaveAs}
         userCanCurate={userCanCurate}
+        userCanEditTieringInfo={userCanEditTieringInfo}
         isLoading={isLoading}
         showPropertiesModal={showPropertiesModal}
         manageEmbedded={showEmbedModal}
@@ -807,6 +810,7 @@ const Header = () => {
       startPeriodicRender,
       userCanCurate,
       userCanEdit,
+      userCanEditTieringInfo,
       userCanSaveAs,
       userCanShare,
     ],

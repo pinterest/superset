@@ -56,6 +56,7 @@ export interface HeaderDropdownProps {
   userCanSave: boolean;
   userCanShare: boolean;
   userCanCurate: boolean;
+  userCanEditTieringInfo?: boolean;
   manageEmbedded: () => void;
   dataMask: any;
   lastModifiedTime: number;

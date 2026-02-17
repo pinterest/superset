@@ -139,6 +139,7 @@ export class HeaderActionsDropdown extends PureComponent<
       userCanShare,
       userCanSave,
       userCanCurate,
+      userCanEditTieringInfo,
       isLoading,
       refreshLimit,
       refreshWarning,
@@ -263,9 +264,11 @@ export class HeaderActionsDropdown extends PureComponent<
             dashboardComponentId={dashboardComponentId}
           />
         )}
-        <Menu.Item key={MenuKeys.PinterestTieringInfo} onClick={this.handleMenuClick}>
-          {t('Edit tiering information')}
-        </Menu.Item>
+        {userCanEditTieringInfo && (
+          <Menu.Item key={MenuKeys.PinterestTieringInfo} onClick={this.handleMenuClick}>
+            {t('Edit tiering information')}
+          </Menu.Item>
+        )}
         {!editMode && userCanCurate && (
           <Menu.Item
             key={MenuKeys.ManageEmbedded}
