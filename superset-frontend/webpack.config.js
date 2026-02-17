@@ -187,6 +187,13 @@ if (process.env.USE_PINTEREST_PLUGINS !== 'true') {
         'pinterest-plugins/src/explore/components/pinterestChartPills.stub.tsx',
       ),
     ),
+    new webpack.NormalModuleReplacementPlugin(
+      /@pinterest-plugins\/src\/dashboard\/components\/pinterestTieringInfoModal$/,
+      path.resolve(
+        __dirname,
+        'pinterest-plugins/src/dashboard/components/pinterestTieringInfoModal.stub.tsx',
+      ),
+    ),
   );
 }
 

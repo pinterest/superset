@@ -90,6 +90,9 @@ import { dashboardInfoChanged } from '../../actions/dashboardInfo';
 import isDashboardLoading from '../../util/isDashboardLoading';
 import { useChartIds } from '../../util/charts/useChartIds';
 import { useDashboardMetadataBar } from './useDashboardMetadataBar';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import PinterestTieringInfoModal from '@pinterest-plugins/src/dashboard/components/pinterestTieringInfoModal';
 
 const extensionsRegistry = getExtensionsRegistry();
 
@@ -162,6 +165,7 @@ const Header = () => {
   const [emphasizeUndo, setEmphasizeUndo] = useState(false);
   const [emphasizeRedo, setEmphasizeRedo] = useState(false);
   const [showingPropertiesModal, setShowingPropertiesModal] = useState(false);
+  const [showingPinterestTieringInfoModal, setShowingPinterestTieringInfoModal] = useState(false);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [showingEmbedModal, setShowingEmbedModal] = useState(false);
   const dashboardInfo = useSelector(state => state.dashboardInfo);
@@ -489,6 +493,14 @@ const Header = () => {
     setShowingPropertiesModal(false);
   }, []);
 
+  const showPinterestTieringInfoModal = useCallback(() => {
+    setShowingPinterestTieringInfoModal(true);
+  }, []);
+
+  const hidePinterestTieringInfoModal = useCallback(() => {
+    setShowingPinterestTieringInfoModal(false);
+  }, []);
+
   const showEmbedModal = useCallback(() => {
     setShowingEmbedModal(true);
   }, []);
@@ -758,6 +770,8 @@ const Header = () => {
         isDropdownVisible={isDropdownVisible}
         setIsDropdownVisible={setDropdownVisible}
         logEvent={boundActionCreators.logEvent}
+        showPinterestTieringInfoModal={showPinterestTieringInfoModal}
+        hidePinterestTieringInfoModal={hidePinterestTieringInfoModal}
       />
     ),
     [
@@ -788,6 +802,7 @@ const Header = () => {
       setDropdownVisible,
       shouldPersistRefreshFrequency,
       showEmbedModal,
+      showPinterestTieringInfoModal,
       showPropertiesModal,
       startPeriodicRender,
       userCanCurate,
@@ -828,7 +843,13 @@ const Header = () => {
           user={user}
         />
       )}
-
+      {showingPinterestTieringInfoModal && (
+        <PinterestTieringInfoModal
+          dashboardId={dashboardInfo.id}
+          show={showingPinterestTieringInfoModal}
+          onHide={hidePinterestTieringInfoModal}
+        />
+      )}
       <OverwriteConfirm />
 
       {userCanCurate && (

@@ -112,6 +112,10 @@ export class HeaderActionsDropdown extends PureComponent<
         this.props.manageEmbedded();
         break;
       }
+      case MenuKeys.PinterestTieringInfo: {
+        this.props.showPinterestTieringInfoModal();
+        break;
+      }
       default:
         break;
     }
@@ -259,6 +263,9 @@ export class HeaderActionsDropdown extends PureComponent<
             dashboardComponentId={dashboardComponentId}
           />
         )}
+        <Menu.Item key={MenuKeys.PinterestTieringInfo} onClick={this.handleMenuClick}>
+          {t('Edit tiering information')}
+        </Menu.Item>
         {!editMode && userCanCurate && (
           <Menu.Item
             key={MenuKeys.ManageEmbedded}

@@ -65,6 +65,8 @@ export interface HeaderDropdownProps {
   refreshLimit: number;
   refreshWarning: string;
   directPathToChild: string[];
+  showPinterestTieringInfoModal: () => void;
+  hidePinterestTieringInfoModal: () => void;
 }
 
 export interface HeaderProps {

@@ -283,4 +283,5 @@ export enum MenuKeys {
   ManageEmbedded = 'manage_embedded',
   ManageEmailReports = 'manage_email_reports',
   ViewTableInfo = 'view_table_info',
+  PinterestTieringInfo = 'pinterest_tiering_info',
 }
