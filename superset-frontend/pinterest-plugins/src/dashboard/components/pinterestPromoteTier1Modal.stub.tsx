@@ -1,5 +1,8 @@
 import withToasts from '@superset-frontend/src/components/MessageToasts/withToasts';
-import { UserWithPermissionsAndRoles, UndefinedUser } from '@superset-frontend/src/types/bootstrapTypes';
+import {
+  UserWithPermissionsAndRoles,
+  UndefinedUser,
+} from '@superset-frontend/src/types/bootstrapTypes';
 
 type PinterestPromoteTier1ModalProps = {
   dashboardId: number;
@@ -10,8 +13,8 @@ type PinterestPromoteTier1ModalProps = {
   user: UserWithPermissionsAndRoles | UndefinedUser;
 };
 
-const PinterestPromoteTier1Modal = (_props: PinterestPromoteTier1ModalProps) => (
-  <></>
-);
+const PinterestPromoteTier1Modal = (
+  _props: PinterestPromoteTier1ModalProps,
+) => <></>;
 
 export default withToasts(PinterestPromoteTier1Modal);

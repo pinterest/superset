@@ -57,6 +57,12 @@ import setPeriodicRunner, {
   stopPeriodicRender,
 } from 'src/dashboard/util/setPeriodicRunner';
 import { PageHeaderWithActions } from 'src/components/PageHeaderWithActions';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import PinterestPromoteTier1Modal from '@pinterest-plugins/src/dashboard/components/pinterestPromoteTier1Modal';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import PinterestTieringInfoModal from '@pinterest-plugins/src/dashboard/components/pinterestTieringInfoModal';
 import DashboardEmbedModal from '../EmbeddedModal';
 import OverwriteConfirm from '../OverwriteConfirm';
 import {
@@ -91,12 +97,6 @@ import { dashboardInfoChanged } from '../../actions/dashboardInfo';
 import isDashboardLoading from '../../util/isDashboardLoading';
 import { useChartIds } from '../../util/charts/useChartIds';
 import { useDashboardMetadataBar } from './useDashboardMetadataBar';
-// @ts-ignore
-// eslint-disable-next-line import/no-unresolved
-import PinterestTieringInfoModal from '@pinterest-plugins/src/dashboard/components/pinterestTieringInfoModal';
-// @ts-ignore
-// eslint-disable-next-line import/no-unresolved
-import PinterestPromoteTier1Modal from '@pinterest-plugins/src/dashboard/components/pinterestPromoteTier1Modal';
 
 const extensionsRegistry = getExtensionsRegistry();
 
@@ -169,8 +169,14 @@ const Header = () => {
   const [emphasizeUndo, setEmphasizeUndo] = useState(false);
   const [emphasizeRedo, setEmphasizeRedo] = useState(false);
   const [showingPropertiesModal, setShowingPropertiesModal] = useState(false);
-  const [showingPinterestTieringInfoModal, setShowingPinterestTieringInfoModal] = useState(false);
-  const [showingPinterestPromoteTier1Modal, setShowingPinterestPromoteTier1Modal] = useState(false);
+  const [
+    showingPinterestTieringInfoModal,
+    setShowingPinterestTieringInfoModal,
+  ] = useState(false);
+  const [
+    showingPinterestPromoteTier1Modal,
+    setShowingPinterestPromoteTier1Modal,
+  ] = useState(false);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [showingEmbedModal, setShowingEmbedModal] = useState(false);
   const dashboardInfo = useSelector(state => state.dashboardInfo);

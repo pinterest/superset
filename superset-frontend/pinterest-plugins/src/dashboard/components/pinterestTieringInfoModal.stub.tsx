@@ -1,5 +1,8 @@
 import withToasts from '@superset-frontend/src/components/MessageToasts/withToasts';
-import { UserWithPermissionsAndRoles, UndefinedUser } from '@superset-frontend/src/types/bootstrapTypes';
+import {
+  UserWithPermissionsAndRoles,
+  UndefinedUser,
+} from '@superset-frontend/src/types/bootstrapTypes';
 
 type PinterestTieringInfoModalProps = {
   dashboardId: number;

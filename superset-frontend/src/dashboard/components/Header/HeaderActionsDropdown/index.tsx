@@ -270,12 +270,18 @@ export class HeaderActionsDropdown extends PureComponent<
           />
         )}
         {editMode && userCanEditTieringInfo && (
-          <Menu.Item key={MenuKeys.PinterestTieringInfo} onClick={this.handleMenuClick}>
+          <Menu.Item
+            key={MenuKeys.PinterestTieringInfo}
+            onClick={this.handleMenuClick}
+          >
             {t('Edit tiering information')}
           </Menu.Item>
         )}
         {userCanPromoteTier1 && (
-          <Menu.Item key={MenuKeys.PinterestTieringInfo} onClick={this.handleMenuClick}>
+          <Menu.Item
+            key={MenuKeys.PinterestTieringInfo}
+            onClick={this.handleMenuClick}
+          >
             {t('Promote to Tier 1')}
           </Menu.Item>
         )}
