@@ -3,8 +3,7 @@ import { UserWithPermissionsAndRoles, UndefinedUser } from '@superset-frontend/s
 type PinterestTieringInfoModalProps = {
   dashboardId: number;
   show?: boolean;
-  onHide?: () => void;
-  onSubmit?: (params: Record<string, any>) => void;
+  onHide: () => void;
   addSuccessToast: (message: string) => void;
   addDangerToast: (message: string) => void;
   user: UserWithPermissionsAndRoles | UndefinedUser;

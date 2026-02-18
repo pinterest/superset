@@ -852,6 +852,7 @@ const Header = () => {
           dashboardId={dashboardInfo.id}
           show={showingPinterestTieringInfoModal}
           onHide={hidePinterestTieringInfoModal}
+          user={user}
         />
       )}
       <OverwriteConfirm />
