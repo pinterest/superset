@@ -116,6 +116,10 @@ export class HeaderActionsDropdown extends PureComponent<
         this.props.showPinterestTieringInfoModal();
         break;
       }
+      case MenuKeys.PinterestPromoteTier1: {
+        this.props.showPinterestPromoteTier1Modal();
+        break;
+      }
       default:
         break;
     }
@@ -140,6 +144,7 @@ export class HeaderActionsDropdown extends PureComponent<
       userCanSave,
       userCanCurate,
       userCanEditTieringInfo,
+      userCanPromoteTier1,
       isLoading,
       refreshLimit,
       refreshWarning,
@@ -264,9 +269,14 @@ export class HeaderActionsDropdown extends PureComponent<
             dashboardComponentId={dashboardComponentId}
           />
         )}
-        {userCanEditTieringInfo && (
+        {editMode && userCanEditTieringInfo && (
           <Menu.Item key={MenuKeys.PinterestTieringInfo} onClick={this.handleMenuClick}>
             {t('Edit tiering information')}
+          </Menu.Item>
+        )}
+        {userCanPromoteTier1 && (
+          <Menu.Item key={MenuKeys.PinterestTieringInfo} onClick={this.handleMenuClick}>
+            {t('Promote to Tier 1')}
           </Menu.Item>
         )}
         {!editMode && userCanCurate && (

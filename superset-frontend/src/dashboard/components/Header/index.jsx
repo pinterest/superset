@@ -94,6 +94,9 @@ import { useDashboardMetadataBar } from './useDashboardMetadataBar';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
 import PinterestTieringInfoModal from '@pinterest-plugins/src/dashboard/components/pinterestTieringInfoModal';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import PinterestPromoteTier1Modal from '@pinterest-plugins/src/dashboard/components/pinterestPromoteTier1Modal';
 
 const extensionsRegistry = getExtensionsRegistry();
 
@@ -167,6 +170,7 @@ const Header = () => {
   const [emphasizeRedo, setEmphasizeRedo] = useState(false);
   const [showingPropertiesModal, setShowingPropertiesModal] = useState(false);
   const [showingPinterestTieringInfoModal, setShowingPinterestTieringInfoModal] = useState(false);
+  const [showingPinterestPromoteTier1Modal, setShowingPinterestPromoteTier1Modal] = useState(false);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [showingEmbedModal, setShowingEmbedModal] = useState(false);
   const dashboardInfo = useSelector(state => state.dashboardInfo);
@@ -502,6 +506,14 @@ const Header = () => {
     setShowingPinterestTieringInfoModal(false);
   }, []);
 
+  const showPinterestPromoteTier1Modal = useCallback(() => {
+    setShowingPinterestPromoteTier1Modal(true);
+  }, []);
+
+  const hidePinterestPromoteTier1Modal = useCallback(() => {
+    setShowingPinterestPromoteTier1Modal(false);
+  }, []);
+
   const showEmbedModal = useCallback(() => {
     setShowingEmbedModal(true);
   }, []);
@@ -526,6 +538,7 @@ const Header = () => {
       ?.SUPERSET_DASHBOARD_PERIODICAL_REFRESH_WARNING_MESSAGE;
   const isEmbedded = !dashboardInfo?.userId;
   const userCanEditTieringInfo = isUserAdmin(user);
+  const userCanPromoteTier1 = isUserAdmin(user);
 
   const handleOnPropertiesChange = useCallback(
     updates => {
@@ -764,6 +777,7 @@ const Header = () => {
         userCanSave={userCanSaveAs}
         userCanCurate={userCanCurate}
         userCanEditTieringInfo={userCanEditTieringInfo}
+        userCanPromoteTier1={userCanPromoteTier1}
         isLoading={isLoading}
         showPropertiesModal={showPropertiesModal}
         manageEmbedded={showEmbedModal}
@@ -775,6 +789,8 @@ const Header = () => {
         logEvent={boundActionCreators.logEvent}
         showPinterestTieringInfoModal={showPinterestTieringInfoModal}
         hidePinterestTieringInfoModal={hidePinterestTieringInfoModal}
+        showPinterestPromoteTier1Modal={showPinterestPromoteTier1Modal}
+        hidePinterestPromoteTier1Modal={hidePinterestPromoteTier1Modal}
       />
     ),
     [
@@ -806,11 +822,13 @@ const Header = () => {
       shouldPersistRefreshFrequency,
       showEmbedModal,
       showPinterestTieringInfoModal,
+      showPinterestPromoteTier1Modal,
       showPropertiesModal,
       startPeriodicRender,
       userCanCurate,
       userCanEdit,
       userCanEditTieringInfo,
+      userCanPromoteTier1,
       userCanSaveAs,
       userCanShare,
     ],
@@ -852,6 +870,14 @@ const Header = () => {
           dashboardId={dashboardInfo.id}
           show={showingPinterestTieringInfoModal}
           onHide={hidePinterestTieringInfoModal}
+          user={user}
+        />
+      )}
+      {showingPinterestPromoteTier1Modal && (
+        <PinterestPromoteTier1Modal
+          dashboardId={dashboardInfo.id}
+          show={showingPinterestPromoteTier1Modal}
+          onHide={hidePinterestPromoteTier1Modal}
           user={user}
         />
       )}

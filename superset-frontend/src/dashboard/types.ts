@@ -284,4 +284,5 @@ export enum MenuKeys {
   ManageEmailReports = 'manage_email_reports',
   ViewTableInfo = 'view_table_info',
   PinterestTieringInfo = 'pinterest_tiering_info',
+  PinterestPromoteTier1 = 'pinterest_promote_tier1',
 }

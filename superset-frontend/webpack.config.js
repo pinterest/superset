@@ -194,6 +194,13 @@ if (process.env.USE_PINTEREST_PLUGINS !== 'true') {
         'pinterest-plugins/src/dashboard/components/pinterestTieringInfoModal.stub.tsx',
       ),
     ),
+    new webpack.NormalModuleReplacementPlugin(
+      /@pinterest-plugins\/src\/dashboard\/components\/pinterestPromoteTier1Modal$/,
+      path.resolve(
+        __dirname,
+        'pinterest-plugins/src/dashboard/components/pinterestPromoteTier1Modal.stub.tsx',
+      ),
+    ),
   );
 }
 
