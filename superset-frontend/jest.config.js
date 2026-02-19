@@ -42,6 +42,10 @@ module.exports = {
       '<rootDir>/pinterest-plugins/src/chart-controls/controlMap.stub.ts',
     '^@pinterest-plugins/src/explore/components/pinterestChartPills$':
       '<rootDir>/pinterest-plugins/src/explore/components/pinterestChartPills.stub.tsx',
+    '^@pinterest-plugins/src/dashboard/components/pinterestTieringInfoModal$':
+      '<rootDir>/pinterest-plugins/src/dashboard/components/pinterestTieringInfoModal.stub.tsx',
+    '^@pinterest-plugins/src/dashboard/components/pinterestPromoteTier1Modal$':
+      '<rootDir>/pinterest-plugins/src/dashboard/components/pinterestPromoteTier1Modal.stub.tsx',
     // general mapping for other @pinterest-plugins modules
     '^@pinterest-plugins/(.*)$': '<rootDir>/pinterest-plugins/$1',
   },

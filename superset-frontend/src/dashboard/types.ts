@@ -298,4 +298,6 @@ export enum MenuKeys {
   ManageEmailReports = 'manage_email_reports',
   ExportPivotXlsx = 'export_pivot_xlsx',
   ViewTableInfo = 'view_table_info',
+  PinterestTieringInfo = 'pinterest_tiering_info',
+  PinterestPromoteTier1 = 'pinterest_promote_tier1',
 }

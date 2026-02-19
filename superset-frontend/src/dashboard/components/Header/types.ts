@@ -61,6 +61,8 @@ export interface HeaderDropdownProps {
   userCanSave: boolean;
   userCanShare: boolean;
   userCanCurate: boolean;
+  userCanEditTieringInfo?: boolean;
+  userCanPromoteTier1?: boolean;
   manageEmbedded: () => void;
   dataMask: any;
   lastModifiedTime: number;
@@ -70,6 +72,8 @@ export interface HeaderDropdownProps {
   directPathToChild: string[];
   showReportModal: () => void;
   setCurrentReportDeleting: (alert: AlertObject | null) => void;
+  showPinterestTieringInfoModal: () => void;
+  showPinterestPromoteTier1Modal: () => void;
 }
 
 export interface HeaderProps {

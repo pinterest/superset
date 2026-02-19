@@ -54,6 +54,8 @@ export const useHeaderActionsMenu = ({
   userCanShare,
   userCanSave,
   userCanCurate,
+  userCanEditTieringInfo,
+  userCanPromoteTier1,
   isLoading,
   refreshLimit,
   refreshWarning,
@@ -71,6 +73,8 @@ export const useHeaderActionsMenu = ({
   dashboardTitle,
   logEvent,
   setCurrentReportDeleting,
+  showPinterestTieringInfoModal,
+  showPinterestPromoteTier1Modal,
 }: HeaderDropdownProps) => {
   const dispatch = useDispatch();
   const [css, setCss] = useState(customCss || '');
@@ -120,6 +124,12 @@ export const useHeaderActionsMenu = ({
         case MenuKeys.ManageEmbedded:
           manageEmbedded();
           break;
+        case MenuKeys.PinterestTieringInfo:
+          showPinterestTieringInfoModal();
+          break;
+        case MenuKeys.PinterestPromoteTier1:
+          showPinterestPromoteTier1Modal();
+          break;
         default:
           break;
       }
@@ -130,6 +140,8 @@ export const useHeaderActionsMenu = ({
       addSuccessToast,
       showPropertiesModal,
       manageEmbedded,
+      showPinterestTieringInfoModal,
+      showPinterestPromoteTier1Modal,
     ],
   );
 
@@ -308,6 +320,20 @@ export const useHeaderActionsMenu = ({
       });
     }
 
+    if (editMode && userCanEditTieringInfo) {
+      menuItems.push({
+        key: MenuKeys.PinterestTieringInfo,
+        label: t('Edit tiering information'),
+      });
+    }
+
+    if (userCanPromoteTier1) {
+      menuItems.push({
+        key: MenuKeys.PinterestPromoteTier1,
+        label: t('Promote to Tier 1'),
+      });
+    }
+
     // Divider
     menuItems.push({ type: 'divider' });
 
@@ -383,6 +409,8 @@ export const useHeaderActionsMenu = ({
     shouldPersistRefreshFrequency,
     userCanCurate,
     userCanEdit,
+    userCanEditTieringInfo,
+    userCanPromoteTier1,
     userCanSave,
     userCanShare,
   ]);
