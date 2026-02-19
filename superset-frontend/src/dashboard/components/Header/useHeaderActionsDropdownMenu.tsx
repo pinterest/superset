@@ -55,6 +55,8 @@ export const useHeaderActionsMenu = ({
   userCanSave,
   userCanCurate,
   userCanExport,
+  userCanEditTieringInfo,
+  userCanPromoteTier1,
   isLoading,
   lastModifiedTime,
   addSuccessToast,
@@ -67,6 +69,8 @@ export const useHeaderActionsMenu = ({
   dashboardTitle,
   logEvent,
   setCurrentReportDeleting,
+  showPinterestTieringInfoModal,
+  showPinterestPromoteTier1Modal,
 }: HeaderDropdownProps): [
   ReactElement,
   boolean,
@@ -112,6 +116,12 @@ export const useHeaderActionsMenu = ({
         case MenuKeys.ManageEmbedded:
           manageEmbedded();
           break;
+        case MenuKeys.PinterestTieringInfo:
+          showPinterestTieringInfoModal();
+          break;
+        case MenuKeys.PinterestPromoteTier1:
+          showPinterestPromoteTier1Modal();
+          break;
         default:
           break;
       }
@@ -124,6 +134,8 @@ export const useHeaderActionsMenu = ({
       showRefreshModal,
       manageEmbedded,
       history,
+      showPinterestTieringInfoModal,
+      showPinterestPromoteTier1Modal,
     ],
   );
 
@@ -282,6 +294,20 @@ export const useHeaderActionsMenu = ({
       });
     }
 
+    if (editMode && userCanEditTieringInfo) {
+      menuItems.push({
+        key: MenuKeys.PinterestTieringInfo,
+        label: t('Edit tiering information'),
+      });
+    }
+
+    if (userCanPromoteTier1) {
+      menuItems.push({
+        key: MenuKeys.PinterestPromoteTier1,
+        label: t('Promote to Tier 1'),
+      });
+    }
+
     // Only add divider if there are items after it
     const hasItemsAfterDivider =
       (!editMode && reportMenuItem) ||
@@ -339,6 +365,8 @@ export const useHeaderActionsMenu = ({
     shouldPersistRefreshFrequency,
     userCanCurate,
     userCanEdit,
+    userCanEditTieringInfo,
+    userCanPromoteTier1,
     userCanSave,
     userCanShare,
   ]);

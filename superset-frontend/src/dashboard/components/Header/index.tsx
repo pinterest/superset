@@ -41,6 +41,7 @@ import {
   UnsavedChangesModal,
 } from '@superset-ui/core/components';
 import { findPermission } from 'src/utils/findPermission';
+import { isUserAdmin } from 'src/dashboard/util/permissionUtils';
 import { safeStringify } from 'src/utils/safeStringify';
 import Role from 'src/types/Role';
 import Owner from 'src/types/Owner';
@@ -65,6 +66,12 @@ import {
 } from 'src/features/reports/ReportModal/actions';
 import { PageHeaderWithActions } from '@superset-ui/core/components/PageHeaderWithActions';
 import { useUnsavedChangesPrompt } from 'src/hooks/useUnsavedChangesPrompt';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import PinterestPromoteTier1Modal from '@pinterest-plugins/src/dashboard/components/pinterestPromoteTier1Modal';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import PinterestTieringInfoModal from '@pinterest-plugins/src/dashboard/components/pinterestTieringInfoModal';
 import DashboardEmbedModal from '../EmbeddedModal';
 import OverwriteConfirm from '../OverwriteConfirm';
 import {
@@ -232,6 +239,14 @@ const Header = (): JSX.Element => {
   const [emphasizeRedo, setEmphasizeRedo] = useState(false);
   const [showingPropertiesModal, setShowingPropertiesModal] = useState(false);
   const [showingRefreshModal, setShowingRefreshModal] = useState(false);
+  const [
+    showingPinterestTieringInfoModal,
+    setShowingPinterestTieringInfoModal,
+  ] = useState(false);
+  const [
+    showingPinterestPromoteTier1Modal,
+    setShowingPinterestPromoteTier1Modal,
+  ] = useState(false);
   const [showingEmbedModal, setShowingEmbedModal] = useState(false);
   const [showingReportModal, setShowingReportModal] = useState(false);
   const [currentReportDeleting, setCurrentReportDeleting] =
@@ -544,6 +559,22 @@ const Header = (): JSX.Element => {
     setShowingRefreshModal(false);
   }, []);
 
+  const showPinterestTieringInfoModal = useCallback(() => {
+    setShowingPinterestTieringInfoModal(true);
+  }, []);
+
+  const hidePinterestTieringInfoModal = useCallback(() => {
+    setShowingPinterestTieringInfoModal(false);
+  }, []);
+
+  const showPinterestPromoteTier1Modal = useCallback(() => {
+    setShowingPinterestPromoteTier1Modal(true);
+  }, []);
+
+  const hidePinterestPromoteTier1Modal = useCallback(() => {
+    setShowingPinterestPromoteTier1Modal(false);
+  }, []);
+
   const showEmbedModal = useCallback(() => {
     setShowingEmbedModal(true);
   }, []);
@@ -570,6 +601,13 @@ const Header = (): JSX.Element => {
     isFeatureEnabled(FeatureFlag.EmbeddedSuperset) &&
     findPermission('can_set_embedded', 'Dashboard', user.roles);
   const userCanExport = !!dashboardInfo.dash_export_perm;
+  const userCanEditTieringInfo = isUserAdmin(user);
+  const userCanPromoteTier1 = isUserAdmin(user);
+  const refreshLimit =
+    dashboardInfo.common?.conf?.SUPERSET_DASHBOARD_PERIODICAL_REFRESH_LIMIT;
+  const refreshWarning =
+    dashboardInfo.common?.conf
+      ?.SUPERSET_DASHBOARD_PERIODICAL_REFRESH_WARNING_MESSAGE;
   const isEmbedded = !dashboardInfo?.userId;
 
   const handleOnPropertiesChange = useCallback(
@@ -832,6 +870,8 @@ const Header = (): JSX.Element => {
     userCanSave: userCanSaveAs,
     userCanCurate,
     userCanExport,
+    userCanEditTieringInfo,
+    userCanPromoteTier1,
     isLoading,
     showReportModal,
     showPropertiesModal,
@@ -840,6 +880,8 @@ const Header = (): JSX.Element => {
     manageEmbedded: showEmbedModal,
     lastModifiedTime: actualLastModifiedTime,
     logEvent: boundActionCreators.logEvent,
+    showPinterestTieringInfoModal,
+    showPinterestPromoteTier1Modal,
   });
   return (
     <div
@@ -911,6 +953,23 @@ const Header = (): JSX.Element => {
           onHide={() => setCurrentReportDeleting(null)}
           open
           title={t('Delete Report?')}
+        />
+      )}
+
+      {showingPinterestTieringInfoModal && (
+        <PinterestTieringInfoModal
+          dashboardId={dashboardInfo.id}
+          show={showingPinterestTieringInfoModal}
+          onHide={hidePinterestTieringInfoModal}
+          user={user}
+        />
+      )}
+      {showingPinterestPromoteTier1Modal && (
+        <PinterestPromoteTier1Modal
+          dashboardId={dashboardInfo.id}
+          show={showingPinterestPromoteTier1Modal}
+          onHide={hidePinterestPromoteTier1Modal}
+          user={user}
         />
       )}
 

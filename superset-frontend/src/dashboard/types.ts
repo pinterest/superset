@@ -394,4 +394,6 @@ export enum MenuKeys {
   ExportPivotXlsx = 'export_pivot_xlsx',
   EmbedCode = 'embed_code',
   ViewTableInfo = 'view_table_info',
+  PinterestTieringInfo = 'pinterest_tiering_info',
+  PinterestPromoteTier1 = 'pinterest_promote_tier1',
 }
