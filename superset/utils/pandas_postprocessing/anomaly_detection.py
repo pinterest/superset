@@ -26,57 +26,7 @@ from superset.utils.core import DTTM_ALIAS
 from superset.utils.decorators import suppress_logging
 import requests
 
-def _prophet_parse_seasonality(
-    input_value: Optional[Union[bool, int]],
-) -> Union[bool, str, int]:
-    if input_value is None:
-        return "auto"
-    if isinstance(input_value, bool):
-        return input_value
-    try:
-        return int(input_value)
-    except ValueError:
-        return input_value
-
-
-def _prophet_fit_and_predict(  # pylint: disable=too-many-arguments
-    df: DataFrame,
-    confidence_interval: float,
-    yearly_seasonality: Union[bool, str, int],
-    weekly_seasonality: Union[bool, str, int],
-    daily_seasonality: Union[bool, str, int],
-    periods: int,
-    freq: str,
-) -> DataFrame:
-    """
-    Fit a prophet model and return a DataFrame with predicted results.
-    """
-    try:
-        # `prophet` complains about `plotly` not being installed
-        with suppress_logging("prophet.plot"):
-            # pylint: disable=import-outside-toplevel
-            from prophet import Prophet
-
-        prophet_logger = logging.getLogger("prophet.plot")
-        prophet_logger.setLevel(logging.CRITICAL)
-        prophet_logger.setLevel(logging.NOTSET)
-    except ModuleNotFoundError as ex:
-        raise InvalidPostProcessingError(_("`prophet` package not installed")) from ex
-    model = Prophet(
-        interval_width=confidence_interval,
-        yearly_seasonality=yearly_seasonality,
-        weekly_seasonality=weekly_seasonality,
-        daily_seasonality=daily_seasonality,
-    )
-    if df["ds"].dt.tz:
-        df["ds"] = df["ds"].dt.tz_convert(None)
-    model.fit(df)
-    future = model.make_future_dataframe(periods=periods, freq=freq)
-    forecast = model.predict(future)[["ds", "yhat", "yhat_lower", "yhat_upper"]]
-    return forecast.join(df.set_index("ds"), on="ds").set_index(["ds"])
-
-# TODO - this will move to anomaly_detection.py - for testing only
-def prophet(  # pylint: disable=too-many-arguments
+def anomaly_detection (  # pylint: disable=too-many-arguments
     df: DataFrame,
     time_grain: str,
     periods: int,
@@ -92,8 +42,8 @@ def prophet(  # pylint: disable=too-many-arguments
     Calling AnomalyDetection Service API to detect anomalies
     """
 
-    # TODO - move to custom config
-    URL = 'http://anomalydetection/detect'
+    # TODO - move to custom Pinterest config
+    URL = ''
     default_anomaly_detection_config = {}
 
     # send request to anomaly detection service

@@ -1243,6 +1243,7 @@
             "description": "Post processing operation type",
             "enum": [
               "aggregate",
+              "anomaly_detection",
               "boxplot",
               "compare",
               "contribution",
@@ -1354,6 +1355,15 @@
           "periods",
           "time_grain"
         ],
+        "type": "object"
+      },
+      "ChartDataAnomalyDetectionOptionsSchema": {
+        "properties": {
+          "detection_spec": {
+            "description": "Custom Spec used for Anomaly Detection",
+            "type": "string"
+          }
+        },
         "type": "object"
       },
       "ChartDataQueryContextSchema": {
