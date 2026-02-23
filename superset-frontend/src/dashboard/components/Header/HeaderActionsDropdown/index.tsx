@@ -279,7 +279,7 @@ export class HeaderActionsDropdown extends PureComponent<
         )}
         {userCanPromoteTier1 && (
           <Menu.Item
-            key={MenuKeys.PinterestTieringInfo}
+            key={MenuKeys.PinterestPromoteTier1}
             onClick={this.handleMenuClick}
           >
             {t('Promote to Tier 1')}

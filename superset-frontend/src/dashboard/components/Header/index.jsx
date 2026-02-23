@@ -882,6 +882,7 @@ const Header = () => {
       {showingPinterestPromoteTier1Modal && (
         <PinterestPromoteTier1Modal
           dashboardId={dashboardInfo.id}
+          dashboardTitle={dashboardTitle}
           show={showingPinterestPromoteTier1Modal}
           onHide={hidePinterestPromoteTier1Modal}
           user={user}
