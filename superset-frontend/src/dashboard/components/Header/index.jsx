@@ -59,10 +59,10 @@ import setPeriodicRunner, {
 import { PageHeaderWithActions } from 'src/components/PageHeaderWithActions';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
-import PinterestPromoteTier1Modal from '@pinterest-plugins/src/dashboard/components/pinterestPromoteTier1Modal';
+import PinterestPromoteTier1Modal from '@pinterest-plugins/src/governance/pinterestPromoteTier1Modal';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
-import PinterestTieringInfoModal from '@pinterest-plugins/src/dashboard/components/pinterestTieringInfoModal';
+import PinterestTieringInfoModal from '@pinterest-plugins/src/governance/pinterestTieringInfoModal';
 import DashboardEmbedModal from '../EmbeddedModal';
 import OverwriteConfirm from '../OverwriteConfirm';
 import {

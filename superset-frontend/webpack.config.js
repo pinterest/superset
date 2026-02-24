@@ -188,17 +188,17 @@ if (process.env.USE_PINTEREST_PLUGINS !== 'true') {
       ),
     ),
     new webpack.NormalModuleReplacementPlugin(
-      /@pinterest-plugins\/src\/dashboard\/components\/pinterestTieringInfoModal$/,
+      /@pinterest-plugins\/src\/governance\/pinterestTieringInfoModal$/,
       path.resolve(
         __dirname,
-        'pinterest-plugins/src/dashboard/components/pinterestTieringInfoModal.stub.tsx',
+        'pinterest-plugins/src/governance/pinterestTieringInfoModal.stub.tsx',
       ),
     ),
     new webpack.NormalModuleReplacementPlugin(
-      /@pinterest-plugins\/src\/dashboard\/components\/pinterestPromoteTier1Modal$/,
+      /@pinterest-plugins\/src\/governance\/pinterestPromoteTier1Modal$/,
       path.resolve(
         __dirname,
-        'pinterest-plugins/src/dashboard/components/pinterestPromoteTier1Modal.stub.tsx',
+        'pinterest-plugins/src/governance/pinterestPromoteTier1Modal.stub.tsx',
       ),
     ),
   );
