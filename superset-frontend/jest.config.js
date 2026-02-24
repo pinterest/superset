@@ -46,6 +46,8 @@ module.exports = {
       '<rootDir>/pinterest-plugins/src/governance/pinterestTieringInfoModal.stub.tsx',
     '^@pinterest-plugins/src/governance/pinterestPromoteTier1Modal$':
       '<rootDir>/pinterest-plugins/src/governance/pinterestPromoteTier1Modal.stub.tsx',
+    '^@pinterest-plugins/src/governance/pinterestNewDashboardTierModal$':
+      '<rootDir>/pinterest-plugins/src/governance/pinterestNewDashboardTierModal.stub.tsx',
     // general mapping for other @pinterest-plugins modules
     '^@pinterest-plugins/(.*)$': '<rootDir>/pinterest-plugins/$1',
   },

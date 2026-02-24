@@ -201,6 +201,13 @@ if (process.env.USE_PINTEREST_PLUGINS !== 'true') {
         'pinterest-plugins/src/governance/pinterestPromoteTier1Modal.stub.tsx',
       ),
     ),
+    new webpack.NormalModuleReplacementPlugin(
+      /@pinterest-plugins\/src\/governance\/pinterestNewDashboardTierModal$/,
+      path.resolve(
+        __dirname,
+        'pinterest-plugins/src/governance/pinterestNewDashboardTierModal.stub.tsx',
+      ),
+    ),
   );
 }
 
