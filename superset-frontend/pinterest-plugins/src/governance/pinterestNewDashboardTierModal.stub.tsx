@@ -5,7 +5,7 @@ type PinterestNewDashboardTierModalProps = {
 };
 
 const PinterestNewDashboardTierModal = (
-  _props: PinterestNewDashboardTierModalProps
+  _props: PinterestNewDashboardTierModalProps,
 ) => <></>;
 
 export default PinterestNewDashboardTierModal;
