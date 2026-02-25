@@ -9,4 +9,3 @@ const PinterestNewDashboardTierModal = (
 ) => <></>;
 
 export default PinterestNewDashboardTierModal;
-
