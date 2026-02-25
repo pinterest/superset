@@ -68,10 +68,10 @@ import { PageHeaderWithActions } from '@superset-ui/core/components/PageHeaderWi
 import { useUnsavedChangesPrompt } from 'src/hooks/useUnsavedChangesPrompt';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
-import PinterestPromoteTier1Modal from '@pinterest-plugins/src/dashboard/components/pinterestPromoteTier1Modal';
+import PinterestPromoteTier1Modal from '@pinterest-plugins/src/governance/pinterestPromoteTier1Modal';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
-import PinterestTieringInfoModal from '@pinterest-plugins/src/dashboard/components/pinterestTieringInfoModal';
+import PinterestTieringInfoModal from '@pinterest-plugins/src/governance/pinterestTieringInfoModal';
 import DashboardEmbedModal from '../EmbeddedModal';
 import OverwriteConfirm from '../OverwriteConfirm';
 import {
@@ -967,6 +967,7 @@ const Header = (): JSX.Element => {
       {showingPinterestPromoteTier1Modal && (
         <PinterestPromoteTier1Modal
           dashboardId={dashboardInfo.id}
+          dashboardTitle={dashboardTitle}
           show={showingPinterestPromoteTier1Modal}
           onHide={hidePinterestPromoteTier1Modal}
           user={user}

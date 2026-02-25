@@ -77,6 +77,11 @@ import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
 import { findPermission } from 'src/utils/findPermission';
 import { navigateTo } from 'src/utils/navigationUtils';
 import { WIDER_DROPDOWN_WIDTH } from 'src/components/ListView/utils';
+import { isUserAdmin } from 'src/dashboard/util/permissionUtils';
+import { ModifiedInfo } from 'src/components/AuditInfo';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import PinterestNewDashboardTierModal from '@pinterest-plugins/src/governance/pinterestNewDashboardTierModal';
 
 const PAGE_SIZE = 25;
 const PASSWORDS_NEEDED_MESSAGE = t(
@@ -152,6 +157,10 @@ function DashboardList(props: DashboardListProps) {
   );
   const canReadTag = findPermission('can_read', 'Tag', roles);
 
+  const reduxUser = useSelector<any, UserWithPermissionsAndRoles>(
+    state => state.user,
+  );
+
   const {
     state: {
       loading,
@@ -187,6 +196,7 @@ function DashboardList(props: DashboardListProps) {
   const [dashboardToDelete, setDashboardToDelete] =
     useState<CRUDDashboard | null>(null);
 
+  const [showTierModal, setShowTierModal] = useState<boolean>(false);
   const [importingDashboard, showImportModal] = useState<boolean>(false);
   const [passwordFields, setPasswordFields] = useState<string[]>([]);
   const [preparingExport, setPreparingExport] = useState<boolean>(false);
@@ -734,7 +744,12 @@ function DashboardList(props: DashboardListProps) {
       name: t('Dashboard'),
       buttonStyle: 'primary',
       onClick: () => {
-        navigateTo('/dashboard/new', { assign: true });
+        // TODO: Update this with a feature flag
+        if (isUserAdmin(reduxUser)) {
+          setShowTierModal(true);
+        } else {
+          navigateTo('/dashboard/new', { assign: true });
+        }
       },
     });
   }
@@ -861,6 +876,17 @@ function DashboardList(props: DashboardListProps) {
       />
 
       {preparingExport && <Loading />}
+
+      <PinterestNewDashboardTierModal
+        show={showTierModal}
+        onHide={() => setShowTierModal(false)}
+        onSubmit={() => {
+          // TODO: Set tier info for this new dashboard once redirected to the new dashboard page
+          // with the tier info set in the modal
+          setShowTierModal(false);
+          navigateTo('/dashboard/new', { assign: true });
+        }}
+      />
     </>
   );
 }
