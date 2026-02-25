@@ -4,9 +4,9 @@ type PinterestNewDashboardTierModalProps = {
   onSubmit: () => void;
 };
 
-const PinterestNewDashboardTierModal = (_props: PinterestNewDashboardTierModalProps) => (
-  <></>
-);
+const PinterestNewDashboardTierModal = (
+  _props: PinterestNewDashboardTierModalProps
+) => <></>;
 
 export default PinterestNewDashboardTierModal;
 
