@@ -18,7 +18,8 @@
 import logging
 from typing import Any
 
-from superset import db, security_manager
+from superset import app, security_manager
+from superset.extensions import db
 from superset.commands.exceptions import ImportFailedError
 from superset.models.dashboard import Dashboard
 from superset.utils import json
@@ -26,7 +27,8 @@ from superset.utils.core import get_user
 
 logger = logging.getLogger(__name__)
 
-
+config = app.config
+CREATE_PINTEREST_DASHBOARD_PROPERTIES = config["CREATE_PINTEREST_DASHBOARD_PROPERTIES"]
 JSON_KEYS = {"position": "position_json", "metadata": "json_metadata"}
 
 
@@ -190,6 +192,9 @@ def import_dashboard(  # noqa: C901
     dashboard = Dashboard.import_from_dict(config, recursive=False)
     if dashboard.id is None:
         db.session.flush()
+
+    if CREATE_PINTEREST_DASHBOARD_PROPERTIES:
+        CREATE_PINTEREST_DASHBOARD_PROPERTIES(dashboard.id)
 
     if (user := get_user()) and user not in dashboard.owners:
         dashboard.owners.append(user)
