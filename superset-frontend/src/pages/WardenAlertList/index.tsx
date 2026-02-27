@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import rison from 'rison';
 import {
@@ -38,18 +38,17 @@ import ListView, {
 } from 'src/components/ListView';
 import SubMenu from 'src/features/home/SubMenu';
 import { Switch } from 'src/components/Switch';
-import { DATETIME_WITH_TIME_ZONE } from 'src/constants';
 import withToasts from 'src/components/MessageToasts/withToasts';
 import Icons from 'src/components/Icons';
 import RecipientIcon from 'src/features/alerts/components/RecipientIcon';
 import { NotificationMethodOption } from 'src/features/alerts/types';
-import DeleteModal from 'src/components/DeleteModal';
+import Modal from 'src/components/Modal';
 import {
   useListViewResource,
   useSingleViewResource,
 } from 'src/views/CRUD/hooks';
 import { createErrorHandler, createFetchRelated } from 'src/views/CRUD/utils';
-import WardenAlertModal from './WardenAlertModal';
+import EditWardenAlertModal from './EditWardenAlertModal';
 
 const extensionsRegistry = getExtensionsRegistry();
 
@@ -126,8 +125,8 @@ interface WardenAlertObject {
   run_interval_unit: string;
   start_from: string;
   notification_config: {
-    email?: string[];
-    slack?: string[];
+    emails?: string[];
+    slack_channels?: string[];
   };
   last_executed_at: string | null;
   last_execution_status: string | null;
@@ -159,32 +158,39 @@ function WardenAlertList({
   const location = useLocation();
   const history = useHistory();
 
-  // Pre-populate Owner filter on first load if no filters in URL
-  const needsRedirect =
-    !location.search.includes('filters') &&
-    !location.search.includes('pageIndex');
+  // Pre-populate Owner filter on first load if no filters in URL.
+  // ListView must not mount until the URL contains filter params,
+  // otherwise it initializes its internal state with empty filters.
+  const [filtersReady, setFiltersReady] = useState(
+    () =>
+      location.search.includes('filters') ||
+      location.search.includes('pageIndex'),
+  );
 
-  if (needsRedirect) {
-    const filterObj = {
-      owner_id: {
-        label: `${user.firstName} ${user.lastName}`,
-        value: user.userId,
-      },
-    };
-    history.replace(
-      `/wardenalert/list/?filters=${rison.encode_uri(filterObj)}`,
-    );
-  }
+  useEffect(() => {
+    if (!filtersReady) {
+      const filterObj = {
+        owner_id: {
+          label: `${user.firstName} ${user.lastName}`,
+          value: user.userId,
+        },
+      };
+      history.replace(
+        `/wardenalert/list/?filters=${rison.encode_uri(filterObj)}`,
+      );
+      setFiltersReady(true);
+    }
+  }, [filtersReady, history, user]);
 
   const {
     state: {
-      loading,
-      resourceCount: alertsCount,
-      resourceCollection: alerts,
+      loading: realLoading,
+      resourceCount: realAlertsCount,
+      resourceCollection: realAlerts,
     },
-    fetchData,
-    setResourceCollection,
-    refreshData,
+    fetchData: realFetchData,
+    setResourceCollection: realSetResourceCollection,
+    refreshData: realRefreshData,
   } = useListViewResource<WardenAlertObject>(
     'warden/alerts',
     t('warden alert'),
@@ -197,6 +203,13 @@ function WardenAlertList({
     t('warden alert'),
     addDangerToast,
   );
+
+  const loading = realLoading;
+  const alertsCount = realAlertsCount;
+  const alerts = realAlerts;
+  const fetchData = realFetchData;
+  const setResourceCollection = realSetResourceCollection;
+  const refreshData = realRefreshData;
 
   const [modalOpen, setModalOpen] = useState(false);
   const [currentAlert, setCurrentAlert] = useState<WardenAlertObject | null>(
@@ -268,8 +281,8 @@ function WardenAlertList({
           lastExecutedAt
             ? extendedDayjs
                 .utc(lastExecutedAt)
-                .local()
-                .format(DATETIME_WITH_TIME_ZONE)
+                .tz(extendedDayjs.tz.guess())
+                .format('MMM D, YYYY h:mm A z')
             : '',
         accessor: 'last_executed_at',
         Header: t('Last run'),
@@ -305,7 +318,7 @@ function WardenAlertList({
           },
         }: any) => {
           const icons = [];
-          if (config?.email?.length) {
+          if (config?.emails?.length) {
             icons.push(
               <RecipientIcon
                 key="email"
@@ -313,7 +326,7 @@ function WardenAlertList({
               />,
             );
           }
-          if (config?.slack?.length) {
+          if (config?.slack_channels?.length) {
             icons.push(
               <RecipientIcon
                 key="slack"
@@ -430,7 +443,6 @@ function WardenAlertList({
         id: 'owner_id',
         input: 'select',
         operator: FilterOperator.Equals,
-        unfilteredLabel: t('All'),
         fetchSelects: createFetchRelated(
           'report',
           'owners',
@@ -488,47 +500,52 @@ function WardenAlertList({
           },
         ]}
       />
-      <WardenAlertModal
-        alert={currentAlert}
+      <EditWardenAlertModal
+        alertId={currentAlert?.id ?? null}
         show={modalOpen}
         onHide={() => {
           setModalOpen(false);
           setCurrentAlert(null);
         }}
-      />
-      {currentAlertDeleting && (
-        <DeleteModal
-          description={t(
-            'This action will permanently delete %s.',
-            currentAlertDeleting.name,
-          )}
-          onConfirm={() => {
-            if (currentAlertDeleting) {
-              handleAlertDelete(currentAlertDeleting);
-            }
-          }}
-          onHide={() => setCurrentAlertDeleting(null)}
-          open
-          title={t('Delete %s?', currentAlertDeleting.name)}
-        />
-      )}
-      <ListView<WardenAlertObject>
-        className="warden-alerts-list-view"
-        columns={columns}
-        count={alertsCount}
-        data={alerts}
-        emptyState={emptyState}
-        fetchData={fetchData}
-        filters={filters}
-        initialSort={initialSort}
-        loading={loading}
-        bulkActions={[]}
-        bulkSelectEnabled={false}
-        refreshData={refreshData}
         addDangerToast={addDangerToast}
         addSuccessToast={addSuccessToast}
-        pageSize={PAGE_SIZE}
+        onSaveSuccess={refreshData}
       />
+      {currentAlertDeleting && (
+        <Modal
+          title={t('Delete %s?', currentAlertDeleting.name)}
+          show
+          onHide={() => setCurrentAlertDeleting(null)}
+          primaryButtonName={t('Delete')}
+          primaryButtonType="danger"
+          onHandledPrimaryAction={() => handleAlertDelete(currentAlertDeleting)}
+        >
+          <p>
+            {t(
+              'Are you sure you want to delete this alert?',
+            )}
+          </p>
+        </Modal>
+      )}
+      {filtersReady && (
+        <ListView<WardenAlertObject>
+          className="warden-alerts-list-view"
+          columns={columns}
+          count={alertsCount}
+          data={alerts}
+          emptyState={emptyState}
+          fetchData={fetchData}
+          filters={filters}
+          initialSort={initialSort}
+          loading={loading}
+          bulkActions={[]}
+          bulkSelectEnabled={false}
+          refreshData={refreshData}
+          addDangerToast={addDangerToast}
+          addSuccessToast={addSuccessToast}
+          pageSize={PAGE_SIZE}
+        />
+      )}
     </>
   );
 }
