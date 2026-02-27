@@ -57,3 +57,14 @@ class AlertView(BaseAlertReportView):
 class ReportView(BaseAlertReportView):
     route_base = "/report"
     class_permission_name = "ReportSchedule"
+
+
+class WardenAlertView(BaseSupersetView):
+    route_base = "/wardenalert"
+    class_permission_name = "ReportSchedule"
+
+    @expose("/list/")
+    @has_access
+    @permission_name("read")
+    def list(self) -> FlaskResponse:
+        return super().render_app_template()
