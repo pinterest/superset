@@ -547,6 +547,13 @@ function AlertList({
             usesRouter: true,
             'data-test': 'report-list',
           },
+          {
+            name: 'Warden Alerts',
+            label: t('Warden Alerts'),
+            url: '/wardenalert/list/',
+            usesRouter: true,
+            'data-test': 'warden-alert-list',
+          },
         ]}
         buttons={subMenuButtons}
       >

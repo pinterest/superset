@@ -44,6 +44,13 @@ const AlertReportList = lazy(
     ),
 );
 
+const WardenAlertList = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "WardenAlertList" */ 'src/pages/WardenAlertList'
+    ),
+);
+
 const AnnotationList = lazy(
   () =>
     import(/* webpackChunkName: "AnnotationList" */ 'src/pages/AnnotationList'),
@@ -192,6 +199,10 @@ export const routes: Routes = [
     props: {
       isReportEnabled: true,
     },
+  },
+  {
+    path: '/wardenalert/list/',
+    Component: WardenAlertList,
   },
   {
     path: '/alert/:alertId/log/',
