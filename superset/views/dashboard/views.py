@@ -25,8 +25,9 @@ from flask_appbuilder.security.decorators import has_access
 from flask_babel import gettext as __
 from flask_login import AnonymousUserMixin, login_user
 
-from superset import db, event_logger, is_feature_enabled
+from superset import app, event_logger, is_feature_enabled
 from superset.constants import MODEL_VIEW_RW_METHOD_PERMISSION_MAP, RouteMethod
+from superset.extensions import db
 from superset.models.dashboard import Dashboard as DashboardModel
 from superset.superset_typing import FlaskResponse
 from superset.utils import json
@@ -37,6 +38,9 @@ from superset.views.base import (
     SupersetModelView,
 )
 from superset.views.dashboard.mixin import DashboardMixin
+
+config = app.config
+CREATE_PINTEREST_DASHBOARD_PROPERTIES = config["CREATE_PINTEREST_DASHBOARD_PROPERTIES"]
 
 
 class DashboardModelView(DashboardMixin, SupersetModelView, DeleteMixin):  # pylint: disable=too-many-ancestors
@@ -84,6 +88,9 @@ class Dashboard(BaseSupersetView):
             owners=[g.user],
         )
         db.session.add(new_dashboard)
+        db.session.flush()
+        if CREATE_PINTEREST_DASHBOARD_PROPERTIES:
+            CREATE_PINTEREST_DASHBOARD_PROPERTIES(new_dashboard.id)
         db.session.commit()  # pylint: disable=consider-using-transaction
         return redirect(
             url_for(
