@@ -2483,6 +2483,12 @@ PINTEREST_EMAIL_DOMAIN = ""
 # Cache timeout for column values cache (if enabled)
 COLUMN_VALUES_CACHE_TIMEOUT = 25 * 60 * 60  # 25 hours
 
+# [pinterest-specific]: This function is called when a new dashboard is created and
+# creates Pinterest-specific dashboard properties.
+# def create_pinterest_dashboard_properties(dashboard_id: int) -> dict[str, Any]:
+#     pass
+CREATE_PINTEREST_DASHBOARD_PROPERTIES = None
+
 
 # Extra dynamic query filters make it possible to limit which objects are shown
 # in the UI before any other filtering is applied. Useful for example when

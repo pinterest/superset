@@ -21,7 +21,7 @@ from typing import Any, Optional
 from flask_appbuilder.models.sqla import Model
 from marshmallow import ValidationError
 
-from superset import security_manager
+from superset import app, security_manager
 from superset.commands.base import BaseCommand, CreateMixin
 from superset.commands.dashboard.exceptions import (
     DashboardCreateFailedError,
@@ -31,9 +31,13 @@ from superset.commands.dashboard.exceptions import (
 )
 from superset.commands.utils import populate_roles
 from superset.daos.dashboard import DashboardDAO
+from superset.extensions import db
 from superset.utils.decorators import on_error, transaction
 
 logger = logging.getLogger(__name__)
+
+config = app.config
+CREATE_PINTEREST_DASHBOARD_PROPERTIES = config["CREATE_PINTEREST_DASHBOARD_PROPERTIES"]
 
 
 class CreateDashboardCommand(CreateMixin, BaseCommand):
@@ -43,7 +47,11 @@ class CreateDashboardCommand(CreateMixin, BaseCommand):
     @transaction(on_error=partial(on_error, reraise=DashboardCreateFailedError))
     def run(self) -> Model:
         self.validate()
-        return DashboardDAO.create(attributes=self._properties)
+        new_dashboard = DashboardDAO.create(attributes=self._properties)
+        db.session.flush()
+        if CREATE_PINTEREST_DASHBOARD_PROPERTIES:
+            CREATE_PINTEREST_DASHBOARD_PROPERTIES(new_dashboard.id)
+        return new_dashboard
 
     def validate(self) -> None:
         exceptions: list[ValidationError] = []
