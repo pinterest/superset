@@ -1960,6 +1960,7 @@ COLUMN_VALUES_CACHE_TIMEOUT = 25 * 60 * 60  # 25 hours
 #     pass
 CREATE_PINTEREST_DASHBOARD_PROPERTIES = None
 
+
 # Extra dynamic query filters make it possible to limit which objects are shown
 # in the UI before any other filtering is applied. Useful for example when
 # considering to filter using Feature Flags along with regular role filters

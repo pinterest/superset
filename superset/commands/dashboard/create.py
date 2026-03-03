@@ -21,8 +21,7 @@ from typing import Any, Optional
 from flask_appbuilder.models.sqla import Model
 from marshmallow import ValidationError
 
-from superset import security_manager, app
-from superset.extensions import db
+from superset import app, security_manager
 from superset.commands.base import BaseCommand, CreateMixin
 from superset.commands.dashboard.exceptions import (
     DashboardCreateFailedError,
@@ -32,6 +31,7 @@ from superset.commands.dashboard.exceptions import (
 )
 from superset.commands.utils import populate_roles
 from superset.daos.dashboard import DashboardDAO
+from superset.extensions import db
 from superset.utils.decorators import on_error, transaction
 
 logger = logging.getLogger(__name__)

@@ -19,7 +19,6 @@ from functools import partial
 from typing import Any
 
 from superset import app, is_feature_enabled, security_manager
-from superset.extensions import db
 from superset.commands.base import BaseCommand
 from superset.commands.dashboard.exceptions import (
     DashboardCopyError,
@@ -27,6 +26,7 @@ from superset.commands.dashboard.exceptions import (
     DashboardInvalidError,
 )
 from superset.daos.dashboard import DashboardDAO
+from superset.extensions import db
 from superset.models.dashboard import Dashboard
 from superset.utils.decorators import on_error, transaction
 

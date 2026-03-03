@@ -19,8 +19,8 @@ import logging
 from typing import Any
 
 from superset import app, security_manager
-from superset.extensions import db
 from superset.commands.exceptions import ImportFailedError
+from superset.extensions import db
 from superset.models.dashboard import Dashboard
 from superset.utils import json
 from superset.utils.core import get_user
