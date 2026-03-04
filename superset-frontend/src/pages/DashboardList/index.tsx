@@ -844,10 +844,17 @@ function DashboardList(props: DashboardListProps) {
       <PinterestNewDashboardTierModal
         show={showTierModal}
         onHide={() => setShowTierModal(false)}
-        onSubmit={() => {
-          // TODO: Set tier info for this new dashboard once redirected to the new dashboard page
-          // with the tier info set in the modal
+        onSubmit={(dashboardId: number) => {
           setShowTierModal(false);
+          window.location.assign(
+            `/superset/dashboard/${dashboardId}/?edit=true`,
+          );
+        }}
+        onError={() => {
+          setShowTierModal(false);
+          addDangerToast(
+            t('An error occurred while creating the dashboard'),
+          );
           window.location.assign('/dashboard/new');
         }}
       />
