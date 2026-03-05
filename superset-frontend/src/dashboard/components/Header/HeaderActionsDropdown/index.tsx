@@ -269,7 +269,7 @@ export class HeaderActionsDropdown extends PureComponent<
             dashboardComponentId={dashboardComponentId}
           />
         )}
-        {editMode && userCanEditTieringInfo && (
+        {userCanEditTieringInfo && (
           <Menu.Item
             key={MenuKeys.PinterestTieringInfo}
             onClick={this.handleMenuClick}
