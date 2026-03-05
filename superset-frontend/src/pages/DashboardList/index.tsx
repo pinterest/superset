@@ -852,9 +852,7 @@ function DashboardList(props: DashboardListProps) {
         }}
         onError={() => {
           setShowTierModal(false);
-          addDangerToast(
-            t('An error occurred while creating the dashboard'),
-          );
+          addDangerToast(t('An error occurred while creating the dashboard'));
           window.location.assign('/dashboard/new');
         }}
       />
