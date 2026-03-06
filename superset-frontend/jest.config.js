@@ -48,6 +48,10 @@ module.exports = {
       '<rootDir>/pinterest-plugins/src/governance/pinterestPromoteTier1Modal.stub.tsx',
     '^@pinterest-plugins/src/governance/pinterestNewDashboardTierModal$':
       '<rootDir>/pinterest-plugins/src/governance/pinterestNewDashboardTierModal.stub.tsx',
+    '^@pinterest-plugins/src/governance/pinterestTitlePanelAdditionalItems$':
+      '<rootDir>/pinterest-plugins/src/governance/pinterestTitlePanelAdditionalItems.stub.tsx',
+    '^@pinterest-plugins/src/governance/pinterestDashboardBanners$':
+      '<rootDir>/pinterest-plugins/src/governance/pinterestDashboardBanners.stub.tsx',
     // general mapping for other @pinterest-plugins modules
     '^@pinterest-plugins/(.*)$': '<rootDir>/pinterest-plugins/$1',
   },

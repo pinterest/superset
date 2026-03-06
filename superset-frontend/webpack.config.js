@@ -208,6 +208,20 @@ if (process.env.USE_PINTEREST_PLUGINS !== 'true') {
         'pinterest-plugins/src/governance/pinterestNewDashboardTierModal.stub.tsx',
       ),
     ),
+    new webpack.NormalModuleReplacementPlugin(
+      /@pinterest-plugins\/src\/governance\/pinterestTitlePanelAdditionalItems$/,
+      path.resolve(
+        __dirname,
+        'pinterest-plugins/src/governance/pinterestTitlePanelAdditionalItems.stub.tsx',
+      ),
+    ),
+    new webpack.NormalModuleReplacementPlugin(
+      /@pinterest-plugins\/src\/governance\/pinterestDashboardBanners$/,
+      path.resolve(
+        __dirname,
+        'pinterest-plugins/src/governance/pinterestDashboardBanners.stub.tsx',
+      ),
+    ),
   );
 }
 
