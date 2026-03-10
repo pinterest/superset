@@ -585,13 +585,13 @@ const Header = () => {
     [dashboardTitle, editMode, handleChangeText, userCanEdit],
   );
 
-  const certifiedBadgeProps = useMemo(
-    () => ({
-      certifiedBy: dashboardInfo.certified_by,
-      details: dashboardInfo.certification_details,
-    }),
-    [dashboardInfo.certification_details, dashboardInfo.certified_by],
-  );
+  // const certifiedBadgeProps = useMemo(
+  //   () => ({
+  //     certifiedBy: dashboardInfo.certified_by,
+  //     details: dashboardInfo.certification_details,
+  //   }),
+  //   [dashboardInfo.certification_details, dashboardInfo.certified_by],
+  // );
 
   const faveStarProps = useMemo(
     () => ({
@@ -868,8 +868,8 @@ const Header = () => {
       )}
       <PageHeaderWithActions
         editableTitleProps={editableTitleProps}
-         // Removing for Pinterest since dashboard certification 
-         // is shown by the plugins
+        // Removing for Pinterest since dashboard certification
+        // is shown by the plugins
         // certificatiedBadgeProps={certifiedBadgeProps}
         faveStarProps={faveStarProps}
         titlePanelAdditionalItems={titlePanelAdditionalItems}
