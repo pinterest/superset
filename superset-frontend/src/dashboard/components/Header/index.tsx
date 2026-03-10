@@ -72,6 +72,12 @@ import PinterestPromoteTier1Modal from '@pinterest-plugins/src/governance/pinter
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
 import PinterestTieringInfoModal from '@pinterest-plugins/src/governance/pinterestTieringInfoModal';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import PinterestTitlePanelAdditionalItems from '@pinterest-plugins/src/governance/pinterestTitlePanelAdditionalItems';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import PinterestDashboardBanners from '@pinterest-plugins/src/governance/pinterestDashboardBanners';
 import DashboardEmbedModal from '../EmbeddedModal';
 import OverwriteConfirm from '../OverwriteConfirm';
 import {
@@ -609,6 +615,9 @@ const Header = (): JSX.Element => {
     dashboardInfo.common?.conf
       ?.SUPERSET_DASHBOARD_PERIODICAL_REFRESH_WARNING_MESSAGE;
   const isEmbedded = !dashboardInfo?.userId;
+  const isDashboardOwner = (dashboardInfo.owners || []).some(
+    owner => owner.id === user?.userId,
+  );
 
   const handleOnPropertiesChange = useCallback(
     (updates: DashboardPropertiesUpdate) => {
@@ -663,13 +672,13 @@ const Header = (): JSX.Element => {
     [dashboardTitle, editMode, handleChangeText, userCanEdit],
   );
 
-  const certifiedBadgeProps = useMemo(
-    () => ({
-      certifiedBy: dashboardInfo.certified_by,
-      details: dashboardInfo.certification_details,
-    }),
-    [dashboardInfo.certification_details, dashboardInfo.certified_by],
-  );
+  // const certifiedBadgeProps = useMemo(
+  //   () => ({
+  //     certifiedBy: dashboardInfo.certified_by,
+  //     details: dashboardInfo.certification_details,
+  //   }),
+  //   [dashboardInfo.certification_details, dashboardInfo.certified_by],
+  // );
 
   const faveStarProps = useMemo(
     () => ({
@@ -707,6 +716,9 @@ const Header = (): JSX.Element => {
           userCanEdit={userCanEdit}
           userCanSave={userCanSaveAs}
         />
+      ),
+      !editMode && !isEmbedded && (
+        <PinterestTitlePanelAdditionalItems dashboardId={dashboardInfo.id} />
       ),
       !editMode && !isEmbedded && metadataBar,
     ],
@@ -890,9 +902,18 @@ const Header = (): JSX.Element => {
       data-test-id={dashboardInfo.id}
       className="dashboard-header-container"
     >
+      {!editMode && !isEmbedded && (
+        <PinterestDashboardBanners
+          dashboardId={dashboardInfo.id}
+          onEditTier={showPinterestTieringInfoModal}
+          isDashboardOwner={isDashboardOwner}
+        />
+      )}
       <PageHeaderWithActions
         editableTitleProps={editableTitleProps}
-        certificatiedBadgeProps={certifiedBadgeProps}
+        // Removing for Pinterest since dashboard certification
+        // is shown by the plugins
+        // certificatiedBadgeProps={certifiedBadgeProps}
         faveStarProps={faveStarProps}
         titlePanelAdditionalItems={titlePanelAdditionalItems}
         rightPanelAdditionalItems={rightPanelAdditionalItems}
