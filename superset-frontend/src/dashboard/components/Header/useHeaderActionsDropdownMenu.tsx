@@ -294,7 +294,7 @@ export const useHeaderActionsMenu = ({
       });
     }
 
-    if (editMode && userCanEditTieringInfo) {
+    if (userCanEditTieringInfo) {
       menuItems.push({
         key: MenuKeys.PinterestTieringInfo,
         label: t('Edit tiering information'),
