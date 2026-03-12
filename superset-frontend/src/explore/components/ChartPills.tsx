@@ -28,6 +28,9 @@ import RowCountLabel from 'src/components/RowCountLabel';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
 import { getPinterestChartPills } from '@pinterest-plugins/src/explore/components/pinterestChartPills';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import CreateWardenAlertModal from '@pinterest-plugins/src/explore/components/warden/createWardenAlertModal';
 
 const CHART_STATUS_MAP = {
   failed: 'danger' as LabelType,
@@ -119,6 +122,7 @@ export const ChartPills = forwardRef(
             isRunning={isLoading}
             status={CHART_STATUS_MAP[chartStatus ?? 'unknown']}
           />
+          <CreateWardenAlertModal />
         </div>
       </div>
     );
