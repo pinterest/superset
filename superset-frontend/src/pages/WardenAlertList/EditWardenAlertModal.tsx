@@ -28,13 +28,10 @@ import {
 import { AsyncSelect, Select, AntdCheckbox } from 'src/components';
 import { Tooltip } from 'src/components/Tooltip';
 import Button from 'src/components/Button';
-import { DatePicker } from 'src/components/DatePicker';
 import Icons from 'src/components/Icons';
 import Modal from 'src/components/Modal';
 import Collapse from 'src/components/Collapse';
-import TimezoneSelector from 'src/components/TimezoneSelector';
 import StyledPanel from 'src/features/alerts/components/StyledPanel';
-import { extendedDayjs } from 'src/utils/dates';
 import Loading from 'src/components/Loading';
 import { JsonEditor } from 'src/components/AsyncAceEditor';
 
@@ -45,6 +42,7 @@ interface EditWardenAlertModalProps {
   addDangerToast: (msg: string) => void;
   addSuccessToast: (msg: string) => void;
   onSaveSuccess?: () => void;
+  canEdit?: boolean;
 }
 
 export default function EditWardenAlertModal({
@@ -54,17 +52,27 @@ export default function EditWardenAlertModal({
   addDangerToast,
   addSuccessToast,
   onSaveSuccess,
+  canEdit = true,
 }: EditWardenAlertModalProps) {
   const theme = useTheme();
 
   const [loading, setLoading] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [alertName, setAlertName] = useState('');
+  const [active, setActive] = useState(true);
   const [runIntervalValue, setRunIntervalValue] = useState<number | ''>('');
   const [runIntervalUnit, setRunIntervalUnit] = useState('day');
-  const [startFrom, setStartFrom] = useState<any>(null);
-  const [timezone, setTimezone] = useState<string>('America/Los_Angeles');
-  const [slackChannel, setSlackChannel] = useState('');
+  const [slackRecipients, setSlackRecipients] = useState<
+    { label: string; value: string }[]
+  >([]);
+  const [slackOptions, setSlackOptions] = useState<
+    {
+      label: string;
+      options: { label: string; value: string; key: string }[];
+      key: string;
+    }[]
+  >([]);
+  const [slackLoading, setSlackLoading] = useState(false);
   const [emailRecipients, setEmailRecipients] = useState('');
   const [querySql, setQuerySql] = useState('');
   const [database, setDatabase] = useState<
@@ -81,6 +89,71 @@ export default function EditWardenAlertModal({
   const [activeCollapseKey, setActiveCollapseKey] = useState<string | string[]>(
     ['warden-config'],
   );
+
+  useEffect(() => {
+    if (show && slackOptions.length === 0) {
+      setSlackLoading(true);
+      const queryString = rison.encode({
+        searchString: '',
+        types: ['public_channel', 'private_channel'],
+        exactMatch: false,
+      });
+      SupersetClient.get({
+        endpoint: `/api/v1/report/slack_channels/?q=${queryString}`,
+      })
+        .then(({ json }) => {
+          const channels = json.result || [];
+          const publicChannels: {
+            label: string;
+            value: string;
+            key: string;
+          }[] = [];
+          const privateChannels: {
+            label: string;
+            value: string;
+            key: string;
+          }[] = [];
+          channels.forEach((ch: any) => {
+            const option = { label: ch.name, value: ch.id, key: ch.id };
+            if (ch.is_private) {
+              privateChannels.push(option);
+            } else {
+              publicChannels.push(option);
+            }
+          });
+          setSlackOptions([
+            {
+              label: t('Public Channels'),
+              options: publicChannels,
+              key: 'public',
+            },
+            {
+              label: t('Private Channels'),
+              options: privateChannels,
+              key: 'private',
+            },
+          ]);
+        })
+        .catch(() => {
+          addDangerToast(t('Failed to load Slack channels.'));
+        })
+        .finally(() => {
+          setSlackLoading(false);
+        });
+    }
+  }, [show]);
+
+  useEffect(() => {
+    if (slackOptions.length === 0 || slackRecipients.length === 0) return;
+    const allChannels = slackOptions.flatMap(group => group.options);
+    const updated = slackRecipients.map(r => {
+      const match = allChannels.find(ch => ch.value === r.value);
+      return match ? { label: match.label, value: r.value } : r;
+    });
+    if (updated.some((u, i) => u.label !== slackRecipients[i].label)) {
+      setSlackRecipients(updated);
+    }
+  }, [slackOptions, slackRecipients]);
 
   useEffect(() => {
     if (!show || alertId == null) return;
@@ -100,14 +173,13 @@ export default function EditWardenAlertModal({
           return;
         }
         setAlertName(data.name ?? '');
+        setActive(data.active ?? true);
         setRunIntervalValue(data.run_interval_value ?? '');
         setRunIntervalUnit(data.run_interval_unit ?? 'day');
-        setStartFrom(
-          data.start_from ? extendedDayjs(data.start_from) : null,
-        );
         const notifConfig = data.notification_config ?? {};
-        setSlackChannel(
-          (notifConfig.slack_channels ?? notifConfig.slack ?? []).join(', '),
+        const slackIds = notifConfig.slack_channels ?? notifConfig.slack ?? [];
+        setSlackRecipients(
+          slackIds.map((id: string) => ({ label: id, value: id })),
         );
         setEmailRecipients(
           (notifConfig.emails ?? notifConfig.email ?? []).join(', '),
@@ -194,23 +266,15 @@ export default function EditWardenAlertModal({
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const parsedEmails = emailRecipients
     ? emailRecipients
-        .split(',')
+        .split(/[,;]/)
         .map((s: string) => s.trim())
         .filter(Boolean)
     : [];
   const emailsValid =
     !emailRecipients || parsedEmails.every((e: string) => emailRegex.test(e));
 
-  const parsedSlackChannels = slackChannel
-    ? slackChannel
-        .split(',')
-        .map((s: string) => s.trim())
-        .filter(Boolean)
-    : [];
-  const slackValid = !slackChannel || parsedSlackChannels.length > 0;
-
   const notificationValid =
-    !!(slackChannel || emailRecipients) && emailsValid && slackValid;
+    !!(slackRecipients.length || emailRecipients) && emailsValid;
 
   const postProcessingValid = (() => {
     const trimmed = postProcessing.trim();
@@ -227,8 +291,6 @@ export default function EditWardenAlertModal({
     !!alertName &&
     !!runIntervalValue &&
     !!runIntervalUnit &&
-    !!startFrom &&
-    !!timezone &&
     !!querySql.trim() &&
     postProcessingValid &&
     notificationValid;
@@ -236,18 +298,14 @@ export default function EditWardenAlertModal({
   const handleSave = async () => {
     if (!isFormValid || alertId == null) return;
 
-    const wallClock = startFrom.startOf('hour').format('YYYY-MM-DD HH:mm');
-    const startInTz = extendedDayjs.tz(wallClock, timezone);
-
     try {
       await SupersetClient.put({
         endpoint: `/api/v1/warden/alerts/${alertId}`,
         jsonPayload: {
           name: alertName,
-          active: true,
+          active: active,
           run_interval_value: runIntervalValue,
           run_interval_unit: runIntervalUnit,
-          start_from: startInTz.toISOString(),
           query_sql: querySql,
           connection_type: connectionType,
           connection_config: {
@@ -264,7 +322,7 @@ export default function EditWardenAlertModal({
               : {}),
           },
           notification_config: {
-            slack_channels: parsedSlackChannels,
+            slack_channels: slackRecipients.map(r => r.value),
             emails: parsedEmails,
           },
         },
@@ -284,7 +342,7 @@ export default function EditWardenAlertModal({
 
   return (
     <Modal
-      title={<h4>{t('Edit Warden Alert')}</h4>}
+      title={<h4>{canEdit ? t('Edit Warden Alert') : t('View Warden Alert')}</h4>}
       show={show}
       onHide={onHide}
       centered
@@ -313,14 +371,24 @@ export default function EditWardenAlertModal({
           <Button onClick={onHide} cta>
             {t('Close')}
           </Button>
-          <Button
-            buttonStyle="primary"
-            onClick={handleSave}
-            disabled={!isFormValid}
-            cta
+          <Tooltip
+            title={
+              !canEdit
+                ? t('Only the owner of the alert can edit this alert.')
+                : ''
+            }
           >
-            {t('Save')}
-          </Button>
+            <span>
+              <Button
+                buttonStyle="primary"
+                onClick={handleSave}
+                disabled={!canEdit || !isFormValid}
+                cta
+              >
+                {t('Save')}
+              </Button>
+            </span>
+          </Tooltip>
         </>
       }
     >
@@ -337,6 +405,15 @@ export default function EditWardenAlertModal({
         </div>
       )}
       {!loading && !fetchError && (
+      <fieldset
+        disabled={!canEdit}
+        css={css`
+          border: none;
+          padding: 0;
+          margin: 0;
+          min-inline-size: 0;
+        `}
+      >
       <Collapse
         expandIconPosition="right"
         activeKey={activeCollapseKey}
@@ -460,80 +537,10 @@ export default function EditWardenAlertModal({
                   { label: t('Day'), value: 'day' },
                   { label: t('Hour'), value: 'hour' },
                 ]}
+                disabled={!canEdit}
                 css={css`
                   width: 140px;
                 `}
-              />
-            </div>
-            <div
-              css={css`
-                display: flex;
-                align-items: center;
-                gap: ${theme.gridUnit * 2}px;
-                margin-top: ${theme.gridUnit * 2}px;
-              `}
-            >
-              <span css={css`white-space: nowrap;`}>{t('Starting')}</span>
-              <DatePicker
-                showTime={{ format: 'HH:00' }}
-                format="YYYY-MM-DD HH:00"
-                value={startFrom}
-                onChange={val => {
-                  const nowInTz = new Date(
-                    new Date().toLocaleString('en-US', { timeZone: timezone }),
-                  );
-                  if (val && val.valueOf() < nowInTz.getTime()) {
-                    setStartFrom(null);
-                  } else {
-                    setStartFrom(val);
-                  }
-                }}
-                placeholder={t('Select date and time')}
-                disabledDate={(current: any) => {
-                  const nowInTz = new Date(
-                    new Date().toLocaleString('en-US', { timeZone: timezone }),
-                  );
-                  const startOfDay = new Date(nowInTz);
-                  startOfDay.setHours(0, 0, 0, 0);
-                  return current && current < startOfDay;
-                }}
-                disabledTime={(current: any) => {
-                  const nowInTz = new Date(
-                    new Date().toLocaleString('en-US', { timeZone: timezone }),
-                  );
-                  if (
-                    current &&
-                    current.format('YYYY-MM-DD') ===
-                      `${nowInTz.getFullYear()}-${String(nowInTz.getMonth() + 1).padStart(2, '0')}-${String(nowInTz.getDate()).padStart(2, '0')}`
-                  ) {
-                    return {
-                      disabledHours: () =>
-                        Array.from(
-                          { length: nowInTz.getHours() + 1 },
-                          (_, i) => i,
-                        ),
-                    };
-                  }
-                  return {};
-                }}
-                css={css`
-                  min-width: 200px;
-                `}
-              />
-              <TimezoneSelector
-                onTimezoneChange={(val: string) => {
-                  setTimezone(val);
-                  if (startFrom) {
-                    const nowInNewTz = new Date(
-                      new Date().toLocaleString('en-US', { timeZone: val }),
-                    );
-                    if (startFrom.valueOf() < nowInNewTz.getTime()) {
-                      setStartFrom(null);
-                    }
-                  }
-                }}
-                timezone={timezone}
-                minWidth="220px"
               />
             </div>
           </div>
@@ -597,24 +604,28 @@ export default function EditWardenAlertModal({
             >
               <AntdCheckbox
                 checked={detrend}
+                disabled={!canEdit}
                 onChange={e => setDetrend(e.target.checked)}
               >
                 {t('Remove trend from data first')}
               </AntdCheckbox>
               <AntdCheckbox
                 checked={yearlySeasonality}
+                disabled={!canEdit}
                 onChange={e => setYearlySeasonality(e.target.checked)}
               >
                 {t('Yearly seasonality')}
               </AntdCheckbox>
               <AntdCheckbox
                 checked={monthlySeasonality}
+                disabled={!canEdit}
                 onChange={e => setMonthlySeasonality(e.target.checked)}
               >
                 {t('Monthly seasonality')}
               </AntdCheckbox>
               <AntdCheckbox
                 checked={weeklySeasonality}
+                disabled={!canEdit}
                 onChange={e => setWeeklySeasonality(e.target.checked)}
               >
                 {t('Weekly seasonality')}
@@ -639,6 +650,7 @@ export default function EditWardenAlertModal({
                 onChange={(value: string) => setPostProcessing(value)}
                 width="100%"
                 height="200px"
+                readOnly={!canEdit}
                 editorProps={{ $blockScrolling: true }}
               />
             </div>
@@ -677,61 +689,91 @@ export default function EditWardenAlertModal({
               `}
             >
               {t('Sending alerts to')}
-              <Tooltip
-                title={t(
-                  'Remember to add Warden service to the target Slack channel.',
-                )}
-                id="edit-sending-alerts-tooltip"
-              >
-                <Icons.InfoCircleOutlined
-                  iconSize="s"
-                  css={css`
-                    margin-left: ${theme.gridUnit}px;
-                    color: ${theme.colors.grayscale.base};
-                    cursor: pointer;
-                  `}
-                />
-              </Tooltip>
               <span className="required">*</span>
             </div>
             <div className="input-container">
-              <span css={css`white-space: nowrap; width: 50px;`}>
-                {t('Slack')}
-              </span>
-              <input
-                type="text"
-                value={slackChannel}
-                placeholder={t("Enter Slack channels, separated by ','")}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setSlackChannel(e.target.value)
-                }
-              />
-            </div>
-            {!slackValid && (
-              <div
+              <span
                 css={css`
-                  color: ${theme.colors.error.base};
-                  font-size: ${theme.typography.sizes.s}px;
-                  margin-top: ${theme.gridUnit}px;
+                  white-space: nowrap;
+                  min-width: 70px;
+                  display: inline-flex;
+                  align-items: center;
                 `}
               >
-                {t(
-                  'Invalid Slack channel. Please correct or clear the field, but make sure at least one notification method (Slack or email) is provided.',
-                )}
-              </div>
-            )}
+                {t('Slack')}
+                <Tooltip
+                  title={t(
+                    'Remember to add Warden service to the target Slack channel.',
+                  )}
+                  id="edit-sending-alerts-tooltip"
+                >
+                  <Icons.InfoCircleOutlined
+                    iconSize="s"
+                    css={css`
+                      margin-left: ${theme.gridUnit}px;
+                      color: ${theme.colors.warning.dark1};
+                      cursor: pointer;
+                    `}
+                  />
+                </Tooltip>
+              </span>
+              <Select
+                ariaLabel={t('Select Slack channels')}
+                mode="multiple"
+                value={slackRecipients}
+                options={slackOptions}
+                onChange={(val: { label: string; value: string }[]) =>
+                  setSlackRecipients(val)
+                }
+                allowClear
+                allowSelectAll={false}
+                labelInValue
+                loading={slackLoading}
+                disabled={!canEdit}
+              />
+            </div>
             <div className="input-container">
-              <span css={css`white-space: nowrap; width: 50px;`}>
+              <span css={css`white-space: nowrap; min-width: 70px;`}>
                 {t('Email')}
               </span>
-              <input
-                type="text"
-                value={emailRecipients}
-                placeholder={t("Enter email recipients, separated by ','")}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setEmailRecipients(e.target.value)
-                }
-              />
+              <div
+                css={css`
+                  flex: 1 1 auto;
+                  position: relative;
+                  display: flex;
+                  align-items: center;
+                `}
+              >
+                <input
+                  type="text"
+                  value={emailRecipients}
+                  placeholder={t('Recipients are separated by "," or ";"')}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setEmailRecipients(e.target.value)
+                  }
+                  css={css`
+                    width: 100%;
+                  `}
+                />
+                {emailRecipients && canEdit && (
+                  <Icons.CancelSolid
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => setEmailRecipients('')}
+                    css={css`
+                      position: absolute;
+                      right: ${theme.gridUnit * 2}px;
+                      cursor: pointer;
+                      z-index: 1;
+                      font-size: 14px;
+                      color: ${theme.colors.grayscale.light1};
+                      &:hover {
+                        color: ${theme.colors.grayscale.base};
+                      }
+                    `}
+                  />
+                )}
+              </div>
             </div>
             {!emailsValid && (
               <div
@@ -792,6 +834,7 @@ export default function EditWardenAlertModal({
                   const backend = option?.backend ?? val?.backend;
                   if (backend) setConnectionType(backend);
                 }}
+                disabled={!canEdit}
               />
             </div>
             <div className="control-label">
@@ -819,6 +862,7 @@ export default function EditWardenAlertModal({
           </div>
         </StyledPanel>
       </Collapse>
+      </fieldset>
       )}
     </Modal>
   );

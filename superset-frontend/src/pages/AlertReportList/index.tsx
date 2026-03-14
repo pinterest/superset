@@ -37,7 +37,6 @@ import ListView, {
 } from 'src/components/ListView';
 import SubMenu, { SubMenuProps } from 'src/features/home/SubMenu';
 import { Switch } from 'src/components/Switch';
-import { DATETIME_WITH_TIME_ZONE } from 'src/constants';
 import withToasts from 'src/components/MessageToasts/withToasts';
 import AlertStatusIcon from 'src/features/alerts/components/AlertStatusIcon';
 import RecipientIcon from 'src/features/alerts/components/RecipientIcon';
@@ -266,8 +265,8 @@ function AlertList({
           lastEvalDttm
             ? extendedDayjs
                 .utc(lastEvalDttm)
-                .local()
-                .format(DATETIME_WITH_TIME_ZONE)
+                .tz(extendedDayjs.tz.guess())
+                .format('MMM D, YYYY h:mm A z')
             : '',
         accessor: 'last_eval_dttm',
         Header: t('Last run'),
@@ -547,13 +546,17 @@ function AlertList({
             usesRouter: true,
             'data-test': 'report-list',
           },
-          {
-            name: 'Warden Alerts',
-            label: t('Warden Alerts'),
-            url: '/wardenalert/list/',
-            usesRouter: true,
-            'data-test': 'warden-alert-list',
-          },
+          ...(isUserAdmin(user)
+            ? [
+                {
+                  name: 'Warden Alerts',
+                  label: t('Warden Alerts'),
+                  url: '/wardenalert/list/',
+                  usesRouter: true,
+                  'data-test': 'warden-alert-list',
+                },
+              ]
+            : []),
         ]}
         buttons={subMenuButtons}
       >

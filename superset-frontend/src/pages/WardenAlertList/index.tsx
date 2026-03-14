@@ -396,10 +396,10 @@ function WardenAlertList({
 
           const actions = [
             {
-              label: 'view-action',
+              label: isOwner ? 'edit-action' : 'view-action',
               tooltip: isOwner ? t('View/Modify') : t('View'),
               placement: 'bottom',
-              icon: 'Edit',
+              icon: isOwner ? 'Edit' : 'Binoculars',
               onClick: handleView,
             },
             isOwner
@@ -510,6 +510,11 @@ function WardenAlertList({
         addDangerToast={addDangerToast}
         addSuccessToast={addSuccessToast}
         onSaveSuccess={refreshData}
+        canEdit={
+          currentAlert
+            ? Number(currentAlert.owner_id) === Number(user.userId)
+            : false
+        }
       />
       {currentAlertDeleting && (
         <Modal
