@@ -77,6 +77,8 @@ import {
   getDashboardListExtraColumnsToFetch,
   getDashboardListExtraListColumns,
   getDashboardListSearchFilters,
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
 } from '@pinterest-plugins/src/features/dashboards/dashboardListExtensions';
 
 const PAGE_SIZE = 25;
