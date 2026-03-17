@@ -71,7 +71,8 @@ def get_channels(
         except SlackApiError as ex:
             # Check if this is a rate limit error (429)
             # ex.response may be a SlackResponse object or just a string
-            # Slack may surface rate limit errors as HTTP 429 or {'ok': False, 'error': 'ratelimited'}.
+            # Slack may surface rate limit errors as
+            # HTTP 429 or {'ok': False, 'error': 'ratelimited'}.
             status_code = getattr(ex.response, "status_code", None)
             error_code = None
 
