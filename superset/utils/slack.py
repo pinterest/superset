@@ -77,15 +77,16 @@ def get_channels(
 
             if hasattr(ex.response, "get"):
                 error_code = ex.response.get("error")
-            
+
             if status_code == 429 or error_code == "ratelimited":
-                retry_after = int(ex.response.headers["retry-after"])
+                headers = getattr(ex.response, "headers", {}) or {}
+                retry_after = int(headers.get("retry-after", 30))
 
                 logger.warning(
                     "Slack API rate limited. Retrying after %d seconds",
-                    retry_after
+                    retry_after,
                 )
-            
+
                 wait_time = retry_after + 1
                 time.sleep(wait_time)
                 continue
