@@ -125,4 +125,8 @@ export enum FilterOperator {
   ChartTagById = 'chart_tag_id',
   SavedQueryTagByName = 'saved_query_tags',
   SavedQueryTagById = 'saved_query_tag_id',
+  /** Governance: filter by dashboard tier (Tier 1, 2, 3) */
+  Tier = 'tier',
+  /** Governance: filter by Nimbus project */
+  NimbusProject = 'nimbus_project',
 }

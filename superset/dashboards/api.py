@@ -26,6 +26,7 @@ from flask import g, redirect, request, Response, send_file, url_for
 from flask_appbuilder import permission_name
 from flask_appbuilder.api import expose, protect, rison, safe
 from flask_appbuilder.hooks import before_request
+from flask_appbuilder.models.filters import Filters
 from flask_appbuilder.models.sqla.interface import SQLAInterface
 from flask_babel import gettext, ngettext
 from marshmallow import ValidationError
@@ -166,9 +167,39 @@ def with_dashboard(
     return functools.update_wrapper(wraps, f)
 
 
+class DashboardSQLAInterface(SQLAInterface):
+    """
+    Custom SQLAInterface so search_filters can include keys (e.g. tier,
+    nimbus_project) that are not on the Dashboard table. FAB's Filters
+    only pre-fills _search_filters from model columns, so extra keys
+    cause KeyError when merging. This override ensures every
+    search_column and every search_filter key has an entry before merge.
+    """
+
+    def get_filters(
+        self,
+        search_columns: Optional[list[str]] = None,
+        search_filters: Optional[dict] = None,
+        **kwargs: Any,
+    ) -> Filters:
+        # Build base Filters without merging search_filters, so synthetic
+        # keys do not trigger KeyError. Then add keys and merge ourselves.
+        try:
+            filters = super().get_filters(search_columns, {}, **kwargs)
+        except TypeError:
+            # Parent may only take search_columns
+            filters = super().get_filters(search_columns)
+        for col in search_columns or []:
+            filters._search_filters.setdefault(col, [])
+        if search_filters:
+            for key, filter_list in search_filters.items():
+                filters._search_filters.setdefault(key, []).extend(filter_list)
+        return filters
+
+
 # pylint: disable=too-many-public-methods
 class DashboardRestApi(BaseSupersetModelRestApi):
-    datamodel = SQLAInterface(Dashboard)
+    datamodel = DashboardSQLAInterface(Dashboard)
 
     # Removing thumbnail endpoint from this list to support caching top Pinterest
     # homepage dashboards without THUMBNAILS feature enabled to cache all dashboards
