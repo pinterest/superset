@@ -182,7 +182,7 @@ function DashboardList(props: DashboardListProps) {
     undefined,
     undefined,
     undefined,
-    [...DASHBOARD_COLUMNS_TO_FETCH, ...getDashboardListExtraColumnsToFetch()],
+    [...DASHBOARD_COLUMNS_TO_FETCH, ...(isUserAdmin(reduxUser) ? getDashboardListExtraColumnsToFetch() : [])],
   );
   const dashboardIds = useMemo(() => dashboards.map(d => d.id), [dashboards]);
   const [saveFavoriteStatus, favoriteStatus] = useFavoriteStatus(
@@ -373,7 +373,7 @@ function DashboardList(props: DashboardListProps) {
         accessor: 'published',
         size: 'xl',
       },
-      ...getDashboardListExtraListColumns(),
+      ...(isUserAdmin(reduxUser) ? getDashboardListExtraListColumns() : []),
       {
         Cell: ({
           row: {
@@ -631,7 +631,7 @@ function DashboardList(props: DashboardListProps) {
         ),
         paginate: true,
       },
-      ...getDashboardListSearchFilters(),
+      ...(isUserAdmin(reduxUser) ? getDashboardListSearchFilters() : []),
     ] as Filters;
     return filters_list;
   }, [addDangerToast, favoritesFilter, props.user]);
