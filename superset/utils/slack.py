@@ -17,6 +17,7 @@
 
 
 import logging
+import time
 from typing import Callable, Optional
 
 from flask import current_app as app
@@ -84,9 +85,28 @@ def get_channels() -> list[SlackChannelSchema]:
         while True:
             page_count += 1
 
-            response = client.conversations_list(
-                limit=999, cursor=cursor, exclude_archived=True, **extra_params
-            )
+            try:
+                response = client.conversations_list(
+                    limit=999, cursor=cursor, exclude_archived=True, **extra_params
+                )
+            except SlackApiError as ex:
+                status_code = getattr(ex.response, "status_code", None)
+                error_code = (
+                    ex.response.get("error")
+                    if hasattr(ex.response, "get")
+                    else None
+                )
+                if status_code == 429 or error_code == "ratelimited":
+                    headers = getattr(ex.response, "headers", {}) or {}
+                    retry_after = int(headers.get("retry-after", 30))
+                    logger.warning(
+                        "Slack API rate limited. Retrying after %d seconds",
+                        retry_after,
+                    )
+                    time.sleep(retry_after + 1)
+                    continue
+                raise
+
             page_channels = response.data["channels"]
             channels.extend(channel_schema.load(channel) for channel in page_channels)
 
