@@ -77,8 +77,8 @@ import {
   getDashboardListExtraColumnsToFetch,
   getDashboardListExtraListColumns,
   getDashboardListSearchFilters,
-// @ts-ignore
-// eslint-disable-next-line import/no-unresolved
+  // @ts-ignore
+  // eslint-disable-next-line import/no-unresolved
 } from '@pinterest-plugins/src/features/dashboards/dashboardListExtensions';
 
 const PAGE_SIZE = 25;
@@ -184,7 +184,10 @@ function DashboardList(props: DashboardListProps) {
     undefined,
     undefined,
     undefined,
-    [...DASHBOARD_COLUMNS_TO_FETCH, ...(isUserAdmin(reduxUser) ? getDashboardListExtraColumnsToFetch() : [])],
+    [
+      ...DASHBOARD_COLUMNS_TO_FETCH,
+      ...(isUserAdmin(reduxUser) ? getDashboardListExtraColumnsToFetch() : []),
+    ],
   );
   const dashboardIds = useMemo(() => dashboards.map(d => d.id), [dashboards]);
   const [saveFavoriteStatus, favoriteStatus] = useFavoriteStatus(
