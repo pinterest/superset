@@ -34,11 +34,10 @@ from flask_appbuilder.const import (
     API_ORDER_COLUMNS_RIS_KEY,
 )
 from flask_appbuilder.hooks import before_request
+from flask_appbuilder.models.filters import Filters
 from flask_appbuilder.models.sqla.interface import SQLAInterface
 from flask_babel import gettext, ngettext
 from marshmallow import ValidationError
-from sqlalchemy import case, func
-from sqlalchemy.orm import Query
 from werkzeug.wrappers import Response as WerkzeugResponse
 from werkzeug.wsgi import FileWrapper
 
@@ -119,12 +118,7 @@ from superset.dashboards.schemas import (
 )
 from superset.exceptions import ScreenshotImageNotAvailableException
 from superset.extensions import event_logger
-from superset.models.core import FavStar, FavStarClassName
-from superset.models.dashboard import (
-    Dashboard,
-    DEPRECATED_TITLE_PENALTY,
-    MISSING_TITLE_PENALTY,
-)
+from superset.models.dashboard import Dashboard
 from superset.models.embedded_dashboard import EmbeddedDashboard
 from superset.security.guest_token import GuestUser
 from superset.tasks.thumbnails import (
@@ -234,9 +228,39 @@ CUSTOM_TAG_LIST_COLUMNS = BASE_LIST_COLUMNS + [
 ]
 
 
+class DashboardSQLAInterface(SQLAInterface):
+    """
+    Custom SQLAInterface so search_filters can include keys (e.g. tier,
+    nimbus_project) that are not on the Dashboard table. FAB's Filters
+    only pre-fills _search_filters from model columns, so extra keys
+    cause KeyError when merging. This override ensures every
+    search_column and every search_filter key has an entry before merge.
+    """
+
+    def get_filters(
+        self,
+        search_columns: Optional[list[str]] = None,
+        search_filters: Optional[dict[Any, Any]] = None,
+        **kwargs: Any,
+    ) -> Filters:
+        # Build base Filters without merging search_filters, so synthetic
+        # keys do not trigger KeyError. Then add keys and merge ourselves.
+        try:
+            filters = super().get_filters(search_columns, {}, **kwargs)
+        except TypeError:
+            # Parent may only take search_columns
+            filters = super().get_filters(search_columns)
+        for col in search_columns or []:
+            filters._search_filters.setdefault(col, [])
+        if search_filters:
+            for key, filter_list in search_filters.items():
+                filters._search_filters.setdefault(key, []).extend(filter_list)
+        return filters
+
+
 # pylint: disable=too-many-public-methods
 class DashboardRestApi(CustomTagsOptimizationMixin, BaseSupersetModelRestApi):
-    datamodel = SQLAInterface(Dashboard)
+    datamodel = DashboardSQLAInterface(Dashboard)
 
     # Removing thumbnail endpoint from this list to support caching top Pinterest
     # homepage dashboards without THUMBNAILS feature enabled to cache all dashboards
@@ -506,107 +530,6 @@ class DashboardRestApi(CustomTagsOptimizationMixin, BaseSupersetModelRestApi):
             current_app.config["VERSION_STRING"],
             current_app.config["VERSION_SHA"],
         )
-
-    def __init__(self) -> None:
-        super().__init__()
-        original_apply_order_by = self.datamodel.apply_order_by
-
-        # Override the apply_order_by method to handle relevance_score ordering
-        def custom_apply_order_by(
-            query: Query,
-            order_column: str,
-            order_direction: str,
-            **kwargs: Any,
-        ) -> Query:
-            if order_column == "relevance_score":
-                # Clear any existing ordering
-                query = query.order_by(None)
-
-                # Create a pre-aggregated subquery that counts favorites per dashboard
-                favstar_counts = (
-                    db.session.query(
-                        FavStar.obj_id.label("dashboard_id"),
-                        func.count(FavStar.id).label("favorite_count"),
-                    )
-                    .filter(FavStar.class_name == FavStarClassName.DASHBOARD)
-                    .group_by(FavStar.obj_id)
-                    .subquery()
-                )
-
-                # Join with the pre-aggregated favorite counts
-                query = query.outerjoin(
-                    favstar_counts, favstar_counts.c.dashboard_id == Dashboard.id
-                )
-
-                favorite_count = func.coalesce(favstar_counts.c.favorite_count, 0)
-
-                # Calculate title penalties (same logic as in the model)
-                title_penalty = case(
-                    [
-                        (
-                            Dashboard.dashboard_title.is_(None),
-                            MISSING_TITLE_PENALTY,
-                        ),
-                        (
-                            func.lower(func.trim(Dashboard.dashboard_title)).like(
-                                "[ untitled ]%"
-                            ),
-                            MISSING_TITLE_PENALTY,
-                        ),
-                    ],
-                    else_=0,
-                ) + case(
-                    [
-                        (
-                            func.lower(func.trim(Dashboard.dashboard_title)).like(
-                                "[deprecated]%"
-                            ),
-                            DEPRECATED_TITLE_PENALTY,
-                        ),
-                        (
-                            func.lower(func.trim(Dashboard.dashboard_title)).like(
-                                "%[deprecated]"
-                            ),
-                            DEPRECATED_TITLE_PENALTY,
-                        ),
-                        (
-                            func.lower(func.trim(Dashboard.dashboard_title)).like(
-                                "(deprecated)%"
-                            ),
-                            DEPRECATED_TITLE_PENALTY,
-                        ),
-                        (
-                            func.lower(func.trim(Dashboard.dashboard_title)).like(
-                                "%(deprecated)"
-                            ),
-                            DEPRECATED_TITLE_PENALTY,
-                        ),
-                    ],
-                    else_=0,
-                )
-
-                # Calculate relevance score (same logic as in the model)
-                relevance_score = favorite_count - title_penalty
-
-                if order_direction == "desc":
-                    return query.order_by(
-                        relevance_score.desc(),
-                        Dashboard.published.desc(),
-                        Dashboard.dashboard_title.asc(),
-                    )
-                else:
-                    return query.order_by(
-                        relevance_score.asc(),
-                        Dashboard.published.asc(),
-                        Dashboard.dashboard_title.asc(),
-                    )
-
-            # For all other columns, use the original method
-            return original_apply_order_by(
-                query, order_column, order_direction, **kwargs
-            )
-
-        self.datamodel.apply_order_by = custom_apply_order_by
 
     @expose("/<id_or_slug>", methods=("GET",))
     @protect()

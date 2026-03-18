@@ -82,6 +82,13 @@ import { ModifiedInfo } from 'src/components/AuditInfo';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
 import PinterestNewDashboardTierModal from '@pinterest-plugins/src/governance/pinterestNewDashboardTierModal';
+import {
+  getDashboardListExtraColumnsToFetch,
+  getDashboardListExtraListColumns,
+  getDashboardListSearchFilters,
+  // @ts-ignore
+  // eslint-disable-next-line import/no-unresolved
+} from '@pinterest-plugins/src/features/dashboards/dashboardListExtensions';
 
 const PAGE_SIZE = 25;
 const PASSWORDS_NEEDED_MESSAGE = t(
@@ -120,6 +127,10 @@ export interface Dashboard {
   owners: Owner[];
   tags: TagType[];
   created_by: object;
+  /** Governance (internal): tier '1' | '2' | '3' */
+  tier?: string;
+  /** Governance (internal): Nimbus project name */
+  nimbus_project?: string;
 }
 
 const Actions = styled.div`
@@ -181,7 +192,10 @@ function DashboardList(props: DashboardListProps) {
     undefined,
     undefined,
     undefined,
-    DASHBOARD_COLUMNS_TO_FETCH,
+    [
+      ...DASHBOARD_COLUMNS_TO_FETCH,
+      ...(isUserAdmin(reduxUser) ? getDashboardListExtraColumnsToFetch() : []),
+    ],
   );
   const dashboardIds = useMemo(() => dashboards.map(d => d.id), [dashboards]);
   const [saveFavoriteStatus, favoriteStatus] = useFavoriteStatus(
@@ -385,6 +399,7 @@ function DashboardList(props: DashboardListProps) {
         id: 'published',
         className: 'no-ellipsis',
       },
+      ...(isUserAdmin(reduxUser) ? getDashboardListExtraListColumns() : []),
       {
         Cell: ({
           row: {
@@ -653,6 +668,7 @@ function DashboardList(props: DashboardListProps) {
         paginate: true,
         dropdownStyle: { minWidth: WIDER_DROPDOWN_WIDTH },
       },
+      ...(isUserAdmin(reduxUser) ? getDashboardListSearchFilters() : []),
     ] as ListViewFilters;
     return filtersList;
   }, [addDangerToast, canReadTag, favoritesFilter, user]);
