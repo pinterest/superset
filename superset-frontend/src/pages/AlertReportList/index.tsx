@@ -24,6 +24,8 @@ import {
   SupersetClient,
   makeApi,
   getExtensionsRegistry,
+  isFeatureEnabled,
+  FeatureFlag,
 } from '@superset-ui/core';
 import { css, styled } from '@apache-superset/core/theme';
 import { extendedDayjs } from '@superset-ui/core/utils/dates';
@@ -278,8 +280,8 @@ function AlertList({
           lastEvalDttm
             ? extendedDayjs
                 .utc(lastEvalDttm)
-                .local()
-                .format(DATETIME_WITH_TIME_ZONE)
+                .tz(extendedDayjs.tz.guess())
+                .format('MMM D, YYYY h:mm A z')
             : '',
         accessor: 'last_eval_dttm',
         Header: t('Last run'),
@@ -576,6 +578,18 @@ function AlertList({
             id: 'report-tab',
             'aria-controls': 'report-list',
           },
+          ...(!isFeatureEnabled(FeatureFlag.WardenAlertsAdminGate) ||
+          isUserAdmin(user)
+            ? [
+                {
+                  name: 'Warden Alerts',
+                  label: t('Warden Alerts'),
+                  url: '/wardenalert/list/',
+                  usesRouter: true,
+                  'data-test': 'warden-alert-list',
+                },
+              ]
+            : []),
         ]}
         buttons={subMenuButtons}
       >
