@@ -57,6 +57,7 @@ export interface HeaderDropdownProps {
   userCanShare: boolean;
   userCanCurate: boolean;
   userCanEditTieringInfo?: boolean;
+  showPromoteTier1?: boolean; // Remove after governance UI is rolled out
   userCanPromoteTier1?: boolean;
   manageEmbedded: () => void;
   dataMask: any;

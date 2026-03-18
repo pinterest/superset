@@ -163,6 +163,10 @@ function DashboardList(props: DashboardListProps) {
   const reduxUser = useSelector<any, UserWithPermissionsAndRoles>(
     state => state.user,
   );
+  // Show after governance UI is rolled out
+  const showGovernanceExtras =
+    isUserAdmin(reduxUser) ||
+    isFeatureEnabled(FeatureFlag.PinterestDashboardGovernanceUi);
 
   const {
     state: {
@@ -186,7 +190,7 @@ function DashboardList(props: DashboardListProps) {
     undefined,
     [
       ...DASHBOARD_COLUMNS_TO_FETCH,
-      ...(isUserAdmin(reduxUser) ? getDashboardListExtraColumnsToFetch() : []),
+      ...(showGovernanceExtras ? getDashboardListExtraColumnsToFetch() : []),
     ],
   );
   const dashboardIds = useMemo(() => dashboards.map(d => d.id), [dashboards]);
@@ -378,7 +382,7 @@ function DashboardList(props: DashboardListProps) {
         accessor: 'published',
         size: 'xl',
       },
-      ...(isUserAdmin(reduxUser) ? getDashboardListExtraListColumns() : []),
+      ...(showGovernanceExtras ? getDashboardListExtraListColumns() : []),
       {
         Cell: ({
           row: {
@@ -636,10 +640,10 @@ function DashboardList(props: DashboardListProps) {
         ),
         paginate: true,
       },
-      ...(isUserAdmin(reduxUser) ? getDashboardListSearchFilters() : []),
+      ...(showGovernanceExtras ? getDashboardListSearchFilters() : []),
     ] as Filters;
     return filters_list;
-  }, [addDangerToast, favoritesFilter, props.user]);
+  }, [addDangerToast, favoritesFilter, props.user, showGovernanceExtras]);
 
   const sortTypes = [
     {

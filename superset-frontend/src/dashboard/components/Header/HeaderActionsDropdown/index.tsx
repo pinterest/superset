@@ -277,9 +277,11 @@ export class HeaderActionsDropdown extends PureComponent<
             {t('Edit tiering information')}
           </Menu.Item>
         )}
-        {userCanPromoteTier1 && (
+        {/* Can show to all after governance UI is rolled out */}
+        {this.props.showPromoteTier1 && (
           <Menu.Item
             key={MenuKeys.PinterestPromoteTier1}
+            disabled={!this.props.userCanPromoteTier1}
             onClick={this.handleMenuClick}
           >
             {t('Promote to Tier 1')}
