@@ -591,6 +591,19 @@ const Header = () => {
   const isDashboardOwner = (dashboardInfo.owners || []).some(
     owner => owner.id === user?.userId,
   );
+  const governanceUiEnabled =
+    isFeatureEnabled(FeatureFlag.PinterestDashboardGovernanceUi) ||
+    isUserAdmin(user);
+
+  // Update to below after governanceUiEnabled feature flag removed
+  // const userCanEditTieringInfo = ((isDashboardOwner || isUserAdmin(user))
+  const userCanEditTieringInfo =
+    (isDashboardOwner || isUserAdmin(user)) && governanceUiEnabled;
+  const userCanPromoteTier1 = findPermission(
+    'can_promote_tier_1',
+    'DashboardGovernanceRestApi',
+    user?.roles,
+  );
 
   const handleOnPropertiesChange = useCallback(
     updates => {
@@ -669,7 +682,7 @@ const Header = () => {
           visible={!editMode}
         />
       ),
-      !editMode && !isEmbedded && (
+      !editMode && !isEmbedded && governanceUiEnabled && (
         <PinterestTitlePanelAdditionalItems dashboardId={dashboardInfo.id} />
       ),
       !editMode && !isEmbedded && metadataBar,
@@ -683,6 +696,7 @@ const Header = () => {
       isPublished,
       userCanEdit,
       userCanSaveAs,
+      governanceUiEnabled,
     ],
   );
 
@@ -839,6 +853,7 @@ const Header = () => {
     userCanSave: userCanSaveAs,
     userCanCurate,
     userCanEditTieringInfo,
+    showPromoteTier1: governanceUiEnabled,
     userCanPromoteTier1,
     isLoading,
     showReportModal,

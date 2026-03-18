@@ -50,6 +50,7 @@ export enum FeatureFlag {
   FilterBarClosedByDefault = 'FILTERBAR_CLOSED_BY_DEFAULT',
   GlobalAsyncQueries = 'GLOBAL_ASYNC_QUERIES',
   ListviewsDefaultCardView = 'LISTVIEWS_DEFAULT_CARD_VIEW',
+  PinterestDashboardGovernanceUi = 'PINTEREST_DASHBOARD_GOVERNANCE_UI',
   ScheduledQueries = 'SCHEDULED_QUERIES',
   SqllabBackendPersistence = 'SQLLAB_BACKEND_PERSISTENCE',
   SqlValidatorsByEngine = 'SQL_VALIDATORS_BY_ENGINE',

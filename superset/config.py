@@ -504,6 +504,9 @@ CURRENCIES = ["USD", "EUR", "GBP", "INR", "MXN", "JPY", "CNY"]
 # and FEATURE_FLAGS = { 'BAR': True, 'BAZ': True } in superset_config.py
 # will result in combined feature flags of { 'FOO': True, 'BAR': True, 'BAZ': True }
 DEFAULT_FEATURE_FLAGS: dict[str, bool] = {
+    # [pinterest-specific]: Gate all dashboard governance UIs (tiering, promote, list
+    # filters).
+    "PINTEREST_DASHBOARD_GOVERNANCE_UI": False,
     # [pinterest-specific]: Allows embedding by dashboard id or slug
     "PINTEREST_EMBEDDED_SUPERSET_BY_ID_OR_SLUG": False,
     # When using a recent version of Druid that supports JOINs turn this on

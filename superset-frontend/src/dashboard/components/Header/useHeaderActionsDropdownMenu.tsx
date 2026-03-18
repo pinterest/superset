@@ -56,6 +56,7 @@ export const useHeaderActionsMenu = ({
   userCanCurate,
   userCanEditTieringInfo,
   userCanPromoteTier1,
+  showPromoteTier1,
   isLoading,
   refreshLimit,
   refreshWarning,
@@ -327,10 +328,11 @@ export const useHeaderActionsMenu = ({
       });
     }
 
-    if (userCanPromoteTier1) {
+    if (showPromoteTier1) {
       menuItems.push({
         key: MenuKeys.PinterestPromoteTier1,
         label: t('Promote to Tier 1'),
+        disabled: !userCanPromoteTier1,
       });
     }
 
@@ -411,6 +413,7 @@ export const useHeaderActionsMenu = ({
     userCanEdit,
     userCanEditTieringInfo,
     userCanPromoteTier1,
+    showPromoteTier1,
     userCanSave,
     userCanShare,
   ]);
