@@ -188,7 +188,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         from superset.sqllab.permalink.api import SqlLabPermalinkRestApi
         from superset.tags.api import TagRestApi
         from superset.themes.api import ThemeRestApi
-        from superset.views.alerts import AlertView, ReportView
+        from superset.views.alerts import AlertView, ReportView, WardenAlertView
         from superset.views.all_entities import TaggedObjectsModelView
         from superset.views.annotations import AnnotationLayerView
         from superset.views.api import Api
@@ -415,6 +415,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         appbuilder.add_view_no_menu(ReportView)
         appbuilder.add_view_no_menu(RoleRestAPI)
         appbuilder.add_view_no_menu(UserInfoView)
+        appbuilder.add_view_no_menu(WardenAlertView)
 
         #
         # Add links
