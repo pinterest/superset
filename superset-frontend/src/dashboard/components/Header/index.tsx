@@ -607,8 +607,6 @@ const Header = (): JSX.Element => {
     isFeatureEnabled(FeatureFlag.EmbeddedSuperset) &&
     findPermission('can_set_embedded', 'Dashboard', user.roles);
   const userCanExport = !!dashboardInfo.dash_export_perm;
-  const userCanEditTieringInfo = isUserAdmin(user);
-  const userCanPromoteTier1 = isUserAdmin(user);
   const refreshLimit =
     dashboardInfo.common?.conf?.SUPERSET_DASHBOARD_PERIODICAL_REFRESH_LIMIT;
   const refreshWarning =
@@ -617,6 +615,19 @@ const Header = (): JSX.Element => {
   const isEmbedded = !dashboardInfo?.userId;
   const isDashboardOwner = (dashboardInfo.owners || []).some(
     owner => owner.id === user?.userId,
+  );
+  const governanceUiEnabled =
+    isFeatureEnabled(FeatureFlag.PinterestDashboardGovernanceUi) ||
+    isUserAdmin(user);
+
+  // Update to below after governanceUiEnabled feature flag removed
+  // const userCanEditTieringInfo = ((isDashboardOwner || isUserAdmin(user))
+  const userCanEditTieringInfo =
+    (isDashboardOwner || isUserAdmin(user)) && governanceUiEnabled;
+  const userCanPromoteTier1 = findPermission(
+    'can_promote_tier_1',
+    'DashboardGovernanceRestApi',
+    user?.roles,
   );
 
   const handleOnPropertiesChange = useCallback(
@@ -717,7 +728,7 @@ const Header = (): JSX.Element => {
           userCanSave={userCanSaveAs}
         />
       ),
-      !editMode && !isEmbedded && (
+      !editMode && !isEmbedded && governanceUiEnabled && (
         <PinterestTitlePanelAdditionalItems dashboardId={dashboardInfo.id} />
       ),
       !editMode && !isEmbedded && metadataBar,
@@ -733,6 +744,8 @@ const Header = (): JSX.Element => {
       userCanSaveAs,
       handlePauseToggle,
       forceRefresh,
+      governanceUiEnabled,
+
     ],
   );
 
@@ -883,6 +896,7 @@ const Header = (): JSX.Element => {
     userCanCurate,
     userCanExport,
     userCanEditTieringInfo,
+    showPromoteTier1: governanceUiEnabled,
     userCanPromoteTier1,
     isLoading,
     showReportModal,
