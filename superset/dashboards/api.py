@@ -172,7 +172,7 @@ class DashboardSQLAInterface(SQLAInterface):
     def get_filters(
         self,
         search_columns: Optional[list[str]] = None,
-        search_filters: Optional[dict] = None,
+        search_filters: Optional[dict[Any, Any]] = None,
         **kwargs: Any,
     ) -> Filters:
         # Build base Filters without merging search_filters, so synthetic
