@@ -25,6 +25,8 @@ import {
   makeApi,
   styled,
   getExtensionsRegistry,
+  isFeatureEnabled,
+  FeatureFlag,
 } from '@superset-ui/core';
 import { extendedDayjs } from 'src/utils/dates';
 import ActionsBar, { ActionProps } from 'src/components/ListView/ActionsBar';
@@ -546,7 +548,7 @@ function AlertList({
             usesRouter: true,
             'data-test': 'report-list',
           },
-          ...(isUserAdmin(user)
+          ...(!isFeatureEnabled(FeatureFlag.WardenAlertsAdminGate) || isUserAdmin(user)
             ? [
                 {
                   name: 'Warden Alerts',

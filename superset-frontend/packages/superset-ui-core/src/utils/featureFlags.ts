@@ -55,6 +55,7 @@ export enum FeatureFlag {
   TaggingSystem = 'TAGGING_SYSTEM',
   Thumbnails = 'THUMBNAILS',
   UseAnalogousColors = 'USE_ANALOGOUS_COLORS',
+  WardenAlertsAdminGate = 'WARDEN_ALERTS_ADMIN_GATE',
   ForceSqlLabRunAsync = 'SQLLAB_FORCE_RUN_ASYNC',
   SlackEnableAvatars = 'SLACK_ENABLE_AVATARS',
   EnableDashboardScreenshotEndpoints = 'ENABLE_DASHBOARD_SCREENSHOT_ENDPOINTS',
