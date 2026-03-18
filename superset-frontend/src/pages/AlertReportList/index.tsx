@@ -548,7 +548,8 @@ function AlertList({
             usesRouter: true,
             'data-test': 'report-list',
           },
-          ...(!isFeatureEnabled(FeatureFlag.WardenAlertsAdminGate) || isUserAdmin(user)
+          ...(!isFeatureEnabled(FeatureFlag.WardenAlertsAdminGate) ||
+          isUserAdmin(user)
             ? [
                 {
                   name: 'Warden Alerts',
