@@ -873,7 +873,7 @@ const Header = () => {
       data-test-id={dashboardInfo.id}
       className="dashboard-header-container"
     >
-      {!editMode && !isEmbedded && (
+      {!editMode && !isEmbedded && governanceUiEnabled && (
         <PinterestDashboardBanners
           dashboardId={dashboardInfo.id}
           onEditTier={showPinterestTieringInfoModal}
