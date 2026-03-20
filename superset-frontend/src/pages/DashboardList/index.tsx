@@ -715,8 +715,7 @@ function DashboardList(props: DashboardListProps) {
       ),
       buttonStyle: 'primary',
       onClick: () => {
-        // TODO: Update this with a feature flag
-        if (isUserAdmin(reduxUser)) {
+        if (showGovernanceExtras) {
           setShowTierModal(true);
         } else {
           window.location.assign('/dashboard/new');
