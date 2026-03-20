@@ -770,8 +770,7 @@ function DashboardList(props: DashboardListProps) {
       name: t('Dashboard'),
       buttonStyle: 'primary',
       onClick: () => {
-        // TODO: Update this with a feature flag
-        if (isUserAdmin(reduxUser)) {
+        if (showGovernanceExtras) {
           setShowTierModal(true);
         } else {
           navigateTo('/dashboard/new', { assign: true });
