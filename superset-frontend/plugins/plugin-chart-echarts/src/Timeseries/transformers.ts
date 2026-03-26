@@ -193,6 +193,7 @@ export function transformSeries(
     seriesKey?: OptionName;
     sliceId?: number;
     isHorizontal?: boolean;
+    lineSymbol?: string;
     lineStyle?: LineStyleOption;
     queryIndex?: number;
     timeCompare?: string[];
@@ -324,8 +325,10 @@ export function transformSeries(
 
   // Use filled circles in dark mode to avoid the white fill issue with hollow circles
   // Use emptyCircle explicitly in light mode
-  const symbol =
-    plotType === 'line' ? (isDarkMode ? 'circle' : 'emptyCircle') : undefined;
+  let symbol;
+  if (plotType === 'line') {
+    symbol = opts.lineSymbol || (isDarkMode ? 'circle' : 'emptyCircle');
+  }
 
   return {
     ...series,
