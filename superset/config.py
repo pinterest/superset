@@ -1972,6 +1972,7 @@ CREATE_PINTEREST_DASHBOARD_PROPERTIES = None
 #     pass
 SYNC_PINTEREST_DASHBOARD_OWNERSHIP = None
 
+
 # Extra dynamic query filters make it possible to limit which objects are shown
 # in the UI before any other filtering is applied. Useful for example when
 # considering to filter using Feature Flags along with regular role filters
