@@ -753,7 +753,7 @@ class DashboardRestApi(BaseSupersetModelRestApi):
                         str(sync_error),
                         exc_info=True,
                     )
-            
+
             response = self.response(
                 200,
                 id=changed_model.id,
