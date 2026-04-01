@@ -389,25 +389,25 @@ class Dashboard(AuditMixinNullable, ImportExportMixin, Model):
         return score
 
     @relevance_score.expression  # type: ignore[misc]
-    def relevance_score(cls) -> sqla.sql.Selectable:
+    def relevance_score(self) -> sqla.sql.Selectable:
         favorite_count = (
             sqla.select(sqla.func.count(FavStar.id))
             .where(
                 sqla.and_(
-                    FavStar.obj_id == cls.id,
+                    FavStar.obj_id == self.id,
                     FavStar.class_name == "Dashboard",
                 )
             )
             .scalar_subquery()
         )
         title_lower = sqla.func.lower(
-            sqla.func.trim(sqla.func.coalesce(cls.dashboard_title, ""))
+            sqla.func.trim(sqla.func.coalesce(self.dashboard_title, ""))
         )
 
         missing_title_penalty = sqla.case(
             (
                 sqla.or_(
-                    cls.dashboard_title.is_(None),
+                    self.dashboard_title.is_(None),
                     title_lower == "",
                     title_lower.startswith("[ untitled ]"),
                 ),
