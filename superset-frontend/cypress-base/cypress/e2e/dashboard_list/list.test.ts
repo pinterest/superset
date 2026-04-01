@@ -27,6 +27,7 @@ import {
   interceptUnfav,
 } from '../dashboard/utils';
 
+// Testing flakes in this test suite
 function orderAlphabetical() {
   // Default sort is already 'Alphabetical', so we need to change to something else first
   // to ensure selecting 'Alphabetical' triggers an API request
