@@ -388,8 +388,8 @@ class Dashboard(AuditMixinNullable, ImportExportMixin, Model):
 
         return score
 
-    @relevance_score.expression
-    def _relevance_score_expression(self) -> sqla.sql.Selectable:
+    @relevance_score.expression  # type: ignore[no-redef]
+    def relevance_score(self) -> sqla.sql.Selectable:
         favorite_count = (
             sqla.select(sqla.func.count(FavStar.id))
             .where(
