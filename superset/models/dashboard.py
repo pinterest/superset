@@ -38,6 +38,7 @@ from sqlalchemy import (
     UniqueConstraint,
 )
 from sqlalchemy.engine.base import Connection
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship, subqueryload
 from sqlalchemy.orm.mapper import Mapper
 from sqlalchemy.sql.elements import BinaryExpression
@@ -355,7 +356,7 @@ class Dashboard(CoreDashboard, AuditMixinNullable, ImportExportMixin):
 
         return {"all_tabs": all_tabs, "tab_tree": tab_tree}
 
-    @property
+    @hybrid_property
     def relevance_score(self) -> float:
         """
         Returns a relevance score for the dashboard based on its favorite count.
@@ -367,7 +368,7 @@ class Dashboard(CoreDashboard, AuditMixinNullable, ImportExportMixin):
             score -= MISSING_TITLE_PENALTY
             return score
         if self.dashboard_title:
-            title_lower = self.dashboard_title.lower().trim()
+            title_lower = self.dashboard_title.lower().strip()
 
             if title_lower.startswith("[ untitled ]"):
                 score -= MISSING_TITLE_PENALTY
@@ -381,6 +382,48 @@ class Dashboard(CoreDashboard, AuditMixinNullable, ImportExportMixin):
                 score -= DEPRECATED_TITLE_PENALTY
 
         return score
+
+    @relevance_score.expression  # type: ignore[no-redef]
+    def relevance_score(self) -> sqla.sql.Selectable:
+        favorite_count = (
+            sqla.select(sqla.func.count(FavStar.id))
+            .where(
+                sqla.and_(
+                    FavStar.obj_id == self.id,
+                    FavStar.class_name == "Dashboard",
+                )
+            )
+            .scalar_subquery()
+        )
+        title_lower = sqla.func.lower(
+            sqla.func.trim(sqla.func.coalesce(self.dashboard_title, ""))
+        )
+
+        missing_title_penalty = sqla.case(
+            (
+                sqla.or_(
+                    self.dashboard_title.is_(None),
+                    title_lower == "",
+                    title_lower.startswith("[ untitled ]"),
+                ),
+                MISSING_TITLE_PENALTY,
+            ),
+            else_=0,
+        )
+        deprecated_title_penalty = sqla.case(
+            (
+                sqla.or_(
+                    title_lower.startswith("[deprecated]"),
+                    title_lower.endswith("[deprecated]"),
+                    title_lower.startswith("(deprecated)"),
+                    title_lower.endswith("(deprecated)"),
+                ),
+                DEPRECATED_TITLE_PENALTY,
+            ),
+            else_=0,
+        )
+
+        return favorite_count - missing_title_penalty - deprecated_title_penalty
 
     def update_thumbnail(self) -> None:
         cache_dashboard_thumbnail.delay(
