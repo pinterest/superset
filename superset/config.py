@@ -1963,6 +1963,15 @@ COLUMN_VALUES_CACHE_TIMEOUT = 25 * 60 * 60  # 25 hours
 #     pass
 CREATE_PINTEREST_DASHBOARD_PROPERTIES = None
 
+# [pinterest-specific]: This function is called when dashboard owners are updated
+# via PUT and syncs ownership to external Pinterest systems.
+# def sync_pinterest_dashboard_ownership(
+#     dashboard_id: int,
+#     technical_owner_usernames: list[str],
+# ) -> None:
+#     pass
+SYNC_PINTEREST_DASHBOARD_OWNERSHIP = None
+
 
 # Extra dynamic query filters make it possible to limit which objects are shown
 # in the UI before any other filtering is applied. Useful for example when

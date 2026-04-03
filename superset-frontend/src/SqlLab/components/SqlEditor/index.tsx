@@ -124,6 +124,9 @@ import SqlEditorLeftBar from '../SqlEditorLeftBar';
 import AceEditorWrapper from '../AceEditorWrapper';
 import RunQueryActionButton from '../RunQueryActionButton';
 import QueryLimitSelect from '../QueryLimitSelect';
+// @ts-ignore -- resolved by @pinterest-plugins alias; stubbed when USE_PINTEREST_PLUGINS !== 'true'
+// eslint-disable-next-line import/no-unresolved
+import { getPinterestSqlLabToolbarExtras } from '@pinterest-plugins/src/sqllab/pinterestSqlLabToolbarExtras';
 import KeyboardShortcutButton, {
   KEY_MAP,
   KeyboardShortcut,
@@ -855,6 +858,7 @@ const SqlEditor: FC<Props> = ({
               )}
             </div>
             <div className="rightItems">
+              <span>{getPinterestSqlLabToolbarExtras()}</span>
               <span>
                 <SaveQuery
                   queryEditorId={queryEditor.id}
