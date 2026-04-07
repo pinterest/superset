@@ -106,6 +106,9 @@ import {
   Logger,
 } from 'src/logger/LogUtils';
 import { CopyToClipboard } from 'src/components';
+// @ts-ignore -- resolved by @pinterest-plugins alias; stubbed when USE_PINTEREST_PLUGINS !== 'true'
+// eslint-disable-next-line import/no-unresolved
+import { getPinterestSqlLabToolbarExtras } from '@pinterest-plugins/src/sqllab/pinterestSqlLabToolbarExtras';
 import TemplateParamsEditor from '../TemplateParamsEditor';
 import SouthPane from '../SouthPane';
 import SaveQuery, { QueryPayload } from '../SaveQuery';
@@ -849,6 +852,7 @@ const SqlEditor: FC<Props> = ({
               tooltip={t('Estimate the cost before running a query')}
             />
           )}
+        <span>{getPinterestSqlLabToolbarExtras()}</span>
         <SaveQuery
           queryEditorId={queryEditor.id}
           columns={latestQuery?.results?.columns || []}

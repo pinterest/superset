@@ -325,6 +325,13 @@ if (process.env.USE_PINTEREST_PLUGINS !== 'true') {
         'pinterest-plugins/src/features/dashboards/dashboardListExtensions.stub.tsx',
       ),
     ),
+    new webpack.NormalModuleReplacementPlugin(
+      /@pinterest-plugins\/src\/sqllab\/pinterestSqlLabToolbarExtras$/,
+      path.resolve(
+        __dirname,
+        'pinterest-plugins/src/sqllab/pinterestSqlLabToolbarExtras.stub.tsx',
+      ),
+    ),
   );
 }
 
