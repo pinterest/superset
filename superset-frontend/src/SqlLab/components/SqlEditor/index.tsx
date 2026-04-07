@@ -117,6 +117,9 @@ import {
   Logger,
 } from 'src/logger/LogUtils';
 import { CopyToClipboard } from 'src/components';
+// @ts-ignore -- resolved by @pinterest-plugins alias; stubbed when USE_PINTEREST_PLUGINS !== 'true'
+// eslint-disable-next-line import/no-unresolved
+import { getPinterestSqlLabToolbarExtras } from '@pinterest-plugins/src/sqllab/pinterestSqlLabToolbarExtras';
 import TemplateParamsEditor from '../TemplateParamsEditor';
 import SouthPane from '../SouthPane';
 import SaveQuery, { QueryPayload } from '../SaveQuery';
@@ -867,6 +870,7 @@ const SqlEditor: FC<Props> = ({
               )}
             </div>
             <div className="rightItems">
+              <span>{getPinterestSqlLabToolbarExtras()}</span>
               <span>
                 <SaveQuery
                   queryEditorId={queryEditor.id}
