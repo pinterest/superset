@@ -58,7 +58,6 @@ const buttonContainerStyles = theme => css`
   align-items: center;
   display: flex;
   gap: ${theme.gridUnit * 2}px;
-  margin-left: ${theme.gridUnit}px;
 `;
 
 const saveButtonStyles = theme => css`
