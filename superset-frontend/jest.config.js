@@ -58,6 +58,8 @@ module.exports = {
       '<rootDir>/pinterest-plugins/src/features/dashboards/dashboardListExtensions.stub.tsx',
     '^@pinterest-plugins/src/sqllab/pinterestSqlLabToolbarExtras$':
       '<rootDir>/pinterest-plugins/src/sqllab/pinterestSqlLabToolbarExtras.stub.tsx',
+    '^@pinterest-plugins/src/dashboard/pinterestChartHeaderExtras$':
+      '<rootDir>/pinterest-plugins/src/dashboard/pinterestChartHeaderExtras.stub.tsx',
     // general mapping for other @pinterest-plugins modules
     '^@pinterest-plugins/(.*)$': '<rootDir>/pinterest-plugins/$1',
   },

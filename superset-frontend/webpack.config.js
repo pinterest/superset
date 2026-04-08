@@ -243,6 +243,13 @@ if (process.env.USE_PINTEREST_PLUGINS !== 'true') {
         'pinterest-plugins/src/sqllab/pinterestSqlLabToolbarExtras.stub.tsx',
       ),
     ),
+    new webpack.NormalModuleReplacementPlugin(
+      /@pinterest-plugins\/src\/dashboard\/pinterestChartHeaderExtras$/,
+      path.resolve(
+        __dirname,
+        'pinterest-plugins/src/dashboard/pinterestChartHeaderExtras.stub.tsx',
+      ),
+    ),
   );
 }
 
