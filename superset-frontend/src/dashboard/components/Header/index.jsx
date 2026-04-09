@@ -65,6 +65,9 @@ import PinterestPromoteTier1Modal from '@pinterest-plugins/src/governance/pinter
 import PinterestTieringInfoModal from '@pinterest-plugins/src/governance/pinterestTieringInfoModal';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
+import PinterestPushToDataHubModal from '@pinterest-plugins/src/governance/pinterestPushToDataHubModal';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
 import PinterestTitlePanelAdditionalItems from '@pinterest-plugins/src/governance/pinterestTitlePanelAdditionalItems';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
@@ -182,6 +185,10 @@ const Header = () => {
   const [
     showingPinterestPromoteTier1Modal,
     setShowingPinterestPromoteTier1Modal,
+  ] = useState(false);
+  const [
+    showingPinterestPushToDataHubModal,
+    setShowingPinterestPushToDataHubModal,
   ] = useState(false);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [showingEmbedModal, setShowingEmbedModal] = useState(false);
@@ -526,6 +533,14 @@ const Header = () => {
     setShowingPinterestPromoteTier1Modal(false);
   }, []);
 
+  const showPinterestPushToDataHubModal = useCallback(() => {
+    setShowingPinterestPushToDataHubModal(true);
+  }, []);
+
+  const hidePinterestPushToDataHubModal = useCallback(() => {
+    setShowingPinterestPushToDataHubModal(false);
+  }, []);
+
   const showEmbedModal = useCallback(() => {
     setShowingEmbedModal(true);
   }, []);
@@ -565,6 +580,7 @@ const Header = () => {
     'DashboardGovernanceRestApi',
     user?.roles,
   );
+  const userCanPushToDataHub = isUserAdmin(user);
 
   const handleOnPropertiesChange = useCallback(
     updates => {
@@ -809,6 +825,7 @@ const Header = () => {
         userCanEditTieringInfo={userCanEditTieringInfo}
         showPromoteTier1={governanceUiEnabled}
         userCanPromoteTier1={userCanPromoteTier1}
+        userCanPushToDataHub={userCanPushToDataHub}
         isLoading={isLoading}
         showPropertiesModal={showPropertiesModal}
         manageEmbedded={showEmbedModal}
@@ -822,6 +839,8 @@ const Header = () => {
         hidePinterestTieringInfoModal={hidePinterestTieringInfoModal}
         showPinterestPromoteTier1Modal={showPinterestPromoteTier1Modal}
         hidePinterestPromoteTier1Modal={hidePinterestPromoteTier1Modal}
+        showPinterestPushToDataHubModal={showPinterestPushToDataHubModal}
+        hidePinterestPushToDataHubModal={hidePinterestPushToDataHubModal}
       />
     ),
     [
@@ -854,6 +873,7 @@ const Header = () => {
       showEmbedModal,
       showPinterestTieringInfoModal,
       showPinterestPromoteTier1Modal,
+      showPinterestPushToDataHubModal,
       showPropertiesModal,
       startPeriodicRender,
       userCanCurate,
@@ -861,6 +881,7 @@ const Header = () => {
       userCanEditTieringInfo,
       governanceUiEnabled,
       userCanPromoteTier1,
+      userCanPushToDataHub,
       userCanSaveAs,
       userCanShare,
     ],
@@ -921,6 +942,14 @@ const Header = () => {
           show={showingPinterestPromoteTier1Modal}
           onHide={hidePinterestPromoteTier1Modal}
           user={user}
+        />
+      )}
+      {showingPinterestPushToDataHubModal && (
+        <PinterestPushToDataHubModal
+          dashboardId={dashboardInfo.id}
+          dashboardTitle={dashboardTitle}
+          show={showingPinterestPushToDataHubModal}
+          onHide={hidePinterestPushToDataHubModal}
         />
       )}
       <OverwriteConfirm />

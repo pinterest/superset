@@ -67,6 +67,7 @@ const createProps = (): HeaderDropdownProps => ({
   userCanCurate: false,
   userCanEditTieringInfo: false,
   userCanPromoteTier1: false,
+  userCanPushToDataHub: false,
   lastModifiedTime: 0,
   isDropdownVisible: true,
   setIsDropdownVisible: jest.fn(),
@@ -80,6 +81,8 @@ const createProps = (): HeaderDropdownProps => ({
   hidePinterestTieringInfoModal: jest.fn(),
   showPinterestPromoteTier1Modal: jest.fn(),
   hidePinterestPromoteTier1Modal: jest.fn(),
+  showPinterestPushToDataHubModal: jest.fn(),
+  hidePinterestPushToDataHubModal: jest.fn(),
 });
 
 const editModeOnProps = {

@@ -120,6 +120,10 @@ export class HeaderActionsDropdown extends PureComponent<
         this.props.showPinterestPromoteTier1Modal();
         break;
       }
+      case MenuKeys.PushToPinterestDataHub: {
+        this.props.showPinterestPushToDataHubModal();
+        break;
+      }
       default:
         break;
     }
@@ -145,6 +149,7 @@ export class HeaderActionsDropdown extends PureComponent<
       userCanCurate,
       userCanEditTieringInfo,
       userCanPromoteTier1,
+      userCanPushToDataHub,
       isLoading,
       refreshLimit,
       refreshWarning,
@@ -285,6 +290,14 @@ export class HeaderActionsDropdown extends PureComponent<
             onClick={this.handleMenuClick}
           >
             {t('Promote to Tier 1')}
+          </Menu.Item>
+        )}
+        {userCanPushToDataHub && (
+          <Menu.Item
+            key={MenuKeys.PushToPinterestDataHub}
+            onClick={this.handleMenuClick}
+          >
+            {t('Push to PinCat')}
           </Menu.Item>
         )}
         {!editMode && userCanCurate && (

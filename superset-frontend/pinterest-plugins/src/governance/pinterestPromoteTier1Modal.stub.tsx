@@ -6,6 +6,7 @@ import {
 
 type PinterestPromoteTier1ModalProps = {
   dashboardId: number;
+  dashboardTitle: string;
   show?: boolean;
   onHide: () => void;
   addSuccessToast: (message: string) => void;

@@ -285,4 +285,5 @@ export enum MenuKeys {
   ViewTableInfo = 'view_table_info',
   PinterestTieringInfo = 'pinterest_tiering_info',
   PinterestPromoteTier1 = 'pinterest_promote_tier1',
+  PushToPinterestDataHub = 'push_to_pinterest_data_hub',
 }

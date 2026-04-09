@@ -250,6 +250,13 @@ if (process.env.USE_PINTEREST_PLUGINS !== 'true') {
         'pinterest-plugins/src/dashboard/pinterestChartHeaderExtras.stub.tsx',
       ),
     ),
+    new webpack.NormalModuleReplacementPlugin(
+      /@pinterest-plugins\/src\/governance\/pinterestPushToDataHubModal$/,
+      path.resolve(
+        __dirname,
+        'pinterest-plugins/src/governance/pinterestPushToDataHubModal.stub.tsx',
+      ),
+    ),
   );
 }
 
