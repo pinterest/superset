@@ -88,8 +88,7 @@ export const LOG_ACTIONS_SQLLAB_COPY_RESULT_TO_CLIPBOARD =
   'sqllab_copy_result_to_clipboard';
 export const LOG_ACTIONS_SQLLAB_CREATE_CHART = 'sqllab_create_chart';
 export const LOG_ACTIONS_SQLLAB_LOAD_TAB_STATE = 'sqllab_load_tab_state';
-export const LOG_ACTIONS_GOVERNANCE_MODAL_OPENED =
-  'governance_modal_opened';
+export const LOG_ACTIONS_GOVERNANCE_MODAL_OPENED = 'governance_modal_opened';
 export const LOG_ACTIONS_GOVERNANCE_SAVE_SUBMITTED =
   'governance_save_submitted';
 export const LOG_ACTIONS_GOVERNANCE_CANCELLED = 'governance_cancelled';
