@@ -9,8 +9,8 @@ type PinterestPushToDataHubModalProps = {
   addDangerToast: (message: string) => void;
 };
 
-const PinterestPushToDataHubModal = (_props: PinterestPushToDataHubModalProps) => (
-  <></>
-);
+const PinterestPushToDataHubModal = (
+  _props: PinterestPushToDataHubModalProps,
+) => <></>;
 
 export default withToasts(PinterestPushToDataHubModal);
