@@ -51,6 +51,9 @@ import { ChartState, ExplorePageInitialData } from 'src/explore/types';
 import { Slice } from 'src/types/Chart';
 import { ReportObject } from 'src/features/reports/types';
 import { User } from 'src/types/bootstrapTypes';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import { getPinterestChartHeaderExtras } from '@pinterest-plugins/src/dashboard/pinterestChartHeaderExtras';
 import { useExploreAdditionalActionsMenu } from '../useExploreAdditionalActionsMenu';
 import { useExploreMetadataBar } from './useExploreMetadataBar';
 
@@ -83,6 +86,12 @@ export interface ExploreChartHeaderProps {
   metadata?: ExplorePageInitialData['metadata'];
   isSaveModalVisible?: boolean;
 }
+
+const buttonContainerStyles = (theme: SupersetTheme) => css`
+  align-items: center;
+  display: flex;
+  gap: ${theme.marginXS}px;
+`;
 
 const saveButtonStyles = (theme: SupersetTheme) => css`
   color: ${theme.colorPrimaryText};
@@ -314,27 +323,30 @@ export const ExploreChartHeader: FC<ExploreChartHeaderProps> = ({
           </div>
         }
         rightPanelAdditionalItems={
-          <Tooltip
-            title={
-              saveDisabled
-                ? t('Add required control values to save chart')
-                : null
-            }
-          >
-            {/* needed to wrap button in a div - antd tooltip doesn't work with disabled button */}
-            <div>
-              <Button
-                buttonStyle="secondary"
-                onClick={showModal}
-                disabled={saveDisabled}
-                data-test="query-save-button"
-                css={saveButtonStyles}
-                icon={<Icons.SaveOutlined />}
-              >
-                {t('Save')}
-              </Button>
-            </div>
-          </Tooltip>
+          <div css={buttonContainerStyles}>
+            {getPinterestChartHeaderExtras(slice?.slice_id)}
+            <Tooltip
+              title={
+                saveDisabled
+                  ? t('Add required control values to save chart')
+                  : null
+              }
+            >
+              {/* needed to wrap button in a div - antd tooltip doesn't work with disabled button */}
+              <div>
+                <Button
+                  buttonStyle="secondary"
+                  onClick={showModal}
+                  disabled={saveDisabled}
+                  data-test="query-save-button"
+                  css={saveButtonStyles}
+                  icon={<Icons.SaveOutlined />}
+                >
+                  {t('Save')}
+                </Button>
+              </div>
+            </Tooltip>
+          </div>
         }
         additionalActionsMenu={menu}
         menuDropdownProps={{
