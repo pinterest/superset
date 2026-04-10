@@ -57,6 +57,7 @@ export const useHeaderActionsMenu = ({
   userCanEditTieringInfo,
   userCanPromoteTier1,
   showPromoteTier1,
+  userCanPushToDataHub,
   isLoading,
   refreshLimit,
   refreshWarning,
@@ -76,6 +77,7 @@ export const useHeaderActionsMenu = ({
   setCurrentReportDeleting,
   showPinterestTieringInfoModal,
   showPinterestPromoteTier1Modal,
+  showPinterestPushToDataHubModal,
 }: HeaderDropdownProps) => {
   const dispatch = useDispatch();
   const [css, setCss] = useState(customCss || '');
@@ -131,6 +133,9 @@ export const useHeaderActionsMenu = ({
         case MenuKeys.PinterestPromoteTier1:
           showPinterestPromoteTier1Modal();
           break;
+        case MenuKeys.PushToPinterestDataHub:
+          showPinterestPushToDataHubModal();
+          break;
         default:
           break;
       }
@@ -143,6 +148,7 @@ export const useHeaderActionsMenu = ({
       manageEmbedded,
       showPinterestTieringInfoModal,
       showPinterestPromoteTier1Modal,
+      showPinterestPushToDataHubModal,
     ],
   );
 
@@ -336,6 +342,13 @@ export const useHeaderActionsMenu = ({
       });
     }
 
+    if (userCanPushToDataHub) {
+      menuItems.push({
+        key: MenuKeys.PushToPinterestDataHub,
+        label: t('Push to PinCat'),
+      });
+    }
+
     // Divider
     menuItems.push({ type: 'divider' });
 
@@ -414,6 +427,7 @@ export const useHeaderActionsMenu = ({
     userCanEditTieringInfo,
     userCanPromoteTier1,
     showPromoteTier1,
+    userCanPushToDataHub,
     userCanSave,
     userCanShare,
   ]);

@@ -72,6 +72,9 @@ import PinterestPromoteTier1Modal from '@pinterest-plugins/src/governance/pinter
 import PinterestTieringInfoModal from '@pinterest-plugins/src/governance/pinterestTieringInfoModal';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
+import PinterestPushToDataHubModal from '@pinterest-plugins/src/governance/pinterestPushToDataHubModal';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
 import PinterestTitlePanelAdditionalItems from '@pinterest-plugins/src/governance/pinterestTitlePanelAdditionalItems';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
@@ -191,6 +194,10 @@ const Header = () => {
   const [
     showingPinterestPromoteTier1Modal,
     setShowingPinterestPromoteTier1Modal,
+  ] = useState(false);
+  const [
+    showingPinterestPushToDataHubModal,
+    setShowingPinterestPushToDataHubModal,
   ] = useState(false);
   const [showingEmbedModal, setShowingEmbedModal] = useState(false);
   const [showingReportModal, setShowingReportModal] = useState(false);
@@ -555,6 +562,14 @@ const Header = () => {
     setShowingPinterestPromoteTier1Modal(false);
   }, []);
 
+  const showPinterestPushToDataHubModal = useCallback(() => {
+    setShowingPinterestPushToDataHubModal(true);
+  }, []);
+
+  const hidePinterestPushToDataHubModal = useCallback(() => {
+    setShowingPinterestPushToDataHubModal(false);
+  }, []);
+
   const showEmbedModal = useCallback(() => {
     setShowingEmbedModal(true);
   }, []);
@@ -580,8 +595,6 @@ const Header = () => {
   const userCanCurate =
     isFeatureEnabled(FeatureFlag.EmbeddedSuperset) &&
     findPermission('can_set_embedded', 'Dashboard', user.roles);
-  const userCanEditTieringInfo = isUserAdmin(user);
-  const userCanPromoteTier1 = isUserAdmin(user);
   const refreshLimit =
     dashboardInfo.common?.conf?.SUPERSET_DASHBOARD_PERIODICAL_REFRESH_LIMIT;
   const refreshWarning =
@@ -604,6 +617,7 @@ const Header = () => {
     'DashboardGovernanceRestApi',
     user?.roles,
   );
+  const userCanPushToDataHub = isUserAdmin(user);
 
   const handleOnPropertiesChange = useCallback(
     updates => {
@@ -855,6 +869,7 @@ const Header = () => {
     userCanEditTieringInfo,
     showPromoteTier1: governanceUiEnabled,
     userCanPromoteTier1,
+    userCanPushToDataHub,
     isLoading,
     showReportModal,
     showPropertiesModal,
@@ -866,6 +881,7 @@ const Header = () => {
     logEvent: boundActionCreators.logEvent,
     showPinterestTieringInfoModal,
     showPinterestPromoteTier1Modal,
+    showPinterestPushToDataHubModal,
   });
   return (
     <div
@@ -954,7 +970,14 @@ const Header = () => {
           user={user}
         />
       )}
-
+      {showingPinterestPushToDataHubModal && (
+        <PinterestPushToDataHubModal
+          dashboardId={dashboardInfo.id}
+          dashboardTitle={dashboardTitle}
+          show={showingPinterestPushToDataHubModal}
+          onHide={hidePinterestPushToDataHubModal}
+        />
+      )}
       <OverwriteConfirm />
 
       {userCanCurate && (
