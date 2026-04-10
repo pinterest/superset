@@ -57,6 +57,7 @@ export interface HeaderDropdownProps {
   userCanEditTieringInfo?: boolean;
   showPromoteTier1?: boolean; // Remove after governance UI is rolled out
   userCanPromoteTier1?: boolean;
+  userCanPushToDataHub?: boolean;
   manageEmbedded: () => void;
   lastModifiedTime: number;
   logEvent: (...args: unknown[]) => unknown;
@@ -67,6 +68,7 @@ export interface HeaderDropdownProps {
   setCurrentReportDeleting: Dispatch<SetStateAction<AlertObject | null>>;
   showPinterestTieringInfoModal: () => void;
   showPinterestPromoteTier1Modal: () => void;
+  showPinterestPushToDataHubModal: () => void;
 }
 
 export interface HeaderProps {

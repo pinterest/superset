@@ -74,6 +74,9 @@ import PinterestPromoteTier1Modal from '@pinterest-plugins/src/governance/pinter
 import PinterestTieringInfoModal from '@pinterest-plugins/src/governance/pinterestTieringInfoModal';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
+import PinterestPushToDataHubModal from '@pinterest-plugins/src/governance/pinterestPushToDataHubModal';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
 import PinterestTitlePanelAdditionalItems from '@pinterest-plugins/src/governance/pinterestTitlePanelAdditionalItems';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
@@ -252,6 +255,10 @@ const Header = (): JSX.Element => {
   const [
     showingPinterestPromoteTier1Modal,
     setShowingPinterestPromoteTier1Modal,
+  ] = useState(false);
+  const [
+    showingPinterestPushToDataHubModal,
+    setShowingPinterestPushToDataHubModal,
   ] = useState(false);
   const [showingEmbedModal, setShowingEmbedModal] = useState(false);
   const [showingReportModal, setShowingReportModal] = useState(false);
@@ -581,6 +588,14 @@ const Header = (): JSX.Element => {
     setShowingPinterestPromoteTier1Modal(false);
   }, []);
 
+  const showPinterestPushToDataHubModal = useCallback(() => {
+    setShowingPinterestPushToDataHubModal(true);
+  }, []);
+
+  const hidePinterestPushToDataHubModal = useCallback(() => {
+    setShowingPinterestPushToDataHubModal(false);
+  }, []);
+
   const showEmbedModal = useCallback(() => {
     setShowingEmbedModal(true);
   }, []);
@@ -629,6 +644,7 @@ const Header = (): JSX.Element => {
     'DashboardGovernanceRestApi',
     user?.roles,
   );
+  const userCanPushToDataHub = isUserAdmin(user);
 
   const handleOnPropertiesChange = useCallback(
     (updates: DashboardPropertiesUpdate) => {
@@ -898,6 +914,7 @@ const Header = (): JSX.Element => {
     userCanEditTieringInfo,
     showPromoteTier1: governanceUiEnabled,
     userCanPromoteTier1,
+    userCanPushToDataHub,
     isLoading,
     showReportModal,
     showPropertiesModal,
@@ -908,6 +925,7 @@ const Header = (): JSX.Element => {
     logEvent: boundActionCreators.logEvent,
     showPinterestTieringInfoModal,
     showPinterestPromoteTier1Modal,
+    showPinterestPushToDataHubModal,
   });
   return (
     <div
@@ -1008,7 +1026,14 @@ const Header = (): JSX.Element => {
           user={user}
         />
       )}
-
+      {showingPinterestPushToDataHubModal && (
+        <PinterestPushToDataHubModal
+          dashboardId={dashboardInfo.id}
+          dashboardTitle={dashboardTitle}
+          show={showingPinterestPushToDataHubModal}
+          onHide={hidePinterestPushToDataHubModal}
+        />
+      )}
       <OverwriteConfirm />
 
       {userCanCurate && (

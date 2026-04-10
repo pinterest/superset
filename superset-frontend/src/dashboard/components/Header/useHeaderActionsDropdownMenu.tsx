@@ -58,6 +58,7 @@ export const useHeaderActionsMenu = ({
   userCanEditTieringInfo,
   userCanPromoteTier1,
   showPromoteTier1,
+  userCanPushToDataHub,
   isLoading,
   lastModifiedTime,
   addSuccessToast,
@@ -72,6 +73,7 @@ export const useHeaderActionsMenu = ({
   setCurrentReportDeleting,
   showPinterestTieringInfoModal,
   showPinterestPromoteTier1Modal,
+  showPinterestPushToDataHubModal,
 }: HeaderDropdownProps): [
   ReactElement,
   boolean,
@@ -123,6 +125,9 @@ export const useHeaderActionsMenu = ({
         case MenuKeys.PinterestPromoteTier1:
           showPinterestPromoteTier1Modal();
           break;
+        case MenuKeys.PushToPinterestDataHub:
+          showPinterestPushToDataHubModal();
+          break;
         default:
           break;
       }
@@ -137,6 +142,7 @@ export const useHeaderActionsMenu = ({
       history,
       showPinterestTieringInfoModal,
       showPinterestPromoteTier1Modal,
+      showPinterestPushToDataHubModal,
     ],
   );
 
@@ -310,6 +316,13 @@ export const useHeaderActionsMenu = ({
       });
     }
 
+    if (userCanPushToDataHub) {
+      menuItems.push({
+        key: MenuKeys.PushToPinterestDataHub,
+        label: t('Push to PinCat'),
+      });
+    }
+
     // Only add divider if there are items after it
     const hasItemsAfterDivider =
       (!editMode && reportMenuItem) ||
@@ -370,6 +383,7 @@ export const useHeaderActionsMenu = ({
     userCanEditTieringInfo,
     userCanPromoteTier1,
     showPromoteTier1,
+    userCanPushToDataHub,
     userCanSave,
     userCanShare,
   ]);
