@@ -54,7 +54,6 @@ import {
 } from 'src/dashboard/actions/dashboardState';
 import { RESPONSIVE_WIDTH } from 'src/filters/components/common';
 import { FAST_DEBOUNCE } from 'src/constants';
-import ErrorAlert from 'src/components/ErrorMessage/ErrorAlert';
 import { dispatchHoverAction, dispatchFocusAction } from './utils';
 import { FilterControlProps } from './types';
 import { getFormData } from '../../utils';
@@ -317,18 +316,13 @@ const FilterValue: FC<FilterControlProps> = ({
   );
 
   if (error) {
+    const structuredError = error.errors?.[0];
     return (
       <ErrorMessageWithStackTrace
-        error={error.errors?.[0]}
+        error={structuredError}
         compact
-        fallback={
-          <ErrorAlert
-            errorType={t('Network error')}
-            message={t('Network error while attempting to fetch resource')}
-            type="error"
-            compact
-          />
-        }
+        title={t('Error loading filter')}
+        description={structuredError?.message || error.error}
       />
     );
   }
