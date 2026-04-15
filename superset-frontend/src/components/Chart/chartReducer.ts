@@ -107,7 +107,8 @@ export default function chartReducer(
         (typeof queryResponse?.message === 'string'
           ? queryResponse.message
           : undefined) ||
-        queryResponse?.statusText || t('Network error.');
+        queryResponse?.statusText ||
+        t('Network error.');
       const chartStackTrace = queryResponse?.stacktrace || null;
 
       return {
