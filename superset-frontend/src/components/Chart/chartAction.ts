@@ -722,9 +722,10 @@ export function handleChartDataResponse(
           result as unknown as Parameters<typeof waitForAsyncData>[0],
         ) as Promise<QueryData[]>;
       default:
-        throw new Error(
-          `Received unexpected response status (${response.status}) while fetching chart data`,
-        );
+        // throw new Error(
+        //   `Received unexpected response status (${response.status}) while fetching chart data`,
+        // );
+        return Promise.reject(response);
     }
   }
   return json.result;

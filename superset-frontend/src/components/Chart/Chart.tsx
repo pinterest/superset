@@ -268,7 +268,15 @@ class Chart extends PureComponent<ChartProps, {}> {
       datasetsStatus,
     } = this.props;
     const error = queryResponse?.errors?.[0];
-    const message = chartAlert || queryResponse?.message;
+    // const message = chartAlert || queryResponse?.message;
+    const message =
+      queryResponse?.errors?.[0]?.message ||
+      chartAlert ||
+      queryResponse?.error ||
+      (typeof queryResponse?.message === 'string'
+        ? queryResponse.message
+        : undefined) ||
+      queryResponse?.statusText;
 
     // if datasource is still loading, don't render JS errors
     // but always show backend API errors (which have an errors array)
