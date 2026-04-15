@@ -117,13 +117,13 @@ export default function chartReducer(
         // chartAlert: action.queriesResponse
         //   ? action.queriesResponse?.[0]?.error
         //   : t('Network error.'),
-        chartAlert: chartAlert,
+        chartAlert,
         chartUpdateEndTime: now(),
         queriesResponse: action.queriesResponse,
         // chartStackTrace: action.queriesResponse
         //   ? action.queriesResponse?.[0]?.stacktrace
         //   : null,
-        chartStackTrace: chartStackTrace,
+        chartStackTrace,
       };
     },
     [actions.DYNAMIC_PLUGIN_CONTROLS_READY](state) {
