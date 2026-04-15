@@ -100,17 +100,30 @@ export default function chartReducer(
       };
     },
     [actions.CHART_UPDATE_FAILED](state) {
+      const queryResponse = action.queriesResponse?.[0];
+      const chartAlert =
+        queryResponse?.errors?.[0]?.message ||
+        queryResponse?.error ||
+        (typeof queryResponse?.message === 'string'
+          ? queryResponse.message
+          : undefined) ||
+        queryResponse?.statusText ||
+        t('Network error.');
+      const chartStackTrace = queryResponse?.stacktrace || null;
+
       return {
         ...state,
         chartStatus: 'failed',
-        chartAlert: action.queriesResponse
-          ? action.queriesResponse?.[0]?.error
-          : t('Network error.'),
+        // chartAlert: action.queriesResponse
+        //   ? action.queriesResponse?.[0]?.error
+        //   : t('Network error.'),
+        chartAlert,
         chartUpdateEndTime: now(),
         queriesResponse: action.queriesResponse,
-        chartStackTrace: action.queriesResponse
-          ? action.queriesResponse?.[0]?.stacktrace
-          : null,
+        // chartStackTrace: action.queriesResponse
+        //   ? action.queriesResponse?.[0]?.stacktrace
+        //   : null,
+        chartStackTrace,
       };
     },
     [actions.DYNAMIC_PLUGIN_CONTROLS_READY](state) {
