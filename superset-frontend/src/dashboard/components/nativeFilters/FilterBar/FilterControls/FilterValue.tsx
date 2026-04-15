@@ -403,18 +403,13 @@ const FilterValue: FC<FilterValueProps> = ({
   );
 
   if (error) {
+    const structuredError = error.errors?.[0];
     return (
       <ErrorMessageWithStackTrace
-        error={error.errors?.[0]}
+        error={structuredError}
         compact
-        fallback={
-          <ErrorAlert
-            errorType={t('Network error')}
-            message={t('Network error while attempting to fetch resource')}
-            type="error"
-            compact
-          />
-        }
+        title={t('Error loading filter')}
+        description={structuredError?.message || error.error}
       />
     );
   }
