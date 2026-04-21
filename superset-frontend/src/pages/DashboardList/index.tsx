@@ -650,7 +650,13 @@ function DashboardList(props: DashboardListProps) {
         : []),
     ] as Filters;
     return filters_list;
-  }, [addDangerToast, canPromoteTier1, favoritesFilter, props.user, showGovernanceExtras]);
+  }, [
+    addDangerToast,
+    canPromoteTier1,
+    favoritesFilter,
+    props.user,
+    showGovernanceExtras,
+  ]);
 
   const sortTypes = [
     {
