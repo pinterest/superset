@@ -140,4 +140,6 @@ export enum ListViewFilterOperator {
   Tier = 'tier',
   /** Governance: filter by Nimbus project */
   NimbusProject = 'nimbus_project',
+  /** Governance: filter by tier 1 candidate status */
+  DashboardIsTier1Candidate = 'dashboard_is_tier1_candidate',
 }
