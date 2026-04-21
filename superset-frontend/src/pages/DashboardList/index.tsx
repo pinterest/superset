@@ -159,6 +159,11 @@ function DashboardList(props: DashboardListProps) {
     state => state.user,
   );
   const canReadTag = findPermission('can_read', 'Tag', roles);
+  const canPromoteTier1 = findPermission(
+    'can_promote_tier_1',
+    'DashboardGovernanceRestApi',
+    roles,
+  );
 
   const reduxUser = useSelector<any, UserWithPermissionsAndRoles>(
     state => state.user,
@@ -640,10 +645,12 @@ function DashboardList(props: DashboardListProps) {
         ),
         paginate: true,
       },
-      ...(showGovernanceExtras ? getDashboardListSearchFilters() : []),
+      ...(showGovernanceExtras
+        ? getDashboardListSearchFilters({ canPromoteTier1 })
+        : []),
     ] as Filters;
     return filters_list;
-  }, [addDangerToast, favoritesFilter, props.user, showGovernanceExtras]);
+  }, [addDangerToast, canPromoteTier1, favoritesFilter, props.user, showGovernanceExtras]);
 
   const sortTypes = [
     {
