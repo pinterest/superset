@@ -4,8 +4,15 @@
  */
 import { Filter } from 'src/components/ListView/types';
 
+export interface DashboardListSearchFilterOptions {
+  /** Show the Tier 1 Candidate filter (requires can_promote_tier_1 permission). */
+  canPromoteTier1?: boolean;
+}
+
 /** Extra search filters to add to the dashboard list (e.g. tier, nimbus_project). */
-export function getDashboardListSearchFilters(): Filter[] {
+export function getDashboardListSearchFilters(
+  _options: DashboardListSearchFilterOptions = {},
+): Filter[] {
   return [];
 }
 
