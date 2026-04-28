@@ -223,6 +223,13 @@ if (process.env.USE_PINTEREST_PLUGINS !== 'true') {
       ),
     ),
     new webpack.NormalModuleReplacementPlugin(
+      /@pinterest-plugins\/src\/explore\/pinterestExploreViewContainer$/,
+      path.resolve(
+        __dirname,
+        'pinterest-plugins/src/explore/pinterestExploreViewContainer.stub.tsx',
+      ),
+    ),
+    new webpack.NormalModuleReplacementPlugin(
       /@pinterest-plugins\/src\/explore\/components\/warden\/createWardenAlertModal$/,
       path.resolve(
         __dirname,
@@ -255,6 +262,55 @@ if (process.env.USE_PINTEREST_PLUGINS !== 'true') {
       path.resolve(
         __dirname,
         'pinterest-plugins/src/governance/pinterestPushToDataHubModal.stub.tsx',
+      ),
+    ),
+    new webpack.NormalModuleReplacementPlugin(
+      /@pinterest-plugins\/src\/dashboard\/pinterestDashboardPage$/,
+      path.resolve(
+        __dirname,
+        'pinterest-plugins/src/dashboard/pinterestDashboardPage.stub.tsx',
+      ),
+    ),
+    new webpack.NormalModuleReplacementPlugin(
+      /@pinterest-plugins\/src\/features\/dashboards\/pinterestDashboardCard$/,
+      path.resolve(
+        __dirname,
+        'pinterest-plugins/src/features/dashboards/pinterestDashboardCard.stub.tsx',
+      ),
+    ),
+    new webpack.NormalModuleReplacementPlugin(
+      /@pinterest-plugins\/src\/features\/charts\/pinterestChartCard$/,
+      path.resolve(
+        __dirname,
+        'pinterest-plugins/src/features/charts/pinterestChartCard.stub.tsx',
+      ),
+    ),
+    new webpack.NormalModuleReplacementPlugin(
+      /@pinterest-plugins\/src\/governance\/softDeletion\/pinterestSoftDeletedCell$/,
+      path.resolve(
+        __dirname,
+        'pinterest-plugins/src/governance/softDeletion/pinterestSoftDeletedCell.stub.tsx',
+      ),
+    ),
+    new webpack.NormalModuleReplacementPlugin(
+      /@pinterest-plugins\/src\/governance\/softDeletion\/pinterestSoftDeletedCardOverlay$/,
+      path.resolve(
+        __dirname,
+        'pinterest-plugins/src/governance/softDeletion/pinterestSoftDeletedCardOverlay.stub.tsx',
+      ),
+    ),
+    new webpack.NormalModuleReplacementPlugin(
+      /@pinterest-plugins\/src\/governance\/softDeletion\/softDeletionSliceFilter$/,
+      path.resolve(
+        __dirname,
+        'pinterest-plugins/src/governance/softDeletion/softDeletionSliceFilter.stub.ts',
+      ),
+    ),
+    new webpack.NormalModuleReplacementPlugin(
+      /@pinterest-plugins\/src\/components\/Chart\/pinterestChartContainer$/,
+      path.resolve(
+        __dirname,
+        'pinterest-plugins/src/components/Chart/pinterestChartContainer.stub.tsx',
       ),
     ),
   );

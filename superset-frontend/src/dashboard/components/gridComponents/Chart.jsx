@@ -26,7 +26,7 @@ import { bindActionCreators } from 'redux';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { exportChart, mountExploreUrl } from 'src/explore/exploreUtils';
-import ChartContainer from 'src/components/Chart/ChartContainer';
+import ChartContainer from '@pinterest-plugins/src/components/Chart/pinterestChartContainer';
 import {
   LOG_ACTIONS_CHANGE_DASHBOARD_FILTER,
   LOG_ACTIONS_EXPLORE_DASHBOARD_CHART,

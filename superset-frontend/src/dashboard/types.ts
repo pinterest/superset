@@ -146,6 +146,7 @@ export type DashboardInfo = {
   changed_by?: Owner;
   created_by?: Owner;
   owners: Owner[];
+  deleted_on?: string | null;
 };
 
 export type ChartsState = { [key: string]: Chart };
@@ -252,6 +253,7 @@ export type Slice = {
   datasource_name: string;
   owners: { id: number }[];
   created_by: { id: number };
+  deleted_on?: string | null;
 };
 
 export enum MenuKeys {

@@ -86,6 +86,8 @@ const parseResult = (result: any[]) =>
         thumbnail_url: slice.thumbnail_url,
         owners: slice.owners,
         created_by: slice.created_by,
+        // Pinterest: ISO timestamp set when the chart is soft-deleted.
+        deleted_on: slice.deleted_on,
       },
     };
   }, {});
@@ -135,6 +137,7 @@ export function fetchSlices(
           'viz_type',
           'owners.id',
           'created_by.id',
+          'deleted_on',
         ],
         filters,
         page_size: FETCH_SLICES_PAGE_SIZE,

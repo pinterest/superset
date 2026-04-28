@@ -64,7 +64,9 @@ import {
 } from 'src/views/CRUD/types';
 import CertifiedBadge from 'src/components/CertifiedBadge';
 import { loadTags } from 'src/components/Tags/utils';
-import DashboardCard from 'src/features/dashboards/DashboardCard';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import DashboardCard from '@pinterest-plugins/src/features/dashboards/pinterestDashboardCard';
 import { DashboardStatus } from 'src/features/dashboards/types';
 import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
 import { findPermission } from 'src/utils/findPermission';
@@ -73,6 +75,9 @@ import { ModifiedInfo } from 'src/components/AuditInfo';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
 import PinterestNewDashboardTierModal from '@pinterest-plugins/src/governance/pinterestNewDashboardTierModal';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import PinterestSoftDeletedCell from '@pinterest-plugins/src/governance/softDeletion/pinterestSoftDeletedCell';
 import {
   getDashboardListExtraColumnsToFetch,
   getDashboardListExtraListColumns,
@@ -128,6 +133,10 @@ const Actions = styled.div`
   color: ${({ theme }) => theme.colors.grayscale.base};
 `;
 
+// Base list columns shared with upstream Superset. Plugin-owned extras (tier,
+// nimbus_project, deleted_on, owners.username, ...) live in
+// `getDashboardListExtraColumnsToFetch` so new ones can be added from the
+// plugin without editing this file.
 const DASHBOARD_COLUMNS_TO_FETCH = [
   'id',
   'dashboard_title',
@@ -193,9 +202,14 @@ function DashboardList(props: DashboardListProps) {
     undefined,
     undefined,
     undefined,
+    // Always-on extras (e.g. soft-deletion columns) are fetched for every
+    // user; governance-only display columns are gated on `showGovernanceExtras`
+    // and folded in by the same helper.
     [
       ...DASHBOARD_COLUMNS_TO_FETCH,
-      ...(showGovernanceExtras ? getDashboardListExtraColumnsToFetch() : []),
+      ...getDashboardListExtraColumnsToFetch({
+        includeGovernance: showGovernanceExtras,
+      }),
     ],
   );
   const dashboardIds = useMemo(() => dashboards.map(d => d.id), [dashboards]);
@@ -350,28 +364,36 @@ function DashboardList(props: DashboardListProps) {
         hidden: !user?.userId,
       },
       {
-        Cell: ({
-          row: {
-            original: {
-              url,
-              dashboard_title: dashboardTitle,
-              certified_by: certifiedBy,
-              certification_details: certificationDetails,
-            },
-          },
-        }: any) => (
-          <Link to={url}>
-            {certifiedBy && (
-              <>
-                <CertifiedBadge
-                  certifiedBy={certifiedBy}
-                  details={certificationDetails}
-                />{' '}
-              </>
-            )}
-            {dashboardTitle}
-          </Link>
-        ),
+        Cell: ({ row: { original } }: any) => {
+          const {
+            url,
+            dashboard_title: dashboardTitle,
+            certified_by: certifiedBy,
+            certification_details: certificationDetails,
+          } = original;
+          const link = (
+            <Link to={url}>
+              {certifiedBy && (
+                <>
+                  <CertifiedBadge
+                    certifiedBy={certifiedBy}
+                    details={certificationDetails}
+                  />{' '}
+                </>
+              )}
+              {dashboardTitle}
+            </Link>
+          );
+          return (
+            <PinterestSoftDeletedCell
+              resource="dashboard"
+              entity={original}
+              variant="name"
+            >
+              {link}
+            </PinterestSoftDeletedCell>
+          );
+        },
         Header: t('Name'),
         accessor: 'dashboard_title',
       },
@@ -449,7 +471,7 @@ function DashboardList(props: DashboardListProps) {
           const handleEdit = () => openDashboardEditModal(original);
           const handleExport = () => handleBulkDashboardExport([original]);
 
-          return (
+          const actions = (
             <Actions className="actions">
               {canDelete && (
                 <ConfirmStatusChange
@@ -513,6 +535,16 @@ function DashboardList(props: DashboardListProps) {
                 </Tooltip>
               )}
             </Actions>
+          );
+
+          return (
+            <PinterestSoftDeletedCell
+              resource="dashboard"
+              entity={original}
+              variant="actions"
+            >
+              {actions}
+            </PinterestSoftDeletedCell>
           );
         },
         Header: t('Actions'),

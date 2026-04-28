@@ -16,8 +16,14 @@ export function getDashboardListSearchFilters(
   return [];
 }
 
+export type DashboardListExtraColumnsOptions = {
+  includeGovernance?: boolean;
+};
+
 /** Extra column names to request from the dashboard list API (e.g. tier, nimbus_project). */
-export function getDashboardListExtraColumnsToFetch(): string[] {
+export function getDashboardListExtraColumnsToFetch(
+  _options: DashboardListExtraColumnsOptions = {},
+): string[] {
   return [];
 }
 

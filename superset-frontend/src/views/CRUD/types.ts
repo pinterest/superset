@@ -69,6 +69,8 @@ export interface Dashboard {
   thumbnail_url: string;
   owners: Owner[];
   loading?: boolean;
+  /** Pinterest: ISO timestamp set when the dashboard is soft-deleted. */
+  deleted_on?: string | null;
 }
 
 export type SavedQueryObject = {

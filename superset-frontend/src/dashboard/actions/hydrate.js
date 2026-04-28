@@ -123,6 +123,8 @@ export const hydrateDashboard =
         owners: slice.owners,
         modified: slice.modified,
         changed_on: new Date(slice.changed_on).getTime(),
+        // Pinterest: ISO timestamp set when the chart is soft-deleted.
+        deleted_on: slice.deleted_on,
       };
 
       sliceIds.add(key);

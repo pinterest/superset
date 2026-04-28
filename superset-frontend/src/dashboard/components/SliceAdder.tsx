@@ -46,6 +46,7 @@ import Checkbox from 'src/components/Checkbox';
 import { InfoTooltipWithTrigger } from '@superset-ui/chart-controls';
 import { Dispatch } from 'redux';
 import { Slice } from 'src/dashboard/types';
+import { filterSoftDeletedSlices } from '@pinterest-plugins/src/governance/softDeletion/softDeletionSliceFilter';
 import AddSliceCard from './AddSliceCard';
 import AddSliceDragPreview from './dnd/AddSliceDragPreview';
 import { DragDroppable } from './dnd/DragDroppable';
@@ -228,7 +229,7 @@ class SliceAdder extends Component<SliceAdderProps, SliceAdderState> {
     sortBy: keyof Slice,
     showOnlyMyCharts: boolean,
   ) {
-    return Object.values(slices)
+    return filterSoftDeletedSlices(Object.values(slices))
       .filter(slice =>
         showOnlyMyCharts
           ? slice?.owners?.find(owner => owner.id === this.props.userId) ||

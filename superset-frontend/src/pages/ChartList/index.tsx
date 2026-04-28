@@ -67,12 +67,17 @@ import CertifiedBadge from 'src/components/CertifiedBadge';
 import { GenericLink } from 'src/components/GenericLink/GenericLink';
 import { loadTags } from 'src/components/Tags/utils';
 import FacePile from 'src/components/FacePile';
-import ChartCard from 'src/features/charts/ChartCard';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import ChartCard from '@pinterest-plugins/src/features/charts/pinterestChartCard';
 import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
 import { findPermission } from 'src/utils/findPermission';
 import { DashboardCrossLinks } from 'src/components/ListView/DashboardCrossLinks';
 import { ModifiedInfo } from 'src/components/AuditInfo';
 import { QueryObjectColumns } from 'src/views/CRUD/types';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import PinterestSoftDeletedCell from '@pinterest-plugins/src/governance/softDeletion/pinterestSoftDeletedCell';
 
 const FlexRowContainer = styled.div`
   align-items: center;
@@ -332,18 +337,15 @@ function ChartList(props: ChartListProps) {
         hidden: !userId,
       },
       {
-        Cell: ({
-          row: {
-            original: {
-              url,
-              slice_name: sliceName,
-              certified_by: certifiedBy,
-              certification_details: certificationDetails,
-              description,
-            },
-          },
-        }: any) => (
-          <FlexRowContainer>
+        Cell: ({ row: { original } }: any) => {
+          const {
+            url,
+            slice_name: sliceName,
+            certified_by: certifiedBy,
+            certification_details: certificationDetails,
+            description,
+          } = original;
+          const link = (
             <Link to={url} data-test={`${sliceName}-list-chart-title`}>
               {certifiedBy && (
                 <>
@@ -355,9 +357,20 @@ function ChartList(props: ChartListProps) {
               )}
               {sliceName}
             </Link>
-            {description && <InfoTooltip tooltip={description} />}
-          </FlexRowContainer>
-        ),
+          );
+          return (
+            <FlexRowContainer>
+              <PinterestSoftDeletedCell
+                resource="chart"
+                entity={original}
+                variant="name"
+              >
+                {link}
+              </PinterestSoftDeletedCell>
+              {description && <InfoTooltip tooltip={description} />}
+            </FlexRowContainer>
+          );
+        },
         Header: t('Name'),
         accessor: 'slice_name',
       },
@@ -460,7 +473,7 @@ function ChartList(props: ChartListProps) {
             return null;
           }
 
-          return (
+          const actions = (
             <StyledActions className="actions">
               {canDelete && (
                 <ConfirmStatusChange
@@ -525,6 +538,16 @@ function ChartList(props: ChartListProps) {
                 </Tooltip>
               )}
             </StyledActions>
+          );
+
+          return (
+            <PinterestSoftDeletedCell
+              resource="chart"
+              entity={original}
+              variant="actions"
+            >
+              {actions}
+            </PinterestSoftDeletedCell>
           );
         },
         Header: t('Actions'),

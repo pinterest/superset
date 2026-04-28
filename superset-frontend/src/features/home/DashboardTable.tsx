@@ -40,7 +40,8 @@ import withToasts from 'src/components/MessageToasts/withToasts';
 import Loading from 'src/components/Loading';
 import DeleteModal from 'src/components/DeleteModal';
 import PropertiesModal from 'src/dashboard/components/PropertiesModal';
-import DashboardCard from 'src/features/dashboards/DashboardCard';
+// eslint-disable-next-line import/no-unresolved
+import DashboardCard from '@pinterest-plugins/src/features/dashboards/pinterestDashboardCard';
 import EmptyState from './EmptyState';
 import SubMenu from './SubMenu';
 import { WelcomeTable } from './types';
