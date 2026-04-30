@@ -46,6 +46,8 @@ import Checkbox from 'src/components/Checkbox';
 import { InfoTooltipWithTrigger } from '@superset-ui/chart-controls';
 import { Dispatch } from 'redux';
 import { Slice } from 'src/dashboard/types';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
 import { filterSoftDeletedSlices } from '@pinterest-plugins/src/governance/softDeletion/softDeletionSliceFilter';
 import AddSliceCard from './AddSliceCard';
 import AddSliceDragPreview from './dnd/AddSliceDragPreview';
@@ -229,11 +231,12 @@ class SliceAdder extends Component<SliceAdderProps, SliceAdderState> {
     sortBy: keyof Slice,
     showOnlyMyCharts: boolean,
   ) {
-    return filterSoftDeletedSlices(Object.values(slices))
-      .filter(slice =>
+    return filterSoftDeletedSlices<Slice>(Object.values(slices))
+      .filter((slice: Slice) =>
         showOnlyMyCharts
-          ? slice?.owners?.find(owner => owner.id === this.props.userId) ||
-            slice?.created_by?.id === this.props.userId
+          ? slice?.owners?.find(
+              (owner: { id: number }) => owner.id === this.props.userId,
+            ) || slice?.created_by?.id === this.props.userId
           : true,
       )
       .filter(createFilter(searchTerm, KEYS_TO_FILTERS))

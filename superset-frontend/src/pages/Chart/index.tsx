@@ -36,6 +36,7 @@ import getFormDataWithExtraFilters from 'src/dashboard/util/charts/getFormDataWi
 import { getAppliedFilterValues } from 'src/dashboard/util/activeDashboardFilters';
 import { getParsedExploreURLParams } from 'src/explore/exploreUtils/getParsedExploreURLParams';
 import { hydrateExplore } from 'src/explore/actions/hydrateExplore';
+// import ExploreViewContainer from 'src/explore/components/ExploreViewContainer';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
 import ExploreViewContainer from '@pinterest-plugins/src/explore/pinterestExploreViewContainer';

@@ -18,6 +18,7 @@
  */
 import { FC } from 'react';
 import { useParams } from 'react-router-dom';
+// import { DashboardPage } from 'src/dashboard/containers/DashboardPage';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
 import PinterestDashboardPage from '@pinterest-plugins/src/dashboard/pinterestDashboardPage';

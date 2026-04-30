@@ -67,6 +67,7 @@ import CertifiedBadge from 'src/components/CertifiedBadge';
 import { GenericLink } from 'src/components/GenericLink/GenericLink';
 import { loadTags } from 'src/components/Tags/utils';
 import FacePile from 'src/components/FacePile';
+// import ChartCard from 'src/features/charts/ChartCard';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
 import ChartCard from '@pinterest-plugins/src/features/charts/pinterestChartCard';

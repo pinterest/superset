@@ -3,7 +3,7 @@
  * soft-deletion concept does not exist, so this is a thin pass-through that
  * renders ``children`` unchanged.
  */
-import React, { ReactNode } from 'react';
+import { ReactNode } from 'react';
 
 export type PinterestSoftDeletedCardOverlayProps = {
   resource: 'dashboard' | 'chart';

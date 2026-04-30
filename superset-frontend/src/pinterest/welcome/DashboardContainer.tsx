@@ -9,12 +9,12 @@ import { styled, t } from '@superset-ui/core';
 import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
 import ListViewCard from 'src/components/ListViewCard';
 import FaveStar from 'src/components/FaveStar';
+// @ts-ignore
 // eslint-disable-next-line import/no-unresolved
 import PinterestSoftDeletedCardOverlay from '@pinterest-plugins/src/governance/softDeletion/pinterestSoftDeletedCardOverlay';
-import {
-  // eslint-disable-next-line import/no-unresolved
-  SoftDeletionOwner,
-} from '@pinterest-plugins/src/governance/softDeletion/content';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import { SoftDeletionOwner } from '@pinterest-plugins/src/governance/softDeletion/content';
 
 type DashboardContainerProps = {
   dashboards: Dashboard[];

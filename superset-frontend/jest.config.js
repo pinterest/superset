@@ -62,6 +62,22 @@ module.exports = {
       '<rootDir>/pinterest-plugins/src/dashboard/pinterestChartHeaderExtras.stub.tsx',
     '^@pinterest-plugins/src/governance/pinterestPushToDataHubModal$':
       '<rootDir>/pinterest-plugins/src/governance/pinterestPushToDataHubModal.stub.tsx',
+    '^@pinterest-plugins/src/explore/pinterestExploreViewContainer$':
+      '<rootDir>/pinterest-plugins/src/explore/pinterestExploreViewContainer.stub.tsx',
+    '^@pinterest-plugins/src/dashboard/pinterestDashboardPage$':
+      '<rootDir>/pinterest-plugins/src/dashboard/pinterestDashboardPage.stub.tsx',
+    '^@pinterest-plugins/src/features/dashboards/pinterestDashboardCard$':
+      '<rootDir>/pinterest-plugins/src/features/dashboards/pinterestDashboardCard.stub.tsx',
+    '^@pinterest-plugins/src/features/charts/pinterestChartCard$':
+      '<rootDir>/pinterest-plugins/src/features/charts/pinterestChartCard.stub.tsx',
+    '^@pinterest-plugins/src/governance/softDeletion/pinterestSoftDeletedCell$':
+      '<rootDir>/pinterest-plugins/src/governance/softDeletion/pinterestSoftDeletedCell.stub.tsx',
+    '^@pinterest-plugins/src/governance/softDeletion/pinterestSoftDeletedCardOverlay$':
+      '<rootDir>/pinterest-plugins/src/governance/softDeletion/pinterestSoftDeletedCardOverlay.stub.tsx',
+    '^@pinterest-plugins/src/governance/softDeletion/softDeletionSliceFilter$':
+      '<rootDir>/pinterest-plugins/src/governance/softDeletion/softDeletionSliceFilter.stub.ts',
+    '^@pinterest-plugins/src/components/Chart/pinterestChartContainer$':
+      '<rootDir>/pinterest-plugins/src/components/Chart/pinterestChartContainer.stub.tsx',
     // general mapping for other @pinterest-plugins modules
     '^@pinterest-plugins/(.*)$': '<rootDir>/pinterest-plugins/$1',
   },

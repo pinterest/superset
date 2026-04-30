@@ -64,6 +64,7 @@ import {
 } from 'src/views/CRUD/types';
 import CertifiedBadge from 'src/components/CertifiedBadge';
 import { loadTags } from 'src/components/Tags/utils';
+// import DashboardCard from 'src/features/dashboards/DashboardCard';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
 import DashboardCard from '@pinterest-plugins/src/features/dashboards/pinterestDashboardCard';
@@ -567,6 +568,7 @@ function DashboardList(props: DashboardListProps) {
       refreshData,
       addSuccessToast,
       addDangerToast,
+      showGovernanceExtras,
     ],
   );
 
@@ -728,7 +730,7 @@ function DashboardList(props: DashboardListProps) {
         saveFavoriteStatus={saveFavoriteStatus}
         favoriteStatus={favoriteStatus[dashboard.id]}
         handleBulkDashboardExport={handleBulkDashboardExport}
-        onDelete={dashboard => setDashboardToDelete(dashboard)}
+        onDelete={(dashboard: CRUDDashboard) => setDashboardToDelete(dashboard)}
       />
     ),
     [
