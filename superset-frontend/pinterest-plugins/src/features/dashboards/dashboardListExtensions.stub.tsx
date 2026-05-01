@@ -11,13 +11,21 @@ export interface DashboardListSearchFilterOptions {
 
 /** Extra search filters to add to the dashboard list (e.g. tier, nimbus_project). */
 export function getDashboardListSearchFilters(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _options: DashboardListSearchFilterOptions = {},
 ): Filter[] {
   return [];
 }
 
+export type DashboardListExtraColumnsOptions = {
+  includeGovernance?: boolean;
+};
+
 /** Extra column names to request from the dashboard list API (e.g. tier, nimbus_project). */
-export function getDashboardListExtraColumnsToFetch(): string[] {
+export function getDashboardListExtraColumnsToFetch(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _options: DashboardListExtraColumnsOptions = {},
+): string[] {
   return [];
 }
 

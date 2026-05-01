@@ -18,11 +18,14 @@
  */
 import { FC } from 'react';
 import { useParams } from 'react-router-dom';
-import { DashboardPage } from 'src/dashboard/containers/DashboardPage';
+// import { DashboardPage } from 'src/dashboard/containers/DashboardPage';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import PinterestDashboardPage from '@pinterest-plugins/src/dashboard/pinterestDashboardPage';
 
 const DashboardRoute: FC = () => {
   const { idOrSlug } = useParams<{ idOrSlug: string }>();
-  return <DashboardPage idOrSlug={idOrSlug} />;
+  return <PinterestDashboardPage idOrSlug={idOrSlug} />;
 };
 
 export default DashboardRoute;

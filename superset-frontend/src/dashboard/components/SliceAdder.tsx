@@ -50,6 +50,9 @@ import { Dispatch } from 'redux';
 import { Slice } from 'src/dashboard/types';
 import { withTheme, Theme } from '@emotion/react';
 import { navigateTo } from 'src/utils/navigationUtils';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import { filterSoftDeletedSlices } from '@pinterest-plugins/src/governance/softDeletion/softDeletionSliceFilter';
 import AddSliceCard from './AddSliceCard';
 import AddSliceDragPreview from './dnd/AddSliceDragPreview';
 import { DragDroppable } from './dnd/DragDroppable';
@@ -232,11 +235,12 @@ class SliceAdder extends Component<SliceAdderProps, SliceAdderState> {
     sortBy: keyof Slice,
     showOnlyMyCharts: boolean,
   ) {
-    return Object.values(slices)
-      .filter(slice =>
+    return filterSoftDeletedSlices<Slice>(Object.values(slices))
+      .filter((slice: Slice) =>
         showOnlyMyCharts
-          ? slice?.owners?.find(owner => owner.id === this.props.userId) ||
-            slice?.created_by?.id === this.props.userId
+          ? slice?.owners?.find(
+              (owner: { id: number }) => owner.id === this.props.userId,
+            ) || slice?.created_by?.id === this.props.userId
           : true,
       )
       .filter(createFilter(searchTerm, KEYS_TO_FILTERS))

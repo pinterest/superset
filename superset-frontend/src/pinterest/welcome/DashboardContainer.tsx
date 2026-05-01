@@ -9,6 +9,12 @@ import { styled, t } from '@superset-ui/core';
 import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
 import ListViewCard from 'src/components/ListViewCard';
 import FaveStar from 'src/components/FaveStar';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import PinterestSoftDeletedCardOverlay from '@pinterest-plugins/src/governance/softDeletion/pinterestSoftDeletedCardOverlay';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import { SoftDeletionOwner } from '@pinterest-plugins/src/governance/softDeletion/content';
 
 type DashboardContainerProps = {
   dashboards: Dashboard[];
@@ -39,13 +45,8 @@ export default function DashboardContainer({
   return dashboards.length ? (
     <Styles>
       <CardContainer showThumbnails={showThumbnails} className="card-container">
-        {dashboards.map(d => (
-          <CardStyles
-            onClick={() => {
-              history.push(d.url);
-            }}
-            key={d.id}
-          >
+        {dashboards.map(d => {
+          const card = (
             <ListViewCard
               loading={d.loading || false}
               title={d.dashboard_title}
@@ -76,8 +77,37 @@ export default function DashboardContainer({
                 </ListViewCard.Actions>
               }
             />
-          </CardStyles>
-        ))}
+          );
+
+          // When the dashboard is soft-deleted: skip the navigation onClick and
+          // wrap the card in the shared soft-deletion overlay. The overlay
+          // disables pointer events on the inner card, so favorite/links are
+          // also neutralised - matching the list/page-level treatment.
+          if (d.deleted_on) {
+            return (
+              <CardStyles key={d.id}>
+                <PinterestSoftDeletedCardOverlay
+                  resource="dashboard"
+                  owners={(d.owners ?? []) as SoftDeletionOwner[]}
+                  dataTest="homepage-dashboard-card-soft-deleted"
+                >
+                  {card}
+                </PinterestSoftDeletedCardOverlay>
+              </CardStyles>
+            );
+          }
+
+          return (
+            <CardStyles
+              onClick={() => {
+                history.push(d.url);
+              }}
+              key={d.id}
+            >
+              {card}
+            </CardStyles>
+          );
+        })}
       </CardContainer>
     </Styles>
   ) : (

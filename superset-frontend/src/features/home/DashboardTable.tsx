@@ -38,9 +38,11 @@ import {
 import withToasts from 'src/components/MessageToasts/withToasts';
 import { DeleteModal, Loading } from '@superset-ui/core/components';
 import PropertiesModal from 'src/dashboard/components/PropertiesModal';
-import DashboardCard from 'src/features/dashboards/DashboardCard';
 import { Icons } from '@superset-ui/core/components/Icons';
 import { navigateTo } from 'src/utils/navigationUtils';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import DashboardCard from '@pinterest-plugins/src/features/dashboards/pinterestDashboardCard';
 import EmptyState from './EmptyState';
 import SubMenu from './SubMenu';
 import { WelcomeTable } from './types';
@@ -278,7 +280,9 @@ function DashboardTable({
               saveFavoriteStatus={saveFavoriteStatus}
               favoriteStatus={favoriteStatus[e.id]}
               handleBulkDashboardExport={handleBulkDashboardExport}
-              onDelete={dashboard => setDashboardToDelete(dashboard)}
+              onDelete={(dashboard: Dashboard) =>
+                setDashboardToDelete(dashboard)
+              }
             />
           ))}
         </CardContainer>
