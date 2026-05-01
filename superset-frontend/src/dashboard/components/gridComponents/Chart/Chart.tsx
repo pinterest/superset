@@ -34,7 +34,9 @@ import { bindActionCreators } from 'redux';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { exportChart } from 'src/explore/exploreUtils';
-import ChartContainer from 'src/components/Chart/ChartContainer';
+// import ChartContainer from 'src/components/Chart/ChartContainer';
+// eslint-disable-next-line import/no-unresolved
+import ChartContainer from '@pinterest-plugins/src/components/Chart/pinterestChartContainer';
 import LastQueriedLabel from 'src/components/LastQueriedLabel';
 import {
   StreamingExportModal,

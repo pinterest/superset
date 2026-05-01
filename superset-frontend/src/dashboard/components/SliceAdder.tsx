@@ -52,6 +52,9 @@ import { Slice } from 'src/dashboard/types';
 import { withTheme, Theme } from '@emotion/react';
 import { navigateTo } from 'src/utils/navigationUtils';
 import type { ConnectDragSource } from 'react-dnd';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import { filterSoftDeletedSlices } from '@pinterest-plugins/src/governance/softDeletion/softDeletionSliceFilter';
 import AddSliceCard from './AddSliceCard';
 import AddSliceDragPreview from './dnd/AddSliceDragPreview';
 import { DragDroppable } from './dnd/DragDroppable';
@@ -163,7 +166,7 @@ function getFilteredSortedSlices(
   showOnlyMyCharts: boolean,
   userId: number,
 ) {
-  return Object.values(slices)
+  return filterSoftDeletedSlices<Slice>(Object.values(slices))
     .filter(slice =>
       showOnlyMyCharts
         ? slice?.owners?.find(owner => owner.id === userId) ||

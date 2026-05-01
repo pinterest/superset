@@ -221,6 +221,8 @@ export type DashboardInfo = {
   dash_share_perm?: boolean;
   dash_save_perm?: boolean;
   dash_export_perm?: boolean;
+  theme_id?: number | null;
+  deleted_on?: string | null;
 };
 
 export type ChartsState = { [key: string]: Chart };
@@ -354,6 +356,7 @@ export type Slice = {
   datasource_name: string;
   owners: { id: number }[];
   created_by: { id: number };
+  deleted_on?: string | null;
 };
 
 export interface SliceEntitiesState {

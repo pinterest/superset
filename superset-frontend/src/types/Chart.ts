@@ -60,6 +60,8 @@ export interface Chart {
 
   // TODO: Update API spec to describe `dashboards` key
   dashboards: ChartLinkedDashboard[];
+  /** Pinterest: ISO timestamp set when the chart is soft-deleted. */
+  deleted_on?: string | null;
 }
 
 export type Slice = {
