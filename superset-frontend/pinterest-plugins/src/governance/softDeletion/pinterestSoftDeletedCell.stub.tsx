@@ -7,6 +7,12 @@ import { ReactNode } from 'react';
 
 type SoftDeletableEntity = {
   deleted_on?: string | null;
+  /**
+   * Plugin builds read ``rhub_config.rhub_review_id`` from list-row payloads
+   * to surface an rHub deletion-review link in the soft-deletion tooltip.
+   * In the OSS stub it's just a typed pass-through.
+   */
+  rhub_config?: { rhub_review_id?: string | null } | null;
 };
 
 export type PinterestSoftDeletedCellProps = {
