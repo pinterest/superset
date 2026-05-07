@@ -895,6 +895,7 @@ const Header = () => {
           dashboardId={dashboardInfo.id}
           onEditTier={showPinterestTieringInfoModal}
           isDashboardOwner={isDashboardOwner}
+          owners={dashboardInfo.owners}
         />
       )}
       <PageHeaderWithActions
