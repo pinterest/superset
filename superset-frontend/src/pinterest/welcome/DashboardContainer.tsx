@@ -84,11 +84,18 @@ export default function DashboardContainer({
           // disables pointer events on the inner card, so favorite/links are
           // also neutralised - matching the list/page-level treatment.
           if (d.deleted_on) {
+            // ``rhub_config`` is added to the homepage payload via the
+            // dashboard list extras (see dashboardListExtensions). It isn't
+            // on the upstream Dashboard type, so read it through an ``any``
+            // cast.
+            const rhubReviewId =
+              (d as any)?.rhub_config?.rhub_review_id ?? null;
             return (
               <CardStyles key={d.id}>
                 <PinterestSoftDeletedCardOverlay
                   resource="dashboard"
                   owners={(d.owners ?? []) as SoftDeletionOwner[]}
+                  rhubReviewId={rhubReviewId}
                   dataTest="homepage-dashboard-card-soft-deleted"
                 >
                   {card}
