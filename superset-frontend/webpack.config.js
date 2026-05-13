@@ -195,6 +195,13 @@ if (process.env.USE_PINTEREST_PLUGINS !== 'true') {
       ),
     ),
     new webpack.NormalModuleReplacementPlugin(
+      /@pinterest-plugins\/src\/governance\/pinterestVerifyChartModal$/,
+      path.resolve(
+        __dirname,
+        'pinterest-plugins/src/governance/pinterestVerifyChartModal.stub.tsx',
+      ),
+    ),
+    new webpack.NormalModuleReplacementPlugin(
       /@pinterest-plugins\/src\/governance\/pinterestPromoteTier1Modal$/,
       path.resolve(
         __dirname,

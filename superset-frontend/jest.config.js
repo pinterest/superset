@@ -44,6 +44,8 @@ module.exports = {
       '<rootDir>/pinterest-plugins/src/explore/components/pinterestChartPills.stub.tsx',
     '^@pinterest-plugins/src/governance/pinterestTieringInfoModal$':
       '<rootDir>/pinterest-plugins/src/governance/pinterestTieringInfoModal.stub.tsx',
+    '^@pinterest-plugins/src/governance/pinterestVerifyChartModal$':
+      '<rootDir>/pinterest-plugins/src/governance/pinterestVerifyChartModal.stub.tsx',
     '^@pinterest-plugins/src/governance/pinterestPromoteTier1Modal$':
       '<rootDir>/pinterest-plugins/src/governance/pinterestPromoteTier1Modal.stub.tsx',
     '^@pinterest-plugins/src/governance/pinterestNewDashboardTierModal$':
