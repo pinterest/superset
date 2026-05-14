@@ -68,6 +68,10 @@ import {
 import { Slice } from 'src/types/Chart';
 import { ChartState, ExplorePageInitialData } from 'src/explore/types';
 import { ReportObject } from 'src/features/reports/types';
+import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import { canVerifyChart } from '@pinterest-plugins/src/governance/chartGovernancePermissions';
 import ViewQueryModal from '../controls/ViewQueryModal';
 import ViewTableInfoModal from 'src/explore/components/controls/ViewTableInfoModal';
 import EmbedCodeContent from '../EmbedCodeContent';
@@ -104,6 +108,7 @@ const MENU_KEYS = {
   VIEW_QUERY: 'view_query',
   RUN_IN_SQL_LAB: 'run_in_sql_lab',
   VIEW_TABLE_INFO: 'view_table_info',
+  VERIFY: 'verify_chart',
 };
 
 const VIZ_TYPES_PIVOTABLE = [VizType.PivotTable];
@@ -182,6 +187,7 @@ interface ExploreState {
       CSV_STREAMING_ROW_THRESHOLD?: number;
     };
   };
+  user: UserWithPermissionsAndRoles;
 }
 
 export type UseExploreAdditionalActionsMenuReturn = [
@@ -206,6 +212,7 @@ export const useExploreAdditionalActionsMenu = (
     | undefined,
   showReportModal: () => void,
   setCurrentReportDeleting: Dispatch<SetStateAction<ReportObject | null>>,
+  onOpenVerifyChartModal: () => void,
   ...rest: MenuProps[]
 ): UseExploreAdditionalActionsMenuReturn => {
   const theme = useTheme();
@@ -220,6 +227,12 @@ export const useExploreAdditionalActionsMenu = (
   const chart = useSelector<ExploreState, ChartState | undefined>(state =>
     state.explore ? state.charts?.[getChartKey(state.explore)] : undefined,
   );
+  const user = useSelector<ExploreState, UserWithPermissionsAndRoles>(
+    state => state.user,
+  );
+  const showVerifyChartAction =
+    isFeatureEnabled(FeatureFlag.PinterestChartGovernanceUi) &&
+    canVerifyChart(user);
   const streamingThreshold = useSelector<ExploreState, number>(
     state =>
       state.common?.conf?.CSV_STREAMING_ROW_THRESHOLD ||
@@ -1035,6 +1048,17 @@ export const useExploreAdditionalActionsMenu = (
       });
     }
 
+    if (showVerifyChartAction) {
+      menuItems.push({
+        key: MENU_KEYS.VERIFY,
+        label: t('Verify Chart'),
+        onClick: () => {
+          onOpenVerifyChartModal();
+          setIsDropdownVisible(false);
+        },
+      });
+    }
+
     return <Menu selectable={false} items={menuItems} {...rest} />;
   }, [
     addDangerToast,
@@ -1053,9 +1077,11 @@ export const useExploreAdditionalActionsMenu = (
     latestQueryFormData,
     onOpenInEditor,
     onOpenPropertiesModal,
+    onOpenVerifyChartModal,
     reportMenuItem,
     shareByEmail,
     showDashboardSearch,
+    showVerifyChartAction,
     slice,
     theme.sizeUnit,
     ownState,
