@@ -320,6 +320,13 @@ if (process.env.USE_PINTEREST_PLUGINS !== 'true') {
         'pinterest-plugins/src/governance/pinterestVerifyChartModal.stub.tsx',
       ),
     ),
+    new webpack.NormalModuleReplacementPlugin(
+      /@pinterest-plugins\/src\/governance\/chartGovernancePermissions$/,
+      path.resolve(
+        __dirname,
+        'pinterest-plugins/src/governance/chartGovernancePermissions.stub.ts',
+      ),
+    ),
   );
 }
 

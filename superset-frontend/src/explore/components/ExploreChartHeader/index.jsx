@@ -34,6 +34,9 @@ import { applyColors, resetColors } from 'src/utils/colorScheme';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
 import { getPinterestChartHeaderExtras } from '@pinterest-plugins/src/dashboard/pinterestChartHeaderExtras';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import PinterestVerifyChartModal from '@pinterest-plugins/src/governance/pinterestVerifyChartModal';
 import { useExploreAdditionalActionsMenu } from '../useExploreAdditionalActionsMenu';
 import { useExploreMetadataBar } from './useExploreMetadataBar';
 
@@ -95,6 +98,7 @@ export const ExploreChartHeader = ({
   const dispatch = useDispatch();
   const { latestQueryFormData, sliceFormData } = chart;
   const [isPropertiesModalOpen, setIsPropertiesModalOpen] = useState(false);
+  const [isVerifyChartModalOpen, setIsVerifyChartModalOpen] = useState(false);
   const updateCategoricalNamespace = async () => {
     const { dashboards } = metadata || {};
     const dashboard =
@@ -137,6 +141,16 @@ export const ExploreChartHeader = ({
     setIsPropertiesModalOpen(false);
   };
 
+  const openVerifyChartModal = useCallback(() => {
+    if (slice?.slice_id != null) {
+      setIsVerifyChartModalOpen(true);
+    }
+  }, [slice?.slice_id]);
+
+  const closeVerifyChartModal = useCallback(() => {
+    setIsVerifyChartModalOpen(false);
+  }, []);
+
   const showModal = useCallback(() => {
     dispatch(setSaveChartModalVisibility(true));
   }, [dispatch]);
@@ -167,6 +181,7 @@ export const ExploreChartHeader = ({
       openPropertiesModal,
       ownState,
       metadata?.dashboards,
+      openVerifyChartModal,
     );
 
   const metadataBar = useExploreMetadataBar(metadata, slice);
@@ -251,6 +266,14 @@ export const ExploreChartHeader = ({
           onHide={closePropertiesModal}
           onSave={updateSlice}
           slice={slice}
+        />
+      )}
+      {isVerifyChartModalOpen && slice?.slice_id != null && (
+        <PinterestVerifyChartModal
+          sliceId={slice.slice_id}
+          show={isVerifyChartModalOpen}
+          onHide={closeVerifyChartModal}
+          user={user}
         />
       )}
     </>

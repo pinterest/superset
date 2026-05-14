@@ -45,6 +45,9 @@ import {
   LOG_ACTIONS_CHART_DOWNLOAD_AS_CSV_PIVOTED,
   LOG_ACTIONS_CHART_DOWNLOAD_AS_XLS,
 } from 'src/logger/LogUtils';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import { canVerifyChart } from '@pinterest-plugins/src/governance/chartGovernancePermissions';
 import ViewQueryModal from '../controls/ViewQueryModal';
 import ViewTableInfoModal from '../controls/ViewTableInfoModal';
 import EmbedCodeContent from '../EmbedCodeContent';
@@ -71,6 +74,7 @@ const MENU_KEYS = {
   VIEW_QUERY: 'view_query',
   RUN_IN_SQL_LAB: 'run_in_sql_lab',
   VIEW_TABLE_INFO: 'view_table_info',
+  VERIFY: 'verify_chart',
 };
 
 const VIZ_TYPES_PIVOTABLE = [VizType.PivotTable];
@@ -125,6 +129,7 @@ export const useExploreAdditionalActionsMenu = (
   onOpenPropertiesModal,
   ownState,
   dashboards,
+  onOpenVerifyChartModal,
   ...rest
 ) => {
   const theme = useTheme();
@@ -135,6 +140,10 @@ export const useExploreAdditionalActionsMenu = (
   const chart = useSelector(
     state => state.charts?.[getChartKey(state.explore)],
   );
+  const user = useSelector(state => state.user);
+  const showVerifyChartAction =
+    isFeatureEnabled(FeatureFlag.PinterestChartGovernanceUi) &&
+    canVerifyChart(user);
 
   const { datasource } = latestQueryFormData;
 
@@ -290,6 +299,10 @@ export const useExploreAdditionalActionsMenu = (
           onOpenInEditor(latestQueryFormData, domEvent.metaKey);
           setIsDropdownVisible(false);
           break;
+        case MENU_KEYS.VERIFY:
+          onOpenVerifyChartModal();
+          setIsDropdownVisible(false);
+          break;
         default:
           break;
       }
@@ -304,6 +317,7 @@ export const useExploreAdditionalActionsMenu = (
       onOpenPropertiesModal,
       shareByEmail,
       slice?.slice_name,
+      onOpenVerifyChartModal,
     ],
   );
 
@@ -463,6 +477,11 @@ export const useExploreAdditionalActionsMenu = (
             {t('Run in SQL Lab')}
           </Menu.Item>
         )}
+        {showVerifyChartAction && (
+          <Menu.Item key={MENU_KEYS.VERIFY}>
+            {t('Verify Chart')}
+          </Menu.Item>
+        )}
       </Menu>
     ),
     [
@@ -474,6 +493,7 @@ export const useExploreAdditionalActionsMenu = (
       isDropdownVisible,
       latestQueryFormData,
       showReportSubMenu,
+      showVerifyChartAction,
       slice,
       theme.gridUnit,
     ],
