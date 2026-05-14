@@ -478,9 +478,7 @@ export const useExploreAdditionalActionsMenu = (
           </Menu.Item>
         )}
         {showVerifyChartAction && (
-          <Menu.Item key={MENU_KEYS.VERIFY}>
-            {t('Verify Chart')}
-          </Menu.Item>
+          <Menu.Item key={MENU_KEYS.VERIFY}>{t('Verify Chart')}</Menu.Item>
         )}
       </Menu>
     ),

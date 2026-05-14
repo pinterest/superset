@@ -13,8 +13,8 @@ type PinterestVerifyChartModalProps = {
   user: UserWithPermissionsAndRoles | UndefinedUser;
 };
 
-const PinterestVerifyChartModal = (
-  _props: PinterestVerifyChartModalProps,
-) => <></>;
+const PinterestVerifyChartModal = (_props: PinterestVerifyChartModalProps) => (
+  <></>
+);
 
 export default withToasts(PinterestVerifyChartModal);
