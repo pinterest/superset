@@ -42,6 +42,9 @@ import { getChartFormDiffs } from 'src/utils/getChartFormDiffs';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
 import { getPinterestChartHeaderExtras } from '@pinterest-plugins/src/dashboard/pinterestChartHeaderExtras';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import PinterestVerifyChartModal from '@pinterest-plugins/src/governance/pinterestVerifyChartModal';
 import { useExploreAdditionalActionsMenu } from '../useExploreAdditionalActionsMenu';
 import { useExploreMetadataBar } from './useExploreMetadataBar';
 
@@ -105,6 +108,7 @@ export const ExploreChartHeader = ({
   const dispatch = useDispatch();
   const { latestQueryFormData, sliceFormData } = chart;
   const [isPropertiesModalOpen, setIsPropertiesModalOpen] = useState(false);
+  const [isVerifyChartModalOpen, setIsVerifyChartModalOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [currentReportDeleting, setCurrentReportDeleting] = useState(null);
   const [shouldForceCloseModal, setShouldForceCloseModal] = useState(false);
@@ -159,6 +163,16 @@ export const ExploreChartHeader = ({
     setIsReportModalOpen(false);
   };
 
+  const openVerifyChartModal = useCallback(() => {
+    if (slice?.slice_id != null) {
+      setIsVerifyChartModalOpen(true);
+    }
+  }, [slice?.slice_id]);
+
+  const closeVerifyChartModal = useCallback(() => {
+    setIsVerifyChartModalOpen(false);
+  }, []);
+
   const updateSlice = useCallback(
     slice => {
       dispatch(sliceUpdated(slice));
@@ -192,6 +206,7 @@ export const ExploreChartHeader = ({
       metadata?.dashboards,
       showReportModal,
       setCurrentReportDeleting,
+      openVerifyChartModal,
     );
 
   const metadataBar = useExploreMetadataBar(metadata, slice);
@@ -357,6 +372,15 @@ export const ExploreChartHeader = ({
         onConfirmNavigation={handleConfirmNavigation}
         handleSave={handleSaveAndCloseModal}
       />
+
+      {isVerifyChartModalOpen && slice?.slice_id != null && (
+        <PinterestVerifyChartModal
+          sliceId={slice.slice_id}
+          show={isVerifyChartModalOpen}
+          onHide={closeVerifyChartModal}
+          user={user}
+        />
+      )}
     </>
   );
 };

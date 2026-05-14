@@ -50,6 +50,9 @@ import {
   LOG_ACTIONS_CHART_DOWNLOAD_AS_XLS,
 } from 'src/logger/LogUtils';
 import exportPivotExcel from 'src/utils/downloadAsPivotExcel';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import { canVerifyChart } from '@pinterest-plugins/src/governance/chartGovernancePermissions';
 import ViewQueryModal from '../controls/ViewQueryModal';
 import EmbedCodeContent from '../EmbedCodeContent';
 import { useDashboardsMenuItems } from './DashboardsSubMenu';
@@ -78,6 +81,7 @@ const MENU_KEYS = {
   RUN_IN_SQL_LAB: 'run_in_sql_lab',
   EXPORT_TO_PIVOT_XLSX: 'export_to_pivot_xlsx',
   VIEW_TABLE_INFO: 'view_table_info',
+  VERIFY: 'verify_chart',
 };
 
 const VIZ_TYPES_PIVOTABLE = [VizType.PivotTable];
@@ -127,6 +131,7 @@ export const useExploreAdditionalActionsMenu = (
   dashboards,
   showReportModal,
   setCurrentReportDeleting,
+  onOpenVerifyChartModal,
   ...rest
 ) => {
   const theme = useTheme();
@@ -141,6 +146,10 @@ export const useExploreAdditionalActionsMenu = (
   const chart = useSelector(
     state => state.charts?.[getChartKey(state.explore)],
   );
+  const user = useSelector(state => state.user);
+  const showVerifyChartAction =
+    isFeatureEnabled(FeatureFlag.PinterestChartGovernanceUi) &&
+    canVerifyChart(user);
 
   // Use the updated report menu items hook
   const reportMenuItem = useHeaderReportMenuItems({
@@ -542,6 +551,17 @@ export const useExploreAdditionalActionsMenu = (
       });
     }
 
+    if (showVerifyChartAction) {
+      menuItems.push({
+        key: MENU_KEYS.VERIFY,
+        label: t('Verify Chart'),
+        onClick: () => {
+          onOpenVerifyChartModal();
+          setIsDropdownVisible(false);
+        },
+      });
+    }
+
     return <Menu selectable={false} items={menuItems} {...rest} />;
   }, [
     addDangerToast,
@@ -560,9 +580,11 @@ export const useExploreAdditionalActionsMenu = (
     latestQueryFormData,
     onOpenInEditor,
     onOpenPropertiesModal,
+    onOpenVerifyChartModal,
     reportMenuItem,
     shareByEmail,
     showDashboardSearch,
+    showVerifyChartAction,
     slice,
     theme.sizeUnit,
   ]);
