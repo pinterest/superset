@@ -258,6 +258,20 @@ if (process.env.USE_PINTEREST_PLUGINS !== 'true') {
       ),
     ),
     new webpack.NormalModuleReplacementPlugin(
+      /@pinterest-plugins\/src\/dashboard\/pinterestDashboardHeaderExtras$/,
+      path.resolve(
+        __dirname,
+        'pinterest-plugins/src/dashboard/pinterestDashboardHeaderExtras.stub.tsx',
+      ),
+    ),
+    new webpack.NormalModuleReplacementPlugin(
+      /@pinterest-plugins\/src\/features\/listView\/pinterestListViewExtras$/,
+      path.resolve(
+        __dirname,
+        'pinterest-plugins/src/features/listView/pinterestListViewExtras.stub.tsx',
+      ),
+    ),
+    new webpack.NormalModuleReplacementPlugin(
       /@pinterest-plugins\/src\/governance\/pinterestPushToDataHubModal$/,
       path.resolve(
         __dirname,

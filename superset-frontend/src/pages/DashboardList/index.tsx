@@ -86,6 +86,9 @@ import {
   // @ts-ignore
   // eslint-disable-next-line import/no-unresolved
 } from '@pinterest-plugins/src/features/dashboards/dashboardListExtensions';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import { getPinterestDashboardListExtras } from '@pinterest-plugins/src/features/listView/pinterestListViewExtras';
 
 const PAGE_SIZE = 25;
 const PASSWORDS_NEEDED_MESSAGE = t(
@@ -786,7 +789,11 @@ function DashboardList(props: DashboardListProps) {
   }
   return (
     <>
-      <SubMenu name={t('Dashboards')} buttons={subMenuButtons} />
+      <SubMenu
+        name={t('Dashboards')}
+        buttons={subMenuButtons}
+        extras={getPinterestDashboardListExtras()}
+      />
       <ConfirmStatusChange
         title={t('Please confirm')}
         description={t(

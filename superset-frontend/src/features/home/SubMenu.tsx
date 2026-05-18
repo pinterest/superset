@@ -147,6 +147,11 @@ export interface SubMenuProps {
   usesRouter?: boolean;
   color?: string;
   dropDownLinks?: Array<MenuObjectProps>;
+  /* Arbitrary nodes rendered in the right-aligned nav bar alongside `buttons`.
+   * Use this for trigger UI that doesn't fit the plain Button schema (e.g. a
+   * split button with dropdown, a Popover-anchored action). Rendered after
+   * the `buttons` array. */
+  extras?: ReactNode;
 }
 
 const { SubMenu } = MainNav;
@@ -278,6 +283,7 @@ const SubMenuComponent: FunctionComponent<SubMenuProps> = props => {
               {btn.name}
             </Button>
           ))}
+          {props.extras}
         </div>
       </Row>
       {props.children}

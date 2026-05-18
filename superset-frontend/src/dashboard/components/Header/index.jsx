@@ -72,6 +72,10 @@ import PinterestTitlePanelAdditionalItems from '@pinterest-plugins/src/governanc
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
 import PinterestDashboardBanners from '@pinterest-plugins/src/governance/pinterestDashboardBanners';
+
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import { getPinterestDashboardHeaderExtras } from '@pinterest-plugins/src/dashboard/pinterestDashboardHeaderExtras';
 import DashboardEmbedModal from '../EmbeddedModal';
 import OverwriteConfirm from '../OverwriteConfirm';
 import {
@@ -760,6 +764,7 @@ const Header = () => {
                 {t('Edit dashboard')}
               </Button>
             )}
+            {!isEmbedded && getPinterestDashboardHeaderExtras(dashboardInfo.id)}
           </div>
         )}
       </div>
@@ -769,12 +774,14 @@ const Header = () => {
       boundActionCreators.onRedo,
       boundActionCreators.onUndo,
       boundActionCreators.clearDashboardHistory,
+      dashboardInfo.id,
       editMode,
       emphasizeRedo,
       emphasizeUndo,
       handleCtrlY,
       handleCtrlZ,
       hasUnsavedChanges,
+      isEmbedded,
       overwriteDashboard,
       redoLength,
       toggleEditMode,

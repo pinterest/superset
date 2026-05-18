@@ -60,6 +60,10 @@ module.exports = {
       '<rootDir>/pinterest-plugins/src/sqllab/pinterestSqlLabToolbarExtras.stub.tsx',
     '^@pinterest-plugins/src/dashboard/pinterestChartHeaderExtras$':
       '<rootDir>/pinterest-plugins/src/dashboard/pinterestChartHeaderExtras.stub.tsx',
+    '^@pinterest-plugins/src/dashboard/pinterestDashboardHeaderExtras$':
+      '<rootDir>/pinterest-plugins/src/dashboard/pinterestDashboardHeaderExtras.stub.tsx',
+    '^@pinterest-plugins/src/features/listView/pinterestListViewExtras$':
+      '<rootDir>/pinterest-plugins/src/features/listView/pinterestListViewExtras.stub.tsx',
     '^@pinterest-plugins/src/governance/pinterestPushToDataHubModal$':
       '<rootDir>/pinterest-plugins/src/governance/pinterestPushToDataHubModal.stub.tsx',
     '^@pinterest-plugins/src/explore/pinterestExploreViewContainer$':
