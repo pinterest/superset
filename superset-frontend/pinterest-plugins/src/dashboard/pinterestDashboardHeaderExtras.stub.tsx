@@ -1,3 +1,1 @@
-export const getPinterestDashboardHeaderExtras = (
-  _?: number | string,
-) => <></>;
+export const getPinterestDashboardHeaderExtras = (_?: number | string) => <></>;
