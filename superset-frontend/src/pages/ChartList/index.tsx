@@ -83,6 +83,9 @@ import { WIDER_DROPDOWN_WIDTH } from 'src/components/ListView/utils';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
 import PinterestSoftDeletedCell from '@pinterest-plugins/src/governance/softDeletion/pinterestSoftDeletedCell';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import { getPinterestChartListExtras } from '@pinterest-plugins/src/features/listView/pinterestListViewExtras';
 
 const FlexRowContainer = styled.div`
   align-items: center;
@@ -839,7 +842,11 @@ function ChartList(props: ChartListProps) {
 
   return (
     <>
-      <SubMenu name={t('Charts')} buttons={subMenuButtons} />
+      <SubMenu
+        name={t('Charts')}
+        buttons={subMenuButtons}
+        extras={getPinterestChartListExtras()}
+      />
       {sliceCurrentlyEditing && (
         <PropertiesModal
           onHide={closeChartEditModal}
