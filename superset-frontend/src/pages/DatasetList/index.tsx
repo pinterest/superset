@@ -70,6 +70,9 @@ import DuplicateDatasetModal from 'src/features/datasets/DuplicateDatasetModal';
 import { useSelector } from 'react-redux';
 import { QueryObjectColumns } from 'src/views/CRUD/types';
 import { WIDER_DROPDOWN_WIDTH } from 'src/components/ListView/utils';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import { getPinterestDatasetListExtras } from '@pinterest-plugins/src/features/listView/pinterestListViewExtras';
 
 const extensionsRegistry = getExtensionsRegistry();
 const DatasetDeleteRelatedExtension = extensionsRegistry.get(
@@ -696,6 +699,7 @@ const DatasetList: FunctionComponent<DatasetListProps> = ({
   }
 
   menuData.buttons = buttonArr;
+  menuData.extras = getPinterestDatasetListExtras();
 
   const closeDatasetDeleteModal = () => {
     setDatasetCurrentlyDeleting(null);
