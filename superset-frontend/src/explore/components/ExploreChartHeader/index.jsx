@@ -77,8 +77,8 @@ const additionalItemsStyles = theme => css`
   display: flex;
   /* align-items: center; */
   margin-left: ${theme.gridUnit}px;
-  
-  /* 
+
+  /*
   & > span {
     margin-right: ${theme.gridUnit * 3}px;
   }
