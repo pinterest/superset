@@ -274,7 +274,9 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
             />
           </Tooltip>
           {!editMode && slice?.slice_id ? (
-            <PinterestChartTitlePanelAdditionalItems sliceId={slice?.slice_id} />
+            <PinterestChartTitlePanelAdditionalItems
+              sliceId={slice?.slice_id}
+            />
           ) : null}
           {!!Object.values(annotationQuery).length && (
             <Tooltip
