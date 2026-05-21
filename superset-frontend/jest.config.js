@@ -86,6 +86,8 @@ module.exports = {
       '<rootDir>/pinterest-plugins/src/governance/pinterestVerifyChartModal.stub.tsx',
     '^@pinterest-plugins/src/governance/chartGovernancePermissions$':
       '<rootDir>/pinterest-plugins/src/governance/chartGovernancePermissions.stub.ts',
+    '^@pinterest-plugins/src/governance/pinterestChartTitlePanelAdditionalItems$':
+      '<rootDir>/pinterest-plugins/src/governance/pinterestChartTitlePanelAdditionalItems.stub.tsx',
     // general mapping for other @pinterest-plugins modules
     '^@pinterest-plugins/(.*)$': '<rootDir>/pinterest-plugins/$1',
   },
