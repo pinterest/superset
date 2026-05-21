@@ -434,7 +434,6 @@ const config = {
     },
   },
   optimization: {
-    minimize: !isDevMode,
     sideEffects: true,
     splitChunks: {
       chunks: 'all',
@@ -489,7 +488,7 @@ const config = {
       },
     },
     usedExports: 'global',
-    minimizer: isDevMode ? [] : [new CssMinimizerPlugin(), '...'],
+    minimizer: [new CssMinimizerPlugin(), '...'],
   },
   resolve: {
     // resolve modules from `/superset_frontend/node_modules` and `/superset_frontend`
