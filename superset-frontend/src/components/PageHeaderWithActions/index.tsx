@@ -55,7 +55,8 @@ const headerStyles = (theme: SupersetTheme) => css`
   flex-wrap: nowrap;
   justify-content: space-between;
   background-color: ${theme.colors.grayscale.light5};
-  height: ${theme.gridUnit * 16}px;
+  /* height: ${theme.gridUnit * 16}px; */
+  min-height: ${theme.gridUnit * 16}px;
   padding: 0 ${theme.gridUnit * 4}px;
 
   .editable-title {
@@ -92,6 +93,9 @@ const buttonsStyles = (theme: SupersetTheme) => css`
   display: flex;
   align-items: center;
   padding-left: ${theme.gridUnit * 2}px;
+
+  margin-top: ${theme.gridUnit * 2}px;
+  margin-bottom: ${theme.gridUnit * 2}px;
 
   & .fave-unfave-icon {
     padding: 0 ${theme.gridUnit}px;

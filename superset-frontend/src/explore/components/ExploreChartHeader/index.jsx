@@ -37,6 +37,9 @@ import { getPinterestChartHeaderExtras } from '@pinterest-plugins/src/dashboard/
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
 import PinterestVerifyChartModal from '@pinterest-plugins/src/governance/pinterestVerifyChartModal';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import PinterestChartTitlePanelAdditionalItems from '@pinterest-plugins/src/governance/pinterestChartTitlePanelAdditionalItems';
 import { useExploreAdditionalActionsMenu } from '../useExploreAdditionalActionsMenu';
 import { useExploreMetadataBar } from './useExploreMetadataBar';
 
@@ -72,9 +75,27 @@ const saveButtonStyles = theme => css`
 
 const additionalItemsStyles = theme => css`
   display: flex;
-  align-items: center;
+  /* align-items: center; */
   margin-left: ${theme.gridUnit}px;
+  
+  /* 
   & > span {
+    margin-right: ${theme.gridUnit * 3}px;
+  }
+  */
+
+  flex-direction: column;
+  align-items: flex-start;
+  gap: ${theme.gridUnit}px;
+
+  .metadata-row,
+  .pinterest-additional-items-row {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .metadata-row > span {
     margin-right: ${theme.gridUnit * 3}px;
   }
 `;
@@ -215,17 +236,26 @@ export const ExploreChartHeader = ({
         }}
         titlePanelAdditionalItems={
           <div css={additionalItemsStyles}>
-            {sliceFormData ? (
-              <AlteredSliceTag
-                className="altered"
-                origFormData={{
-                  ...sliceFormData,
-                  chartTitle: oldSliceName,
-                }}
-                currentFormData={{ ...formData, chartTitle: sliceName }}
-              />
+            <div className="metadata-row">
+              {sliceFormData ? (
+                <AlteredSliceTag
+                  className="altered"
+                  origFormData={{
+                    ...sliceFormData,
+                    chartTitle: oldSliceName,
+                  }}
+                  currentFormData={{ ...formData, chartTitle: sliceName }}
+                />
+              ) : null}
+              {metadataBar}
+            </div>
+            {slice?.slice_id ? (
+              <div className="pinterest-additional-items-row">
+                <PinterestChartTitlePanelAdditionalItems
+                  sliceId={slice.slice_id}
+                />
+              </div>
             ) : null}
-            {metadataBar}
           </div>
         }
         rightPanelAdditionalItems={

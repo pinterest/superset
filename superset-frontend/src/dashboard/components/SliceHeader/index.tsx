@@ -36,6 +36,9 @@ import Icons from 'src/components/Icons';
 import { RootState } from 'src/dashboard/types';
 import { getSliceHeaderTooltip } from 'src/dashboard/util/getSliceHeaderTooltip';
 import { DashboardPageIdContext } from 'src/dashboard/containers/DashboardPage';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import PinterestChartTitlePanelAdditionalItems from '@pinterest-plugins/src/governance/pinterestChartTitlePanelAdditionalItems';
 
 const extensionsRegistry = getExtensionsRegistry();
 
@@ -77,12 +80,65 @@ const ChartHeaderStyles = styled.div`
       text-overflow: ellipsis;
       max-width: 100%;
       flex-grow: 1;
+
+      /*
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
+      */
+
+      min-width: 0;
 
       & > span.antd5-tooltip-open {
-        display: inline;
+        /* display: inline; */
+        display: inline-flex;
+      }
+
+      .editable-title {
+        display: inline-flex;
+        flex: 0 1 auto;
+        align-items: center;
+        min-width: 0;
+        max-width: 100%;
+        overflow: hidden;
+      }
+
+      .editable-title > a,
+      .editable-title > span {
+        display: -webkit-box;
+        overflow: hidden;
+        max-width: 100%;
+        text-overflow: ellipsis;
+        white-space: normal;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+      }
+
+      .editable-title > input,
+      .editable-title > textarea {
+        overflow: hidden;
+        max-width: 100%;
+        text-overflow: ellipsis;
+      }
+
+      .pinterest-chart-title-panel-additional-items {
+        display: flex;
+        flex: 0 1 auto;
+        width: 100%;
+        margin-left: 0;
+        max-width: 100%;
+        font-weight: ${theme.typography.weights.normal};
+
+        .ant-tag,
+        a {
+          font-weight: ${theme.typography.weights.normal};
+        }
+      }
+
+      .fa.warning,
+      .fa.danger {
+        flex: 0 0 auto;
+        margin-left: ${theme.gridUnit}px;
       }
     }
 
@@ -90,6 +146,7 @@ const ChartHeaderStyles = styled.div`
       display: flex;
       align-items: center;
       height: 24px;
+      flex: 0 0 auto;
 
       & > * {
         margin-left: ${theme.gridUnit * 2}px;
@@ -216,6 +273,9 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
               url={canExplore ? exploreUrl : undefined}
             />
           </Tooltip>
+          {!editMode && slice?.slice_id ? (
+            <PinterestChartTitlePanelAdditionalItems sliceId={slice?.slice_id} />
+          ) : null}
           {!!Object.values(annotationQuery).length && (
             <Tooltip
               id="annotations-loading-tooltip"

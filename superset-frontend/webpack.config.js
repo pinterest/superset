@@ -335,6 +335,13 @@ if (process.env.USE_PINTEREST_PLUGINS !== 'true') {
       ),
     ),
     new webpack.NormalModuleReplacementPlugin(
+      /@pinterest-plugins\/src\/governance\/pinterestChartTitlePanelAdditionalItems$/,
+      path.resolve(
+        __dirname,
+        'pinterest-plugins/src/governance/pinterestChartTitlePanelAdditionalItems.stub.tsx',
+      ),
+    ),
+    new webpack.NormalModuleReplacementPlugin(
       /@pinterest-plugins\/src\/governance\/chartGovernancePermissions$/,
       path.resolve(
         __dirname,
@@ -427,6 +434,7 @@ const config = {
     },
   },
   optimization: {
+    minimize: !isDevMode,
     sideEffects: true,
     splitChunks: {
       chunks: 'all',
@@ -481,7 +489,7 @@ const config = {
       },
     },
     usedExports: 'global',
-    minimizer: [new CssMinimizerPlugin(), '...'],
+    minimizer: isDevMode ? [] : [new CssMinimizerPlugin(), '...'],
   },
   resolve: {
     // resolve modules from `/superset_frontend/node_modules` and `/superset_frontend`
