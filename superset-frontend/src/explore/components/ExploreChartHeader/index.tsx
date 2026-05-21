@@ -57,6 +57,9 @@ import { getPinterestChartHeaderExtras } from '@pinterest-plugins/src/dashboard/
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
 import PinterestVerifyChartModal from '@pinterest-plugins/src/governance/pinterestVerifyChartModal';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import PinterestChartTitlePanelAdditionalItems from '@pinterest-plugins/src/governance/pinterestChartTitlePanelAdditionalItems';
 import { useExploreAdditionalActionsMenu } from '../useExploreAdditionalActionsMenu';
 import { useExploreMetadataBar } from './useExploreMetadataBar';
 
@@ -105,10 +108,16 @@ const saveButtonStyles = (theme: SupersetTheme) => css`
 
 const additionalItemsStyles = (theme: SupersetTheme) => css`
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: ${theme.sizeUnit}px;
   margin-left: ${theme.sizeUnit}px;
-  & > span {
-    margin-right: ${theme.sizeUnit * 3}px;
+
+  .metadata-row,
+  .pinterest-additional-items-row {
+    display: flex;
+    align-items: center;
+    min-width: 0;
   }
 `;
 
@@ -323,18 +332,27 @@ export const ExploreChartHeader: FC<ExploreChartHeaderProps> = ({
         }}
         titlePanelAdditionalItems={
           <div css={additionalItemsStyles}>
-            {sliceFormData ? (
-              <AlteredSliceTag
-                className="altered"
-                diffs={formDiffs}
-                origFormData={originalFormData as QueryFormData}
-                currentFormData={currentFormData as QueryFormData}
-              />
+            <div className="metadata-row">
+              {sliceFormData ? (
+                <AlteredSliceTag
+                  className="altered"
+                  diffs={formDiffs}
+                  origFormData={originalFormData as QueryFormData}
+                  currentFormData={currentFormData as QueryFormData}
+                />
+              ) : null}
+              {formData && isMatrixifyEnabled(formData as MatrixifyFormData) && (
+                <Tag name="Matrixified" color="purple" />
+              )}
+              {metadataBar}
+            </div>
+            {slice?.slice_id ? (
+              <div className="pinterest-additional-items-row">
+                <PinterestChartTitlePanelAdditionalItems
+                  sliceId={slice.slice_id}
+                />
+              </div>
             ) : null}
-            {formData && isMatrixifyEnabled(formData as MatrixifyFormData) && (
-              <Tag name="Matrixified" color="purple" />
-            )}
-            {metadataBar}
           </div>
         }
         rightPanelAdditionalItems={

@@ -46,6 +46,9 @@ import { getSliceHeaderTooltip } from 'src/dashboard/util/getSliceHeaderTooltip'
 import { DashboardPageIdContext } from 'src/dashboard/containers/DashboardPage';
 import RowCountLabel from 'src/components/RowCountLabel';
 import { Link } from 'react-router-dom';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import PinterestChartTitlePanelAdditionalItems from '@pinterest-plugins/src/governance/pinterestChartTitlePanelAdditionalItems';
 
 const extensionsRegistry = getExtensionsRegistry();
 
@@ -278,6 +281,11 @@ const SliceHeader = forwardRef<HTMLDivElement, SliceHeaderProps>(
               />
             </div>
           </Tooltip>
+          {!editMode && slice?.slice_id ? (
+            <PinterestChartTitlePanelAdditionalItems
+              sliceId={slice.slice_id}
+            />
+          ) : null}
           {!!Object.values(annotationQuery).length && (
             <Tooltip
               id="annotations-loading-tooltip"

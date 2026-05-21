@@ -50,7 +50,7 @@ const headerStyles = (theme: SupersetTheme) => css`
   flex-wrap: nowrap;
   justify-content: space-between;
   background-color: ${theme.colorBgContainer};
-  height: ${theme.sizeUnit * 16}px;
+  min-height: ${theme.sizeUnit * 16}px;
   padding: 0 ${theme.sizeUnit * 4}px;
 
   .editable-title {
@@ -87,6 +87,9 @@ const buttonsStyles = (theme: SupersetTheme) => css`
   display: flex;
   align-items: center;
   padding-left: ${theme.sizeUnit * 2}px;
+
+  margin-top: ${theme.sizeUnit * 2}px;
+  margin-bottom: ${theme.sizeUnit * 2}px;
 
   & .anticon-star {
     padding: 0 ${theme.sizeUnit}px;
