@@ -75,27 +75,9 @@ const saveButtonStyles = theme => css`
 
 const additionalItemsStyles = theme => css`
   display: flex;
-  /* align-items: center; */
+  align-items: center;
   margin-left: ${theme.gridUnit}px;
-
-  /*
   & > span {
-    margin-right: ${theme.gridUnit * 3}px;
-  }
-  */
-
-  flex-direction: column;
-  align-items: flex-start;
-  gap: ${theme.gridUnit}px;
-
-  .metadata-row,
-  .pinterest-additional-items-row {
-    display: flex;
-    align-items: center;
-    min-width: 0;
-  }
-
-  .metadata-row > span {
     margin-right: ${theme.gridUnit * 3}px;
   }
 `;
@@ -234,28 +216,24 @@ export const ExploreChartHeader = ({
           isStarred,
           showTooltip: true,
         }}
+        titleAdditionalItems={
+          slice?.slice_id ? (
+            <PinterestChartTitlePanelAdditionalItems sliceId={slice.slice_id} />
+          ) : null
+        }
         titlePanelAdditionalItems={
           <div css={additionalItemsStyles}>
-            <div className="metadata-row">
-              {sliceFormData ? (
-                <AlteredSliceTag
-                  className="altered"
-                  origFormData={{
-                    ...sliceFormData,
-                    chartTitle: oldSliceName,
-                  }}
-                  currentFormData={{ ...formData, chartTitle: sliceName }}
-                />
-              ) : null}
-              {metadataBar}
-            </div>
-            {slice?.slice_id ? (
-              <div className="pinterest-additional-items-row">
-                <PinterestChartTitlePanelAdditionalItems
-                  sliceId={slice.slice_id}
-                />
-              </div>
+            {sliceFormData ? (
+              <AlteredSliceTag
+                className="altered"
+                origFormData={{
+                  ...sliceFormData,
+                  chartTitle: oldSliceName,
+                }}
+                currentFormData={{ ...formData, chartTitle: sliceName }}
+              />
             ) : null}
+            {metadataBar}
           </div>
         }
         rightPanelAdditionalItems={

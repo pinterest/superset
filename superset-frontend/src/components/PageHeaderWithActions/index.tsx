@@ -78,9 +78,26 @@ const headerStyles = (theme: SupersetTheme) => css`
 
   .title-panel {
     display: flex;
-    align-items: center;
+    /* align-items: center; */
     min-width: 0;
     margin-right: ${theme.gridUnit * 12}px;
+    margin-top: ${theme.gridUnit * 2}px;
+    margin-bottom: ${theme.gridUnit * 2}px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .title-panel-content {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .title-additional-items {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    margin-top: ${theme.gridUnit}px;
   }
 
   .right-button-panel {
@@ -93,9 +110,6 @@ const buttonsStyles = (theme: SupersetTheme) => css`
   display: flex;
   align-items: center;
   padding-left: ${theme.gridUnit * 2}px;
-
-  margin-top: ${theme.gridUnit * 2}px;
-  margin-bottom: ${theme.gridUnit * 2}px;
 
   & .fave-unfave-icon {
     padding: 0 ${theme.gridUnit}px;
@@ -117,6 +131,7 @@ export type PageHeaderWithActionsProps = {
   showFaveStar: boolean;
   showMenuDropdown?: boolean;
   faveStarProps: FaveStarProps;
+  titleAdditionalItems?: ReactNode;
   titlePanelAdditionalItems: ReactNode;
   rightPanelAdditionalItems: ReactNode;
   additionalActionsMenu: ReactElement;
@@ -133,6 +148,7 @@ export const PageHeaderWithActions = ({
   certificatiedBadgeProps,
   showFaveStar,
   faveStarProps,
+  titleAdditionalItems,
   titlePanelAdditionalItems,
   rightPanelAdditionalItems,
   additionalActionsMenu,
@@ -144,15 +160,20 @@ export const PageHeaderWithActions = ({
   return (
     <div css={headerStyles} className="header-with-actions">
       <div className="title-panel">
-        <DynamicEditableTitle {...editableTitleProps} />
-        {showTitlePanelItems && (
-          <div css={buttonsStyles}>
-            {certificatiedBadgeProps?.certifiedBy && (
-              <CertifiedBadge {...certificatiedBadgeProps} />
-            )}
-            {showFaveStar && <FaveStar {...faveStarProps} />}
-            {titlePanelAdditionalItems}
-          </div>
+        <div className="title-panel-content">
+          <DynamicEditableTitle {...editableTitleProps} />
+          {showTitlePanelItems && (
+            <div css={buttonsStyles}>
+              {certificatiedBadgeProps?.certifiedBy && (
+                <CertifiedBadge {...certificatiedBadgeProps} />
+              )}
+              {showFaveStar && <FaveStar {...faveStarProps} />}
+              {titlePanelAdditionalItems}
+            </div>
+          )}
+        </div>
+        {titleAdditionalItems && (
+          <div className="title-additional-items">{titleAdditionalItems}</div>
         )}
       </div>
       <div className="right-button-panel">
