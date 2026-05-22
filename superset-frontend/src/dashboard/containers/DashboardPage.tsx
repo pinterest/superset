@@ -20,6 +20,9 @@ import { createContext, lazy, FC, useEffect, useMemo, useRef } from 'react';
 import { Global } from '@emotion/react';
 import { useHistory } from 'react-router-dom';
 import { t, useTheme } from '@superset-ui/core';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import { usePrefetchChartGovernance } from '@pinterest-plugins/src/governance/pinterestChartTitlePanelAdditionalItems';
 import { useDispatch, useSelector } from 'react-redux';
 import { createSelector } from '@reduxjs/toolkit';
 import { useToasts } from 'src/components/MessageToasts/withToasts';
@@ -132,6 +135,13 @@ export const DashboardPage: FC<PageProps> = ({ idOrSlug }: PageProps) => {
   const error = dashboardApiError || chartsApiError;
   const readyToRender = Boolean(dashboard && charts);
   const { dashboard_title, css, id = 0 } = dashboard || {};
+
+  // Prefetch chart governance data for all slices in the dashboard
+  const sliceIds = useSelector(selectAllSliceIds);
+  usePrefetchChartGovernance({
+    sliceIds,
+    enabled: readyToRender && Boolean(hasDashboardInfoInitiated),
+  });
 
   useEffect(() => {
     // mark tab id as redundant when user closes browser tab - a new id will be
