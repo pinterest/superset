@@ -285,6 +285,7 @@ export enum MenuKeys {
   ManageEmbedded = 'manage_embedded',
   ManageEmailReports = 'manage_email_reports',
   ViewTableInfo = 'view_table_info',
+  VerifyChart = 'verify_chart',
   PinterestTieringInfo = 'pinterest_tiering_info',
   PinterestPromoteTier1 = 'pinterest_promote_tier1',
   PushToPinterestDataHub = 'push_to_pinterest_data_hub',

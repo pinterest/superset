@@ -56,6 +56,12 @@ import { MenuKeys, RootState } from 'src/dashboard/types';
 import DrillDetailModal from 'src/components/Chart/DrillDetail/DrillDetailModal';
 import { usePermissions } from 'src/hooks/usePermissions';
 import ViewTableInfoModal from 'src/explore/components/controls/ViewTableInfoModal';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import { canVerifyChart } from '@pinterest-plugins/src/governance/chartGovernancePermissions';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import PinterestVerifyChartModal from '@pinterest-plugins/src/governance/pinterestVerifyChartModal';
 import { useCrossFiltersScopingModal } from '../nativeFilters/FilterBar/CrossFilters/ScopingModal/useCrossFiltersScopingModal';
 import { ViewResultsModalTrigger } from './ViewResultsModalTrigger';
 
@@ -159,6 +165,7 @@ const SliceHeaderControls = (
   props: SliceHeaderControlsPropsWithRouter | SliceHeaderControlsProps,
 ) => {
   const [drillModalIsOpen, setDrillModalIsOpen] = useState(false);
+  const [isVerifyChartModalOpen, setIsVerifyChartModalOpen] = useState(false);
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
   // setting openKeys undefined falls back to uncontrolled behaviour
   const [openKeys, setOpenKeys] = useState<string[] | undefined>(undefined);
@@ -183,6 +190,10 @@ const SliceHeaderControls = (
       ?.behaviors?.includes(Behavior.InteractiveChart);
   const canExplore = props.supersetCanExplore;
   const { canDrillToDetail, canViewQuery, canViewTable } = usePermissions();
+  const user = useSelector<RootState, RootState['user']>(state => state.user);
+  const showVerifyChartAction =
+    isFeatureEnabled(FeatureFlag.PinterestChartGovernanceUi) &&
+    canVerifyChart(user);
   const refreshChart = () => {
     if (props.updatedDttm) {
       props.forceRefresh(props.slice.slice_id, props.dashboardId);
@@ -280,6 +291,10 @@ const SliceHeaderControls = (
         if (queryMenuRef.current && !queryMenuRef.current.showModal) {
           queryMenuRef.current.open(domEvent);
         }
+        break;
+      }
+      case MenuKeys.VerifyChart: {
+        setIsVerifyChartModalOpen(true);
         break;
       }
       default:
@@ -532,6 +547,10 @@ const SliceHeaderControls = (
           </Menu.Item>
         </Menu.SubMenu>
       )}
+
+      {showVerifyChartAction && (
+        <Menu.Item key={MenuKeys.VerifyChart}>{t('Verify Chart')}</Menu.Item>
+      )}
     </Menu>
   );
 
@@ -578,6 +597,14 @@ const SliceHeaderControls = (
       />
 
       {canEditCrossFilters && scopingModal}
+      {isVerifyChartModalOpen && slice?.slice_id != null && (
+        <PinterestVerifyChartModal
+          sliceId={slice.slice_id}
+          show={isVerifyChartModalOpen}
+          onHide={() => setIsVerifyChartModalOpen(false)}
+          user={user}
+        />
+      )}
     </>
   );
 };
