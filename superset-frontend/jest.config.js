@@ -56,6 +56,8 @@ module.exports = {
       '<rootDir>/pinterest-plugins/src/explore/components/warden/createWardenAlertModal.stub.tsx',
     '^@pinterest-plugins/src/features/dashboards/dashboardListExtensions$':
       '<rootDir>/pinterest-plugins/src/features/dashboards/dashboardListExtensions.stub.tsx',
+    '^@pinterest-plugins/src/features/charts/chartListExtensions$':
+      '<rootDir>/pinterest-plugins/src/features/charts/chartListExtensions.stub.tsx',
     '^@pinterest-plugins/src/sqllab/pinterestSqlLabToolbarExtras$':
       '<rootDir>/pinterest-plugins/src/sqllab/pinterestSqlLabToolbarExtras.stub.tsx',
     '^@pinterest-plugins/src/dashboard/pinterestChartHeaderExtras$':

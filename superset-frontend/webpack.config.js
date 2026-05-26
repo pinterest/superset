@@ -244,6 +244,13 @@ if (process.env.USE_PINTEREST_PLUGINS !== 'true') {
       ),
     ),
     new webpack.NormalModuleReplacementPlugin(
+      /@pinterest-plugins\/src\/features\/charts\/chartListExtensions$/,
+      path.resolve(
+        __dirname,
+        'pinterest-plugins/src/features/charts/chartListExtensions.stub.tsx',
+      ),
+    ),
+    new webpack.NormalModuleReplacementPlugin(
       /@pinterest-plugins\/src\/sqllab\/pinterestSqlLabToolbarExtras$/,
       path.resolve(
         __dirname,
