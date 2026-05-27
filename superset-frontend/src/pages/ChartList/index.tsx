@@ -252,6 +252,7 @@ function ChartList(props: ChartListProps) {
     fetchData,
     toggleBulkSelect,
     refreshData,
+  // } = useListViewResource<Chart>('chart', t('chart'), addDangerToast);
   } = useListViewResource<Chart>(
     'chart',
     t('chart'),
