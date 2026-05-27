@@ -252,7 +252,7 @@ function ChartList(props: ChartListProps) {
     fetchData,
     toggleBulkSelect,
     refreshData,
-  // } = useListViewResource<Chart>('chart', t('chart'), addDangerToast);
+    // } = useListViewResource<Chart>('chart', t('chart'), addDangerToast);
   } = useListViewResource<Chart>(
     'chart',
     t('chart'),
@@ -261,10 +261,7 @@ function ChartList(props: ChartListProps) {
     undefined,
     undefined,
     undefined,
-    [
-      ...CHART_COLUMNS_TO_FETCH,
-      ...getChartListExtraColumnsToFetch(),
-    ],
+    [...CHART_COLUMNS_TO_FETCH, ...getChartListExtraColumnsToFetch()],
   );
 
   const chartIds = useMemo(() => charts.map(c => c.id), [charts]);
