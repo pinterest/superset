@@ -110,7 +110,13 @@ class ChartRestApi(BaseSupersetModelRestApi):
     resource_name = "chart"
     allow_browser_login = True
 
-    @before_request(only=["thumbnail", "screenshot", "cache_screenshot"])
+    # [pinterest-specific] Only gate the `thumbnail` endpoint behind the
+    # THUMBNAILS feature flag. `cache_screenshot` and `screenshot` are left
+    # ungated so the on-demand "cache screenshot" button works and the cached
+    # image is retrievable, without enabling the UI behaviors that
+    # `THUMBNAILS=True` would turn on (auto-loading thumbnails on the home page,
+    # in chart/dashboard card views, etc.).
+    @before_request(only=["thumbnail"])
     def ensure_thumbnails_enabled(self) -> Optional[Response]:
         if not is_feature_enabled("THUMBNAILS"):
             return self.response_404()
