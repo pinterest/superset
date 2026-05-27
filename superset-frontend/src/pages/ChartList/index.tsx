@@ -82,6 +82,7 @@ import PinterestSoftDeletedCell from '@pinterest-plugins/src/governance/softDele
 import {
   getChartListExtraColumnsToFetch,
   getChartListExtraListColumns,
+  getChartListTitleIndicators,
   // @ts-ignore
   // eslint-disable-next-line import/no-unresolved
 } from '@pinterest-plugins/src/features/charts/chartListExtensions';
@@ -427,6 +428,7 @@ function ChartList(props: ChartListProps) {
           } = original;
           const link = (
             <Link to={url} data-test={`${sliceName}-list-chart-title`}>
+              {showGovernanceExtras && getChartListTitleIndicators(original)}
               {certifiedBy && (
                 <>
                   <CertifiedBadge
@@ -464,7 +466,6 @@ function ChartList(props: ChartListProps) {
         accessor: 'viz_type',
         size: 'xxl',
       },
-      ...(showGovernanceExtras ? getChartListExtraListColumns() : []),
       {
         Cell: ({
           row: {
@@ -494,6 +495,7 @@ function ChartList(props: ChartListProps) {
         disableSortBy: true,
         size: 'xxl',
       },
+      ...(showGovernanceExtras ? getChartListExtraListColumns() : []),
       {
         Cell: ({
           row: {
