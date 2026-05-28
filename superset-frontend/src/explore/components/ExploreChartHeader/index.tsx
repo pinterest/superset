@@ -330,6 +330,11 @@ export const ExploreChartHeader: FC<ExploreChartHeaderProps> = ({
           isStarred,
           showTooltip: true,
         }}
+        titleAdditionalItems={
+          slice?.slice_id ? (
+            <PinterestChartTitlePanelAdditionalItems sliceId={slice.slice_id} />
+          ) : null
+        }
         titlePanelAdditionalItems={
           <div css={additionalItemsStyles}>
             <div className="metadata-row">
@@ -346,13 +351,6 @@ export const ExploreChartHeader: FC<ExploreChartHeaderProps> = ({
               )}
               {metadataBar}
             </div>
-            {slice?.slice_id ? (
-              <div className="pinterest-additional-items-row">
-                <PinterestChartTitlePanelAdditionalItems
-                  sliceId={slice.slice_id}
-                />
-              </div>
-            ) : null}
           </div>
         }
         rightPanelAdditionalItems={
