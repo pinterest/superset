@@ -62,6 +62,12 @@ import { usePermissions } from 'src/hooks/usePermissions';
 import { useDatasetDrillInfo } from 'src/hooks/apiResources/datasets';
 import { ResourceStatus } from 'src/hooks/apiResources/apiResources';
 import ViewTableInfoModal from 'src/explore/components/controls/ViewTableInfoModal';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import { canVerifyChart } from '@pinterest-plugins/src/governance/chartGovernancePermissions';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import PinterestVerifyChartModal from '@pinterest-plugins/src/governance/pinterestVerifyChartModal';
 import { useCrossFiltersScopingModal } from '../nativeFilters/FilterBar/CrossFilters/ScopingModal/useCrossFiltersScopingModal';
 import { ViewResultsModalTrigger } from './ViewResultsModalTrigger';
 
@@ -156,6 +162,7 @@ const SliceHeaderControls = (
   props: SliceHeaderControlsPropsWithRouter | SliceHeaderControlsProps,
 ) => {
   const [drillModalIsOpen, setDrillModalIsOpen] = useState(false);
+  const [isVerifyChartModalOpen, setIsVerifyChartModalOpen] = useState(false);
   // setting openKeys undefined falls back to uncontrolled behaviour
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [openScopingModal, scopingModal] = useCrossFiltersScopingModal(
@@ -180,6 +187,10 @@ const SliceHeaderControls = (
       ?.behaviors?.includes(Behavior.InteractiveChart);
   const canExplore = props.supersetCanExplore;
   const { canDrillToDetail, canViewQuery, canViewTable } = usePermissions();
+  const user = useSelector<RootState, RootState['user']>(state => state.user);
+  const showVerifyChartAction =
+    isFeatureEnabled(FeatureFlag.PinterestChartGovernanceUi) &&
+    canVerifyChart(user);
 
   const datasetResource = useDatasetDrillInfo(
     props.slice.datasource,
@@ -298,6 +309,10 @@ const SliceHeaderControls = (
         if (queryMenuRef.current && !queryMenuRef.current.showModal) {
           queryMenuRef.current.open(domEvent);
         }
+        break;
+      }
+      case MenuKeys.VerifyChart: {
+        setIsVerifyChartModalOpen(true);
         break;
       }
       default:
@@ -565,6 +580,13 @@ const SliceHeaderControls = (
     });
   }
 
+  if (showVerifyChartAction) {
+    newMenuItems.push({
+      key: MenuKeys.VerifyChart,
+      label: t('Verify Chart'),
+    });
+  }
+
   return (
     <>
       {isFullSize && (
@@ -616,6 +638,14 @@ const SliceHeaderControls = (
       />
 
       {canEditCrossFilters && scopingModal}
+      {isVerifyChartModalOpen && slice?.slice_id != null && (
+        <PinterestVerifyChartModal
+          sliceId={slice.slice_id}
+          show={isVerifyChartModalOpen}
+          onHide={() => setIsVerifyChartModalOpen(false)}
+          user={user}
+        />
+      )}
     </>
   );
 };

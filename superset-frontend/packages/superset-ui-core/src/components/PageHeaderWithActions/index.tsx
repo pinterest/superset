@@ -71,9 +71,27 @@ const headerStyles = (theme: SupersetTheme) => css`
 
   .title-panel {
     display: flex;
-    align-items: center;
+    /* align-items: center; */
     min-width: 0;
     margin-right: ${theme.sizeUnit * 12}px;
+  margin-top: ${theme.sizeUnit * 2}px;
+  margin-bottom: ${theme.sizeUnit * 2}px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .title-panel-content {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .title-additional-items {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+  margin-top: ${theme.sizeUnit}px;
+}
   }
 
   .right-button-panel {
@@ -110,6 +128,7 @@ export type PageHeaderWithActionsProps = {
   showFaveStar: boolean;
   showMenuDropdown?: boolean;
   faveStarProps: FaveStarProps;
+  titleAdditionalItems?: ReactNode;
   titlePanelAdditionalItems: ReactNode;
   rightPanelAdditionalItems: ReactNode;
   additionalActionsMenu: ReactElement;
@@ -126,6 +145,7 @@ export const PageHeaderWithActions = ({
   certificatiedBadgeProps,
   showFaveStar,
   faveStarProps,
+  titleAdditionalItems,
   titlePanelAdditionalItems,
   rightPanelAdditionalItems,
   additionalActionsMenu,
@@ -137,15 +157,20 @@ export const PageHeaderWithActions = ({
   return (
     <div css={headerStyles} className="header-with-actions">
       <div className="title-panel">
-        <DynamicEditableTitle {...editableTitleProps} />
-        {showTitlePanelItems && (
-          <div css={buttonsStyles}>
-            {certificatiedBadgeProps?.certifiedBy && (
-              <CertifiedBadge {...certificatiedBadgeProps} />
-            )}
-            {showFaveStar && <FaveStar {...faveStarProps} />}
-            {titlePanelAdditionalItems}
-          </div>
+        <div className="title-panel-content">
+          <DynamicEditableTitle {...editableTitleProps} />
+          {showTitlePanelItems && (
+            <div css={buttonsStyles}>
+              {certificatiedBadgeProps?.certifiedBy && (
+                <CertifiedBadge {...certificatiedBadgeProps} />
+              )}
+              {showFaveStar && <FaveStar {...faveStarProps} />}
+              {titlePanelAdditionalItems}
+            </div>
+          )}
+        </div>
+        {titleAdditionalItems && (
+          <div className="title-additional-items">{titleAdditionalItems}</div>
         )}
       </div>
       <div className="right-button-panel">
