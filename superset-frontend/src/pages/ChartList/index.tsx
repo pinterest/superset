@@ -79,12 +79,13 @@ import { QueryObjectColumns } from 'src/views/CRUD/types';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
 import PinterestSoftDeletedCell from '@pinterest-plugins/src/governance/softDeletion/pinterestSoftDeletedCell';
-// @ts-ignore
-// eslint-disable-next-line import/no-unresolved
+
 import {
   getChartListExtraListColumns,
   getChartListSearchFilters,
   getChartListTitleIndicators,
+  // @ts-ignore
+  // eslint-disable-next-line import/no-unresolved
 } from '@pinterest-plugins/src/features/charts/chartListExtensions';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
