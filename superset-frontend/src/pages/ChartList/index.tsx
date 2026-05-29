@@ -79,11 +79,12 @@ import { QueryObjectColumns } from 'src/views/CRUD/types';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
 import PinterestSoftDeletedCell from '@pinterest-plugins/src/governance/softDeletion/pinterestSoftDeletedCell';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
 import {
   getChartListExtraListColumns,
+  getChartListSearchFilters,
   getChartListTitleIndicators,
-  // @ts-ignore
-  // eslint-disable-next-line import/no-unresolved
 } from '@pinterest-plugins/src/features/charts/chartListExtensions';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
@@ -730,9 +731,10 @@ function ChartList(props: ChartListProps) {
         ),
         paginate: true,
       },
+      ...(showGovernanceExtras ? getChartListSearchFilters() : []),
     ] as Filters;
     return filters_list;
-  }, [addDangerToast, favoritesFilter, props.user]);
+  }, [addDangerToast, favoritesFilter, props.user, showGovernanceExtras]);
 
   const sortTypes = [
     {
