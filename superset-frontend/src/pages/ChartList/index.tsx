@@ -88,6 +88,12 @@ import { Tag } from 'src/components/Tag';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
 import PinterestSoftDeletedCell from '@pinterest-plugins/src/governance/softDeletion/pinterestSoftDeletedCell';
+import {
+  getChartListExtraListColumns,
+  getChartListTitleIndicators,
+  // @ts-ignore
+  // eslint-disable-next-line import/no-unresolved
+} from '@pinterest-plugins/src/features/charts/chartListExtensions';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
 import { getPinterestChartListExtras } from '@pinterest-plugins/src/features/listView/pinterestListViewExtras';
@@ -184,6 +190,9 @@ function ChartList(props: ChartListProps) {
   } = props;
 
   const history = useHistory();
+  const showGovernanceExtras = isFeatureEnabled(
+    FeatureFlag.PinterestChartGovernanceUi,
+  );
 
   const {
     state: {
@@ -373,6 +382,7 @@ function ChartList(props: ChartListProps) {
           } = original;
           const link = (
             <Link to={url} data-test={`${sliceName}-list-chart-title`}>
+              {showGovernanceExtras && getChartListTitleIndicators(original)}
               {certifiedBy && (
                 <>
                   <CertifiedBadge
@@ -465,6 +475,7 @@ function ChartList(props: ChartListProps) {
         size: 'xl',
         id: 'dashboards',
       },
+      ...(showGovernanceExtras ? getChartListExtraListColumns() : []),
       {
         Cell: ({
           row: {
@@ -629,6 +640,7 @@ function ChartList(props: ChartListProps) {
       addDangerToast,
       handleBulkChartExport,
       openChartEditModal,
+      showGovernanceExtras,
     ],
   );
 
