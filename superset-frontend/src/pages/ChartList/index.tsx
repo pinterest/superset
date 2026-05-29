@@ -83,8 +83,10 @@ import { WIDER_DROPDOWN_WIDTH } from 'src/components/ListView/utils';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
 import PinterestSoftDeletedCell from '@pinterest-plugins/src/governance/softDeletion/pinterestSoftDeletedCell';
+
 import {
   getChartListExtraListColumns,
+  getChartListSearchFilters,
   getChartListTitleIndicators,
   // @ts-ignore
   // eslint-disable-next-line import/no-unresolved
@@ -757,9 +759,10 @@ function ChartList(props: ChartListProps) {
         paginate: true,
         dropdownStyle: { minWidth: WIDER_DROPDOWN_WIDTH },
       },
+      ...(showGovernanceExtras ? getChartListSearchFilters() : []),
     ] as ListViewFilters;
     return filters_list;
-  }, [addDangerToast, favoritesFilter, props.user]);
+  }, [addDangerToast, favoritesFilter, props.user, showGovernanceExtras]);
 
   const sortTypes = [
     {
