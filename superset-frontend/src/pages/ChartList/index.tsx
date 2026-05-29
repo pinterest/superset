@@ -79,13 +79,9 @@ import { QueryObjectColumns } from 'src/views/CRUD/types';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
 import PinterestSoftDeletedCell from '@pinterest-plugins/src/governance/softDeletion/pinterestSoftDeletedCell';
-import {
-  getChartListExtraColumnsToFetch,
-  getChartListExtraListColumns,
-  getChartListTitleIndicators,
-  // @ts-ignore
-  // eslint-disable-next-line import/no-unresolved
-} from '@pinterest-plugins/src/features/charts/chartListExtensions';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import { getChartListExtraListColumns, getChartListTitleIndicators } from '@pinterest-plugins/src/features/charts/chartListExtensions';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
 import { getPinterestChartListExtras } from '@pinterest-plugins/src/features/listView/pinterestListViewExtras';
@@ -173,61 +169,6 @@ const StyledActions = styled.div`
   color: ${({ theme }) => theme.colors.grayscale.base};
 `;
 
-// Base list columns shared with upstream Superset. Plugin-owned extras
-// (deleted_on, owners.username, metric metadata, verification fields, ...) live
-// in `getChartListExtraColumnsToFetch` so internal-only columns can be added
-// without further edits here.
-const CHART_COLUMNS_TO_FETCH = [
-  'is_managed_externally',
-  'certified_by',
-  'certification_details',
-  'cache_timeout',
-  'changed_by.first_name',
-  'changed_by.last_name',
-  'changed_by.id',
-  'changed_by_name',
-  'changed_on_delta_humanized',
-  'changed_on_dttm',
-  'changed_on_utc',
-  'created_by.first_name',
-  'created_by.id',
-  'created_by.last_name',
-  'created_by_name',
-  'created_on_delta_humanized',
-  'datasource_id',
-  'datasource_name_text',
-  'datasource_type',
-  'datasource_url',
-  'description',
-  'description_markeddown',
-  'edit_url',
-  'form_data',
-  'id',
-  'last_saved_at',
-  'last_saved_by.id',
-  'last_saved_by.first_name',
-  'last_saved_by.last_name',
-  'owners.first_name',
-  'owners.id',
-  'owners.last_name',
-  'dashboards.id',
-  'dashboards.dashboard_title',
-  'params',
-  'slice_name',
-  'slice_url',
-  'table.default_endpoint',
-  'table.table_name',
-  'thumbnail_url',
-  'url',
-  'viz_type',
-  'tags.id',
-  'tags.name',
-  'tags.type',
-  'uuid',
-  'changed_by_fk',
-  'changed_on',
-];
-
 function ChartList(props: ChartListProps) {
   const {
     addDangerToast,
@@ -252,17 +193,7 @@ function ChartList(props: ChartListProps) {
     fetchData,
     toggleBulkSelect,
     refreshData,
-    // } = useListViewResource<Chart>('chart', t('chart'), addDangerToast);
-  } = useListViewResource<Chart>(
-    'chart',
-    t('chart'),
-    addDangerToast,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    [...CHART_COLUMNS_TO_FETCH, ...getChartListExtraColumnsToFetch()],
-  );
+  } = useListViewResource<Chart>('chart', t('chart'), addDangerToast);
 
   const chartIds = useMemo(() => charts.map(c => c.id), [charts]);
   const { roles } = useSelector<any, UserWithPermissionsAndRoles>(
