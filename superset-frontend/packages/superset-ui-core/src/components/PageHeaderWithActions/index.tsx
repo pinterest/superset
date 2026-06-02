@@ -101,6 +101,19 @@ const headerStyles = (theme: SupersetTheme) => css`
   }
 `;
 
+const pageHeaderContainerStyles = (theme: SupersetTheme) => css`
+  display: flex;
+  flex-direction: column;
+  background-color: ${theme.colorBgContainer};
+`;
+
+const secondRowStyles = css`
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+`;
+
 const buttonsStyles = (theme: SupersetTheme) => css`
   display: flex;
   align-items: center;
@@ -132,6 +145,7 @@ export type PageHeaderWithActionsProps = {
   titleAdditionalItems?: ReactNode;
   titlePanelAdditionalItems: ReactNode;
   rightPanelAdditionalItems: ReactNode;
+  headerSecondRow?: ReactNode;
   additionalActionsMenu: ReactElement;
   menuDropdownProps: Omit<DropdownProps, 'overlay'>;
   tooltipProps?: {
@@ -149,6 +163,7 @@ export const PageHeaderWithActions = ({
   titleAdditionalItems,
   titlePanelAdditionalItems,
   rightPanelAdditionalItems,
+  headerSecondRow,
   additionalActionsMenu,
   menuDropdownProps,
   showMenuDropdown = true,
@@ -156,50 +171,59 @@ export const PageHeaderWithActions = ({
 }: PageHeaderWithActionsProps) => {
   const theme = useTheme();
   return (
-    <div css={headerStyles} className="header-with-actions">
-      <div className="title-panel">
-        <div className="title-panel-content">
-          <DynamicEditableTitle {...editableTitleProps} />
-          {showTitlePanelItems && (
-            <div css={buttonsStyles}>
-              {certificatiedBadgeProps?.certifiedBy && (
-                <CertifiedBadge {...certificatiedBadgeProps} />
-              )}
-              {showFaveStar && <FaveStar {...faveStarProps} />}
-              {titlePanelAdditionalItems}
+    <div css={pageHeaderContainerStyles} className="header-with-actions">
+      <div css={headerStyles}>
+        <div className="title-panel">
+          <div className="title-panel-content">
+            <DynamicEditableTitle {...editableTitleProps} />
+            {showTitlePanelItems && (
+              <div css={buttonsStyles}>
+                {certificatiedBadgeProps?.certifiedBy && (
+                  <CertifiedBadge {...certificatiedBadgeProps} />
+                )}
+                {showFaveStar && <FaveStar {...faveStarProps} />}
+                {titlePanelAdditionalItems}
+              </div>
+            )}
+          </div>
+          {titleAdditionalItems && (
+            <div className="title-additional-items">
+              {titleAdditionalItems}
             </div>
           )}
         </div>
-        {titleAdditionalItems && (
-          <div className="title-additional-items">{titleAdditionalItems}</div>
-        )}
-      </div>
-      <div className="right-button-panel">
-        {rightPanelAdditionalItems}
-        <div css={additionalActionsContainerStyles}>
-          {showMenuDropdown && (
-            <Dropdown
-              trigger={['click']}
-              popupRender={() => additionalActionsMenu}
-              {...menuDropdownProps}
-            >
-              <Button
-                css={menuTriggerStyles}
-                buttonStyle="tertiary"
-                aria-label={t('Menu actions trigger')}
-                tooltip={tooltipProps?.text}
-                placement={tooltipProps?.placement}
-                data-test="actions-trigger"
+        <div className="right-button-panel">
+          {rightPanelAdditionalItems}
+          <div css={additionalActionsContainerStyles}>
+            {showMenuDropdown && (
+              <Dropdown
+                trigger={['click']}
+                popupRender={() => additionalActionsMenu}
+                {...menuDropdownProps}
               >
-                <Icons.EllipsisOutlined
-                  iconColor={theme.colorPrimary}
-                  iconSize="l"
-                />
-              </Button>
-            </Dropdown>
-          )}
+                <Button
+                  css={menuTriggerStyles}
+                  buttonStyle="tertiary"
+                  aria-label={t('Menu actions trigger')}
+                  tooltip={tooltipProps?.text}
+                  placement={tooltipProps?.placement}
+                  data-test="actions-trigger"
+                >
+                  <Icons.EllipsisOutlined
+                    iconColor={theme.colorPrimary}
+                    iconSize="l"
+                  />
+                </Button>
+              </Dropdown>
+            )}
+          </div>
         </div>
       </div>
+      {headerSecondRow && (
+        <div css={secondRowStyles} className="header-second-row">
+          {headerSecondRow}
+        </div>
+      )}
     </div>
   );
 };
