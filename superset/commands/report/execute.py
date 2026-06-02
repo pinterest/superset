@@ -360,17 +360,28 @@ class BaseReportState:
                 except json.JSONDecodeError:
                     logger.debug("Anchor value is not a list, Fall back to single tab")
 
-            return [
-                self._get_tab_url(
-                    {
-                        "urlParams": [
-                            ["native_filters", native_filter_params]  # type: ignore
-                        ],
-                        **dashboard_state,
-                    },
-                    user_friendly=user_friendly,
-                )
-            ]
+            # Skip the permalink when there is nothing meaningful to encode —
+            # an empty dashboard_state falls through to the plain URL below.
+            # A non-empty anchor means a single tab was selected (it failed
+            # JSON list parsing above) and still needs a permalink. Non-filter
+            # state such as urlParams (e.g. standalone=true) must also be
+            # preserved via a permalink.
+            if (
+                anchor
+                or dashboard_state.get("urlParams")
+                or (native_filter_params and native_filter_params != "()")
+            ):
+                return [
+                    self._get_tab_url(
+                        {
+                            "urlParams": [
+                                ["native_filters", native_filter_params]  # type: ignore
+                            ],
+                            **dashboard_state,
+                        },
+                        user_friendly=user_friendly,
+                    )
+                ]
 
         native_filter_params, filter_warnings = (
             self._report_schedule.get_native_filters_params()
