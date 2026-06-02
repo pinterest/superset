@@ -48,13 +48,25 @@ export const menuTriggerStyles = (theme: SupersetTheme) => css`
   }
 `;
 
+const pageHeaderContainerStyles = (theme: SupersetTheme) => css`
+  display: flex;
+  flex-direction: column;
+  background-color: ${theme.colors.grayscale.light5};
+`;
+
+const secondRowStyles = css`
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+`;
+
 const headerStyles = (theme: SupersetTheme) => css`
   display: flex;
   flex-direction: row;
   align-items: center;
   flex-wrap: nowrap;
   justify-content: space-between;
-  background-color: ${theme.colors.grayscale.light5};
   /* height: ${theme.gridUnit * 16}px; */
   min-height: ${theme.gridUnit * 16}px;
   padding: 0 ${theme.gridUnit * 4}px;
@@ -80,6 +92,7 @@ const headerStyles = (theme: SupersetTheme) => css`
     display: flex;
     /* align-items: center; */
     min-width: 0;
+    overflow: hidden;
     margin-right: ${theme.gridUnit * 12}px;
     margin-top: ${theme.gridUnit * 2}px;
     margin-bottom: ${theme.gridUnit * 2}px;
@@ -103,12 +116,15 @@ const headerStyles = (theme: SupersetTheme) => css`
   .right-button-panel {
     display: flex;
     align-items: center;
+    flex-shrink: 0;
   }
 `;
 
 const buttonsStyles = (theme: SupersetTheme) => css`
   display: flex;
   align-items: center;
+  min-width: 0;
+  overflow: hidden;
   padding-left: ${theme.gridUnit * 2}px;
 
   & .fave-unfave-icon {
@@ -134,6 +150,7 @@ export type PageHeaderWithActionsProps = {
   titleAdditionalItems?: ReactNode;
   titlePanelAdditionalItems: ReactNode;
   rightPanelAdditionalItems: ReactNode;
+  headerSecondRow?: ReactNode;
   additionalActionsMenu: ReactElement;
   menuDropdownProps: Omit<AntdDropdownProps, 'overlay'>;
   tooltipProps?: {
@@ -151,6 +168,7 @@ export const PageHeaderWithActions = ({
   titleAdditionalItems,
   titlePanelAdditionalItems,
   rightPanelAdditionalItems,
+  headerSecondRow,
   additionalActionsMenu,
   menuDropdownProps,
   showMenuDropdown = true,
@@ -158,50 +176,57 @@ export const PageHeaderWithActions = ({
 }: PageHeaderWithActionsProps) => {
   const theme = useTheme();
   return (
-    <div css={headerStyles} className="header-with-actions">
-      <div className="title-panel">
-        <div className="title-panel-content">
-          <DynamicEditableTitle {...editableTitleProps} />
-          {showTitlePanelItems && (
-            <div css={buttonsStyles}>
-              {certificatiedBadgeProps?.certifiedBy && (
-                <CertifiedBadge {...certificatiedBadgeProps} />
-              )}
-              {showFaveStar && <FaveStar {...faveStarProps} />}
-              {titlePanelAdditionalItems}
-            </div>
+    <div css={pageHeaderContainerStyles} className="header-with-actions">
+      <div css={headerStyles}>
+        <div className="title-panel">
+          <div className="title-panel-content">
+            <DynamicEditableTitle {...editableTitleProps} />
+            {showTitlePanelItems && (
+              <div css={buttonsStyles}>
+                {certificatiedBadgeProps?.certifiedBy && (
+                  <CertifiedBadge {...certificatiedBadgeProps} />
+                )}
+                {showFaveStar && <FaveStar {...faveStarProps} />}
+                {titlePanelAdditionalItems}
+              </div>
+            )}
+          </div>
+          {titleAdditionalItems && (
+            <div className="title-additional-items">{titleAdditionalItems}</div>
           )}
         </div>
-        {titleAdditionalItems && (
-          <div className="title-additional-items">{titleAdditionalItems}</div>
-        )}
-      </div>
-      <div className="right-button-panel">
-        {rightPanelAdditionalItems}
-        <div css={additionalActionsContainerStyles}>
-          {showMenuDropdown && (
-            <AntdDropdown
-              trigger={['click']}
-              overlay={additionalActionsMenu}
-              {...menuDropdownProps}
-            >
-              <Button
-                css={menuTriggerStyles}
-                buttonStyle="tertiary"
-                aria-label={t('Menu actions trigger')}
-                tooltip={tooltipProps?.text}
-                placement={tooltipProps?.placement}
-                data-test="actions-trigger"
+        <div className="right-button-panel">
+          {rightPanelAdditionalItems}
+          <div css={additionalActionsContainerStyles}>
+            {showMenuDropdown && (
+              <AntdDropdown
+                trigger={['click']}
+                overlay={additionalActionsMenu}
+                {...menuDropdownProps}
               >
-                <Icons.MoreHoriz
-                  iconColor={theme.colors.primary.dark2}
-                  iconSize="l"
-                />
-              </Button>
-            </AntdDropdown>
-          )}
+                <Button
+                  css={menuTriggerStyles}
+                  buttonStyle="tertiary"
+                  aria-label={t('Menu actions trigger')}
+                  tooltip={tooltipProps?.text}
+                  placement={tooltipProps?.placement}
+                  data-test="actions-trigger"
+                >
+                  <Icons.MoreHoriz
+                    iconColor={theme.colors.primary.dark2}
+                    iconSize="l"
+                  />
+                </Button>
+              </AntdDropdown>
+            )}
+          </div>
         </div>
       </div>
+      {headerSecondRow && (
+        <div css={secondRowStyles} className="header-second-row">
+          {headerSecondRow}
+        </div>
+      )}
     </div>
   );
 };

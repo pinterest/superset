@@ -109,6 +109,10 @@ const StyledHeader = styled.div`
     top: 0;
     z-index: 99;
     max-width: 100vw;
+    /* allow the header to shrink instead of expanding the 1fr grid track
+       (which otherwise pushes the dashboard body sideways when the filter
+       bar is open) */
+    min-width: 0;
 
     .empty-droptarget:before {
       position: absolute;
@@ -130,6 +134,7 @@ const StyledContent = styled.div<{
 }>`
   grid-column: 2;
   grid-row: 2;
+  min-width: 0;
   // @z-index-above-dashboard-header (100) + 1 = 101
   ${({ fullSizeChartId }) => fullSizeChartId && `z-index: 101;`}
 `;

@@ -216,6 +216,13 @@ if (process.env.USE_PINTEREST_PLUGINS !== 'true') {
       ),
     ),
     new webpack.NormalModuleReplacementPlugin(
+      /@pinterest-plugins\/src\/governance\/pinterestDashboardSecondRowTags$/,
+      path.resolve(
+        __dirname,
+        'pinterest-plugins/src/governance/pinterestDashboardSecondRowTags.stub.tsx',
+      ),
+    ),
+    new webpack.NormalModuleReplacementPlugin(
       /@pinterest-plugins\/src\/governance\/pinterestDashboardBanners$/,
       path.resolve(
         __dirname,
