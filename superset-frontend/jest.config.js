@@ -50,6 +50,8 @@ module.exports = {
       '<rootDir>/pinterest-plugins/src/governance/pinterestNewDashboardTierModal.stub.tsx',
     '^@pinterest-plugins/src/governance/pinterestTitlePanelAdditionalItems$':
       '<rootDir>/pinterest-plugins/src/governance/pinterestTitlePanelAdditionalItems.stub.tsx',
+    '^@pinterest-plugins/src/governance/pinterestDashboardSecondRowTags$':
+      '<rootDir>/pinterest-plugins/src/governance/pinterestDashboardSecondRowTags.stub.tsx',
     '^@pinterest-plugins/src/governance/pinterestDashboardBanners$':
       '<rootDir>/pinterest-plugins/src/governance/pinterestDashboardBanners.stub.tsx',
     '^@pinterest-plugins/src/explore/components/warden/createWardenAlertModal$':

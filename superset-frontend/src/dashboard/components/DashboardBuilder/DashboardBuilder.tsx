@@ -105,6 +105,7 @@ const StyledHeader = styled.div<{ filterBarWidth: number }>`
     top: 0;
     z-index: 99;
     max-width: calc(100vw - ${filterBarWidth}px);
+    min-width: 0;
 
     .empty-droptarget:before {
       position: absolute;
@@ -126,6 +127,7 @@ const StyledContent = styled.div<{
 }>`
   grid-column: 2;
   grid-row: 2;
+  min-width: 0;
   // @z-index-above-dashboard-header (100) + 1 = 101
   ${({ fullSizeChartId }) => fullSizeChartId && `z-index: 101;`}
 `;

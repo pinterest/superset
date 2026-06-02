@@ -78,6 +78,9 @@ import PinterestPushToDataHubModal from '@pinterest-plugins/src/governance/pinte
 import PinterestTitlePanelAdditionalItems from '@pinterest-plugins/src/governance/pinterestTitlePanelAdditionalItems';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
+import PinterestDashboardSecondRowTags from '@pinterest-plugins/src/governance/pinterestDashboardSecondRowTags';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
 import PinterestDashboardBanners from '@pinterest-plugins/src/governance/pinterestDashboardBanners';
 
 // @ts-ignore
@@ -913,6 +916,11 @@ const Header = () => {
         faveStarProps={faveStarProps}
         titlePanelAdditionalItems={titlePanelAdditionalItems}
         rightPanelAdditionalItems={rightPanelAdditionalItems}
+        headerSecondRow={
+          !editMode && !isEmbedded && governanceUiEnabled ? (
+            <PinterestDashboardSecondRowTags dashboardId={dashboardInfo.id} />
+          ) : null
+        }
         menuDropdownProps={{
           open: isDropdownVisible,
           onOpenChange: setIsDropdownVisible,
