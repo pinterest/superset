@@ -72,6 +72,7 @@ import {
   CertificationSection,
   AdvancedSection,
 } from './sections';
+import { parseSelectedOwners, type OwnerOption } from './utils';
 
 type PropertiesModalProps = {
   dashboardId: number;
@@ -296,17 +297,10 @@ const PropertiesModal = ({
   };
 
   const handleOnChangeOwners = (
-    owners: { value: number; label: string }[],
-    options: Record<string, unknown>[],
+    selectedOwners: OwnerOption[],
+    options: OwnerOption[],
   ) => {
-    const parsedOwners: Owners = ensureIsArray(owners).map((o, i) => ({
-      id: o.value,
-      full_name:
-        (options?.[i]?.[OWNER_TEXT_LABEL_PROP] as string) ||
-        (typeof o.label === 'string' ? o.label : ''),
-      email: (options?.[i]?.[OWNER_EMAIL_PROP] as string) || '',
-    }));
-    setOwners(parsedOwners);
+    setOwners(parseSelectedOwners(selectedOwners, options, owners));
   };
 
   const handleOnChangeRoles = (roles: { value: number; label: string }[]) => {
