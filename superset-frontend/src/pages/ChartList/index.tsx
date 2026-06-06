@@ -269,7 +269,9 @@ function ChartList(props: ChartListProps) {
   const canEdit = hasPerm('can_write');
   const canDelete = hasPerm('can_write');
   const canExport = hasPerm('can_export');
-  const initialSort = [{ id: 'changed_on_delta_humanized', desc: true }];
+  const initialSort = showGovernanceExtras
+    ? [{ id: 'metric_tier', desc: true }]
+    : [{ id: 'changed_on_delta_humanized', desc: true }];
 
   const handleBulkChartExport = useCallback(
     async (chartsToExport: Chart[]) => {
