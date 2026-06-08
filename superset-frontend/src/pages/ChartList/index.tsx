@@ -261,7 +261,7 @@ function ChartList(props: ChartListProps) {
   const canDelete = hasPerm('can_write');
   const canExport = hasPerm('can_export');
   const initialSort = showGovernanceExtras
-    ? [{ id: 'metric_tier', desc: true }]
+    ? [{ id: 'metric_tier', desc: false }]
     : [{ id: 'changed_on_delta_humanized', desc: true }];
   const handleBulkChartExport = (chartsToExport: Chart[]) => {
     const ids = chartsToExport.map(({ id }) => id);
