@@ -189,13 +189,13 @@ export function createAnomalyScatterSeries(
         const explanationBlock =
           typeof anomalyExplanation === 'string' &&
           anomalyExplanation.length > 0
-            ? `<div style="margin-top: 6px;"><strong>Explanation:</strong> ${sanitizeHtml(
+            ? `<div style="margin-top: 8px;"><strong>Explanation:</strong><div style="max-width: 260px; margin-top: 4px; white-space: pre-line; word-break: break-word; line-height: 1.45;">${sanitizeHtml(
                 anomalyExplanation,
-              )}</div>`
+              )}</div></div>`
             : '';
 
         return `
-          <div style="text-align: left; padding: 8px;">
+          <div style="text-align: left; padding: 8px; max-width: 280px;">
             <div style="color: ${
               theme.colors.error.base
             }; font-weight: bold; margin-bottom: 4px;">
