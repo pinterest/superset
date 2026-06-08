@@ -2,7 +2,12 @@ import type { ScatterSeriesOption } from 'echarts';
 import type { SupersetTheme } from '@superset-ui/core';
 import { getDefaultTooltip } from './tooltip';
 import { sanitizeHtml } from './series';
-import type { Refs, RawSeriesEntry, AnomalyLookup, AnomalyPointMeta } from '../types';
+import type {
+  Refs,
+  RawSeriesEntry,
+  AnomalyLookup,
+  AnomalyPointMeta,
+} from '../types';
 
 export const ANOMALY_SUFFIXES = {
   IS_ANOMALY: '_is_anomaly',

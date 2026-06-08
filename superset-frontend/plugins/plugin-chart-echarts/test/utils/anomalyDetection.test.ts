@@ -45,9 +45,9 @@ describe('anomalyDetection utils', () => {
     it('should return false for series that partially match suffixes', () => {
       expect(isSeriesAboutAnomaly('metric1_is_anomaly_extra')).toBe(false);
       expect(isSeriesAboutAnomaly('metric1_anomaly_score_extra')).toBe(false);
-      expect(
-        isSeriesAboutAnomaly('metric1_anomaly_explanation_extra'),
-      ).toBe(false);
+      expect(isSeriesAboutAnomaly('metric1_anomaly_explanation_extra')).toBe(
+        false,
+      );
     });
   });
 
