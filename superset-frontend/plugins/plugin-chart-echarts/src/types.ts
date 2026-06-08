@@ -61,7 +61,11 @@ export interface EchartsHandler {
   getEchartInstance: () => EChartsType | undefined;
 }
 
-export type DataRow = [x: string | number, y: number, ...rest: any[]];
+export type DataRow = [
+  x: string | number,
+  y: number | string | null,
+  ...rest: any[],
+];
 
 export type RawSeriesEntry = {
   name: string;
