@@ -1,11 +1,18 @@
 import type { ScatterSeriesOption } from 'echarts';
 import type { SupersetTheme } from '@superset-ui/core';
 import { getDefaultTooltip } from './tooltip';
-import type { Refs, RawSeriesEntry, AnomalyLookup } from '../types';
+import { sanitizeHtml } from './series';
+import type {
+  Refs,
+  RawSeriesEntry,
+  AnomalyLookup,
+  AnomalyPointMeta,
+} from '../types';
 
 export const ANOMALY_SUFFIXES = {
   IS_ANOMALY: '_is_anomaly',
   ANOMALY_SCORE: '_anomaly_score',
+  ANOMALY_EXPLANATION: '_anomaly_explanation',
 } as const;
 
 export const ANOMALY_SCORE_THRESHOLDS = {
@@ -50,7 +57,8 @@ export function getAdjustedAnomalyPointSize(
 export function isSeriesAboutAnomaly(seriesName: string): boolean {
   return (
     seriesName.endsWith(ANOMALY_SUFFIXES.IS_ANOMALY) ||
-    seriesName.endsWith(ANOMALY_SUFFIXES.ANOMALY_SCORE)
+    seriesName.endsWith(ANOMALY_SUFFIXES.ANOMALY_SCORE) ||
+    seriesName.endsWith(ANOMALY_SUFFIXES.ANOMALY_EXPLANATION)
   );
 }
 
@@ -100,13 +108,36 @@ export function createAnomalyLookup(
       );
     }
 
+    const anomalyExplanationSeriesName = `${seriesName}${ANOMALY_SUFFIXES.ANOMALY_EXPLANATION}`;
+    const anomalyExplanationSeries = seriesLookup.get(
+      anomalyExplanationSeriesName,
+    );
+    const anomalyExplanationLookup = new Map<string | number, string>();
+    if (anomalyExplanationSeries) {
+      anomalyExplanationSeries.data.forEach(row => {
+        const [x, expl] = row as [string | number, string | number | null];
+        if (expl === null || expl === undefined) {
+          return;
+        }
+        const text = String(expl).trim();
+        if (text.length > 0) {
+          anomalyExplanationLookup.set(x, text);
+        }
+      });
+    }
+
     anomalyLookup[seriesName] = new Map();
     entry.data.forEach(([x, y]: [string | number, number]) => {
       if (anomalyXValues.has(x)) {
-        anomalyLookup[seriesName].set(x, {
+        const point: AnomalyPointMeta = {
           y,
           score: anomalyScoreLookup.get(x) ?? DEFAULT_ANOMALY_SCORE,
-        });
+        };
+        const explanation = anomalyExplanationLookup.get(x);
+        if (explanation !== undefined) {
+          point.explanation = explanation;
+        }
+        anomalyLookup[seriesName].set(x, point);
       }
     });
   });
@@ -127,10 +158,11 @@ export function createAnomalyScatterSeries(
   const anomalyData: any[] = [];
   const seriesAnomalies = anomalyLookup[seriesName] || new Map();
 
-  seriesAnomalies.forEach(({ y, score }, x) => {
+  seriesAnomalies.forEach(({ y, score, explanation }, x) => {
     anomalyData.push({
       value: [x, y],
       anomalyScore: score,
+      anomalyExplanation: explanation,
       itemStyle: {
         color: getAdjustedAnomalyPointColor(score, theme),
       },
@@ -153,22 +185,38 @@ export function createAnomalyScatterSeries(
       trigger: 'item',
       formatter: (params: any) => {
         const { value, anomalyScore } = params.data;
+        const anomalyExplanation = params.data?.anomalyExplanation as
+          | string
+          | undefined;
         const [xValue, yValue] = value;
         const anomalyColor = getAdjustedAnomalyPointColor(anomalyScore, theme);
+        const safeSeries = sanitizeHtml(String(seriesName));
+        const explanationBlock =
+          typeof anomalyExplanation === 'string' &&
+          anomalyExplanation.length > 0
+            ? `<div style="margin-top: 8px;"><strong>Explanation:</strong><div style="max-width: 260px; margin-top: 4px; white-space: pre-line; word-break: break-word; line-height: 1.45;">${sanitizeHtml(
+                anomalyExplanation,
+              )}</div></div>`
+            : '';
 
         return `
-          <div style="text-align: left; padding: 8px;">
+          <div style="text-align: left; padding: 8px; max-width: 280px;">
             <div style="color: ${
               theme.colors.error.base
             }; font-weight: bold; margin-bottom: 4px;">
               🚨 Anomaly Detected
             </div>
-            <div><strong>Series:</strong> ${seriesName}</div>
-            <div><strong>Time:</strong> ${tooltipFormatter(xValue)}</div>
-            <div><strong>Value:</strong> ${yValue.toLocaleString()}</div>
+            <div><strong>Series:</strong> ${safeSeries}</div>
+            <div><strong>Time:</strong> ${sanitizeHtml(
+              String(tooltipFormatter(xValue)),
+            )}</div>
+            <div><strong>Value:</strong> ${sanitizeHtml(
+              String(yValue.toLocaleString()),
+            )}</div>
             <div style="color: ${anomalyColor}; font-weight: bold;">
               <strong>Anomaly Score:</strong> ${anomalyScore?.toFixed(3)}
             </div>
+            ${explanationBlock}
           </div>
         `;
       },

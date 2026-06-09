@@ -61,16 +61,27 @@ export interface EchartsHandler {
   getEchartInstance: () => EChartsType | undefined;
 }
 
-export type DataRow = [x: string | number, y: number, ...rest: any[]];
+export type DataRow = [
+  x: string | number,
+  y: number | string | null,
+  ...rest: any[],
+];
 
 export type RawSeriesEntry = {
   name: string;
   data: DataRow[];
 };
 
+export type AnomalyPointMeta = {
+  y: number;
+  score: number;
+  /** Present when post-processing adds *_anomaly_explanation and the cell is non-empty. */
+  explanation?: string;
+};
+
 export type AnomalyLookup = Record<
   string, // series name
-  Map<string | number, { y: number; score: number }> // x-value -> {y-value, anomaly score}
+  Map<string | number, AnomalyPointMeta> // x-value -> y, score, optional explanation
 >;
 
 export enum ForecastSeriesEnum {
