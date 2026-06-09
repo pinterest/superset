@@ -38,9 +38,16 @@ describe('anomalyDetection utils', () => {
       expect(isSeriesAboutAnomaly('metric1')).toBe(false);
     });
 
+    it('should return true for anomaly explanation series', () => {
+      expect(isSeriesAboutAnomaly('metric1_anomaly_explanation')).toBe(true);
+    });
+
     it('should return false for series that partially match suffixes', () => {
       expect(isSeriesAboutAnomaly('metric1_is_anomaly_extra')).toBe(false);
       expect(isSeriesAboutAnomaly('metric1_anomaly_score_extra')).toBe(false);
+      expect(isSeriesAboutAnomaly('metric1_anomaly_explanation_extra')).toBe(
+        false,
+      );
     });
   });
 
@@ -147,12 +154,57 @@ describe('anomalyDetection utils', () => {
         score: DEFAULT_ANOMALY_SCORE,
       });
     });
+
+    it('should attach explanation when anomaly_explanation series has text', () => {
+      const rawSeries: RawSeriesEntry[] = [
+        {
+          name: 'metric1',
+          data: [
+            ['2025-01-01', 100],
+            ['2025-01-02', 200],
+          ],
+        },
+        {
+          name: 'metric1_is_anomaly',
+          data: [
+            ['2025-01-01', 0],
+            ['2025-01-02', 1],
+          ],
+        },
+        {
+          name: 'metric1_anomaly_score',
+          data: [
+            ['2025-01-01', 0],
+            ['2025-01-02', 0.9],
+          ],
+        },
+        {
+          name: 'metric1_anomaly_explanation',
+          data: [
+            ['2025-01-01', ''],
+            ['2025-01-02', 'Spike vs seasonal baseline'],
+          ],
+        },
+      ];
+      const seriesNameLookup = {
+        metric1: 'metric1',
+        metric1_is_anomaly: 'metric1_is_anomaly',
+        metric1_anomaly_score: 'metric1_anomaly_score',
+        metric1_anomaly_explanation: 'metric1_anomaly_explanation',
+      };
+      const lookup = createAnomalyLookup(rawSeries, seriesNameLookup);
+      expect(lookup.metric1.get('2025-01-02')).toEqual({
+        y: 200,
+        score: 0.9,
+        explanation: 'Spike vs seasonal baseline',
+      });
+    });
   });
 
   describe('createAnomalyScatterSeries', () => {
     const anomalyLookup: AnomalyLookup = {
       metric1: new Map([
-        ['2025-01-01', { y: 100, score: 0.8 }],
+        ['2025-01-01', { y: 100, score: 0.8, explanation: 'Cold start' }],
         ['2025-01-03', { y: 50, score: 0.5 }],
         ['2025-01-10', { y: 35, score: 0.1 }],
       ]),
@@ -177,12 +229,14 @@ describe('anomalyDetection utils', () => {
       const dataPoint1 = series.data![0] as any;
       expect(dataPoint1.value).toEqual(['2025-01-01', 100]);
       expect(dataPoint1.anomalyScore).toBe(0.8);
+      expect(dataPoint1.anomalyExplanation).toBe('Cold start');
       expect(dataPoint1.itemStyle.color).toBe(mockTheme.colors.error.base);
       expect(dataPoint1.symbolSize).toBe(6 + 0.8 * 4);
 
       const dataPoint2 = series.data![1] as any;
       expect(dataPoint2.value).toEqual(['2025-01-03', 50]);
       expect(dataPoint2.anomalyScore).toBe(0.5);
+      expect(dataPoint2.anomalyExplanation).toBeUndefined();
       expect(dataPoint2.itemStyle.color).toBe(mockTheme.colors.warning.base);
       expect(dataPoint2.symbolSize).toBe(6 + 0.5 * 4);
 
