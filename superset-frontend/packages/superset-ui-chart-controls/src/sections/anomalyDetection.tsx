@@ -1,15 +1,28 @@
 import { legacyValidateNumber, t } from '@superset-ui/core';
-import { ControlPanelSectionConfig } from '../types';
+import { ControlPanelSectionConfig, ControlStateMapping } from '../types';
 import { displayTimeRelatedControls } from '../utils';
+
+export const ANOMALY_DETECTION_ALGORITHM_ISOLATION_FOREST = 'isolation_forest';
+export const ANOMALY_DETECTION_ALGORITHM_Z_SCORE = 'z_score';
 
 export const ANOMALY_DETECTION_DEFAULT_DATA = {
   anomalyDetectionEnabled: false,
+  anomalyDetectionAlgorithm: ANOMALY_DETECTION_ALGORITHM_ISOLATION_FOREST,
+  // Isolation forest / LOF
   anomalyDetectionContaminationRate: 0.05,
   anomalyDetectionDetrend: true,
   anomalyDetectionYearlySeasonality: true,
   anomalyDetectionMonthlySeasonality: true,
   anomalyDetectionWeeklySeasonality: false,
+  // Z-score
+  anomalyDetectionZScoreThreshold: 3,
+  anomalyDetectionSlidingWindow: null,
 };
+
+// Visibility helpers: the algorithm selector swaps which parameter inputs show.
+const isAlgorithm = (controls: ControlStateMapping | undefined, algorithm: string) =>
+  (controls?.anomalyDetectionAlgorithm?.value ??
+    ANOMALY_DETECTION_DEFAULT_DATA.anomalyDetectionAlgorithm) === algorithm;
 
 export const anomalyDetectionControls: ControlPanelSectionConfig = {
   label: t('Warden Anomaly Detection'),
@@ -35,6 +48,30 @@ export const anomalyDetectionControls: ControlPanelSectionConfig = {
     ],
     [
       {
+        name: 'anomalyDetectionAlgorithm',
+        config: {
+          type: 'SelectControl',
+          label: t('Algorithm'),
+          renderTrigger: false,
+          clearable: false,
+          default: ANOMALY_DETECTION_DEFAULT_DATA.anomalyDetectionAlgorithm,
+          choices: [
+            [
+              ANOMALY_DETECTION_ALGORITHM_ISOLATION_FOREST,
+              t('Isolation Forest / LOF'),
+            ],
+            [ANOMALY_DETECTION_ALGORITHM_Z_SCORE, t('Z-Score')],
+          ],
+          description: t(
+            'Anomaly detection algorithm to run. Each algorithm exposes its own parameters below.',
+          ),
+          visibility: ({ controls }) =>
+            Boolean(controls?.anomalyDetectionEnabled?.value),
+        },
+      },
+    ],
+    [
+      {
         name: 'anomalyDetectionContaminationRate',
         config: {
           type: 'TextControl',
@@ -47,6 +84,9 @@ export const anomalyDetectionControls: ControlPanelSectionConfig = {
           description: t(
             'Usually somewhere between 0.01 to 0.05 (i.e. 1% to 5% of the data is anomalous).',
           ),
+          visibility: ({ controls }) =>
+            Boolean(controls?.anomalyDetectionEnabled?.value) &&
+            isAlgorithm(controls, ANOMALY_DETECTION_ALGORITHM_ISOLATION_FOREST),
         },
       },
     ],
@@ -61,6 +101,9 @@ export const anomalyDetectionControls: ControlPanelSectionConfig = {
           description: t(
             'Select this if your data is generally trending up or down, and you would like the anomaly detection model to NOT consider the trend when detecting anomalies. (This is especially useful if you want to detect local dips or spikes.)',
           ),
+          visibility: ({ controls }) =>
+            Boolean(controls?.anomalyDetectionEnabled?.value) &&
+            isAlgorithm(controls, ANOMALY_DETECTION_ALGORITHM_ISOLATION_FOREST),
         },
       },
     ],
@@ -76,6 +119,9 @@ export const anomalyDetectionControls: ControlPanelSectionConfig = {
           description: t(
             'Select this if the data behaves similarly the same time each year, and you would like the anomaly detection model to take that into account.',
           ),
+          visibility: ({ controls }) =>
+            Boolean(controls?.anomalyDetectionEnabled?.value) &&
+            isAlgorithm(controls, ANOMALY_DETECTION_ALGORITHM_ISOLATION_FOREST),
         },
       },
     ],
@@ -91,6 +137,9 @@ export const anomalyDetectionControls: ControlPanelSectionConfig = {
           description: t(
             'Select this if the data behaves similarly the same time each month, and you would like the anomaly detection model to take that into account.',
           ),
+          visibility: ({ controls }) =>
+            Boolean(controls?.anomalyDetectionEnabled?.value) &&
+            isAlgorithm(controls, ANOMALY_DETECTION_ALGORITHM_ISOLATION_FOREST),
         },
       },
     ],
@@ -106,6 +155,43 @@ export const anomalyDetectionControls: ControlPanelSectionConfig = {
           description: t(
             'Select this if the data behaves similarly the same time each week, and you would like the anomaly detection model to take that into account.',
           ),
+          visibility: ({ controls }) =>
+            Boolean(controls?.anomalyDetectionEnabled?.value) &&
+            isAlgorithm(controls, ANOMALY_DETECTION_ALGORITHM_ISOLATION_FOREST),
+        },
+      },
+    ],
+    [
+      {
+        name: 'anomalyDetectionZScoreThreshold',
+        config: {
+          type: 'TextControl',
+          label: t('Z-score threshold'),
+          validators: [legacyValidateNumber],
+          default: ANOMALY_DETECTION_DEFAULT_DATA.anomalyDetectionZScoreThreshold,
+          description: t(
+            'A data point is flagged as an anomaly when the absolute value of its z-score exceeds this threshold. A common starting point is 3.',
+          ),
+          visibility: ({ controls }) =>
+            Boolean(controls?.anomalyDetectionEnabled?.value) &&
+            isAlgorithm(controls, ANOMALY_DETECTION_ALGORITHM_Z_SCORE),
+        },
+      },
+    ],
+    [
+      {
+        name: 'anomalyDetectionSlidingWindow',
+        config: {
+          type: 'TextControl',
+          label: t('Sliding window'),
+          validators: [legacyValidateNumber],
+          default: ANOMALY_DETECTION_DEFAULT_DATA.anomalyDetectionSlidingWindow,
+          description: t(
+            'Optional. Number of data points in the local window used to compute the z-score. Leave blank to compute the z-score over the entire series.',
+          ),
+          visibility: ({ controls }) =>
+            Boolean(controls?.anomalyDetectionEnabled?.value) &&
+            isAlgorithm(controls, ANOMALY_DETECTION_ALGORITHM_Z_SCORE),
         },
       },
     ],

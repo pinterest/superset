@@ -1,18 +1,17 @@
-from typing import Optional
+from typing import Any, Optional
 
 import pandas as pd
 
 from superset.utils.core import DTTM_ALIAS
 
+DEFAULT_ALGORITHM = "isolation_forest"
+
 
 def anomaly_detection(
     df: pd.DataFrame,
-    contamination_rate: float,
-    detrend: Optional[bool] = True,
-    yearly_seasonality: Optional[bool] = True,
-    monthly_seasonality: Optional[bool] = True,
-    weekly_seasonality: Optional[bool] = False,
+    algorithm: str = DEFAULT_ALGORITHM,
     index: Optional[str] = None,
+    **algorithm_params: Any,
 ) -> pd.DataFrame:
     """
     Performs anomaly detection on each series in the time-series DataFrame.
@@ -25,15 +24,17 @@ def anomaly_detection(
     The column with `_anomaly_score` suffix is technically optional. If not present,
     all anomalies will be assigned a score of 0.5.
 
+    Multiple detection algorithms are supported. The ``algorithm`` argument selects
+    which one to run, and the remaining keyword arguments are forwarded as-is to that
+    algorithm. Each algorithm declares its own parameters (for example, the isolation
+    forest accepts ``contamination_rate`` and seasonality flags, while the z-score
+    accepts ``z_score_threshold`` and ``sliding_window``). See the algorithm runbook
+    for how to onboard a new algorithm.
+
     :param df: DataFrame containing time-series data
-    :param contamination_rate: the proportion of data points per series that could be
-        anomalies
-    :param detrend: whether to detrend each series before detecting anomalies
-    :param yearly_seasonality: whether to account for yearly seasonality in each series
-    :param monthly_seasonality: whether to account for monthly seasonality in each
-        series
-    :param weekly_seasonality: whether to account for weekly seasonality in each series
+    :param algorithm: identifier of the anomaly detection algorithm to run
     :param index: the name of the column containing the x-axis data
+    :param algorithm_params: algorithm-specific keyword parameters
     :return: DataFrame with anomaly detection results, with temporal column at
         beginning if present
     """
@@ -48,10 +49,7 @@ def anomaly_detection(
 
     return ANOMALY_DETECTION(
         df,
-        contamination_rate,
-        detrend,
-        yearly_seasonality,
-        monthly_seasonality,
-        weekly_seasonality,
-        index,
+        algorithm=algorithm,
+        index=index,
+        **algorithm_params,
     )
