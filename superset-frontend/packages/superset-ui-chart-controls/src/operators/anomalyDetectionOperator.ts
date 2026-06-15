@@ -13,7 +13,7 @@ export const anomalyDetectionOperator: PostProcessingFactory<
     const algorithm = formData.anomalyDetectionAlgorithm || 'isolation_forest';
 
     if (algorithm === 'z_score') {
-      const options: PostProcessingAnomalyDetection['options'] = {
+      const options: NonNullable<PostProcessingAnomalyDetection>['options'] = {
         algorithm,
         z_score_threshold: parseFloat(formData.anomalyDetectionZScoreThreshold),
         index: xAxisLabel,
