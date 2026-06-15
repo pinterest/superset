@@ -20,7 +20,10 @@ export const ANOMALY_DETECTION_DEFAULT_DATA = {
 };
 
 // Visibility helpers: the algorithm selector swaps which parameter inputs show.
-const isAlgorithm = (controls: ControlStateMapping | undefined, algorithm: string) =>
+const isAlgorithm = (
+  controls: ControlStateMapping | undefined,
+  algorithm: string,
+) =>
   (controls?.anomalyDetectionAlgorithm?.value ??
     ANOMALY_DETECTION_DEFAULT_DATA.anomalyDetectionAlgorithm) === algorithm;
 
@@ -168,7 +171,8 @@ export const anomalyDetectionControls: ControlPanelSectionConfig = {
           type: 'TextControl',
           label: t('Z-score threshold'),
           validators: [legacyValidateNumber],
-          default: ANOMALY_DETECTION_DEFAULT_DATA.anomalyDetectionZScoreThreshold,
+          default:
+            ANOMALY_DETECTION_DEFAULT_DATA.anomalyDetectionZScoreThreshold,
           description: t(
             'A data point is flagged as an anomaly when the absolute value of its z-score exceeds this threshold. A common starting point is 3.',
           ),

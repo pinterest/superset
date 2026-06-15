@@ -19,7 +19,10 @@ export const anomalyDetectionOperator: PostProcessingFactory<
         index: xAxisLabel,
       };
       // Sliding window is optional; only send it when the user provided a value.
-      const slidingWindow = parseInt(formData.anomalyDetectionSlidingWindow, 10);
+      const slidingWindow = parseInt(
+        formData.anomalyDetectionSlidingWindow,
+        10,
+      );
       if (!Number.isNaN(slidingWindow)) {
         options.sliding_window = slidingWindow;
       }
