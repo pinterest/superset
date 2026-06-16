@@ -61,6 +61,7 @@ Database Connections:
 Dataset Management:
 - list_datasets: List datasets with advanced filters (1-based pagination)
 - get_dataset_info: Get detailed dataset information by ID (includes columns/metrics)
+- create_dataset: Register a physical table as a dataset against an existing DB connection (requires write access)
 - create_virtual_dataset: Save a SQL query as a virtual dataset for charting
 
 Chart Management:
@@ -418,9 +419,9 @@ def create_mcp_app(
 # Create default MCP instance for backward compatibility
 mcp = create_mcp_app()
 
-# Initialize MCP dependency injection BEFORE importing tools/prompts
-# This replaces the abstract @tool and @prompt decorators in superset_core.api.mcp
-# with concrete implementations that can register with the mcp instance
+# Initialize MCP dependency injection BEFORE importing tools/prompts.
+# Replaces the stub @tool/@prompt decorators in superset_core.mcp.decorators
+# with concrete implementations bound to this mcp instance.
 from superset.core.mcp.core_mcp_injection import (  # noqa: E402
     initialize_core_mcp_dependencies,
 )
@@ -444,6 +445,7 @@ warnings.filterwarnings(
     category=FutureWarning,
     module=r"google\..*",
 )
+
 
 # Import all MCP tools to register them with the mcp instance
 # NOTE: Always add new tool imports here when creating new MCP tools.
@@ -477,6 +479,7 @@ from superset.mcp_service.database.tool import (  # noqa: F401, E402
     list_databases,
 )
 from superset.mcp_service.dataset.tool import (  # noqa: F401, E402
+    create_dataset,
     create_virtual_dataset,
     get_dataset_info,
     list_datasets,
@@ -528,8 +531,9 @@ def init_fastmcp_server(
     Returns:
         The global FastMCP instance configured with the provided settings
     """
-    # Read branding from Flask config's APP_NAME
-    from superset.mcp_service.flask_singleton import app as flask_app
+    # circular import: flask_singleton imports from superset.extensions which
+    # re-enters mcp_service during startup; must stay lazy inside the function.
+    from superset.mcp_service.flask_singleton import app as flask_app  # noqa: PLC0415
 
     # Derive branding from Superset's APP_NAME config (defaults to "Superset")
     app_name = flask_app.config.get("APP_NAME", "Superset")
