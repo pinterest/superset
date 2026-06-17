@@ -174,7 +174,9 @@ export const anomalyDetectionControls: ControlPanelSectionConfig = {
           default:
             ANOMALY_DETECTION_DEFAULT_DATA.anomalyDetectionZScoreThreshold,
           description: t(
-            'A data point is flagged as an anomaly when the absolute value of its z-score exceeds this threshold. A common starting point is 3.',
+            'Flags a point as anomalous when its absolute z-score exceeds this value. ' +
+              'Lower values are more sensitive; higher values are stricter. ' +
+              'A common starting point is 3.',
           ),
           visibility: ({ controls }) =>
             Boolean(controls?.anomalyDetectionEnabled?.value) &&
@@ -191,7 +193,9 @@ export const anomalyDetectionControls: ControlPanelSectionConfig = {
           validators: [legacyValidateNumber],
           default: ANOMALY_DETECTION_DEFAULT_DATA.anomalyDetectionSlidingWindow,
           description: t(
-            'Optional. Number of data points in the local window used to compute the z-score. Leave blank to compute the z-score over the entire series.',
+            'Optional. Recomputes z-scores within local windows of this size and keeps the ' +
+              'strongest score per point. Helps detect anomalies relative to nearby values, ' +
+              'not just the full series. Leave blank to compute the z-score over the entire series.',
           ),
           visibility: ({ controls }) =>
             Boolean(controls?.anomalyDetectionEnabled?.value) &&
