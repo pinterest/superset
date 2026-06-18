@@ -512,15 +512,12 @@ class WebDriverPlaywright(WebDriverProxy):
                         )
                         img = take_tiled_screenshot(page, element_name, tile_height)
                         if img is None:
-                            logger.warning(
-                                (
-                                    "Tiled screenshot failed, "
-                                    "falling back to standard screenshot"
-                                )
+                            logger.error(
+                                "Tiled screenshot failed at url %s; "
+                                "not falling back to avoid sending a blank PDF",
+                                url,
                             )
-                            img = WebDriverPlaywright._get_screenshot(
-                                page, element, element_name
-                            )
+                            return None
                     else:
                         logger.debug(
                             "Dashboard below tiling threshold "
