@@ -19,6 +19,7 @@
 import { anomalyDetectionOperator } from '../../src/operators/anomalyDetectionOperator';
 
 jest.mock('@superset-ui/core', () => ({
+  ...jest.requireActual('@superset-ui/core'),
   getXAxisLabel: jest.fn(),
 }));
 

@@ -1,9 +1,10 @@
-import { legacyValidateNumber, t } from '@superset-ui/core';
+import {
+  AnomalyDetectionAlgorithm,
+  legacyValidateNumber,
+  t,
+} from '@superset-ui/core';
 import { ControlPanelSectionConfig, ControlStateMapping } from '../types';
 import { displayTimeRelatedControls } from '../utils';
-import { AnomalyDetectionAlgorithm } from './anomalyDetectionAlgorithm';
-
-export { AnomalyDetectionAlgorithm } from './anomalyDetectionAlgorithm';
 
 export const ANOMALY_DETECTION_DEFAULT_DATA = {
   anomalyDetectionEnabled: false,

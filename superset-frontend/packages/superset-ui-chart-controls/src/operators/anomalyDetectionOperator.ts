@@ -1,9 +1,9 @@
 import {
+  AnomalyDetectionAlgorithm,
   PostProcessingAnomalyDetection,
   getXAxisLabel,
 } from '@superset-ui/core';
 import { PostProcessingFactory } from './types';
-import { AnomalyDetectionAlgorithm } from '../sections/anomalyDetectionAlgorithm';
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 export const anomalyDetectionOperator: PostProcessingFactory<

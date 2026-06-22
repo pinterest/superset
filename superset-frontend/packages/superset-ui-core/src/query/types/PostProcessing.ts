@@ -18,7 +18,11 @@
  */
 import { JsonObject } from '../../connection';
 import { TimeGranularity } from '../../time-format';
-import { RollingType, ComparisonType } from './AdvancedAnalytics';
+import {
+  RollingType,
+  ComparisonType,
+  AnomalyDetectionAlgorithm,
+} from './AdvancedAnalytics';
 
 export type NumpyFunction =
   | 'average'
@@ -140,7 +144,7 @@ interface _PostProcessingAnomalyDetection {
     // Identifies which Warden algorithm to run. Optional for backward
     // compatibility: charts saved before the selector existed omit it and the
     // backend defaults to isolation forest.
-    algorithm?: string;
+    algorithm?: AnomalyDetectionAlgorithm;
     // Isolation forest / LOF parameters
     contamination_rate?: number;
     detrend?: boolean;
