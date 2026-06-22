@@ -3,6 +3,7 @@ import {
   getXAxisLabel,
 } from '@superset-ui/core';
 import { PostProcessingFactory } from './types';
+import { AnomalyDetectionAlgorithm } from '../sections/anomalyDetectionAlgorithm';
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 export const anomalyDetectionOperator: PostProcessingFactory<
@@ -10,9 +11,11 @@ export const anomalyDetectionOperator: PostProcessingFactory<
 > = (formData, queryObject) => {
   const xAxisLabel = getXAxisLabel(formData);
   if (formData.anomalyDetectionEnabled && xAxisLabel) {
-    const algorithm = formData.anomalyDetectionAlgorithm || 'isolation_forest';
+    const algorithm =
+      formData.anomalyDetectionAlgorithm ||
+      AnomalyDetectionAlgorithm.IsolationForest;
 
-    if (algorithm === 'z_score') {
+    if (algorithm === AnomalyDetectionAlgorithm.ZScore) {
       const options: NonNullable<PostProcessingAnomalyDetection>['options'] = {
         algorithm,
         z_score_threshold: parseFloat(formData.anomalyDetectionZScoreThreshold),

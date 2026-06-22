@@ -1,13 +1,13 @@
 import { legacyValidateNumber, t } from '@superset-ui/core';
 import { ControlPanelSectionConfig, ControlStateMapping } from '../types';
 import { displayTimeRelatedControls } from '../utils';
+import { AnomalyDetectionAlgorithm } from './anomalyDetectionAlgorithm';
 
-export const ANOMALY_DETECTION_ALGORITHM_ISOLATION_FOREST = 'isolation_forest';
-export const ANOMALY_DETECTION_ALGORITHM_Z_SCORE = 'z_score';
+export { AnomalyDetectionAlgorithm } from './anomalyDetectionAlgorithm';
 
 export const ANOMALY_DETECTION_DEFAULT_DATA = {
   anomalyDetectionEnabled: false,
-  anomalyDetectionAlgorithm: ANOMALY_DETECTION_ALGORITHM_ISOLATION_FOREST,
+  anomalyDetectionAlgorithm: AnomalyDetectionAlgorithm.IsolationForest,
   // Isolation forest / LOF
   anomalyDetectionContaminationRate: 0.05,
   anomalyDetectionDetrend: true,
@@ -22,7 +22,7 @@ export const ANOMALY_DETECTION_DEFAULT_DATA = {
 // Visibility helpers: the algorithm selector swaps which parameter inputs show.
 const isAlgorithm = (
   controls: ControlStateMapping | undefined,
-  algorithm: string,
+  algorithm: AnomalyDetectionAlgorithm,
 ) =>
   (controls?.anomalyDetectionAlgorithm?.value ??
     ANOMALY_DETECTION_DEFAULT_DATA.anomalyDetectionAlgorithm) === algorithm;
@@ -60,10 +60,10 @@ export const anomalyDetectionControls: ControlPanelSectionConfig = {
           default: ANOMALY_DETECTION_DEFAULT_DATA.anomalyDetectionAlgorithm,
           choices: [
             [
-              ANOMALY_DETECTION_ALGORITHM_ISOLATION_FOREST,
+              AnomalyDetectionAlgorithm.IsolationForest,
               t('Isolation Forest / LOF'),
             ],
-            [ANOMALY_DETECTION_ALGORITHM_Z_SCORE, t('Z-Score')],
+            [AnomalyDetectionAlgorithm.ZScore, t('Z-Score')],
           ],
           description: t(
             'Anomaly detection algorithm to run. Each algorithm exposes its own parameters below.',
@@ -89,7 +89,7 @@ export const anomalyDetectionControls: ControlPanelSectionConfig = {
           ),
           visibility: ({ controls }) =>
             Boolean(controls?.anomalyDetectionEnabled?.value) &&
-            isAlgorithm(controls, ANOMALY_DETECTION_ALGORITHM_ISOLATION_FOREST),
+            isAlgorithm(controls, AnomalyDetectionAlgorithm.IsolationForest),
         },
       },
     ],
@@ -106,7 +106,7 @@ export const anomalyDetectionControls: ControlPanelSectionConfig = {
           ),
           visibility: ({ controls }) =>
             Boolean(controls?.anomalyDetectionEnabled?.value) &&
-            isAlgorithm(controls, ANOMALY_DETECTION_ALGORITHM_ISOLATION_FOREST),
+            isAlgorithm(controls, AnomalyDetectionAlgorithm.IsolationForest),
         },
       },
     ],
@@ -124,7 +124,7 @@ export const anomalyDetectionControls: ControlPanelSectionConfig = {
           ),
           visibility: ({ controls }) =>
             Boolean(controls?.anomalyDetectionEnabled?.value) &&
-            isAlgorithm(controls, ANOMALY_DETECTION_ALGORITHM_ISOLATION_FOREST),
+            isAlgorithm(controls, AnomalyDetectionAlgorithm.IsolationForest),
         },
       },
     ],
@@ -142,7 +142,7 @@ export const anomalyDetectionControls: ControlPanelSectionConfig = {
           ),
           visibility: ({ controls }) =>
             Boolean(controls?.anomalyDetectionEnabled?.value) &&
-            isAlgorithm(controls, ANOMALY_DETECTION_ALGORITHM_ISOLATION_FOREST),
+            isAlgorithm(controls, AnomalyDetectionAlgorithm.IsolationForest),
         },
       },
     ],
@@ -160,7 +160,7 @@ export const anomalyDetectionControls: ControlPanelSectionConfig = {
           ),
           visibility: ({ controls }) =>
             Boolean(controls?.anomalyDetectionEnabled?.value) &&
-            isAlgorithm(controls, ANOMALY_DETECTION_ALGORITHM_ISOLATION_FOREST),
+            isAlgorithm(controls, AnomalyDetectionAlgorithm.IsolationForest),
         },
       },
     ],
@@ -180,7 +180,7 @@ export const anomalyDetectionControls: ControlPanelSectionConfig = {
           ),
           visibility: ({ controls }) =>
             Boolean(controls?.anomalyDetectionEnabled?.value) &&
-            isAlgorithm(controls, ANOMALY_DETECTION_ALGORITHM_Z_SCORE),
+            isAlgorithm(controls, AnomalyDetectionAlgorithm.ZScore),
         },
       },
     ],
@@ -199,7 +199,7 @@ export const anomalyDetectionControls: ControlPanelSectionConfig = {
           ),
           visibility: ({ controls }) =>
             Boolean(controls?.anomalyDetectionEnabled?.value) &&
-            isAlgorithm(controls, ANOMALY_DETECTION_ALGORITHM_Z_SCORE),
+            isAlgorithm(controls, AnomalyDetectionAlgorithm.ZScore),
         },
       },
     ],
