@@ -1,17 +1,43 @@
-from typing import Any, Optional
+from typing import Optional, TypedDict
 
 import pandas as pd
+from typing_extensions import Unpack
 
 from superset.utils.core import DTTM_ALIAS
 
 DEFAULT_ALGORITHM = "isolation_forest"
 
 
+class IsolationForestParams(TypedDict, total=False):
+    """Parameters accepted by the isolation forest / LOF algorithm."""
+
+    contamination_rate: float
+    detrend: bool
+    yearly_seasonality: bool
+    monthly_seasonality: bool
+    weekly_seasonality: bool
+
+
+class ZScoreParams(TypedDict, total=False):
+    """Parameters accepted by the z-score algorithm."""
+
+    z_score_threshold: float
+    sliding_window: int
+
+
+class AnomalyDetectionParams(IsolationForestParams, ZScoreParams, total=False):
+    """Union of every supported algorithm's parameters.
+
+    Each algorithm reads only its own keys; onboarding a new algorithm adds a new
+    ``TypedDict`` to the bases here. See the algorithm runbook for details.
+    """
+
+
 def anomaly_detection(
     df: pd.DataFrame,
     algorithm: str = DEFAULT_ALGORITHM,
     index: Optional[str] = None,
-    **algorithm_params: Any,
+    **algorithm_params: Unpack[AnomalyDetectionParams],
 ) -> pd.DataFrame:
     """
     Performs anomaly detection on each series in the time-series DataFrame.

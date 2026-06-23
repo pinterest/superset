@@ -3,7 +3,11 @@ import {
   legacyValidateNumber,
   t,
 } from '@superset-ui/core';
-import { ControlPanelSectionConfig, ControlStateMapping } from '../types';
+import {
+  ControlPanelSectionConfig,
+  ControlPanelsContainerProps,
+  ControlStateMapping,
+} from '../types';
 import { displayTimeRelatedControls } from '../utils';
 
 export const ANOMALY_DETECTION_DEFAULT_DATA = {
@@ -27,6 +31,15 @@ const isAlgorithm = (
 ) =>
   (controls?.anomalyDetectionAlgorithm?.value ??
     ANOMALY_DETECTION_DEFAULT_DATA.anomalyDetectionAlgorithm) === algorithm;
+
+const isEnabled = ({ controls }: ControlPanelsContainerProps) =>
+  Boolean(controls?.anomalyDetectionEnabled?.value);
+
+// Shows a control only when detection is enabled and the given algorithm is selected.
+const isVisibleForAlgorithm =
+  (algorithm: AnomalyDetectionAlgorithm) =>
+  (props: ControlPanelsContainerProps) =>
+    isEnabled(props) && isAlgorithm(props.controls, algorithm);
 
 export const anomalyDetectionControls: ControlPanelSectionConfig = {
   label: t('Warden Anomaly Detection'),
@@ -69,8 +82,7 @@ export const anomalyDetectionControls: ControlPanelSectionConfig = {
           description: t(
             'Anomaly detection algorithm to run. Each algorithm exposes its own parameters below.',
           ),
-          visibility: ({ controls }) =>
-            Boolean(controls?.anomalyDetectionEnabled?.value),
+          visibility: isEnabled,
         },
       },
     ],
@@ -88,9 +100,9 @@ export const anomalyDetectionControls: ControlPanelSectionConfig = {
           description: t(
             'Usually somewhere between 0.01 to 0.05 (i.e. 1% to 5% of the data is anomalous).',
           ),
-          visibility: ({ controls }) =>
-            Boolean(controls?.anomalyDetectionEnabled?.value) &&
-            isAlgorithm(controls, AnomalyDetectionAlgorithm.IsolationForest),
+          visibility: isVisibleForAlgorithm(
+            AnomalyDetectionAlgorithm.IsolationForest,
+          ),
         },
       },
     ],
@@ -105,9 +117,9 @@ export const anomalyDetectionControls: ControlPanelSectionConfig = {
           description: t(
             'Select this if your data is generally trending up or down, and you would like the anomaly detection model to NOT consider the trend when detecting anomalies. (This is especially useful if you want to detect local dips or spikes.)',
           ),
-          visibility: ({ controls }) =>
-            Boolean(controls?.anomalyDetectionEnabled?.value) &&
-            isAlgorithm(controls, AnomalyDetectionAlgorithm.IsolationForest),
+          visibility: isVisibleForAlgorithm(
+            AnomalyDetectionAlgorithm.IsolationForest,
+          ),
         },
       },
     ],
@@ -123,9 +135,9 @@ export const anomalyDetectionControls: ControlPanelSectionConfig = {
           description: t(
             'Select this if the data behaves similarly the same time each year, and you would like the anomaly detection model to take that into account.',
           ),
-          visibility: ({ controls }) =>
-            Boolean(controls?.anomalyDetectionEnabled?.value) &&
-            isAlgorithm(controls, AnomalyDetectionAlgorithm.IsolationForest),
+          visibility: isVisibleForAlgorithm(
+            AnomalyDetectionAlgorithm.IsolationForest,
+          ),
         },
       },
     ],
@@ -141,9 +153,9 @@ export const anomalyDetectionControls: ControlPanelSectionConfig = {
           description: t(
             'Select this if the data behaves similarly the same time each month, and you would like the anomaly detection model to take that into account.',
           ),
-          visibility: ({ controls }) =>
-            Boolean(controls?.anomalyDetectionEnabled?.value) &&
-            isAlgorithm(controls, AnomalyDetectionAlgorithm.IsolationForest),
+          visibility: isVisibleForAlgorithm(
+            AnomalyDetectionAlgorithm.IsolationForest,
+          ),
         },
       },
     ],
@@ -159,9 +171,9 @@ export const anomalyDetectionControls: ControlPanelSectionConfig = {
           description: t(
             'Select this if the data behaves similarly the same time each week, and you would like the anomaly detection model to take that into account.',
           ),
-          visibility: ({ controls }) =>
-            Boolean(controls?.anomalyDetectionEnabled?.value) &&
-            isAlgorithm(controls, AnomalyDetectionAlgorithm.IsolationForest),
+          visibility: isVisibleForAlgorithm(
+            AnomalyDetectionAlgorithm.IsolationForest,
+          ),
         },
       },
     ],
@@ -179,9 +191,7 @@ export const anomalyDetectionControls: ControlPanelSectionConfig = {
               'Lower values are more sensitive; higher values are stricter. ' +
               'A common starting point is 3.',
           ),
-          visibility: ({ controls }) =>
-            Boolean(controls?.anomalyDetectionEnabled?.value) &&
-            isAlgorithm(controls, AnomalyDetectionAlgorithm.ZScore),
+          visibility: isVisibleForAlgorithm(AnomalyDetectionAlgorithm.ZScore),
         },
       },
     ],
@@ -198,9 +208,7 @@ export const anomalyDetectionControls: ControlPanelSectionConfig = {
               'strongest score per point. Helps detect anomalies relative to nearby values, ' +
               'not just the full series. Leave blank to compute the z-score over the entire series.',
           ),
-          visibility: ({ controls }) =>
-            Boolean(controls?.anomalyDetectionEnabled?.value) &&
-            isAlgorithm(controls, AnomalyDetectionAlgorithm.ZScore),
+          visibility: isVisibleForAlgorithm(AnomalyDetectionAlgorithm.ZScore),
         },
       },
     ],
