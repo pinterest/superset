@@ -273,6 +273,61 @@ class TestWebDriverSelenium:
         # Should create driver without errors
         mock_driver_class.assert_called_once()
 
+    @patch("superset.utils.webdriver.app")
+    @patch("superset.utils.webdriver.chrome")
+    def test_create_sets_page_load_timeout(
+        self, mock_chrome, mock_app_patch: MagicMock
+    ) -> None:
+        """driver.get() must be bounded so it can't block forever (#40047)."""
+        mock_app_patch.config = {
+            "WEBDRIVER_TYPE": "chrome",
+            "WEBDRIVER_OPTION_ARGS": [],
+            "SCREENSHOT_LOCATE_WAIT": 10,
+            "SCREENSHOT_LOAD_WAIT": 10,
+            "SCREENSHOT_PAGE_LOAD_WAIT": 120,
+            "WEBDRIVER_WINDOW": {},
+            "WEBDRIVER_CONFIGURATION": {},
+        }
+        mock_driver = MagicMock()
+        mock_chrome.webdriver.WebDriver = MagicMock(return_value=mock_driver)
+        mock_chrome.service.Service = MagicMock()
+        mock_options = MagicMock()
+        mock_options.add_argument = MagicMock()
+        mock_chrome.options.Options = MagicMock(return_value=mock_options)
+
+        driver = WebDriverSelenium(driver_type="chrome")
+        created = driver.create()
+
+        assert created is mock_driver
+        mock_driver.set_page_load_timeout.assert_called_once_with(120)
+
+    @patch("superset.utils.webdriver.app")
+    @patch("superset.utils.webdriver.chrome")
+    def test_create_skips_page_load_timeout_when_none(
+        self, mock_chrome, mock_app_patch: MagicMock
+    ) -> None:
+        """Setting SCREENSHOT_PAGE_LOAD_WAIT to None disables the bound."""
+        mock_app_patch.config = {
+            "WEBDRIVER_TYPE": "chrome",
+            "WEBDRIVER_OPTION_ARGS": [],
+            "SCREENSHOT_LOCATE_WAIT": 10,
+            "SCREENSHOT_LOAD_WAIT": 10,
+            "SCREENSHOT_PAGE_LOAD_WAIT": None,
+            "WEBDRIVER_WINDOW": {},
+            "WEBDRIVER_CONFIGURATION": {},
+        }
+        mock_driver = MagicMock()
+        mock_chrome.webdriver.WebDriver = MagicMock(return_value=mock_driver)
+        mock_chrome.service.Service = MagicMock()
+        mock_options = MagicMock()
+        mock_options.add_argument = MagicMock()
+        mock_chrome.options.Options = MagicMock(return_value=mock_options)
+
+        driver = WebDriverSelenium(driver_type="chrome")
+        driver.create()
+
+        mock_driver.set_page_load_timeout.assert_not_called()
+
 
 class TestPlaywrightAvailabilityCheck:
     """Test comprehensive Playwright availability checking."""

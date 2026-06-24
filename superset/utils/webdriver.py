@@ -513,7 +513,13 @@ class WebDriverSelenium(WebDriverProxy):
             }
 
         logger.debug("Init selenium driver")
-        return driver_class(**kwargs)
+        driver = driver_class(**kwargs)
+        # Bound driver.get() so an unreachable page raises a TimeoutException
+        # instead of blocking the worker (and the report schedule) forever.
+        page_load_wait = app.config["SCREENSHOT_PAGE_LOAD_WAIT"]
+        if page_load_wait is not None:
+            driver.set_page_load_timeout(page_load_wait)
+        return driver
 
     def auth(self, user: User) -> WebDriver:
         driver = self.create()
