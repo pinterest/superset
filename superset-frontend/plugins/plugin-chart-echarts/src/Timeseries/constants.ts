@@ -63,6 +63,8 @@ export const DEFAULT_FORM_DATA: EchartsTimeseriesFormData = {
     sections.FORECAST_DEFAULT_DATA.forecastSeasonalityYearly,
   anomalyDetectionEnabled:
     sections.ANOMALY_DETECTION_DEFAULT_DATA.anomalyDetectionEnabled,
+  anomalyDetectionAlgorithm:
+    sections.ANOMALY_DETECTION_DEFAULT_DATA.anomalyDetectionAlgorithm,
   anomalyDetectionContaminationRate:
     sections.ANOMALY_DETECTION_DEFAULT_DATA.anomalyDetectionContaminationRate,
   anomalyDetectionDetrend:
@@ -73,6 +75,10 @@ export const DEFAULT_FORM_DATA: EchartsTimeseriesFormData = {
     sections.ANOMALY_DETECTION_DEFAULT_DATA.anomalyDetectionMonthlySeasonality,
   anomalyDetectionWeeklySeasonality:
     sections.ANOMALY_DETECTION_DEFAULT_DATA.anomalyDetectionWeeklySeasonality,
+  anomalyDetectionZScoreThreshold:
+    sections.ANOMALY_DETECTION_DEFAULT_DATA.anomalyDetectionZScoreThreshold,
+  anomalyDetectionSlidingWindow:
+    sections.ANOMALY_DETECTION_DEFAULT_DATA.anomalyDetectionSlidingWindow,
   logAxis: false,
   markerEnabled: false,
   markerSize: 6,
