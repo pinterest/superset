@@ -2228,20 +2228,12 @@ CATALOGS_SIMPLIFIED_MIGRATION: bool = False
 # plug in your own anomaly detection function here
 # see superset/utils/pandas_postprocessing/anomaly_detection.py for parameter
 # descriptions
-ANOMALY_DETECTION: Optional[
-    Callable[
-        [
-            DataFrame,
-            float,
-            Optional[bool],
-            Optional[bool],
-            Optional[bool],
-            Optional[bool],
-            Optional[str],
-        ],
-        DataFrame,
-    ]
-] = None
+#
+# The callable is invoked as ANOMALY_DETECTION(df, algorithm=<str>, index=<str>,
+# **algorithm_params). Each algorithm declares its own keyword parameters, so the
+# signature is intentionally permissive to support onboarding new algorithms
+# without changing this type. See the algorithm runbook for details.
+ANOMALY_DETECTION: Optional[Callable[..., DataFrame]] = None
 
 # When updating a DB connection or manually triggering a perm sync, the command
 # happens in sync mode. If you have a celery worker configured, it's recommended

@@ -35,6 +35,11 @@ export enum ComparisonType {
   Percentage = 'percentage',
   Ratio = 'ratio',
 }
+
+export enum AnomalyDetectionAlgorithm {
+  IsolationForest = 'isolation_forest',
+  ZScore = 'z_score',
+}
 export interface TimeCompare {
   time_compare?: string;
   comparison_type?: ComparisonType;

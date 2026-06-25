@@ -65,11 +65,14 @@ export type EchartsTimeseriesFormData = QueryFormData & {
   forecastSeasonalityWeekly: null;
   forecastSeasonalityYearly: null;
   anomalyDetectionEnabled: boolean;
+  anomalyDetectionAlgorithm: string;
   anomalyDetectionContaminationRate: number;
   anomalyDetectionDetrend: boolean;
   anomalyDetectionYearlySeasonality: boolean;
   anomalyDetectionMonthlySeasonality: boolean;
   anomalyDetectionWeeklySeasonality: boolean;
+  anomalyDetectionZScoreThreshold: number;
+  anomalyDetectionSlidingWindow: number | null;
   logAxis: boolean;
   markerEnabled: boolean;
   markerSize: number;
