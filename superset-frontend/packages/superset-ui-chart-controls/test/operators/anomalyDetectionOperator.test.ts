@@ -19,6 +19,7 @@
 import { anomalyDetectionOperator } from '../../src/operators/anomalyDetectionOperator';
 
 jest.mock('@superset-ui/core', () => ({
+  ...jest.requireActual('@superset-ui/core'),
   getXAxisLabel: jest.fn(),
 }));
 
@@ -26,7 +27,7 @@ const { getXAxisLabel } = jest.requireMock('@superset-ui/core') as {
   getXAxisLabel: jest.Mock;
 };
 
-test('returns anomaly_detection postprocessing rule when enabled and x-axis exists', () => {
+test('returns isolation forest anomaly_detection rule when enabled and x-axis exists', () => {
   getXAxisLabel.mockReturnValue(['__timestamp']);
 
   const formData = {
@@ -43,11 +44,69 @@ test('returns anomaly_detection postprocessing rule when enabled and x-axis exis
   expect(anomalyDetectionOperator(formData, {})).toEqual({
     operation: 'anomaly_detection',
     options: {
+      algorithm: 'isolation_forest',
       contamination_rate: 0.1,
       detrend: true,
       yearly_seasonality: true,
       monthly_seasonality: false,
       weekly_seasonality: true,
+      index: ['__timestamp'],
+    },
+  });
+});
+
+test('defaults to isolation forest when no algorithm is set', () => {
+  getXAxisLabel.mockReturnValue(['__timestamp']);
+
+  const formData = {
+    anomalyDetectionEnabled: true,
+    anomalyDetectionContaminationRate: '0.05',
+  };
+
+  // @ts-ignore
+  const rule = anomalyDetectionOperator(formData, {});
+  // @ts-ignore
+  expect(rule.options.algorithm).toEqual('isolation_forest');
+});
+
+test('returns z-score rule with threshold and sliding window when selected', () => {
+  getXAxisLabel.mockReturnValue(['__timestamp']);
+
+  const formData = {
+    anomalyDetectionEnabled: true,
+    anomalyDetectionAlgorithm: 'z_score',
+    anomalyDetectionZScoreThreshold: '4',
+    anomalyDetectionSlidingWindow: '7',
+  };
+
+  // @ts-ignore
+  expect(anomalyDetectionOperator(formData, {})).toEqual({
+    operation: 'anomaly_detection',
+    options: {
+      algorithm: 'z_score',
+      z_score_threshold: 4,
+      sliding_window: 7,
+      index: ['__timestamp'],
+    },
+  });
+});
+
+test('omits sliding window for z-score when left blank', () => {
+  getXAxisLabel.mockReturnValue(['__timestamp']);
+
+  const formData = {
+    anomalyDetectionEnabled: true,
+    anomalyDetectionAlgorithm: 'z_score',
+    anomalyDetectionZScoreThreshold: '3',
+    anomalyDetectionSlidingWindow: '',
+  };
+
+  // @ts-ignore
+  expect(anomalyDetectionOperator(formData, {})).toEqual({
+    operation: 'anomaly_detection',
+    options: {
+      algorithm: 'z_score',
+      z_score_threshold: 3,
       index: ['__timestamp'],
     },
   });
