@@ -29,7 +29,7 @@ from superset.utils.webdriver import (
 )
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_app():
     """Mock Flask app with webdriver configuration."""
     app = MagicMock()
@@ -762,11 +762,10 @@ class TestWebDriverPlaywrightErrorHandling:
     @patch("superset.utils.webdriver.sync_playwright")
     @patch("superset.utils.webdriver.logger")
     @patch("superset.utils.webdriver.take_tiled_screenshot")
-    def test_tiled_screenshot_failure_returns_none_without_fallback(
+    def test_tiled_screenshot_failure_falls_back_to_standard_screenshot(
         self, mock_take_tiled, mock_logger, mock_sync_playwright
     ) -> None:
-        """When take_tiled_screenshot fails, return None rather than fall back to a
-        potentially blank standard screenshot."""
+        """When take_tiled_screenshot returns None, fall back to standard screenshot."""
         mock_user = MagicMock()
         mock_user.username = "test_user"
 
@@ -784,7 +783,8 @@ class TestWebDriverPlaywrightErrorHandling:
         mock_context.new_page.return_value = mock_page
         mock_page.locator.return_value = mock_element
         mock_element.wait_for.return_value = None
-        mock_element.screenshot.return_value = b"should_not_be_called"
+        # page.screenshot is used by _get_screenshot for the "standalone" element
+        mock_page.screenshot.return_value = b"fallback_screenshot"
 
         def evaluate_side_effect(script):
             if "querySelectorAll" in script:
@@ -794,7 +794,7 @@ class TestWebDriverPlaywrightErrorHandling:
             return None
 
         mock_page.evaluate.side_effect = evaluate_side_effect
-        mock_take_tiled.return_value = None  # tiled screenshot fails
+        mock_take_tiled.return_value = None  # tiled screenshot returns None
 
         with patch("superset.utils.webdriver.app") as mock_app:
             mock_app.config = {
@@ -820,13 +820,11 @@ class TestWebDriverPlaywrightErrorHandling:
 
                 driver = WebDriverPlaywright("chrome")
                 result = driver.get_screenshot(
-                    "http://example.com", "dashboard", mock_user
+                    "http://example.com", "standalone", mock_user
                 )
 
-        assert result is None
-        mock_element.screenshot.assert_not_called()
-        mock_logger.error.assert_any_call(
-            "Tiled screenshot failed at url %s; "
-            "not falling back to avoid sending a blank PDF",
-            "http://example.com",
+        assert result == b"fallback_screenshot"
+        mock_take_tiled.assert_called_once()
+        mock_logger.warning.assert_any_call(
+            ("Tiled screenshot failed, falling back to standard screenshot"),
         )

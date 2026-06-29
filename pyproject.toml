@@ -356,6 +356,7 @@ select = [
 
 ignore = [
     "S101",
+    "PT001",  # pytest-fixture-incorrect-parentheses-style: different ruff versions disagree
     "PT004",  # Fixtures that don't return values - underscore prefix conflicts with pytest usage
     "PT006",
     "T201",

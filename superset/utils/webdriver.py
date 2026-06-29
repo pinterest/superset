@@ -455,15 +455,6 @@ class WebDriverPlaywright(WebDriverProxy):
                 selenium_animation_wait = app.config[
                     "SCREENSHOT_SELENIUM_ANIMATION_WAIT"
                 ]
-                logger.debug(
-                    "Wait %i seconds for chart animation", selenium_animation_wait
-                )
-                page.wait_for_timeout(selenium_animation_wait * 1000)
-                logger.debug(
-                    "Taking a PNG screenshot of url %s as user %s",
-                    url,
-                    user.username,
-                )
                 if app.config["SCREENSHOT_REPLACE_UNEXPECTED_ERRORS"]:
                     unexpected_errors = WebDriverPlaywright.find_unexpected_errors(page)
                     if unexpected_errors:
@@ -510,14 +501,28 @@ class WebDriverPlaywright(WebDriverProxy):
                         page.set_viewport_size(
                             {"height": tile_height, "width": viewport_width}
                         )
-                        img = take_tiled_screenshot(page, element_name, tile_height)
-                        if img is None:
-                            logger.error(
-                                "Tiled screenshot failed at url %s; "
-                                "not falling back to avoid sending a blank PDF",
-                                url,
+                        img = take_tiled_screenshot(
+                            page,
+                            element_name,
+                            tile_height,
+                            load_wait=self._screenshot_load_wait,
+                            animation_wait=selenium_animation_wait,
+                        )
+                        if not img:
+                            logger.warning(
+                                (
+                                    "Tiled screenshot failed, "
+                                    "falling back to standard screenshot"
+                                )
                             )
-                            return None
+                            img = WebDriverPlaywright._get_screenshot(
+                                page, element, element_name
+                            )
+                        logger.debug(
+                            "Tiled screenshot result: %d bytes for url: %s",
+                            len(img) if img else 0,
+                            url,
+                        )
                     else:
                         logger.debug(
                             "Dashboard below tiling threshold "
@@ -551,6 +556,11 @@ class WebDriverPlaywright(WebDriverProxy):
                         img = WebDriverPlaywright._get_screenshot(
                             page, element, element_name
                         )
+                        logger.debug(
+                            "Screenshot result: %d bytes for url: %s",
+                            len(img) if img else 0,
+                            url,
+                        )
                 else:
                     logger.debug(
                         "Tiled screenshots disabled; using standard screenshot "
@@ -580,6 +590,11 @@ class WebDriverPlaywright(WebDriverProxy):
                     )
                     img = WebDriverPlaywright._get_screenshot(
                         page, element, element_name
+                    )
+                    logger.debug(
+                        "Screenshot result: %d bytes for url: %s",
+                        len(img) if img else 0,
+                        url,
                     )
 
             except PlaywrightTimeout:
