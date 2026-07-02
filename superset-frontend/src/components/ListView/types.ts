@@ -144,8 +144,6 @@ export enum ListViewFilterOperator {
   DashboardIsTier1Candidate = 'dashboard_is_tier1_candidate',
   /** Governance: filter by metric name */
   MetricName = 'metric_name',
-  /** Governance: filter by metric tier */
-  MetricTier = 'metric_tier',
   /** Governance: filter by metric grade */
   MetricGrade = 'metric_grade',
   /** Governance: filter by chart verification status */
