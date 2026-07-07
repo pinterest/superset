@@ -39,12 +39,13 @@ test('returns isolation forest anomaly_detection rule when enabled and x-axis ex
     anomalyDetectionWeeklySeasonality: true,
   };
 
-  // operator ignores queryObject
+  // operator ignores queryObject.
+  // Default Isolation Forest omits the `algorithm` key so the payload stays
+  // backward compatible with backends that predate algorithm selection.
   // @ts-ignore
   expect(anomalyDetectionOperator(formData, {})).toEqual({
     operation: 'anomaly_detection',
     options: {
-      algorithm: 'isolation_forest',
       contamination_rate: 0.1,
       detrend: true,
       yearly_seasonality: true,
@@ -55,7 +56,7 @@ test('returns isolation forest anomaly_detection rule when enabled and x-axis ex
   });
 });
 
-test('defaults to isolation forest when no algorithm is set', () => {
+test('omits algorithm from the default isolation forest payload', () => {
   getXAxisLabel.mockReturnValue(['__timestamp']);
 
   const formData = {
@@ -66,7 +67,7 @@ test('defaults to isolation forest when no algorithm is set', () => {
   // @ts-ignore
   const rule = anomalyDetectionOperator(formData, {});
   // @ts-ignore
-  expect(rule.options.algorithm).toEqual('isolation_forest');
+  expect(rule.options).not.toHaveProperty('algorithm');
 });
 
 test('returns z-score rule with threshold and sliding window when selected', () => {
