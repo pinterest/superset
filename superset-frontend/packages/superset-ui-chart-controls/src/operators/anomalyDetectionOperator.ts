@@ -32,10 +32,13 @@ export const anomalyDetectionOperator: PostProcessingFactory<
       return { operation: 'anomaly_detection', options };
     }
 
+    // Isolation Forest is the default. Emit the original pre-multi-algorithm
+    // payload shape (no `algorithm` key) so existing charts stay backward
+    // compatible with backends that predate algorithm selection. The new
+    // backend defaults to Isolation Forest when `algorithm` is absent.
     return {
       operation: 'anomaly_detection',
       options: {
-        algorithm,
         contamination_rate: parseFloat(
           formData.anomalyDetectionContaminationRate,
         ),
