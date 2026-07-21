@@ -9,6 +9,7 @@ from superset.commands.dataset.table_metadata.exceptions import (
 )
 from superset.commands.dataset.table_metadata.get import GetDatasetTableMetadataCommand
 from superset.sql.parse import Table
+from tests.conftest import with_config
 from tests.integration_tests.base_tests import SupersetTestCase
 
 
@@ -45,8 +46,8 @@ class TestGetDatasetTableMetadataCommand(SupersetTestCase):
         ).start()
         self.mock_dataset_find_by_id.return_value = MagicMock()
         self.mock_database_find_by_id.return_value = MagicMock()
-        self.mock_extract_tables = mock.patch(
-            "superset.commands.dataset.table_metadata.get.extract_tables_from_jinja_sql"
+        self.mock_process_jinja_sql = mock.patch(
+            "superset.commands.dataset.table_metadata.get.process_jinja_sql"
         ).start()
         self.addCleanup(mock.patch.stopall)
 
@@ -70,7 +71,7 @@ class TestGetDatasetTableMetadataCommand(SupersetTestCase):
         assert command._database.id == 3
 
     def test_no_tables_returned(self):
-        self.mock_extract_tables.return_value = set()
+        self.mock_process_jinja_sql.return_value.tables = set()
         self.mock_dataset_find_by_id.return_value = MagicMock(
             sql="SELECT *", table_name=None, schema=None
         )
@@ -82,7 +83,9 @@ class TestGetDatasetTableMetadataCommand(SupersetTestCase):
         }
 
     def test_schema_name_not_available(self):
-        self.mock_extract_tables.return_value = {Table(table="table_1", schema=None)}
+        self.mock_process_jinja_sql.return_value.tables = {
+            Table(table="table_1", schema=None)
+        }
         self.mock_dataset_find_by_id.return_value = MagicMock(
             sql="SELECT * FROM table_1", table_name=None, schema=None
         )
@@ -99,7 +102,7 @@ class TestGetDatasetTableMetadataCommand(SupersetTestCase):
         }
 
     def test_schema_name_returnedc(self):
-        self.mock_extract_tables.return_value = {
+        self.mock_process_jinja_sql.return_value.tables = {
             Table(table="table_1", schema="schema_a")
         }
         self.mock_dataset_find_by_id.return_value = MagicMock(
@@ -117,12 +120,9 @@ class TestGetDatasetTableMetadataCommand(SupersetTestCase):
             ],
         }
 
-    @mock.patch(
-        "superset.commands.dataset.table_metadata.get.DB_TABLE_METADATA",
-        mock_db_table_metadata,
-    )
+    @with_config({"DB_TABLE_METADATA": mock_db_table_metadata})
     def test_with_db_table_metadata_config(self):
-        self.mock_extract_tables.return_value = {
+        self.mock_process_jinja_sql.return_value.tables = {
             Table(table="table_1", schema="schema_a")
         }
         # self.mock_database_find_by_id.database_name = "test_db"
@@ -160,11 +160,13 @@ class TestGetDatasetTableMetadataCommand(SupersetTestCase):
             table_name=None,
             schema=None,
         )
-        self.mock_extract_tables.return_value = {Table(table="table_1", schema=None)}
+        self.mock_process_jinja_sql.return_value.tables = {
+            Table(table="table_1", schema=None)
+        }
         command = GetDatasetTableMetadataCommand(1)
         command.validate()
         tables = command._get_dataset_tables()
-        assert self.mock_extract_tables.call_count == 1
+        assert self.mock_process_jinja_sql.call_count == 1
         assert tables == {Table(table="table_1", schema=None)}
 
     def test__get_dataset_tables_physical_dataset(self):
@@ -176,5 +178,5 @@ class TestGetDatasetTableMetadataCommand(SupersetTestCase):
         command = GetDatasetTableMetadataCommand(1)
         command.validate()
         tables = command._get_dataset_tables()
-        assert self.mock_extract_tables.call_count == 0
+        assert self.mock_process_jinja_sql.call_count == 0
         assert tables == {Table(table="tablea", schema="schemaa", catalog="schemaa")}

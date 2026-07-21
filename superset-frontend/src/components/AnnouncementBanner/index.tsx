@@ -17,10 +17,9 @@
  * under the License.
  */
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { Alert } from 'antd';
 import { useTheme } from '@superset-ui/core';
+import { Alert, Icons } from '@superset-ui/core/components';
 import { useLocation } from 'react-router-dom';
-import Icons from 'src/components/Icons';
 import getBootstrapData from 'src/utils/getBootstrapData';
 import { getUrlParam } from 'src/utils/urlUtils';
 import { useUiConfig } from 'src/components/UiConfigContext';
@@ -34,20 +33,20 @@ interface AnnouncementConfig {
 
 const STORAGE_KEY_PREFIX = 'superset_announcement_dismissed_';
 
-const getIcon = (type: string) => {
+const getIcon = (type: AnnouncementConfig['type']) => {
   if (type === 'error') {
-    return <Icons.ErrorSolid />;
+    return <Icons.ExclamationCircleFilled />;
   }
 
   if (type === 'warning') {
-    return <Icons.AlertSolid />;
+    return <Icons.ExclamationCircleFilled />;
   }
 
   if (type === 'success') {
-    return <Icons.CircleCheckSolid />;
+    return <Icons.CheckCircleFilled />;
   }
 
-  return <Icons.InfoSolid />;
+  return <Icons.InfoCircleFilled />;
 };
 
 const AnnouncementBanner = () => {
@@ -55,7 +54,7 @@ const AnnouncementBanner = () => {
     () => new Set(),
   );
   const theme = useTheme();
-  const { gridUnit } = theme;
+  const { sizeUnit } = theme;
   const uiConfig = useUiConfig();
 
   // useLocation ensures component re-renders on route changes to properly
@@ -134,7 +133,7 @@ const AnnouncementBanner = () => {
           onClose={() => handleClose(announcement.id)}
           role="banner"
           showIcon
-          style={{ margin: `${gridUnit}px` }}
+          style={{ margin: `${sizeUnit}px` }}
           type={announcement.type}
         />
       ))}

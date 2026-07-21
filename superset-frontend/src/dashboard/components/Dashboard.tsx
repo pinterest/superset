@@ -21,7 +21,7 @@ import { debounce, DebouncedFunc } from 'lodash';
 import { t } from '@apache-superset/core/translation';
 import { JsonObject } from '@superset-ui/core';
 
-import { Loading } from '@superset-ui/core/components';
+import { Constants, Loading } from '@superset-ui/core/components';
 import { PluginContext } from 'src/components';
 import type { PluginContextType } from 'src/components/DynamicPlugins/types';
 import { FAST_DEBOUNCE } from 'src/constants';
@@ -136,7 +136,7 @@ class Dashboard extends PureComponent<DashboardProps> {
     // Debounce applyCharts to prevent expensive deep equality checks on every update
     this.debouncedApplyCharts = debounce(
       this.applyCharts.bind(this),
-      FAST_DEBOUNCE,
+      Constants.FAST_DEBOUNCE,
     );
   }
 

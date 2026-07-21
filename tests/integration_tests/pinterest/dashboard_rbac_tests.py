@@ -1,5 +1,3 @@
-import json
-
 import pytest
 from flask_appbuilder.security.sqla.models import (
     assoc_permissionview_role,
@@ -9,6 +7,7 @@ from flask_appbuilder.security.sqla.models import (
 
 from superset import db, security_manager
 from superset.models.dashboard import Dashboard
+from superset.utils import json
 from tests.integration_tests.base_tests import SupersetTestCase
 from tests.integration_tests.conftest import with_feature_flags
 from tests.integration_tests.fixtures.birth_names_dashboard import (

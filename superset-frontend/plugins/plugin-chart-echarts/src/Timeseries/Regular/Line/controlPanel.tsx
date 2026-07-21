@@ -31,7 +31,6 @@ import {
 } from '@superset-ui/chart-controls';
 
 import { pinterestCustomConfig } from '../../../pinterest-utils/controls';
-import { EchartsTimeseriesSeriesType } from '../../types';
 import {
   DEFAULT_FORM_DATA,
   TIME_SERIES_DESCRIPTION_TEXT,

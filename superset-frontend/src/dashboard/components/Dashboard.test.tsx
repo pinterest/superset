@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { render, screen } from 'spec/helpers/testing-library';
+import { render, screen, waitFor } from 'spec/helpers/testing-library';
 import { PluginContext } from 'src/components';
 import type { PluginContextType } from 'src/components/DynamicPlugins/types';
 
@@ -197,7 +197,7 @@ describe('Dashboard', () => {
       expect(mockTriggerQuery).not.toHaveBeenCalled();
     });
 
-    test('should call refresh when native filters changed', () => {
+    test('should call refresh when native filters changed', async () => {
       mockGetRelatedCharts.mockReturnValue([230]);
       const { rerender } = renderDashboard({ activeFilters: OVERRIDE_FILTERS });
 
@@ -222,10 +222,12 @@ describe('Dashboard', () => {
         </PluginContext.Provider>,
       );
 
-      expect(mockTriggerQuery).toHaveBeenCalled();
+      await waitFor(() => {
+        expect(mockTriggerQuery).toHaveBeenCalled();
+      });
     });
 
-    test('should call refresh if a filter is added', () => {
+    test('should call refresh if a filter is added', async () => {
       mockGetRelatedCharts.mockReturnValue([1]);
       const { rerender } = renderDashboard({ activeFilters: OVERRIDE_FILTERS });
 
@@ -241,10 +243,12 @@ describe('Dashboard', () => {
         </PluginContext.Provider>,
       );
 
-      expect(mockTriggerQuery).toHaveBeenCalled();
+      await waitFor(() => {
+        expect(mockTriggerQuery).toHaveBeenCalled();
+      });
     });
 
-    test('should call refresh if a filter is removed', () => {
+    test('should call refresh if a filter is removed', async () => {
       mockGetRelatedCharts.mockReturnValue([1]); // Ensure we return some charts to refresh
       const { rerender } = renderDashboard({ activeFilters: OVERRIDE_FILTERS });
 
@@ -256,10 +260,12 @@ describe('Dashboard', () => {
         </PluginContext.Provider>,
       );
 
-      expect(mockTriggerQuery).toHaveBeenCalledWith(true, 1);
+      await waitFor(() => {
+        expect(mockTriggerQuery).toHaveBeenCalledWith(true, 1);
+      });
     });
 
-    test('should call refresh if a filter is changed', () => {
+    test('should call refresh if a filter is changed', async () => {
       mockGetRelatedCharts.mockReturnValue([1]);
       const { rerender } = renderDashboard({ activeFilters: OVERRIDE_FILTERS });
 
@@ -276,10 +282,12 @@ describe('Dashboard', () => {
         </PluginContext.Provider>,
       );
 
-      expect(mockTriggerQuery).toHaveBeenCalled();
+      await waitFor(() => {
+        expect(mockTriggerQuery).toHaveBeenCalled();
+      });
     });
 
-    test('should call refresh with multiple chart ids', () => {
+    test('should call refresh with multiple chart ids', async () => {
       mockGetRelatedCharts.mockReturnValue([1, 2]);
       const { rerender } = renderDashboard({ activeFilters: OVERRIDE_FILTERS });
 
@@ -296,10 +304,12 @@ describe('Dashboard', () => {
         </PluginContext.Provider>,
       );
 
-      expect(mockTriggerQuery).toHaveBeenCalled();
+      await waitFor(() => {
+        expect(mockTriggerQuery).toHaveBeenCalled();
+      });
     });
 
-    test('should call refresh if a filter scope is changed', () => {
+    test('should call refresh if a filter scope is changed', async () => {
       mockGetRelatedCharts.mockReturnValue([2]);
       const { rerender } = renderDashboard({ activeFilters: OVERRIDE_FILTERS });
 
@@ -316,7 +326,9 @@ describe('Dashboard', () => {
         </PluginContext.Provider>,
       );
 
-      expect(mockTriggerQuery).toHaveBeenCalled();
+      await waitFor(() => {
+        expect(mockTriggerQuery).toHaveBeenCalled();
+      });
     });
 
     test('should call refresh with empty [] if a filter is changed but scope is not applicable', () => {

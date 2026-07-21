@@ -3,7 +3,7 @@ import { fireEvent, render, screen } from 'spec/helpers/testing-library';
 import DatasetTable from './DatasetTable';
 
 // Mock the TableView component
-jest.mock('src/components/TableView', () => {
+jest.mock('@superset-ui/core/components/TableView', () => {
   const MockTableView = function MockTableView({
     columns,
     data,
@@ -70,30 +70,32 @@ jest.mock('src/components/TableView', () => {
     );
   };
 
-  // Add the EmptyWrapperType enum
-  MockTableView.EmptyWrapperType = {
-    Small: 'Small',
-    Large: 'Large',
+  return {
+    EmptyWrapperType: {
+      Small: 'Small',
+      Large: 'Large',
+    },
+    TableView: MockTableView,
   };
-
-  return MockTableView;
 });
 
 // Mock the Loading component
-jest.mock('src/components/Loading', () => () => (
-  <div data-test="loading-component">Loading...</div>
-));
+jest.mock('@superset-ui/core/components/Loading', () => ({
+  Loading: () => <div data-test="loading-component">Loading...</div>,
+}));
 
 // Mock the FacePile component
-jest.mock('src/components/FacePile', () => ({ users }: any) => (
-  <div data-test="face-pile">
-    {users?.map((user: any, index: number) => (
-      <span key={index} data-test={`owner-${index}`}>
-        {user.firstName} {user.lastName}
-      </span>
-    ))}
-  </div>
-));
+jest.mock('src/components/FacePile', () => ({
+  FacePile: ({ users }: any) => (
+    <div data-test="face-pile">
+      {users?.map((user: any, index: number) => (
+        <span key={index} data-test={`owner-${index}`}>
+          {user.firstName} {user.lastName}
+        </span>
+      ))}
+    </div>
+  ),
+}));
 
 const mockData = [
   {

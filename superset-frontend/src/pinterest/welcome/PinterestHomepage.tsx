@@ -29,21 +29,31 @@ const StyledWelcomePageContainer = styled('div')`
   flex-direction: column;
   width: 100%;
   height: 100%;
-  padding: 15px;
+  padding: ${({ theme }) => theme.sizeUnit * 4}px;
+
+  .card-container,
+  .loading-cards {
+    padding-inline: ${({ theme }) => theme.sizeUnit * 9}px;
+  }
+
+  .loading-cards {
+    margin-top: ${({ theme }) => theme.sizeUnit * -6}px;
+  }
+
   .menu .ant-menu-item {
     li,
     div {
       a,
       div {
-        font-size: ${({ theme }) => theme.typography.sizes.l}px;
+        font-size: ${({ theme }) => theme.fontSizeLG}px;
       }
     }
   }
 `;
 
 const StyledHomepageTabDescription = styled('div')`
-  font-size: ${({ theme }) => theme.typography.sizes.m}px;
-  padding-left: 35px;
+  font-size: ${({ theme }) => theme.fontSize}px;
+  padding-inline-start: ${({ theme }) => theme.sizeUnit * 9}px;
   color: ${({ theme }) => theme.colorText};
 `;
 
@@ -63,7 +73,7 @@ export default function PinterestHomepage() {
 
   const history = useHistory();
   const user: UserWithPermissionsAndRoles = useSelector<
-    any,
+    { user: UserWithPermissionsAndRoles },
     UserWithPermissionsAndRoles
   >(state => state.user);
   const { addDangerToast } = useToasts();

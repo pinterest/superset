@@ -266,10 +266,10 @@ class DeltaTableTooltipFormatter {
         ) {
           data += '%';
           if ((columnData as number) > 0) {
-            color = this.theme.colors.success.dark1;
+            color = this.theme.colorSuccessActive;
             data += DIRECTION_SYMBOL[DeltaDirection.Up];
           } else if ((columnData as number) < 0) {
-            color = this.theme.colors.error.dark1;
+            color = this.theme.colorErrorActive;
             data += DIRECTION_SYMBOL[DeltaDirection.Down];
           }
         }

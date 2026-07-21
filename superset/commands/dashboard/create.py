@@ -18,10 +18,11 @@ import logging
 from functools import partial
 from typing import Any, Optional
 
+from flask import current_app
 from flask_appbuilder.models.sqla import Model
 from marshmallow import ValidationError
 
-from superset import app, security_manager
+from superset import security_manager
 from superset.commands.base import BaseCommand, CreateMixin
 from superset.commands.dashboard.exceptions import (
     DashboardCreateFailedError,
@@ -36,9 +37,6 @@ from superset.utils.decorators import on_error, transaction
 
 logger = logging.getLogger(__name__)
 
-config = app.config
-CREATE_PINTEREST_DASHBOARD_PROPERTIES = config["CREATE_PINTEREST_DASHBOARD_PROPERTIES"]
-
 
 class CreateDashboardCommand(CreateMixin, BaseCommand):
     def __init__(self, data: dict[str, Any]) -> None:
@@ -49,8 +47,11 @@ class CreateDashboardCommand(CreateMixin, BaseCommand):
         self.validate()
         new_dashboard = DashboardDAO.create(attributes=self._properties)
         db.session.flush()
-        if CREATE_PINTEREST_DASHBOARD_PROPERTIES:
-            CREATE_PINTEREST_DASHBOARD_PROPERTIES(new_dashboard.id)
+        create_dashboard_properties = current_app.config.get(
+            "CREATE_PINTEREST_DASHBOARD_PROPERTIES"
+        )
+        if create_dashboard_properties:
+            create_dashboard_properties(new_dashboard.id)
         return new_dashboard
 
     def validate(self) -> None:

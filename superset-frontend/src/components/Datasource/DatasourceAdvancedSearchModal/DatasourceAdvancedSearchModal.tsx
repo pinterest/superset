@@ -3,13 +3,15 @@ import {
   SORT_BY as DATASET_SORT_BY,
 } from 'src/features/datasets/constants';
 import { FunctionComponent, useCallback, useRef, useState } from 'react';
-import { ServerPagination, SortByType } from 'src/components/TableView/types';
 import { styled, t } from '@superset-ui/core';
+import { Constants, Modal } from '@superset-ui/core/components';
+import {
+  ServerPagination,
+  SortByType,
+} from '@superset-ui/core/components/TableView/types';
 
 import { Dataset } from '@superset-ui/chart-controls';
-import { FilterOperator } from 'src/components/ListView/types';
-import Modal from 'src/components/Modal';
-import { SLOW_DEBOUNCE } from 'src/constants';
+import { ListViewFilterOperator as FilterOperator } from 'src/components/ListView/types';
 import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
 import { useDebouncedEffect } from 'src/explore/exploreUtils';
 import { useListViewResource } from 'src/views/CRUD/hooks';
@@ -146,7 +148,7 @@ const DatasourceAdvancedSearchModal: FunctionComponent<
         sortBy,
       });
     },
-    SLOW_DEBOUNCE,
+    Constants.SLOW_DEBOUNCE,
     [pageIndex, sortBy, appliedFilters],
   );
 

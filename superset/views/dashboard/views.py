@@ -17,7 +17,7 @@
 import builtins
 from typing import Callable, Union
 
-from flask import g, redirect, Response, url_for
+from flask import current_app, g, redirect, Response, url_for
 from flask_appbuilder import expose
 from flask_appbuilder.actions import action
 from flask_appbuilder.models.sqla.interface import SQLAInterface
@@ -25,7 +25,7 @@ from flask_appbuilder.security.decorators import has_access
 from flask_babel import gettext as __
 from flask_login import AnonymousUserMixin, login_user
 
-from superset import app, event_logger, is_feature_enabled
+from superset import event_logger, is_feature_enabled
 from superset.constants import MODEL_VIEW_RW_METHOD_PERMISSION_MAP, RouteMethod
 from superset.extensions import db
 from superset.models.dashboard import Dashboard as DashboardModel
@@ -37,9 +37,6 @@ from superset.views.base import (
     SupersetModelView,
 )
 from superset.views.dashboard.mixin import DashboardMixin
-
-config = app.config
-CREATE_PINTEREST_DASHBOARD_PROPERTIES = config["CREATE_PINTEREST_DASHBOARD_PROPERTIES"]
 
 
 class DashboardModelView(DashboardMixin, SupersetModelView, DeleteMixin):  # pylint: disable=too-many-ancestors
@@ -88,8 +85,11 @@ class Dashboard(BaseSupersetView):
         )
         db.session.add(new_dashboard)
         db.session.flush()
-        if CREATE_PINTEREST_DASHBOARD_PROPERTIES:
-            CREATE_PINTEREST_DASHBOARD_PROPERTIES(new_dashboard.id)
+        create_dashboard_properties = current_app.config.get(
+            "CREATE_PINTEREST_DASHBOARD_PROPERTIES"
+        )
+        if create_dashboard_properties:
+            create_dashboard_properties(new_dashboard.id)
         db.session.commit()  # pylint: disable=consider-using-transaction
         return redirect(
             url_for(

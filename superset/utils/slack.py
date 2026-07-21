@@ -92,9 +92,7 @@ def get_channels() -> list[SlackChannelSchema]:
             except SlackApiError as ex:
                 status_code = getattr(ex.response, "status_code", None)
                 error_code = (
-                    ex.response.get("error")
-                    if hasattr(ex.response, "get")
-                    else None
+                    ex.response.get("error") if hasattr(ex.response, "get") else None
                 )
                 if status_code == 429 or error_code == "ratelimited":
                     headers = getattr(ex.response, "headers", {}) or {}

@@ -16,10 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Checkbox } from '@superset-ui/core/components';
 import { t } from '@superset-ui/core';
-import { useMemo } from 'react';
+import { Checkbox } from '@superset-ui/core/components';
 import WarningIconWithTooltip from '@superset-ui/core/components/WarningIconWithTooltip';
+import { useMemo } from 'react';
 import { ChartInfo } from 'src/dashboard/components/PropertiesModal';
 
 export type SyncChartOwnersControlProps = {

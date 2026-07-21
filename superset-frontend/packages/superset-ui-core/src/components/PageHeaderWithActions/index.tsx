@@ -187,9 +187,7 @@ export const PageHeaderWithActions = ({
             )}
           </div>
           {titleAdditionalItems && (
-            <div className="title-additional-items">
-              {titleAdditionalItems}
-            </div>
+            <div className="title-additional-items">{titleAdditionalItems}</div>
           )}
         </div>
         <div className="right-button-panel">

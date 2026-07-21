@@ -41,7 +41,7 @@ from marshmallow import ValidationError
 from werkzeug.wrappers import Response as WerkzeugResponse
 from werkzeug.wsgi import FileWrapper
 
-from superset import app, db, is_feature_enabled
+from superset import db, is_feature_enabled
 from superset.charts.schemas import ChartEntityResponseSchema
 from superset.commands.dashboard.copy import CopyDashboardCommand
 from superset.commands.dashboard.create import CreateDashboardCommand
@@ -153,9 +153,6 @@ from superset.views.filters import (
 )
 
 logger = logging.getLogger(__name__)
-
-config = app.config
-SYNC_PINTEREST_DASHBOARD_OWNERSHIP = config["SYNC_PINTEREST_DASHBOARD_OWNERSHIP"]
 
 
 def with_dashboard(
@@ -909,14 +906,17 @@ class DashboardRestApi(CustomTagsOptimizationMixin, BaseSupersetModelRestApi):
             ).timestamp()
 
             # Sync external dashboard ownership only when owners are included in PUT
-            if SYNC_PINTEREST_DASHBOARD_OWNERSHIP and "owners" in item:
+            sync_dashboard_ownership = current_app.config.get(
+                "SYNC_PINTEREST_DASHBOARD_OWNERSHIP"
+            )
+            if sync_dashboard_ownership and "owners" in item:
                 try:
                     technical_owner_usernames = [
                         owner.username
                         for owner in changed_model.owners
                         if owner.username is not None
                     ]
-                    SYNC_PINTEREST_DASHBOARD_OWNERSHIP(
+                    sync_dashboard_ownership(
                         dashboard_id=changed_model.id,
                         technical_owner_usernames=technical_owner_usernames,
                     )

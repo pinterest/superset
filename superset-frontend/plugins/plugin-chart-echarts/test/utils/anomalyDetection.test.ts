@@ -1,4 +1,4 @@
-import { SupersetTheme } from '@superset-ui/core';
+import { supersetTheme } from '@superset-ui/core';
 import {
   ANOMALY_POINT_CONFIG,
   DEFAULT_ANOMALY_SCORE,
@@ -9,13 +9,7 @@ import {
 } from '../../src/utils/anomalyDetection';
 import type { RawSeriesEntry, AnomalyLookup, Refs } from '../../src/types';
 
-const mockTheme: SupersetTheme = {
-  colors: {
-    error: { base: '#ff4d4f' },
-    warning: { base: '#faad14' },
-    info: { base: '#52c41a' },
-  },
-} as SupersetTheme;
+const mockTheme = supersetTheme;
 
 const mockRefs: Refs = {
   echartRef: { current: null },
@@ -230,20 +224,20 @@ describe('anomalyDetection utils', () => {
       expect(dataPoint1.value).toEqual(['2025-01-01', 100]);
       expect(dataPoint1.anomalyScore).toBe(0.8);
       expect(dataPoint1.anomalyExplanation).toBe('Cold start');
-      expect(dataPoint1.itemStyle.color).toBe(mockTheme.colors.error.base);
+      expect(dataPoint1.itemStyle.color).toBe(mockTheme.colorError);
       expect(dataPoint1.symbolSize).toBe(6 + 0.8 * 4);
 
       const dataPoint2 = series.data![1] as any;
       expect(dataPoint2.value).toEqual(['2025-01-03', 50]);
       expect(dataPoint2.anomalyScore).toBe(0.5);
       expect(dataPoint2.anomalyExplanation).toBeUndefined();
-      expect(dataPoint2.itemStyle.color).toBe(mockTheme.colors.warning.base);
+      expect(dataPoint2.itemStyle.color).toBe(mockTheme.colorWarning);
       expect(dataPoint2.symbolSize).toBe(6 + 0.5 * 4);
 
       const dataPoint3 = series.data![2] as any;
       expect(dataPoint3.value).toEqual(['2025-01-10', 35]);
       expect(dataPoint3.anomalyScore).toBe(0.1);
-      expect(dataPoint3.itemStyle.color).toBe(mockTheme.colors.info.base);
+      expect(dataPoint3.itemStyle.color).toBe(mockTheme.colorInfo);
       expect(dataPoint3.symbolSize).toBe(6 + 0.1 * 4);
     });
 

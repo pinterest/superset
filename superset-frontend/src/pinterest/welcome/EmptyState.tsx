@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Empty } from 'src/components';
+import { EmptyState as EmptyStateComponent } from '@superset-ui/core/components';
 import OriginalEmptyState, {
   EmptyContainer,
 } from 'src/features/home/EmptyState';
@@ -26,8 +26,9 @@ export default function EmptyState({ tab }: EmptyStateProps) {
     <OriginalEmptyState tableName={WelcomeTable.Dashboards} tab="favorites" />
   ) : (
     <EmptyContainer>
-      <Empty
-        image="/static/assets/images/empty-dashboard.svg"
+      <EmptyStateComponent
+        image="empty-dashboard.svg"
+        size="large"
         description={description}
       />
     </EmptyContainer>

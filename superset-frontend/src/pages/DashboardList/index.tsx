@@ -83,13 +83,9 @@ import { findPermission } from 'src/utils/findPermission';
 import { navigateTo } from 'src/utils/navigationUtils';
 import { WIDER_DROPDOWN_WIDTH } from 'src/components/ListView/utils';
 import { isUserAdmin } from 'src/dashboard/util/permissionUtils';
-import { ModifiedInfo } from 'src/components/AuditInfo';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
 import PinterestNewDashboardTierModal from '@pinterest-plugins/src/governance/pinterestNewDashboardTierModal';
-// @ts-ignore
-// eslint-disable-next-line import/no-unresolved
-import PinterestSoftDeletedCell from '@pinterest-plugins/src/governance/softDeletion/pinterestSoftDeletedCell';
 import {
   getDashboardListExtraColumnsToFetch,
   getDashboardListExtraListColumns,

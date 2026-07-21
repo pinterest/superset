@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+// @ts-ignore
 // eslint-disable-next-line import/no-unresolved
 import { pinterestControlMap } from '@pinterest-plugins/src/chart-controls/controlMap';
 import { sharedControlComponents } from '@superset-ui/chart-controls';

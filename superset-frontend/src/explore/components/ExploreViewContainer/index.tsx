@@ -889,21 +889,21 @@ function ExploreViewContainer(props: ExploreViewContainerProps) {
         <ConnectedExploreChartHeader
           // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Combined actions type is compatible at runtime
           actions={props.actions as any}
-        canOverwrite={props.can_overwrite}
-        canDownload={props.can_download}
-        dashboardId={props.dashboardId}
-        colorScheme={props.dashboardColorScheme}
-        isStarred={props.isStarred}
-        slice={props.slice}
-        sliceName={props.sliceName ?? undefined}
-        table_name={props.table_name}
-        formData={props.form_data}
-        chart={props.chart}
-        ownState={props.ownState}
-        user={props.user}
-        saveDisabled={!!errorMessage || props.chart.chartStatus === 'loading'}
-        metadata={props.metadata}
-        isSaveModalVisible={props.isSaveModalVisible}
+          canOverwrite={props.can_overwrite}
+          canDownload={props.can_download}
+          dashboardId={props.dashboardId}
+          colorScheme={props.dashboardColorScheme}
+          isStarred={props.isStarred}
+          slice={props.slice}
+          sliceName={props.sliceName ?? undefined}
+          table_name={props.table_name}
+          formData={props.form_data}
+          chart={props.chart}
+          ownState={props.ownState}
+          user={props.user}
+          saveDisabled={!!errorMessage || props.chart.chartStatus === 'loading'}
+          metadata={props.metadata}
+          isSaveModalVisible={props.isSaveModalVisible}
         />
       )}
       <ExplorePanelContainer id="explore-container">
@@ -975,7 +975,7 @@ function ExploreViewContainer(props: ExploreViewContainerProps) {
             width={width}
           />
           {/* eslint-enable @typescript-eslint/no-explicit-any */}
-          </Resizable>
+        </Resizable>
         )}
         {isCollapsed ? (
           <div

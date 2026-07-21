@@ -18,7 +18,9 @@ import logging
 from functools import partial
 from typing import Any
 
-from superset import app, is_feature_enabled, security_manager
+from flask import current_app
+
+from superset import is_feature_enabled, security_manager
 from superset.commands.base import BaseCommand
 from superset.commands.dashboard.exceptions import (
     DashboardCopyError,
@@ -31,9 +33,6 @@ from superset.models.dashboard import Dashboard
 from superset.utils.decorators import on_error, transaction
 
 logger = logging.getLogger(__name__)
-
-config = app.config
-CREATE_PINTEREST_DASHBOARD_PROPERTIES = config["CREATE_PINTEREST_DASHBOARD_PROPERTIES"]
 
 
 class CopyDashboardCommand(BaseCommand):
@@ -48,8 +47,11 @@ class CopyDashboardCommand(BaseCommand):
             self._original_dash, self._properties
         )
         db.session.flush()
-        if CREATE_PINTEREST_DASHBOARD_PROPERTIES:
-            CREATE_PINTEREST_DASHBOARD_PROPERTIES(copied_dashboard.id)
+        create_dashboard_properties = current_app.config.get(
+            "CREATE_PINTEREST_DASHBOARD_PROPERTIES"
+        )
+        if create_dashboard_properties:
+            create_dashboard_properties(copied_dashboard.id)
         db.session.commit()  # pylint: disable=consider-using-transaction
         return copied_dashboard
 

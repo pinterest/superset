@@ -37,11 +37,9 @@ export function getAdjustedAnomalyPointColor(
   score: number,
   theme: SupersetTheme,
 ): string {
-  if (score >= ANOMALY_SCORE_THRESHOLDS.HIGH) return theme.colors.error.base;
-  if (score >= ANOMALY_SCORE_THRESHOLDS.MEDIUM)
-    return theme.colors.warning.base;
-  // theme.colors.alert was removed from SupersetTheme
-  return theme.colors.info.base;
+  if (score >= ANOMALY_SCORE_THRESHOLDS.HIGH) return theme.colorError;
+  if (score >= ANOMALY_SCORE_THRESHOLDS.MEDIUM) return theme.colorWarning;
+  return theme.colorInfo;
 }
 
 export function getAdjustedAnomalyPointSize(
@@ -201,9 +199,7 @@ export function createAnomalyScatterSeries(
 
         return `
           <div style="text-align: left; padding: 8px; max-width: 280px;">
-            <div style="color: ${
-              theme.colors.error.base
-            }; font-weight: bold; margin-bottom: 4px;">
+            <div style="color: ${theme.colorError}; font-weight: bold; margin-bottom: 4px;">
               🚨 Anomaly Detected
             </div>
             <div><strong>Series:</strong> ${safeSeries}</div>

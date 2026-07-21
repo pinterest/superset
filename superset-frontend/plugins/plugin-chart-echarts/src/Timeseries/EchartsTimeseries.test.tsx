@@ -21,7 +21,7 @@ import {
   waitFor,
   cleanup,
 } from '../../../../spec/helpers/testing-library';
-import { AxisType } from '@superset-ui/core';
+import { AnomalyDetectionAlgorithm, AxisType } from '@superset-ui/core';
 import type { EChartsCoreOption } from 'echarts/core';
 import type { ReactNode } from 'react';
 import {
@@ -31,6 +31,7 @@ import {
   type EchartsProps,
 } from '../types';
 import EchartsTimeseries from './EchartsTimeseries';
+import { PINTEREST_DEFAULT_FORM_DATA } from '../pinterest-utils/constants';
 import {
   EchartsTimeseriesSeriesType,
   OrientationType,
@@ -103,6 +104,7 @@ const defaultFormData: EchartsTimeseriesFormData & {
   numberFormat: string;
   granularitySqla?: string;
 } = {
+  ...PINTEREST_DEFAULT_FORM_DATA,
   annotationLayers: [],
   area: false,
   colorScheme: undefined,
@@ -114,6 +116,15 @@ const defaultFormData: EchartsTimeseriesFormData & {
   forecastSeasonalityDaily: null,
   forecastSeasonalityWeekly: null,
   forecastSeasonalityYearly: null,
+  anomalyDetectionEnabled: false,
+  anomalyDetectionAlgorithm: AnomalyDetectionAlgorithm.IsolationForest,
+  anomalyDetectionContaminationRate: 0.05,
+  anomalyDetectionDetrend: true,
+  anomalyDetectionYearlySeasonality: true,
+  anomalyDetectionMonthlySeasonality: true,
+  anomalyDetectionWeeklySeasonality: false,
+  anomalyDetectionZScoreThreshold: 3,
+  anomalyDetectionSlidingWindow: null,
   logAxis: false,
   markerEnabled: false,
   markerSize: 1,

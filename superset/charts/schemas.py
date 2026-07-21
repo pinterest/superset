@@ -27,7 +27,7 @@ from marshmallow.validate import Length, Range
 from marshmallow_union import Union
 
 from superset.common.chart_data import ChartDataResultFormat, ChartDataResultType
-from superset.dashboards.schemas import UserSchema
+from superset.dashboards.schemas import UserSchema as DashboardUserSchema
 from superset.db_engine_specs.base import builtin_time_grains
 from superset.tags.models import TagType
 from superset.utils import pandas_postprocessing, schema as utils
@@ -184,7 +184,7 @@ class ChartEntityResponseSchema(Schema):
         metadata={"description": certification_details_description}
     )
     owners = fields.List(
-        fields.Nested(UserSchema),
+        fields.Nested(DashboardUserSchema),
         metadata={"description": owners_description},
     )
 
