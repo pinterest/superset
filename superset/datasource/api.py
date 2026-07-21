@@ -16,8 +16,7 @@
 # under the License.
 import logging
 
-from flask import current_app as app
-from flask import request
+from flask import current_app as app, request
 from flask_appbuilder.api import expose, protect, safe
 
 from superset import event_logger

@@ -54,6 +54,7 @@ import exportPivotExcel from 'src/utils/downloadAsPivotExcel';
 // eslint-disable-next-line import/no-unresolved
 import { canVerifyChart } from '@pinterest-plugins/src/governance/chartGovernancePermissions';
 import ViewQueryModal from '../controls/ViewQueryModal';
+import ViewTableInfoModal from '../controls/ViewTableInfoModal';
 import EmbedCodeContent from '../EmbedCodeContent';
 import { useDashboardsMenuItems } from './DashboardsSubMenu';
 

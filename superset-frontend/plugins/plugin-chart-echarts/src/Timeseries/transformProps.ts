@@ -638,7 +638,10 @@ export default function transformProps(
                 ),
             );
             const forecastValues: Record<string, ForecastValue> =
-              extractForecastValuesFromTooltipParams(forecastValue, isHorizontal);
+              extractForecastValuesFromTooltipParams(
+                forecastValue,
+                isHorizontal,
+              );
 
             const filteredForecastValues: Record<string, ForecastValue> =
               extractForecastValuesFromTooltipParams(
@@ -653,67 +656,69 @@ export default function transformProps(
                 value.forecastUpper,
             );
 
-        const formatter = forcePercentFormatter
-          ? percentFormatter
-          : (getCustomFormatter(customFormatters, metrics) ?? defaultFormatter);
+            const formatter = forcePercentFormatter
+              ? percentFormatter
+              : (getCustomFormatter(customFormatters, metrics) ??
+                defaultFormatter);
 
-        const rows: string[][] = [];
-        const total = Object.values(filteredForecastValues).reduce(
-          (acc, value) =>
-            value.observation !== undefined ? acc + value.observation : acc,
-          0,
-        );
-        const allowTotal = Boolean(isMultiSeries) && richTooltip && !isForecast;
-        const showPercentage =
-          allowTotal && !forcePercentFormatter && showTooltipPercentage;
-        const keys = Object.keys(forecastValues);
-        let focusedRow;
-        sortedKeys
-          .filter(key => keys.includes(key))
-          .forEach(key => {
-            const value = forecastValues[key];
-            if (value.observation === 0 && stack) {
-              return;
-            }
-            const row = formatForecastTooltipSeries({
-              ...value,
-              seriesName: key,
-              formatter,
-            });
-
-            const annotationRow = annotationLayers.some(
-              item => item.name === key,
+            const rows: string[][] = [];
+            const total = Object.values(filteredForecastValues).reduce(
+              (acc, value) =>
+                value.observation !== undefined ? acc + value.observation : acc,
+              0,
             );
+            const allowTotal =
+              Boolean(isMultiSeries) && richTooltip && !isForecast;
+            const showPercentage =
+              allowTotal && !forcePercentFormatter && showTooltipPercentage;
+            const keys = Object.keys(forecastValues);
+            let focusedRow;
+            sortedKeys
+              .filter(key => keys.includes(key))
+              .forEach(key => {
+                const value = forecastValues[key];
+                if (value.observation === 0 && stack) {
+                  return;
+                }
+                const row = formatForecastTooltipSeries({
+                  ...value,
+                  seriesName: key,
+                  formatter,
+                });
 
-            if (
-              showPercentage &&
-              value.observation !== undefined &&
-              !annotationRow
-            ) {
-              row.push(
-                percentFormatter.format(value.observation / (total || 1)),
-              );
+                const annotationRow = annotationLayers.some(
+                  item => item.name === key,
+                );
+
+                if (
+                  showPercentage &&
+                  value.observation !== undefined &&
+                  !annotationRow
+                ) {
+                  row.push(
+                    percentFormatter.format(value.observation / (total || 1)),
+                  );
+                }
+                rows.push(row);
+                if (key === focusedSeries) {
+                  focusedRow = rows.length - 1;
+                }
+              });
+            if (stack) {
+              rows.reverse();
+              if (focusedRow !== undefined) {
+                focusedRow = rows.length - focusedRow - 1;
+              }
             }
-            rows.push(row);
-            if (key === focusedSeries) {
-              focusedRow = rows.length - 1;
+            if (allowTotal && showTooltipTotal) {
+              const totalRow = ['Total', formatter.format(total)];
+              if (showPercentage) {
+                totalRow.push(percentFormatter.format(1));
+              }
+              rows.push(totalRow);
             }
-          });
-        if (stack) {
-          rows.reverse();
-          if (focusedRow !== undefined) {
-            focusedRow = rows.length - focusedRow - 1;
-          }
-        }
-        if (allowTotal && showTooltipTotal) {
-          const totalRow = ['Total', formatter.format(total)];
-          if (showPercentage) {
-            totalRow.push(percentFormatter.format(1));
-          }
-          rows.push(totalRow);
-        }
-        return tooltipHtml(rows, tooltipFormatter(xValue), focusedRow);
-      },
+            return tooltipHtml(rows, tooltipFormatter(xValue), focusedRow);
+          },
     },
     legend: {
       ...getLegendProps(

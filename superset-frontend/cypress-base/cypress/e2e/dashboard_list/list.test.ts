@@ -47,8 +47,11 @@ function confirmDelete(bulk = false) {
   interceptDelete();
   interceptBulkDelete();
 
-  cy.getBySel('delete-modal-input').should('be.visible').type('DELETE');
-  cy.getBySel('modal-confirm-button').click();
+  cy.getBySel('delete-modal-input').should('be.visible');
+  cy.getBySel('delete-modal-input').clear();
+  cy.getBySel('delete-modal-input').type('DELETE', { delay: 50 });
+  cy.getBySel('delete-modal-input').should('have.value', 'DELETE');
+  cy.getBySel('modal-confirm-button').should('not.be.disabled').click();
 
   if (bulk) {
     cy.wait('@bulkDelete');

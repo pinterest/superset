@@ -44,7 +44,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { isEqual, isEqualWith } from 'lodash';
 import { getChartDataRequest } from 'src/components/Chart/chartAction';
-import { ErrorAlert, ErrorMessageWithStackTrace } from 'src/components';
+import { ErrorMessageWithStackTrace } from 'src/components';
 import { Loading, Constants } from '@superset-ui/core/components';
 import { waitForAsyncData } from 'src/middleware/asyncEvent';
 import { FilterBarOrientation, RootState } from 'src/dashboard/types';

@@ -465,9 +465,16 @@ describe('UploadDataModal - Form Submission', () => {
     const uploadButton = screen.getByRole('button', { name: 'Upload' });
     await userEvent.click(uploadButton);
 
-    await waitFor(() => fetchMock.called('glob:*api/v1/database/1/upload/'), {
-      timeout: 10000,
-    });
+    await waitFor(
+      () => {
+        expect(
+          fetchMock.called('glob:*api/v1/database/1/upload/'),
+        ).toBeTruthy();
+      },
+      {
+        timeout: 10000,
+      },
+    );
     return fetchMock.calls('glob:*api/v1/database/1/upload/')[0];
   };
 
@@ -481,7 +488,7 @@ describe('UploadDataModal - Form Submission', () => {
     expect(formData.get('table_name')).toBe('table1');
     expect(formData.get('schema')).toBe('public');
     expect((formData.get('file') as File).name).toBe('test.csv');
-  });
+  }, 60000);
 
   test('Excel form submission', async () => {
     render(<UploadDataModal {...excelProps} />, { useRedux: true });
@@ -493,7 +500,7 @@ describe('UploadDataModal - Form Submission', () => {
     expect(formData.get('table_name')).toBe('table1');
     expect(formData.get('schema')).toBe('public');
     expect((formData.get('file') as File).name).toBe('test.xls');
-  });
+  }, 60000);
 
   test('Columnar form submission', async () => {
     render(<UploadDataModal {...columnarProps} />, { useRedux: true });

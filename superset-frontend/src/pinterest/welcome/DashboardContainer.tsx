@@ -6,9 +6,8 @@ import { LoadingCards } from 'src/pages/Home';
 import { CardContainer, CardStyles } from 'src/views/CRUD/utils';
 import { addDangerToast } from 'src/components/MessageToasts/actions';
 import { styled, t } from '@superset-ui/core';
+import { FaveStar, ListViewCard } from '@superset-ui/core/components';
 import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
-import ListViewCard from 'src/components/ListViewCard';
-import FaveStar from 'src/components/FaveStar';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
 import PinterestSoftDeletedCardOverlay from '@pinterest-plugins/src/governance/softDeletion/pinterestSoftDeletedCardOverlay';
@@ -25,7 +24,7 @@ type DashboardContainerProps = {
 const Styles = styled.div`
   .card-container {
     max-height: none;
-    grid-gap: ${({ theme }) => `${theme.gridUnit * 4}px`};
+    grid-gap: ${({ theme }) => `${theme.sizeUnit * 4}px`};
   }
 `;
 

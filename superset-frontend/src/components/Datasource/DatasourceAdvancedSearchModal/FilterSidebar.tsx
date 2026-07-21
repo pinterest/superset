@@ -1,4 +1,7 @@
-import { FilterOperator, Filters } from 'src/components/ListView';
+import {
+  ListViewFilterOperator as FilterOperator,
+  ListViewFilters,
+} from 'src/components/ListView';
 import {
   createErrorHandler,
   createFetchDistinct,
@@ -7,22 +10,19 @@ import {
 import { styled, t } from '@superset-ui/core';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { AntdInput } from 'src/components';
-import Button from 'src/components/Button';
-import { FormLabel } from 'src/components/Form';
-import Icons from 'src/components/Icons';
+import { Button, FormLabel, Icons, Input } from '@superset-ui/core/components';
 import SearchFilter from 'src/components/ListView/Filters/Search';
 import SelectFilter from 'src/components/ListView/Filters/Select';
 import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
 
 const SIDEBAR_WIDTH = '250px';
 
-const SearchIcon = styled(Icons.Search)`
-  color: ${({ theme }) => theme.colors.grayscale.light1};
+const SearchIcon = styled(Icons.SearchOutlined)`
+  color: ${({ theme }) => theme.colorTextDescription};
 `;
 
-const StyledInput = styled(AntdInput)`
-  border-radius: ${({ theme }) => theme.gridUnit}px;
+const StyledInput = styled(Input)`
+  border-radius: ${({ theme }) => theme.sizeUnit}px;
 `;
 
 const createUserForFilters = (user: UserWithPermissionsAndRoles) => {
@@ -36,7 +36,9 @@ const createUserForFilters = (user: UserWithPermissionsAndRoles) => {
   };
 };
 
-const createFilterDefinitions = (user: any): Filters => [
+const createFilterDefinitions = (
+  user: UserWithPermissionsAndRoles,
+): ListViewFilters => [
   {
     Header: t('Name'),
     key: 'table_name',
@@ -129,13 +131,13 @@ const createFilterDefinitions = (user: any): Filters => [
 ];
 
 export const FilterSection = styled.div`
-  margin-bottom: ${({ theme }) => theme.gridUnit * 4}px;
+  margin-bottom: ${({ theme }) => theme.sizeUnit * 4}px;
 `;
 
 const Sidebar = styled.div`
   width: ${SIDEBAR_WIDTH};
-  border-right: 1px solid ${({ theme }) => theme.colors.grayscale.light2};
-  padding: ${({ theme }) => theme.gridUnit * 5}px;
+  border-right: 1px solid ${({ theme }) => theme.colorBorderSecondary};
+  padding: ${({ theme }) => theme.sizeUnit * 5}px;
   overflow-y: auto;
   flex-shrink: 0;
 `;
@@ -270,7 +272,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
           buttonStyle="secondary"
           block
         >
-          {t('Clear Filters')}
+          {t('Clear filters')}
         </Button>
       </FilterSection>
     </Sidebar>

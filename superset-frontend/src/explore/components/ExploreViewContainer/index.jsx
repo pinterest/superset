@@ -586,23 +586,23 @@ function ExploreViewContainer(props) {
     <ExploreContainer>
       {!minimalChartMode && (
         <ConnectedExploreChartHeader
-        actions={props.actions}
-        canOverwrite={props.can_overwrite}
-        canDownload={props.can_download}
-        dashboardId={props.dashboardId}
-        colorScheme={props.dashboardColorScheme}
-        isStarred={props.isStarred}
-        slice={props.slice}
-        sliceName={props.sliceName}
-        table_name={props.table_name}
-        formData={props.form_data}
-        chart={props.chart}
-        ownState={props.ownState}
-        user={props.user}
-        reports={props.reports}
-        saveDisabled={errorMessage || props.chart.chartStatus === 'loading'}
-        metadata={props.metadata}
-        isSaveModalVisible={props.isSaveModalVisible}
+          actions={props.actions}
+          canOverwrite={props.can_overwrite}
+          canDownload={props.can_download}
+          dashboardId={props.dashboardId}
+          colorScheme={props.dashboardColorScheme}
+          isStarred={props.isStarred}
+          slice={props.slice}
+          sliceName={props.sliceName}
+          table_name={props.table_name}
+          formData={props.form_data}
+          chart={props.chart}
+          ownState={props.ownState}
+          user={props.user}
+          reports={props.reports}
+          saveDisabled={errorMessage || props.chart.chartStatus === 'loading'}
+          metadata={props.metadata}
+          isSaveModalVisible={props.isSaveModalVisible}
         />
       )}
       <ExplorePanelContainer id="explore-container">
@@ -632,47 +632,47 @@ function ExploreViewContainer(props) {
         />
         {!minimalChartMode && (
           <Resizable
-          onResizeStop={(evt, direction, ref, d) => {
-            setWidth(ref.getBoundingClientRect().width);
-            setSidebarWidths(LocalStorageKeys.DatasourceWidth, d);
-          }}
-          defaultSize={{
-            width: getSidebarWidths(LocalStorageKeys.DatasourceWidth),
-            height: '100%',
-          }}
-          minWidth={defaultSidebarsWidth[LocalStorageKeys.DatasourceWidth]}
-          maxWidth="33%"
-          enable={{ right: true }}
-          className={
-            isCollapsed ? 'no-show' : 'explore-column data-source-selection'
-          }
-        >
-          <div className="title-container">
-            <span className="horizontal-text">{t('Chart Source')}</span>
-            <span
-              role="button"
-              tabIndex={0}
-              className="action-button"
-              onClick={toggleCollapse}
-            >
-              <Icons.VerticalAlignTopOutlined
-                iconSize="xl"
-                css={css`
-                  transform: rotate(-90deg);
-                `}
-                className="collapse-icon"
-                iconColor={theme.colorPrimary}
-              />
-            </span>
-          </div>
-          <DataSourcePanel
-            formData={props.form_data}
-            datasource={props.datasource}
-            controls={props.controls}
-            actions={props.actions}
-            width={width}
-            user={props.user}
-          />
+            onResizeStop={(evt, direction, ref, d) => {
+              setWidth(ref.getBoundingClientRect().width);
+              setSidebarWidths(LocalStorageKeys.DatasourceWidth, d);
+            }}
+            defaultSize={{
+              width: getSidebarWidths(LocalStorageKeys.DatasourceWidth),
+              height: '100%',
+            }}
+            minWidth={defaultSidebarsWidth[LocalStorageKeys.DatasourceWidth]}
+            maxWidth="33%"
+            enable={{ right: true }}
+            className={
+              isCollapsed ? 'no-show' : 'explore-column data-source-selection'
+            }
+          >
+            <div className="title-container">
+              <span className="horizontal-text">{t('Chart Source')}</span>
+              <span
+                role="button"
+                tabIndex={0}
+                className="action-button"
+                onClick={toggleCollapse}
+              >
+                <Icons.VerticalAlignTopOutlined
+                  iconSize="xl"
+                  css={css`
+                    transform: rotate(-90deg);
+                  `}
+                  className="collapse-icon"
+                  iconColor={theme.colorPrimary}
+                />
+              </span>
+            </div>
+            <DataSourcePanel
+              formData={props.form_data}
+              datasource={props.datasource}
+              controls={props.controls}
+              actions={props.actions}
+              width={width}
+              user={props.user}
+            />
           </Resizable>
         )}
         {isCollapsed ? (

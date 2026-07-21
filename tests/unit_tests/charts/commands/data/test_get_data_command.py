@@ -42,6 +42,8 @@ def test_query_result_type_allows_validation_error_payload() -> None:
     # Mock QueryContext with result_type=QUERY
     mock_query_context = Mock(spec=QueryContext)
     mock_query_context.result_type = ChartDataResultType.QUERY
+    mock_query_context.slice_ = None
+    mock_query_context.form_data = {}
     mock_query_context.get_payload.return_value = {
         "queries": [{"error": "Missing temporal column", "language": "sql"}]
     }
@@ -67,6 +69,8 @@ def test_full_result_type_raises_on_error() -> None:
     # Mock QueryContext with result_type=FULL
     mock_query_context = Mock(spec=QueryContext)
     mock_query_context.result_type = ChartDataResultType.FULL
+    mock_query_context.slice_ = None
+    mock_query_context.form_data = {}
     mock_query_context.get_payload.return_value = {
         "queries": [{"error": "Invalid column name"}]
     }
@@ -89,6 +93,8 @@ def test_results_result_type_raises_on_error() -> None:
     # Mock QueryContext with result_type=RESULTS
     mock_query_context = Mock(spec=QueryContext)
     mock_query_context.result_type = ChartDataResultType.RESULTS
+    mock_query_context.slice_ = None
+    mock_query_context.form_data = {}
     mock_query_context.get_payload.return_value = {
         "queries": [{"error": "Database connection failed"}]
     }
@@ -111,6 +117,8 @@ def test_query_result_type_returns_successful_query() -> None:
     # Mock QueryContext with result_type=QUERY and successful query
     mock_query_context = Mock(spec=QueryContext)
     mock_query_context.result_type = ChartDataResultType.QUERY
+    mock_query_context.slice_ = None
+    mock_query_context.form_data = {}
     mock_query_context.get_payload.return_value = {
         "queries": [{"query": "SELECT * FROM table", "language": "sql"}]
     }
@@ -134,6 +142,8 @@ def test_full_result_type_returns_successful_data() -> None:
     # Mock QueryContext with result_type=FULL and successful data
     mock_query_context = Mock(spec=QueryContext)
     mock_query_context.result_type = ChartDataResultType.FULL
+    mock_query_context.slice_ = None
+    mock_query_context.form_data = {}
     mock_query_context.get_payload.return_value = {
         "queries": [{"data": [{"col1": "value1"}], "colnames": ["col1"]}]
     }
@@ -158,6 +168,8 @@ def test_query_result_type_with_multiple_queries_and_mixed_results() -> None:
     # Mock QueryContext with multiple queries
     mock_query_context = Mock(spec=QueryContext)
     mock_query_context.result_type = ChartDataResultType.QUERY
+    mock_query_context.slice_ = None
+    mock_query_context.form_data = {}
     mock_query_context.get_payload.return_value = {
         "queries": [
             {"query": "SELECT * FROM table1", "language": "sql"},
@@ -193,6 +205,8 @@ def test_full_result_type_fails_fast_on_first_error_in_multiple_queries() -> Non
     # Mock QueryContext with multiple queries where first has error
     mock_query_context = Mock(spec=QueryContext)
     mock_query_context.result_type = ChartDataResultType.FULL
+    mock_query_context.slice_ = None
+    mock_query_context.form_data = {}
     mock_query_context.get_payload.return_value = {
         "queries": [
             {"error": "First query failed"},

@@ -2,8 +2,9 @@ import logging
 from typing import List
 
 from celery.utils.log import get_task_logger
+from flask import current_app
 
-from superset import app, db
+from superset import db
 from superset.daos.datasource import DatasourceDAO
 from superset.extensions import celery_app
 from superset.models.dashboard import Dashboard
@@ -43,7 +44,7 @@ def cache_thumbnails_by_tags(tags: List[str]) -> None:
 def cache_column_values(datasource_id: int, column_name: str) -> None:
     """Cache column values for a given datasource and column name."""
     datasource = DatasourceDAO.get_datasource(DatasourceType.TABLE, datasource_id)
-    row_limit = apply_max_row_limit(app.config["FILTER_SELECT_ROW_LIMIT"])
+    row_limit = apply_max_row_limit(current_app.config["FILTER_SELECT_ROW_LIMIT"])
     denormalize_column = not datasource.normalize_columns
     datasource.values_for_column(
         column_name,

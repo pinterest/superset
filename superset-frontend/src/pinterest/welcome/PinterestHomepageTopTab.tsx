@@ -1,14 +1,14 @@
-import { styled, SupersetTheme } from '@superset-ui/core';
+import { styled } from '@superset-ui/core';
 import { LoadingCards } from 'src/pages/Home';
 import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
 import DashboardContainer from './DashboardContainer';
 import { TopSectionInfo } from './types';
 
 const StyledSectionHeader = styled('div')`
-  font-weight: bold;
-  font-size: 36px;
-  padding-left: 35px;
-  color: ${({ theme }: { theme: SupersetTheme }) => theme.colorError};
+  font-weight: ${({ theme }) => theme.fontWeightStrong};
+  font-size: ${({ theme }) => theme.fontSizeHeading1}px;
+  padding-inline-start: ${({ theme }) => theme.sizeUnit * 9}px;
+  color: ${({ theme }) => theme.colorError};
 `;
 
 type PinterestHomepageTopTabProps = {
@@ -21,7 +21,7 @@ export default function PinterestHomepageTopTab({
   user,
 }: PinterestHomepageTopTabProps) {
   if (!dashboardsBySection) {
-    return <LoadingCards />;
+    return <LoadingCards cover />;
   }
   return (
     <div>

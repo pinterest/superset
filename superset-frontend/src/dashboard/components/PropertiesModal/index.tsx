@@ -73,10 +73,6 @@ import { areObjectsEqual } from 'src/reduxUtils';
 import { ModalTitleWithIcon } from 'src/components/ModalTitleWithIcon';
 import SyncChartOwnersControl from 'src/dashboard/components/PropertiesModal/SyncChartOwnersControl';
 
-const StyledFormItem = styled(FormItem)`
-  margin-bottom: 0;
-`;
-
 const StyledJsonEditor = styled(JsonEditor)`
   /* Border is already applied by AceEditor itself */
 `;

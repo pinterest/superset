@@ -389,11 +389,15 @@ def cached_common_bootstrap_data(  # pylint: disable=unused-argument
         for k in FRONTEND_CONF_KEYS
     }
 
-    if conf.get("PINTEREST_FRONTEND_CONF_KEYS"):
+    if pinterest_frontend_conf_keys := app.config.get("PINTEREST_FRONTEND_CONF_KEYS"):
         frontend_config.update(
             {
-                k: (list(conf.get(k)) if isinstance(conf.get(k), set) else conf.get(k))
-                for k in conf.get("PINTEREST_FRONTEND_CONF_KEYS")
+                key: (
+                    list(app.config.get(key))
+                    if isinstance(app.config.get(key), set)
+                    else app.config.get(key)
+                )
+                for key in pinterest_frontend_conf_keys
             }
         )
 

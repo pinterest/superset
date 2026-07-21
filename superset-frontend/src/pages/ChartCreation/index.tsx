@@ -360,7 +360,7 @@ export class ChartCreation extends PureComponent<
                     buttonStyle="secondary"
                     onClick={this.openAdvancedSearch}
                   >
-                    {t('Advanced Search')}
+                    {t('Advanced search')}
                   </Button>
                   <span className="help-text">{datasetHelpText}</span>
                 </div>

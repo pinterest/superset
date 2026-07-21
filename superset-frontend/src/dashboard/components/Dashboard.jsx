@@ -21,9 +21,8 @@ import PropTypes from 'prop-types';
 import { debounce } from 'lodash';
 import { t } from '@superset-ui/core';
 
-import { Loading } from '@superset-ui/core/components';
+import { Constants, Loading } from '@superset-ui/core/components';
 import { PluginContext } from 'src/components';
-import { FAST_DEBOUNCE } from 'src/constants';
 import getBootstrapData from 'src/utils/getBootstrapData';
 import getChartIdsFromLayout from '../util/getChartIdsFromLayout';
 import getLayoutComponentFromChartId from '../util/getLayoutComponentFromChartId';
@@ -96,7 +95,7 @@ class Dashboard extends PureComponent {
     // Debounce applyCharts to prevent expensive deep equality checks on every update
     this.debouncedApplyCharts = debounce(
       this.applyCharts.bind(this),
-      FAST_DEBOUNCE,
+      Constants.FAST_DEBOUNCE,
     );
   }
 

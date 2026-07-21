@@ -16,10 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import Checkbox from 'src/components/Checkbox';
 import { t } from '@superset-ui/core';
+import { Checkbox } from '@superset-ui/core/components';
+import WarningIconWithTooltip from '@superset-ui/core/components/WarningIconWithTooltip';
 import { useMemo } from 'react';
-import WarningIconWithTooltip from 'src/components/WarningIconWithTooltip';
 import { ChartInfo } from 'src/dashboard/components/PropertiesModal';
 
 export type SyncChartOwnersControlProps = {
@@ -83,7 +83,7 @@ const SyncChartOwnersControl = ({
         // data-test selector isn't being rendered by the checkbox span.
         // Wrap this in a div to find this checkbox in tests.
         checked={autoSyncChartsEnabled}
-        onChange={onChange}
+        onChange={event => onChange(event.target.checked)}
         style={{ marginRight: '8px' }}
       />
       <span

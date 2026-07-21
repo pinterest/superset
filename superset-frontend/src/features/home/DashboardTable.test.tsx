@@ -208,10 +208,10 @@ describe('DashboardTable', () => {
       { store },
     );
 
-    const mineTab = screen.getByRole('menuitem', { name: /mine/i });
-    await userEvent.click(mineTab);
+    const mineTab = screen.getByRole('tab', { name: /mine/i });
+    await userEvent.click(screen.getByText('Mine'));
     await waitFor(() => {
-      expect(mineTab).toHaveClass('ant-menu-item-selected');
+      expect(mineTab).toHaveAttribute('aria-selected', 'true');
     });
   });
 
@@ -249,8 +249,10 @@ describe('DashboardTable', () => {
     );
 
     const otherTab = screen.getByRole('tab', { name: 'Examples' });
-    await userEvent.click(otherTab);
-    expect(otherTab).toHaveClass('active');
+    await userEvent.click(screen.getByText('Examples'));
+    await waitFor(() => {
+      expect(otherTab).toHaveAttribute('aria-selected', 'true');
+    });
   });
 
   it('handles bulk dashboard export', async () => {

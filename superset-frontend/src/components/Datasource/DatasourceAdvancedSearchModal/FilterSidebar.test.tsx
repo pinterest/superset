@@ -55,7 +55,7 @@ describe('FilterSidebar', () => {
 
   test('renders clear filters button', () => {
     render(<FilterSidebar {...defaultProps} />);
-    expect(screen.getByText('Clear Filters')).toBeInTheDocument();
+    expect(screen.getByText('Clear filters')).toBeInTheDocument();
   });
 
   test('renders name filter with custom search input', () => {
@@ -98,7 +98,7 @@ describe('FilterSidebar', () => {
     const onClearFilters = jest.fn();
     render(<FilterSidebar {...defaultProps} onClearFilters={onClearFilters} />);
 
-    const clearButton = screen.getByText('Clear Filters');
+    const clearButton = screen.getByText('Clear filters');
     fireEvent.click(clearButton);
 
     expect(onClearFilters).toHaveBeenCalledTimes(1);

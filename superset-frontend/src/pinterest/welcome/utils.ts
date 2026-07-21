@@ -17,6 +17,13 @@ const DEFAULT_DASHBOARD_FILTER_PARAMS = {
   ],
 };
 
+const getDashboardListLink = (
+  filters?: Record<string, { label: string; value: string | number | boolean }>,
+) =>
+  filters
+    ? `/dashboard/list/?filters=${rison.encode(filters)}`
+    : '/dashboard/list/';
+
 const queryDashboards = async (params: string, onError: () => void) => {
   try {
     const { json } = await SupersetClient.get({
@@ -35,17 +42,29 @@ export const getViewAllLinkByTab = (
   user: UserWithPermissionsAndRoles,
 ): string => {
   if (activeTab === HomepageTab.Top) {
-    const topTagValue = getBootstrapData().common.conf.PINTEREST_TOP_TAG_ID;
-    return `/dashboard/list/?filters=(tags:(label:Top,value:${topTagValue}))`;
+    const topTagValue =
+      getBootstrapData().common.conf.PINTEREST_TOP_TAG_ID ?? 'Top';
+    return getDashboardListLink({
+      tags: { label: t('Top'), value: topTagValue },
+    });
   }
   if (activeTab === HomepageTab.Recommended) {
-    return '/dashboard/list/';
+    return getDashboardListLink();
   }
   if (activeTab === HomepageTab.Favorites) {
-    return `/dashboard/list/?filters=(favorite:(label:${t('Yes')},value:!t))`;
+    return getDashboardListLink({
+      favorite: { label: t('Yes'), value: true },
+    });
   }
   // activeTab === HomepageTab.Mine
-  return `/dashboard/list/?filters=(owners:(label:'${user.firstName} ${user.lastName}',value:${user.userId}))`;
+  return user.userId == null
+    ? getDashboardListLink()
+    : getDashboardListLink({
+        owner: {
+          label: `${user.firstName} ${user.lastName}`,
+          value: user.userId,
+        },
+      });
 };
 
 const getDashboardsByTag = async (

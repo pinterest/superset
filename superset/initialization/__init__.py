@@ -460,11 +460,11 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
             for menu_item in self.config["PINTEREST_MENU_ITEMS"]:
                 appbuilder.add_link(
                     menu_item["name"],
-                    label=__(menu_item["name"]),
+                    label=_(menu_item["name"]),
                     href=menu_item["href"],
                     icon=menu_item["icon"],
                     category="Pinterest",
-                    category_label=__("Pinterest"),
+                    category_label=_("Pinterest"),
                     category_icon=menu_item["icon"],
                 )
             appbuilder.add_separator("Pinterest")
@@ -482,7 +482,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
             for custom_link in self.config["PINTEREST_CUSTOM_LINKS"]:
                 appbuilder.add_link(
                     custom_link["name"],
-                    label=__(custom_link["name"]),
+                    label=_(custom_link["name"]),
                     href=custom_link["href"],
                     icon=custom_link.get("icon", ""),
                     category=custom_link.get("category", ""),

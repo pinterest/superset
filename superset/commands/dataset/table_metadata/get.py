@@ -1,7 +1,8 @@
 from functools import partial
 from typing import cast, Optional
 
-from superset import app
+from flask import current_app
+
 from superset.commands.base import BaseCommand
 from superset.commands.dataset.exceptions import DatasetNotFoundError
 from superset.commands.dataset.table_metadata.exceptions import (
@@ -16,13 +17,8 @@ from superset.pinterest.types import (
     TableMetadata,
     TableMetadataField,
 )
-from superset.sql.parse import Table
-from superset.sql_parse import extract_tables_from_jinja_sql
+from superset.sql.parse import process_jinja_sql, Table
 from superset.utils.decorators import on_error, transaction
-
-config = app.config
-
-DB_TABLE_METADATA = config["DB_TABLE_METADATA"]
 
 
 class GetDatasetTableMetadataCommand(BaseCommand):
@@ -39,7 +35,7 @@ class GetDatasetTableMetadataCommand(BaseCommand):
         assert self._database is not None
 
         if self._dataset.sql:
-            return extract_tables_from_jinja_sql(self._dataset.sql, self._database)
+            return process_jinja_sql(self._dataset.sql, self._database).tables
         return {
             Table(self._dataset.table_name, self._dataset.schema, self._dataset.schema)
         }
@@ -56,12 +52,13 @@ class GetDatasetTableMetadataCommand(BaseCommand):
                 table_name = f"{table.schema}.{table.table}"
             else:
                 table_name = table.table
+            db_table_metadata = current_app.config.get("DB_TABLE_METADATA")
             metadata_fields = (
                 cast(
                     list[TableMetadataField],
-                    DB_TABLE_METADATA(self._database, table.schema, table.table),
+                    db_table_metadata(self._database, table.schema, table.table),
                 )
-                if DB_TABLE_METADATA
+                if db_table_metadata
                 else None
             )
             table_metadata.append(

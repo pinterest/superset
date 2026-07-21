@@ -93,9 +93,13 @@ const StyledHeader = styled.div<{ backgroundColor?: string }>`
       padding: ${({ theme }) => theme.sizeUnit}px
         ${({ theme }) => theme.sizeUnit * 4}px;
       margin-right: ${({ theme }) => theme.sizeUnit}px;
+
+      &::after {
+        border-bottom: none;
+      }
     }
     .ant-menu-item:hover,
-    .ant-menu-item:has(> span > .active) {
+    .ant-menu-item-selected {
       background-color: ${({ theme }) => theme.colorPrimaryBgHover};
       color: ${({ theme }) => theme.colorText};
     }
@@ -215,10 +219,11 @@ const SubMenuComponent: FunctionComponent<SubMenuProps> = props => {
           mode={showMenu}
           disabledOverflow
           role="tablist"
+          selectedKeys={props.activeChild ? [props.activeChild] : []}
           items={props.tabs?.map(tab => {
             if ((props.usesRouter || hasHistory) && !!tab.usesRouter) {
               return {
-                key: tab.label,
+                key: tab.name,
                 label: (
                   <Link
                     to={tab.url || ''}
@@ -235,7 +240,7 @@ const SubMenuComponent: FunctionComponent<SubMenuProps> = props => {
               };
             }
             return {
-              key: tab.label,
+              key: tab.name,
               label: (
                 <div
                   className={cx('no-router', {

@@ -196,8 +196,10 @@ const Header = () => {
   const [emphasizeUndo, setEmphasizeUndo] = useState(false);
   const [emphasizeRedo, setEmphasizeRedo] = useState(false);
   const [showingPropertiesModal, setShowingPropertiesModal] = useState(false);
-  const [showingPinterestTieringInfoModal, setShowingPinterestTieringInfoModal] =
-    useState(false);
+  const [
+    showingPinterestTieringInfoModal,
+    setShowingPinterestTieringInfoModal,
+  ] = useState(false);
   const [
     showingPinterestPromoteTier1Modal,
     setShowingPinterestPromoteTier1Modal,

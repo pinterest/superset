@@ -21,7 +21,7 @@ from flask_appbuilder import expose
 from flask_login import AnonymousUserMixin, login_user
 from flask_wtf.csrf import same_origin
 
-from superset import conf, event_logger, is_feature_enabled
+from superset import event_logger, is_feature_enabled
 from superset.daos.dashboard import EmbeddedDashboardDAO
 from superset.models.dashboard import Dashboard
 from superset.models.embedded_dashboard import EmbeddedDashboard
@@ -64,7 +64,7 @@ class EmbeddedView(BaseSupersetView):
             if dashboard:
                 embedded = EmbeddedDashboard()
                 embedded.allow_domain_list = ",".join(
-                    conf.get(
+                    current_app.config.get(
                         "PINTEREST_EMBEDDED_SUPERSET_BY_ID_OR_SLUG_ALLOWED_DOMAINS"
                     )
                 )

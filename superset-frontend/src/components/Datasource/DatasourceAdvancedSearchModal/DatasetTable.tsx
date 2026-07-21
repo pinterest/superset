@@ -1,8 +1,11 @@
-import TableView, { EmptyWrapperType } from 'src/components/TableView';
 import { styled, t } from '@superset-ui/core';
+import {
+  EmptyWrapperType,
+  Loading,
+  TableView,
+} from '@superset-ui/core/components';
 
-import FacePile from 'src/components/FacePile';
-import Loading from 'src/components/Loading';
+import { FacePile } from 'src/components/FacePile';
 import { useMemo } from 'react';
 
 const TableContainer = styled.div`
@@ -47,17 +50,17 @@ const MainContent = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: ${({ theme }) => theme.gridUnit * 5}px;
+  padding: ${({ theme }) => theme.sizeUnit * 5}px;
   min-height: 0;
   overflow: hidden;
 `;
 
 const StyledSpan = styled.span`
   cursor: pointer;
-  color: ${({ theme }) => theme.colors.primary.dark1};
+  color: ${({ theme }) => theme.colorPrimary};
 
   &:hover {
-    color: ${({ theme }) => theme.colors.primary.dark2};
+    color: ${({ theme }) => theme.colorPrimaryHover};
   }
 `;
 

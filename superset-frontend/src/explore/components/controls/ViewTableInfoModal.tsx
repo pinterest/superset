@@ -1,9 +1,8 @@
 import { FC, useState, useCallback, useEffect } from 'react';
 
 import { styled, css, SupersetClient, SupersetTheme } from '@superset-ui/core';
-import Loading from 'src/components/Loading';
+import { Collapse, Loading } from '@superset-ui/core/components';
 import ViewQuery from 'src/explore/components/controls/ViewQuery';
-import { AntdCollapse } from 'src/components';
 
 interface ViewTableInfoModalProps {
   datasetId: number;
@@ -30,29 +29,29 @@ const ViewTableInfoModalContainer = styled.div`
 
 const TableMetadataInfo = (theme: SupersetTheme) => css`
   .metadata-key {
-    font-weight: ${theme.typography.weights.normal};
-    font-size: ${theme.typography.sizes.m}px;
-    color: ${theme.colors.grayscale.base};
-    margin-bottom: ${theme.gridUnit * 2}px;
+    font-weight: ${theme.fontWeightNormal};
+    font-size: ${theme.fontSize}px;
+    color: ${theme.colorText};
+    margin-bottom: ${theme.sizeUnit * 2}px;
   }
   .metadata-value {
-    font-weight: ${theme.typography.weights.normal};
-    font-size: ${theme.typography.sizes.m}px;
-    color: ${theme.colors.grayscale.dark1};
-    margin-bottom: ${theme.gridUnit * 2}px;
+    font-weight: ${theme.fontWeightNormal};
+    font-size: ${theme.fontSize}px;
+    color: ${theme.colorTextSecondary};
+    margin-bottom: ${theme.sizeUnit * 2}px;
   }
 
   .no-metadata {
-    color: ${theme.colors.grayscale.light1};
+    color: ${theme.colorTextDescription};
   }
 `;
 
 const TableMetadataHeader = (theme: SupersetTheme) => css`
-  font-weight: ${theme.typography.weights.bold};
-  font-size: ${theme.typography.sizes.l}px;
-  color: ${theme.colors.grayscale.dark1};
+  font-weight: ${theme.fontWeightStrong};
+  font-size: ${theme.fontSizeLG}px;
+  color: ${theme.colorTextSecondary};
   .table-name {
-    color: ${theme.colors.info.dark1};
+    color: ${theme.colorInfo};
   }
 `;
 const ViewTableInfoModal: FC<ViewTableInfoModalProps> = ({ datasetId }) => {
@@ -89,9 +88,9 @@ const ViewTableInfoModal: FC<ViewTableInfoModalProps> = ({ datasetId }) => {
 
   return (
     <ViewTableInfoModalContainer>
-      <AntdCollapse expandIconPosition="right" ghost>
+      <Collapse expandIconPosition="right" ghost>
         {result.table_metadata.map(({ table_name, metadata_fields }) => (
-          <AntdCollapse.Panel
+          <Collapse.Panel
             header={
               <div css={TableMetadataHeader}>
                 <span>Table: </span>
@@ -108,7 +107,11 @@ const ViewTableInfoModal: FC<ViewTableInfoModalProps> = ({ datasetId }) => {
                     {type !== 'sql' ? (
                       <div className="metadata-value">{value}</div>
                     ) : (
-                      <ViewQuery sql={value} language="sql" />
+                      <ViewQuery
+                        sql={value}
+                        datasource={`${datasetId}__table`}
+                        language="sql"
+                      />
                     )}
                   </div>
                 ))
@@ -118,9 +121,9 @@ const ViewTableInfoModal: FC<ViewTableInfoModalProps> = ({ datasetId }) => {
                 </div>
               )}
             </div>
-          </AntdCollapse.Panel>
+          </Collapse.Panel>
         ))}
-      </AntdCollapse>
+      </Collapse>
     </ViewTableInfoModalContainer>
   );
 };

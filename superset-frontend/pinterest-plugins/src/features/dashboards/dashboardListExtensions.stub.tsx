@@ -2,7 +2,7 @@
  * Stub for dashboard list extensions (search filters, extra columns).
  * Internal build replaces this with the real implementation.
  */
-import { Filter } from 'src/components/ListView/types';
+import type { ListViewFilter } from 'src/components/ListView/types';
 
 export interface DashboardListSearchFilterOptions {
   /** Show the Tier 1 Candidate filter (requires can_promote_tier_1 permission). */
@@ -13,7 +13,7 @@ export interface DashboardListSearchFilterOptions {
 export function getDashboardListSearchFilters(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _options: DashboardListSearchFilterOptions = {},
-): Filter[] {
+): ListViewFilter[] {
   return [];
 }
 

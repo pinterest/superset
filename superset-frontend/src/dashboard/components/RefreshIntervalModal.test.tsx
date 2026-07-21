@@ -19,6 +19,7 @@
 import { isValidElement } from 'react';
 import { render, screen, userEvent } from 'spec/helpers/testing-library';
 import fetchMock from 'fetch-mock';
+import { FeatureFlag } from '@superset-ui/core';
 import { Icons } from '@superset-ui/core/components/Icons';
 
 import RefreshIntervalModal from 'src/dashboard/components/RefreshIntervalModal';
@@ -91,6 +92,19 @@ const store = mockStore({
   },
 });
 
+const originalFeatureFlags = window.featureFlags;
+
+beforeAll(() => {
+  window.featureFlags = {
+    ...originalFeatureFlags,
+    [FeatureFlag.EnableDashboardAutoRefresh]: true,
+  };
+});
+
+afterAll(() => {
+  window.featureFlags = originalFeatureFlags;
+});
+
 const HeaderActionsMenu = (props: any) => {
   const [menu] = useHeaderActionsMenu(props);
 
@@ -109,12 +123,12 @@ fetchMock.get('glob:*/csstemplateasyncmodelview/api/read', {});
 
 const openRefreshIntervalModal = async () => {
   const autoRefreshOption = screen.getByText('Set auto-refresh interval');
-  userEvent.click(autoRefreshOption);
+  await userEvent.click(autoRefreshOption);
 };
 
 const displayOptions = async () => {
   // Click default refresh interval option to display other options
-  userEvent.click(screen.getByText(/don't refresh/i));
+  await userEvent.click(screen.getByText(/don't refresh/i));
 };
 
 const defaultRefreshIntervalModalProps = {
@@ -184,7 +198,7 @@ test('should change selected value', async () => {
 
   // Display options and select "10 seconds"
   await displayOptions();
-  userEvent.click(screen.getByText(/10 seconds/i));
+  await userEvent.click(screen.getByText(/10 seconds/i));
 
   // Selected value should now be "10 seconds"
   expect(selectedValue.title).toMatch(/10 seconds/i);
@@ -201,7 +215,7 @@ test('should change selected value to custom value', async () => {
 
   // Display options and select "Custom interval"
   await displayOptions();
-  userEvent.click(screen.getByText(/Custom interval/i));
+  await userEvent.click(screen.getByText(/Custom interval/i));
 
   // Selected value should now be "Custom interval"
   expect(selectedValue.title).toMatch(/Custom interval/i);
@@ -214,8 +228,8 @@ test('should save a newly-selected value', async () => {
   await displayOptions();
 
   // Select a new interval and click save
-  userEvent.click(screen.getByText(/10 seconds/i));
-  userEvent.click(screen.getByRole('button', { name: /save/i }));
+  await userEvent.click(screen.getByText(/10 seconds/i));
+  await userEvent.click(screen.getByRole('button', { name: /save/i }));
 
   expect(editModeOnProps.setRefreshFrequency).toHaveBeenCalled();
   expect(editModeOnProps.setRefreshFrequency).toHaveBeenCalledWith(

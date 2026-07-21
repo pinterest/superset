@@ -174,6 +174,14 @@ afterAll(() => {
   fetchMock.restore();
 });
 
+const findAllSelectOptions = async (expectedCount: number) => {
+  const selector = '.ant-select-item-option-content';
+  await waitFor(() => {
+    expect(document.querySelectorAll(selector)).toHaveLength(expectedCount);
+  });
+  return document.querySelectorAll<HTMLElement>(selector);
+};
+
 describe('PropertiesModal', () => {
   jest.setTimeout(15000); // ✅ Applies to all tests in this suite
 
@@ -383,13 +391,7 @@ describe('PropertiesModal', () => {
 
     const getSelect = () =>
       screen.getByRole('combobox', { name: SupersetCore.t('Roles') });
-    const open = () => waitFor(() => userEvent.click(getSelect()));
-
-    const getElementsByClassName = (className: string) =>
-      document.querySelectorAll(className)! as NodeListOf<HTMLElement>;
-
-    const findAllSelectOptions = () =>
-      waitFor(() => getElementsByClassName('.ant-select-item-option-content'));
+    const open = () => userEvent.click(getSelect());
 
     render(<PropertiesModal {...propsWithDashboardInfo} />, {
       useRedux: true,
@@ -402,7 +404,7 @@ describe('PropertiesModal', () => {
 
     await open();
 
-    const options = await findAllSelectOptions();
+    const options = await findAllSelectOptions(5);
 
     expect(options).toHaveLength(5);
     expect(options[0]).toHaveTextContent('Admin');
@@ -414,15 +416,9 @@ describe('PropertiesModal', () => {
     const props = createProps();
     const propsWithDashboardInfo = { ...props, dashboardInfo };
 
-    const open = () => waitFor(() => userEvent.click(getSelect()));
     const getSelect = () =>
       screen.getByRole('combobox', { name: SupersetCore.t('Owners') });
-
-    const getElementsByClassName = (className: string) =>
-      document.querySelectorAll(className)! as NodeListOf<HTMLElement>;
-
-    const findAllSelectOptions = () =>
-      waitFor(() => getElementsByClassName('.ant-select-item-option-content'));
+    const open = () => userEvent.click(getSelect());
 
     render(<PropertiesModal {...propsWithDashboardInfo} />, {
       useRedux: true,
@@ -435,7 +431,7 @@ describe('PropertiesModal', () => {
 
     await open();
 
-    const options = await findAllSelectOptions();
+    const options = await findAllSelectOptions(1);
 
     expect(options).toHaveLength(1);
     expect(options[0]).toHaveTextContent('Superset Admin');
@@ -449,12 +445,7 @@ describe('PropertiesModal', () => {
 
     const getSelect = () =>
       screen.getByRole('combobox', { name: SupersetCore.t('Owners') });
-    const open = () => waitFor(() => userEvent.click(getSelect()));
-    const getElementsByClassName = (className: string) =>
-      document.querySelectorAll(className)! as NodeListOf<HTMLElement>;
-
-    const findAllSelectOptions = () =>
-      waitFor(() => getElementsByClassName('.ant-select-item-option-content'));
+    const open = () => userEvent.click(getSelect());
 
     render(<PropertiesModal {...propsWithDashboardInfo} />, {
       useRedux: true,
@@ -467,7 +458,7 @@ describe('PropertiesModal', () => {
 
     await open();
 
-    const options = await findAllSelectOptions();
+    const options = await findAllSelectOptions(1);
 
     expect(options).toHaveLength(1);
     expect(options[0]).toHaveTextContent('Superset Admin');
@@ -475,7 +466,7 @@ describe('PropertiesModal', () => {
 });
 
 test('should not show roles without dashboard rbac editor permissions', async () => {
-  spyIsFeatureEnabled.mockReturnValue(true);
+  mockedIsFeatureEnabled.mockReturnValue(true);
 
   const props = createProps();
   const propsWithDashboardInfo = { ...props, user: {}, dashboardInfo };

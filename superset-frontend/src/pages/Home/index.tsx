@@ -41,6 +41,7 @@ import {
   CardContainer,
   createErrorHandler,
   getRecentActivityObjs,
+  getTopDashboards,
   getUserOwnedObjects,
   loadingCardCount,
   mq,
@@ -79,8 +80,6 @@ const DEFAULT_TAB_ARR = ['dashboards', 'charts'];
 const WelcomeContainer = styled.div`
   background: ${({ theme }) => theme.colorBgLayout};
   .ant-row.menu {
-    margin-top: -15px;
-
     &:after {
       content: '';
       display: block;
@@ -167,6 +166,8 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
   const [dashboardData, setDashboardData] = useState<Array<object> | null>(
     null,
   );
+  const [topDashboardData, setTopDashboardData] =
+    useState<Array<object> | null>(null);
   const [isFetchingActivityData, setIsFetchingActivityData] = useState(true);
 
   const collapseState = getItem(LocalStorageKeys.HomepageCollapseState, []);
@@ -287,6 +288,18 @@ function Welcome({ user, addDangerToast }: WelcomeProps) {
               return Promise.resolve();
             })
         : Promise.resolve(),
+      getTopDashboards()
+        .then(r => {
+          setTopDashboardData(r);
+          return Promise.resolve();
+        })
+        .catch((err: unknown) => {
+          setTopDashboardData([]);
+          addDangerToast(
+            t('There was an issue fetching top dashboards: %s', err),
+          );
+          return Promise.resolve();
+        }),
     ]).then(() => {
       setIsFetchingActivityData(false);
     });

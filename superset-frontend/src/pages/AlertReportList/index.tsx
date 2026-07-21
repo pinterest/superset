@@ -48,7 +48,6 @@ import {
 } from 'src/components';
 import SubMenu, { SubMenuProps } from 'src/features/home/SubMenu';
 import { Switch } from '@superset-ui/core/components/Switch';
-import { DATETIME_WITH_TIME_ZONE } from 'src/constants';
 import withToasts from 'src/components/MessageToasts/withToasts';
 import AlertStatusIcon from 'src/features/alerts/components/AlertStatusIcon';
 import RecipientIcon from 'src/features/alerts/components/RecipientIcon';

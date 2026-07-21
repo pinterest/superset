@@ -14,6 +14,7 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
+from datetime import datetime
 from unittest.mock import patch
 
 import pytest
@@ -382,6 +383,12 @@ class TestChartsUpdateCommand(SupersetTestCase):
             "owners": [user.id],
         }
         command = UpdateChartCommand(model_id, json_obj)
+        # Pin last_saved_at to a known past value so the update's datetime.now()
+        # is guaranteed to differ (DB DATETIME columns truncate to whole
+        # seconds, which otherwise makes this assertion flaky).
+        chart = db.session.query(Slice).get(pk)
+        chart.last_saved_at = datetime(2020, 1, 1, 0, 0, 0)
+        db.session.commit()
         last_saved_before = db.session.query(Slice).get(pk).last_saved_at
         command.run()
         chart = db.session.query(Slice).get(pk)
