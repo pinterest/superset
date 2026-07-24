@@ -26,6 +26,8 @@ import {
   getNumberFormatter,
   LegendState,
   ensureIsArray,
+  styled,
+  t,
 } from '@superset-ui/core';
 import type { ViewRootGroup } from 'echarts/types/src/util/types';
 import type GlobalModel from 'echarts/types/src/model/Global';
@@ -35,8 +37,90 @@ import Echart from '../components/Echart';
 import { TimeseriesChartTransformedProps } from './types';
 import { formatSeriesName } from '../utils/series';
 import { ExtraControls } from '../components/ExtraControls';
+import {
+  AnomalyExplanationDetail,
+  getAnomalyExplanationFromClick,
+} from '../utils/anomalyDetection';
 
 const TIMER_DURATION = 300;
+
+/* eslint-disable theme-colors/no-literal-colors --
+   translucent modal overlay and drop shadow have no dedicated theme token */
+const AnomalyExplanationBackdrop = styled.div`
+  position: fixed;
+  inset: 0;
+  z-index: 1030;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+`;
+
+const AnomalyExplanationCard = styled.div`
+  ${({ theme }) => `
+    display: flex;
+    flex-direction: column;
+    width: 90%;
+    max-width: 560px;
+    max-height: 70vh;
+    background: ${theme.colors.grayscale.light5};
+    color: ${theme.colors.grayscale.dark2};
+    border-radius: ${theme.gridUnit}px;
+    box-shadow: 0 ${theme.gridUnit}px ${theme.gridUnit * 6}px
+      rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+  `}
+`;
+/* eslint-enable theme-colors/no-literal-colors */
+
+const AnomalyExplanationHeader = styled.div`
+  ${({ theme }) => `
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: ${theme.gridUnit * 2}px;
+    padding: ${theme.gridUnit * 3}px ${theme.gridUnit * 4}px;
+    border-bottom: 1px solid ${theme.colors.grayscale.light2};
+  `}
+`;
+
+const AnomalyExplanationTitle = styled.div`
+  ${({ theme }) => `
+    font-weight: ${theme.typography.weights.bold};
+    color: ${theme.colors.error.base};
+    margin-bottom: ${theme.gridUnit}px;
+  `}
+`;
+
+const AnomalyExplanationMeta = styled.div`
+  ${({ theme }) => `
+    font-size: ${theme.typography.sizes.s}px;
+    color: ${theme.colors.grayscale.dark1};
+  `}
+`;
+
+const AnomalyExplanationClose = styled.button`
+  ${({ theme }) => `
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: ${theme.typography.sizes.xl}px;
+    line-height: 1;
+    color: ${theme.colors.grayscale.base};
+    padding: 0;
+  `}
+`;
+
+const AnomalyExplanationBody = styled.div`
+  ${({ theme }) => `
+    padding: ${theme.gridUnit * 3}px ${theme.gridUnit * 4}px;
+    overflow-y: auto;
+    white-space: pre-line;
+    word-break: break-word;
+    line-height: 1.5;
+    color: ${theme.colors.grayscale.dark2};
+  `}
+`;
 
 export default function EchartsTimeseries({
   formData,
@@ -66,10 +150,25 @@ export default function EchartsTimeseries({
   const clickTimer = useRef<ReturnType<typeof setTimeout>>();
   const extraControlRef = useRef<HTMLDivElement>(null);
   const [extraControlHeight, setExtraControlHeight] = useState(0);
+  const [anomalyDetail, setAnomalyDetail] =
+    useState<AnomalyExplanationDetail | null>(null);
   useEffect(() => {
     const updatedHeight = extraControlRef.current?.offsetHeight || 0;
     setExtraControlHeight(updatedHeight);
   }, [formData.showExtraControls]);
+
+  useEffect(() => {
+    if (!anomalyDetail) {
+      return undefined;
+    }
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setAnomalyDetail(null);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [anomalyDetail]);
 
   const hasDimensions = ensureIsArray(groupby).length > 0;
 
@@ -142,6 +241,17 @@ export default function EchartsTimeseries({
 
   const eventHandlers: EventHandlers = {
     click: props => {
+      // Clicking an anomaly point opens the full explanation in a modal. This
+      // is handled before the cross-filter logic (and works even without
+      // dimensions) so it also applies to charts without a groupby.
+      const anomaly = getAnomalyExplanationFromClick(props);
+      if (anomaly) {
+        if (clickTimer.current) {
+          clearTimeout(clickTimer.current);
+        }
+        setAnomalyDetail(anomaly);
+        return;
+      }
       if (!hasDimensions) {
         return;
       }
@@ -277,6 +387,45 @@ export default function EchartsTimeseries({
         zrEventHandlers={zrEventHandlers}
         selectedValues={selectedValues}
       />
+      {anomalyDetail && (
+        <AnomalyExplanationBackdrop
+          role="dialog"
+          aria-modal="true"
+          aria-label={t('Anomaly explanation')}
+          onClick={() => setAnomalyDetail(null)}
+        >
+          <AnomalyExplanationCard onClick={e => e.stopPropagation()}>
+            <AnomalyExplanationHeader>
+              <div>
+                <AnomalyExplanationTitle>
+                  🚨 {t('Anomaly explanation')}
+                </AnomalyExplanationTitle>
+                <AnomalyExplanationMeta>
+                  {anomalyDetail.seriesName}
+                  {typeof anomalyDetail.score === 'number'
+                    ? ` · ${t('score')} ${anomalyDetail.score.toFixed(3)}`
+                    : ''}
+                  {typeof anomalyDetail.xValue === 'number'
+                    ? ` · ${xValueFormatter(anomalyDetail.xValue)}`
+                    : anomalyDetail.xValue
+                      ? ` · ${anomalyDetail.xValue}`
+                      : ''}
+                </AnomalyExplanationMeta>
+              </div>
+              <AnomalyExplanationClose
+                type="button"
+                onClick={() => setAnomalyDetail(null)}
+                aria-label={t('Close')}
+              >
+                ×
+              </AnomalyExplanationClose>
+            </AnomalyExplanationHeader>
+            <AnomalyExplanationBody>
+              {anomalyDetail.explanation}
+            </AnomalyExplanationBody>
+          </AnomalyExplanationCard>
+        </AnomalyExplanationBackdrop>
+      )}
     </>
   );
 }
