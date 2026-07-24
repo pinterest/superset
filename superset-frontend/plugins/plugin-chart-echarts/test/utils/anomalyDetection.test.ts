@@ -347,7 +347,9 @@ describe('anomalyDetection utils', () => {
       const html = buildAnomalyExplanationBlock(text, mockTheme);
 
       expect(html).toContain(text);
-      expect(html).not.toContain('Click the anomaly point for full explanation');
+      expect(html).not.toContain(
+        'Click the anomaly point for full explanation',
+      );
     });
 
     it('shows only the summary and hints to click for the full text', () => {
