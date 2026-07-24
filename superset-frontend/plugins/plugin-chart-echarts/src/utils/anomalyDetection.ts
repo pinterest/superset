@@ -61,7 +61,7 @@ export function buildAnomalyExplanationBlock(
 
   // Only hint when there's a detailed breakdown behind the summary.
   const hint = hasDetail
-    ? `<div style="margin-top: 4px; font-style: italic; color: ${theme.colors.info.base};">Click the point for the full explanation</div>`
+    ? `<div style="margin-top: 4px; font-style: italic; color: ${theme.colors.info.base};">Click the anomaly point for full explanation</div>`
     : '';
 
   return `<div style="margin-top: 8px;"><strong>Explanation:</strong><div style="${EXPLANATION_CONTENT_STYLE}">${summary}</div>${hint}</div>`;
