@@ -90,15 +90,60 @@ const ChartHeaderStyles = styled.div`
 
     & > .header-title {
       overflow: hidden;
-      text-overflow: ellipsis;
       max-width: calc(100% - ${theme.sizeUnit * 4}px);
       flex-grow: 1;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
+      min-width: 0;
+      display: flex;
+      align-items: flex-start;
 
       & > span.ant-tooltip-open {
-        display: inline;
+        display: inline-flex;
+      }
+
+      & > div:first-child {
+        min-width: 0;
+      }
+
+      .editable-title {
+        display: inline-flex;
+        flex: 0 1 auto;
+        align-items: center;
+        min-width: 0;
+        max-width: 100%;
+        overflow: hidden;
+      }
+
+      .editable-title > a,
+      .editable-title > span {
+        display: -webkit-box;
+        overflow: hidden;
+        max-width: 100%;
+        text-overflow: ellipsis;
+        white-space: normal;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+      }
+
+      .editable-title > input,
+      .editable-title > textarea {
+        overflow: hidden;
+        max-width: 100%;
+        text-overflow: ellipsis;
+      }
+
+      .pinterest-chart-title-panel-additional-items {
+        font-weight: ${theme.fontWeightNormal};
+
+        .ant-tag,
+        a {
+          font-weight: ${theme.fontWeightNormal};
+        }
+      }
+
+      .warning,
+      .danger {
+        flex: 0 0 auto;
+        margin-left: ${theme.sizeUnit}px;
       }
     }
 
@@ -106,6 +151,7 @@ const ChartHeaderStyles = styled.div`
       display: flex;
       align-items: center;
       height: 24px;
+      flex: 0 0 auto;
     }
 
     .dropdown.btn-group {

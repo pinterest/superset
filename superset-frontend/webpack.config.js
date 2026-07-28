@@ -781,7 +781,11 @@ const config = {
       {
         test: /\.jsx?$/,
         // include source code for plugins, but exclude node_modules and test files within them
-        exclude: [/superset-ui.*\/node_modules\//, /\.test.jsx?$/],
+        exclude: [
+          /superset-ui.*\/node_modules\//,
+          /pinterest-plugins\/.*\/node_modules\//,
+          /\.test.jsx?$/,
+        ],
         include: [
           new RegExp(
             `${APP_DIR}/(src|.storybook|plugins|packages|pinterest-plugins)`,
