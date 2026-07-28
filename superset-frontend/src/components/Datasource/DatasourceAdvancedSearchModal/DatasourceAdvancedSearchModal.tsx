@@ -21,7 +21,7 @@ import DatasetTable from './DatasetTable';
 import FilterSidebar from './FilterSidebar';
 
 const StyledModal = styled(Modal)`
-  .antd5-modal-body {
+  .ant-modal-body {
     display: flex;
     flex-direction: row;
     padding: 0;
