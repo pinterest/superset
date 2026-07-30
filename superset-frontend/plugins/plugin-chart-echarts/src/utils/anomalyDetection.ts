@@ -29,6 +29,81 @@ export const ANOMALY_POINT_CONFIG = {
 
 export const DEFAULT_ANOMALY_SCORE = 0.5;
 
+// suffix appended to an anomaly scatter series name; used to recognize anomaly
+// points on click and to derive the originating series name
+export const ANOMALY_SERIES_NAME_SUFFIX = ' - Anomalies';
+
+const EXPLANATION_CONTENT_STYLE =
+  'max-width: 260px; margin-top: 4px; white-space: pre-line; ' +
+  'word-break: break-word; line-height: 1.45;';
+
+// Returns the leading summary paragraph of a Warden explanation. Explanations
+// lead with a plain-language summary, followed by the detailed model breakdown
+// (paragraphs separated by blank lines). Splitting on the first blank line lets
+// the hover tooltip show only the summary while the full text stays intact for
+// the click-to-open modal.
+export function getAnomalyExplanationSummary(explanation: string): string {
+  return explanation.split(/\n\s*\n/)[0].trim();
+}
+
+// Builds the tooltip "Explanation" block. Hover tooltips are transient and
+// (with rich/axis tooltips) can't be reliably clicked into, so only the summary
+// is shown here and the full detailed explanation is surfaced on click via a
+// modal (see EchartsTimeseries).
+export function buildAnomalyExplanationBlock(
+  explanation: string,
+  theme: SupersetTheme,
+): string {
+  const summary = sanitizeHtml(getAnomalyExplanationSummary(explanation));
+  const hasDetail =
+    explanation.trim().length >
+    getAnomalyExplanationSummary(explanation).length;
+
+  // Only hint when there's a detailed breakdown behind the summary.
+  const hint = hasDetail
+    ? `<div style="margin-top: 4px; font-style: italic; color: ${theme.colors.info.base};">Click the anomaly point for full explanation</div>`
+    : '';
+
+  return `<div style="margin-top: 8px;"><strong>Explanation:</strong><div style="${EXPLANATION_CONTENT_STYLE}">${summary}</div>${hint}</div>`;
+}
+
+export interface AnomalyExplanationDetail {
+  // originating series (with the " - Anomalies" suffix stripped)
+  seriesName: string;
+  explanation: string;
+  score?: number;
+  xValue?: string | number;
+}
+
+// Given ECharts click event params, returns the anomaly explanation detail if
+// the click landed on an anomaly scatter point that carries an explanation, or
+// null otherwise. Kept here (not in the component) so it stays unit-testable.
+export function getAnomalyExplanationFromClick(
+  params: any,
+): AnomalyExplanationDetail | null {
+  const seriesName = String(params?.seriesName ?? '');
+  if (!seriesName.endsWith(ANOMALY_SERIES_NAME_SUFFIX)) {
+    return null;
+  }
+  const explanation = params?.data?.anomalyExplanation;
+  if (typeof explanation !== 'string' || explanation.length === 0) {
+    return null;
+  }
+  const value = params?.data?.value;
+  return {
+    seriesName: seriesName.slice(
+      0,
+      seriesName.length - ANOMALY_SERIES_NAME_SUFFIX.length,
+    ),
+    explanation,
+    score:
+      typeof params?.data?.anomalyScore === 'number'
+        ? params.data.anomalyScore
+        : undefined,
+    xValue: Array.isArray(value) ? value[0] : undefined,
+  };
+}
+
 // the following two functions dynamically adjust the color and size
 // of each anomaly point based on its anomaly score, which we expect to
 // have already been normalized to between 0 and 1
@@ -172,7 +247,7 @@ export function createAnomalyScatterSeries(
   });
 
   return {
-    name: `${seriesName} - Anomalies`,
+    name: `${seriesName}${ANOMALY_SERIES_NAME_SUFFIX}`,
     type: 'scatter',
     data: anomalyData,
     symbol: ANOMALY_POINT_CONFIG.symbol,
@@ -192,9 +267,7 @@ export function createAnomalyScatterSeries(
         const explanationBlock =
           typeof anomalyExplanation === 'string' &&
           anomalyExplanation.length > 0
-            ? `<div style="margin-top: 8px;"><strong>Explanation:</strong><div style="max-width: 260px; margin-top: 4px; white-space: pre-line; word-break: break-word; line-height: 1.45;">${sanitizeHtml(
-                anomalyExplanation,
-              )}</div></div>`
+            ? buildAnomalyExplanationBlock(anomalyExplanation, theme)
             : '';
 
         return `
