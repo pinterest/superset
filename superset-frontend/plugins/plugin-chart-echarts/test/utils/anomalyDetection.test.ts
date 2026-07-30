@@ -6,6 +6,10 @@ import {
   createAnomalyLookup,
   createAnomalyScatterSeries,
   processAnomaliesForChart,
+  getAnomalyExplanationSummary,
+  buildAnomalyExplanationBlock,
+  getAnomalyExplanationFromClick,
+  ANOMALY_SERIES_NAME_SUFFIX,
 } from '../../src/utils/anomalyDetection';
 import type { RawSeriesEntry, AnomalyLookup, Refs } from '../../src/types';
 
@@ -313,6 +317,97 @@ describe('anomalyDetection utils', () => {
       expect(scatterSeries).toHaveLength(2);
       expect(scatterSeries[0].name).toBe('metric1 - Anomalies');
       expect(scatterSeries[1].name).toBe('metric2 - Anomalies');
+    });
+  });
+
+  describe('getAnomalyExplanationSummary', () => {
+    it('returns the leading paragraph before the first blank line', () => {
+      const summary = 'Short summary sentence.';
+      const detail = 'Detailed model breakdown.\n\nMore detail.';
+      expect(getAnomalyExplanationSummary(`${summary}\n\n${detail}`)).toBe(
+        summary,
+      );
+    });
+
+    it('returns the whole string when there is only one paragraph', () => {
+      const text = 'Just a summary, no detail.';
+      expect(getAnomalyExplanationSummary(text)).toBe(text);
+    });
+  });
+
+  describe('buildAnomalyExplanationBlock', () => {
+    it('shows the summary with no hint when there is no detail', () => {
+      const text = 'This point is unusual.';
+      const html = buildAnomalyExplanationBlock(text, mockTheme);
+
+      expect(html).toContain(text);
+      expect(html).not.toContain(
+        'Click the anomaly point for full explanation',
+      );
+    });
+
+    it('shows only the summary and hints to click for the full text', () => {
+      const summary = 'Short summary sentence.';
+      const detail = 'Detailed model breakdown line.';
+      const html = buildAnomalyExplanationBlock(
+        `${summary}\n\n${detail}`,
+        mockTheme,
+      );
+
+      // only the leading summary paragraph is shown as a preview...
+      expect(html).toContain(summary);
+      // ...the detailed breakdown is NOT rendered in the tooltip...
+      expect(html).not.toContain(detail);
+      // ...and a hint points the user to click for the full explanation
+      expect(html).toContain('Click the anomaly point for full explanation');
+    });
+
+    it('HTML-escapes the explanation text', () => {
+      const html = buildAnomalyExplanationBlock(
+        '<script>alert(1)</script>',
+        mockTheme,
+      );
+
+      expect(html).not.toContain('<script>');
+      expect(html).toContain('&lt;script&gt;');
+    });
+  });
+
+  describe('getAnomalyExplanationFromClick', () => {
+    it('returns detail when an anomaly point with an explanation is clicked', () => {
+      const detail = getAnomalyExplanationFromClick({
+        seriesName: `metric1${ANOMALY_SERIES_NAME_SUFFIX}`,
+        data: {
+          value: ['2025-01-02', 200],
+          anomalyScore: 0.83,
+          anomalyExplanation: 'Spike vs seasonal baseline',
+        },
+      });
+
+      expect(detail).toEqual({
+        seriesName: 'metric1',
+        explanation: 'Spike vs seasonal baseline',
+        score: 0.83,
+        xValue: '2025-01-02',
+      });
+    });
+
+    it('returns null for a non-anomaly series', () => {
+      expect(
+        getAnomalyExplanationFromClick({
+          seriesName: 'metric1',
+          data: { value: ['2025-01-02', 200], anomalyExplanation: 'x' },
+        }),
+      ).toBeNull();
+    });
+
+    it('returns null when there is no explanation text', () => {
+      expect(
+        getAnomalyExplanationFromClick({
+          seriesName: `metric1${ANOMALY_SERIES_NAME_SUFFIX}`,
+          data: { value: ['2025-01-02', 200] },
+        }),
+      ).toBeNull();
     });
   });
 });
