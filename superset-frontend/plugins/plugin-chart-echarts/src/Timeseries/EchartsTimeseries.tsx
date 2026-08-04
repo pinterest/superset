@@ -44,16 +44,16 @@ import {
 
 const TIMER_DURATION = 300;
 
-/* eslint-disable theme-colors/no-literal-colors --
-   translucent modal overlay and drop shadow have no dedicated theme token */
 const AnomalyExplanationBackdrop = styled.div`
-  position: fixed;
-  inset: 0;
-  z-index: 1030;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.45);
+  ${({ theme }) => `
+    position: fixed;
+    inset: 0;
+    z-index: 1030;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: ${theme.colorBgMask};
+  `}
 `;
 
 const AnomalyExplanationCard = styled.div`
@@ -63,39 +63,37 @@ const AnomalyExplanationCard = styled.div`
     width: 90%;
     max-width: 560px;
     max-height: 70vh;
-    background: ${theme.colors.grayscale.light5};
-    color: ${theme.colors.grayscale.dark2};
-    border-radius: ${theme.gridUnit}px;
-    box-shadow: 0 ${theme.gridUnit}px ${theme.gridUnit * 6}px
-      rgba(0, 0, 0, 0.25);
+    background: ${theme.colorBgElevated};
+    color: ${theme.colorText};
+    border-radius: ${theme.borderRadius}px;
+    box-shadow: ${theme.boxShadow};
     overflow: hidden;
   `}
 `;
-/* eslint-enable theme-colors/no-literal-colors */
 
 const AnomalyExplanationHeader = styled.div`
   ${({ theme }) => `
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    gap: ${theme.gridUnit * 2}px;
-    padding: ${theme.gridUnit * 3}px ${theme.gridUnit * 4}px;
-    border-bottom: 1px solid ${theme.colors.grayscale.light2};
+    gap: ${theme.sizeUnit * 2}px;
+    padding: ${theme.sizeUnit * 3}px ${theme.sizeUnit * 4}px;
+    border-bottom: 1px solid ${theme.colorBorderSecondary};
   `}
 `;
 
 const AnomalyExplanationTitle = styled.div`
   ${({ theme }) => `
-    font-weight: ${theme.typography.weights.bold};
-    color: ${theme.colors.error.base};
-    margin-bottom: ${theme.gridUnit}px;
+    font-weight: ${theme.fontWeightStrong};
+    color: ${theme.colorError};
+    margin-bottom: ${theme.sizeUnit}px;
   `}
 `;
 
 const AnomalyExplanationMeta = styled.div`
   ${({ theme }) => `
-    font-size: ${theme.typography.sizes.s}px;
-    color: ${theme.colors.grayscale.dark1};
+    font-size: ${theme.fontSizeSM}px;
+    color: ${theme.colorTextSecondary};
   `}
 `;
 
@@ -104,21 +102,21 @@ const AnomalyExplanationClose = styled.button`
     border: none;
     background: transparent;
     cursor: pointer;
-    font-size: ${theme.typography.sizes.xl}px;
+    font-size: ${theme.fontSizeXL}px;
     line-height: 1;
-    color: ${theme.colors.grayscale.base};
+    color: ${theme.colorIcon};
     padding: 0;
   `}
 `;
 
 const AnomalyExplanationBody = styled.div`
   ${({ theme }) => `
-    padding: ${theme.gridUnit * 3}px ${theme.gridUnit * 4}px;
+    padding: ${theme.sizeUnit * 3}px ${theme.sizeUnit * 4}px;
     overflow-y: auto;
     white-space: pre-line;
     word-break: break-word;
     line-height: 1.5;
-    color: ${theme.colors.grayscale.dark2};
+    color: ${theme.colorText};
   `}
 `;
 
