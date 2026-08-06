@@ -7,7 +7,8 @@ import {
   createFetchDistinct,
   createFetchRelated,
 } from 'src/views/CRUD/utils';
-import { styled, t } from '@superset-ui/core';
+import { styled } from '@apache-superset/core/theme';
+import { t } from '@apache-superset/core/translation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { Button, FormLabel, Icons, Input } from '@superset-ui/core/components';

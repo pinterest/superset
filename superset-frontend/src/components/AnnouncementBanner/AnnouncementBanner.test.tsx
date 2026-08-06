@@ -19,7 +19,7 @@
 import type { ReactElement } from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { ThemeProvider, supersetTheme } from '@superset-ui/core';
+import { ThemeProvider, supersetTheme } from '@apache-superset/core/theme';
 import { MemoryRouter } from 'react-router-dom';
 import getBootstrapData from 'src/utils/getBootstrapData';
 import AnnouncementBanner from '.';
@@ -50,7 +50,7 @@ describe('AnnouncementBanner', () => {
     jest.clearAllMocks();
   });
 
-  it('should not render when no announcement config is provided', () => {
+  test('should not render when no announcement config is provided', () => {
     (getBootstrapData as jest.Mock).mockReturnValue({
       common: {
         conf: {
@@ -65,7 +65,7 @@ describe('AnnouncementBanner', () => {
     expect(container.firstChild).toBeNull();
   });
 
-  it('should render when announcement config is provided', () => {
+  test('should render when announcement config is provided', () => {
     (getBootstrapData as jest.Mock).mockReturnValue({
       common: {
         conf: {
@@ -84,7 +84,7 @@ describe('AnnouncementBanner', () => {
     expect(screen.getByRole('banner')).toBeInTheDocument();
   });
 
-  it('should render HTML content correctly', () => {
+  test('should render HTML content correctly', () => {
     (getBootstrapData as jest.Mock).mockReturnValue({
       common: {
         conf: {
@@ -104,7 +104,7 @@ describe('AnnouncementBanner', () => {
     expect(screen.getByText(/normal text/)).toBeInTheDocument();
   });
 
-  it('should not render when announcement has been dismissed', () => {
+  test('should not render when announcement has been dismissed', () => {
     const announcementId = 'dismissed-announcement';
     localStorage.setItem(
       `superset_announcement_dismissed_${announcementId}`,
@@ -131,7 +131,7 @@ describe('AnnouncementBanner', () => {
     expect(container.firstChild).toBeNull();
   });
 
-  it('should dismiss announcement and save to localStorage when close button is clicked', async () => {
+  test('should dismiss announcement and save to localStorage when close button is clicked', async () => {
     const announcementId = 'test-announcement';
     (getBootstrapData as jest.Mock).mockReturnValue({
       common: {
@@ -161,7 +161,7 @@ describe('AnnouncementBanner', () => {
     });
   });
 
-  it('should render different alert types correctly', () => {
+  test('should render different alert types correctly', () => {
     const types = ['info', 'warning', 'error', 'success'] as const;
 
     types.forEach(type => {
@@ -186,7 +186,7 @@ describe('AnnouncementBanner', () => {
     });
   });
 
-  it('should show new announcement when ID changes after dismissal', () => {
+  test('should show new announcement when ID changes after dismissal', () => {
     const firstId = 'announcement-1';
     const secondId = 'announcement-2';
 
@@ -213,7 +213,7 @@ describe('AnnouncementBanner', () => {
     expect(screen.getByText(/New announcement/)).toBeInTheDocument();
   });
 
-  it('should render multiple announcements at once', () => {
+  test('should render multiple announcements at once', () => {
     (getBootstrapData as jest.Mock).mockReturnValue({
       common: {
         conf: {
@@ -246,7 +246,7 @@ describe('AnnouncementBanner', () => {
     expect(screen.getByText(/Third announcement/)).toBeInTheDocument();
   });
 
-  it('should only render non-dismissed announcements when multiple exist', () => {
+  test('should only render non-dismissed announcements when multiple exist', () => {
     // Dismiss the second announcement
     localStorage.setItem(
       'superset_announcement_dismissed_announcement-2',

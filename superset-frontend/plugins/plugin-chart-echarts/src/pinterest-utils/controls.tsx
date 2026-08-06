@@ -1,4 +1,5 @@
-import { t, validateNonEmpty } from '@superset-ui/core';
+import { validateNonEmpty } from '@superset-ui/core';
+import { t } from '@apache-superset/core/translation';
 import {
   formatSelectOptions,
   ControlSetRow,

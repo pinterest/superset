@@ -21,6 +21,7 @@ import {
   screen,
   userEvent,
   waitFor,
+  within,
 } from 'spec/helpers/testing-library';
 import { SupersetClient } from '@superset-ui/core';
 import { createMemoryHistory } from 'history';
@@ -221,7 +222,7 @@ test('switches to Mine tab correctly', async () => {
   );
 
   const mineTab = screen.getByRole('menuitem', { name: /mine/i });
-  await userEvent.click(mineTab);
+  await userEvent.click(within(mineTab).getByText('Mine'));
   await waitFor(() => {
     expect(mineTab).toHaveClass('ant-menu-item-selected');
   });
@@ -261,8 +262,10 @@ test('switches to Other tab when available', async () => {
   );
 
   const otherTab = screen.getByRole('tab', { name: 'Examples' });
-  await userEvent.click(otherTab);
-  expect(otherTab).toHaveClass('active');
+  await userEvent.click(within(otherTab).getByText('Examples'));
+  await waitFor(() => {
+    expect(otherTab).toHaveClass('active');
+  });
 });
 
 test('handles bulk dashboard export with correct ID and shows spinner', async () => {
@@ -444,7 +447,7 @@ test('passes correct parameters to handleDashboardDelete for Other tab', async (
   });
 
   const otherTab = screen.getByRole('tab', { name: 'All' });
-  await userEvent.click(otherTab);
+  await userEvent.click(within(otherTab).getByText('All'));
 
   await waitFor(() => {
     expect(screen.getByText('Test Dashboard 1')).toBeInTheDocument();

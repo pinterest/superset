@@ -22,7 +22,7 @@ import { isFeatureEnabled, FeatureFlag } from '@superset-ui/core';
 import { AsyncSelect } from '@superset-ui/core/components';
 import { type TagType } from 'src/components';
 import { loadTags } from 'src/components/Tag/utils';
-import { getOwnerDisplayName } from 'src/utils/getOwnerName';
+import getOwnerName, { getOwnerDisplayName } from 'src/utils/getOwnerName';
 import Owner from 'src/types/Owner';
 import { ModalFormField } from 'src/components/Modal';
 import {

@@ -17,8 +17,9 @@
  * under the License.
  */
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { useTheme } from '@superset-ui/core';
-import { Alert, Icons } from '@superset-ui/core/components';
+import { useTheme } from '@apache-superset/core/theme';
+import { Icons } from '@superset-ui/core/components';
+import { Alert } from '@apache-superset/core/components';
 import { useLocation } from 'react-router-dom';
 import getBootstrapData from 'src/utils/getBootstrapData';
 import { getUrlParam } from 'src/utils/urlUtils';

@@ -67,6 +67,18 @@ describe('chart reducers', () => {
     );
   });
 
+  test('should ignore per-key actions for charts no longer in state', () => {
+    // Async action (e.g. aborted query dispatching chartUpdateStopped) can
+    // resolve after the chart was removed from state on navigation.
+    const missingKey = 999;
+    const newState = chartReducer(
+      charts,
+      actions.chartUpdateStopped(missingKey),
+    );
+    expect(newState).toBe(charts);
+    expect(newState[missingKey]).toBeUndefined();
+  });
+
   test('should update endtime on timeout', () => {
     const newState = chartReducer(
       charts,

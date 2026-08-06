@@ -1,6 +1,7 @@
 import { FC, useState, useCallback, useEffect } from 'react';
 
-import { styled, css, SupersetClient, SupersetTheme } from '@superset-ui/core';
+import { SupersetClient } from '@superset-ui/core';
+import { styled, css, SupersetTheme } from '@apache-superset/core/theme';
 import { Collapse, Loading } from '@superset-ui/core/components';
 import ViewQuery from 'src/explore/components/controls/ViewQuery';
 

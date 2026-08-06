@@ -192,6 +192,21 @@ function DashboardList(props: DashboardListProps) {
     isUserAdmin(reduxUser) ||
     isFeatureEnabled(FeatureFlag.PinterestDashboardGovernanceUi);
 
+  // Always-on extras (e.g. soft-deletion columns) are fetched for every
+  // user; governance-only display columns are gated on `showGovernanceExtras`
+  // and folded in by the same helper. Memoized so the reference stays stable
+  // across renders - otherwise it re-creates fetchData each render and the
+  // ListView fetch effect loops.
+  const dashboardColumnsToFetch = useMemo(
+    () => [
+      ...DASHBOARD_COLUMNS_TO_FETCH,
+      ...getDashboardListExtraColumnsToFetch({
+        includeGovernance: showGovernanceExtras,
+      }),
+    ],
+    [showGovernanceExtras],
+  );
+
   const {
     state: {
       loading,
@@ -212,15 +227,7 @@ function DashboardList(props: DashboardListProps) {
     undefined,
     undefined,
     undefined,
-    // Always-on extras (e.g. soft-deletion columns) are fetched for every
-    // user; governance-only display columns are gated on `showGovernanceExtras`
-    // and folded in by the same helper.
-    [
-      ...DASHBOARD_COLUMNS_TO_FETCH,
-      ...getDashboardListExtraColumnsToFetch({
-        includeGovernance: showGovernanceExtras,
-      }),
-    ],
+    dashboardColumnsToFetch,
   );
   const dashboardIds = useMemo(() => dashboards.map(d => d.id), [dashboards]);
   const [saveFavoriteStatus, favoriteStatus] = useFavoriteStatus(

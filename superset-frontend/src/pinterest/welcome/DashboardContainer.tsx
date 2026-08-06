@@ -5,7 +5,8 @@ import { Dashboard } from 'src/views/CRUD/types';
 import { LoadingCards } from 'src/pages/Home';
 import { CardContainer, CardStyles } from 'src/views/CRUD/utils';
 import { addDangerToast } from 'src/components/MessageToasts/actions';
-import { styled, t } from '@superset-ui/core';
+import { styled } from '@apache-superset/core/theme';
+import { t } from '@apache-superset/core/translation';
 import { FaveStar, ListViewCard } from '@superset-ui/core/components';
 import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
 // @ts-ignore

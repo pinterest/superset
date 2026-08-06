@@ -544,7 +544,7 @@ class Dashboard(CoreDashboard, AuditMixinNullable, ImportExportMixin):
 
     @property
     def auto_sync_chart_owners(self) -> bool:
-        return json.loads(self.params).get("auto_sync_chart_owners", False)
+        return json.loads(self.params or "{}").get("auto_sync_chart_owners", False)
 
     @auto_sync_chart_owners.setter
     def auto_sync_chart_owners(self, value: bool) -> None:

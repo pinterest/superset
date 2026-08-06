@@ -1,13 +1,13 @@
 import {
   DataRecordValue,
   DTTM_ALIAS,
-  GenericDataType,
   getColumnLabel,
-  SupersetTheme,
   TimeFormatter,
   TimeseriesChartDataResponseResult,
   TimeseriesDataRecord,
 } from '@superset-ui/core';
+import { GenericDataType } from '@apache-superset/core/common';
+import { SupersetTheme } from '@apache-superset/core/theme';
 import { orderBy } from 'lodash';
 import {
   CallbackDataParams,

@@ -171,7 +171,10 @@ export function convertFiltersRison(
     }
   });
 
-  return filters;
+  // Drop URL filters that don't match any configured filter (e.g. a `tags`
+  // filter in the URL when the tagging system is disabled). Without an
+  // operator they can't be applied and would break rison encoding downstream.
+  return filters.filter(filter => filter.operator !== undefined);
 }
 
 export function extractInputValue(inputType: Filter['input'], event: any) {

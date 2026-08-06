@@ -400,7 +400,7 @@ describe('Dashboard', () => {
     expect(mockTriggerQuery).not.toHaveBeenCalled();
   });
 
-  test('should call refresh when ownDataCharts pageSize changes', () => {
+  test('should call refresh when ownDataCharts pageSize changes', async () => {
     const initialOwnDataCharts = {
       1: { pageSize: 10, currentPage: 0 },
     };
@@ -432,6 +432,8 @@ describe('Dashboard', () => {
       </PluginContext.Provider>,
     );
 
-    expect(mockTriggerQuery).toHaveBeenCalledWith(true, '1');
+    await waitFor(() => {
+      expect(mockTriggerQuery).toHaveBeenCalledWith(true, '1');
+    });
   });
 });

@@ -1,4 +1,5 @@
-import { SupersetClient, t } from '@superset-ui/core';
+import { SupersetClient } from '@superset-ui/core';
+import { t } from '@apache-superset/core/translation';
 import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
 import getBootstrapData from 'src/utils/getBootstrapData';
 import rison from 'rison';
@@ -60,7 +61,7 @@ export const getViewAllLinkByTab = (
   return user.userId == null
     ? getDashboardListLink()
     : getDashboardListLink({
-        owner: {
+        owners: {
           label: `${user.firstName} ${user.lastName}`,
           value: user.userId,
         },

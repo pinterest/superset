@@ -3,7 +3,8 @@ import {
   SORT_BY as DATASET_SORT_BY,
 } from 'src/features/datasets/constants';
 import { FunctionComponent, useCallback, useRef, useState } from 'react';
-import { styled, t } from '@superset-ui/core';
+import { styled } from '@apache-superset/core/theme';
+import { t } from '@apache-superset/core/translation';
 import { Constants, Modal } from '@superset-ui/core/components';
 import {
   ServerPagination,

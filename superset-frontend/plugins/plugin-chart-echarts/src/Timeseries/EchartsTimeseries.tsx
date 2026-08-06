@@ -26,9 +26,9 @@ import {
   getNumberFormatter,
   LegendState,
   ensureIsArray,
-  styled,
-  t,
 } from '@superset-ui/core';
+import { styled } from '@apache-superset/core/theme';
+import { t } from '@apache-superset/core/translation';
 import type { ViewRootGroup } from 'echarts/types/src/util/types';
 import type GlobalModel from 'echarts/types/src/model/Global';
 import type ComponentModel from 'echarts/types/src/model/Component';

@@ -194,6 +194,7 @@ BASE_LIST_COLUMNS = [
     "changed_by.first_name",
     "changed_by.last_name",
     "changed_by.id",
+    "changed_by.username",
     "changed_by_name",
     "changed_on_utc",
     "changed_on_delta_humanized",

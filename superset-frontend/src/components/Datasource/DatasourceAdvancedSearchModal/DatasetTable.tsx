@@ -1,4 +1,5 @@
-import { styled, t } from '@superset-ui/core';
+import { styled } from '@apache-superset/core/theme';
+import { t } from '@apache-superset/core/translation';
 import {
   EmptyWrapperType,
   Loading,

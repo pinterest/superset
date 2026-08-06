@@ -3,7 +3,7 @@ import { EmptyState as EmptyStateComponent } from '@superset-ui/core/components'
 import OriginalEmptyState, {
   EmptyContainer,
 } from 'src/features/home/EmptyState';
-import { t } from '@superset-ui/core';
+import { t } from '@apache-superset/core/translation';
 import { WelcomeTable } from 'src/features/home/types';
 import { HomepageTab } from './types';
 

@@ -236,6 +236,13 @@ export default function chartReducer(
   }
 
   if (action.type in actionHandlers) {
+    // The chart may already have been removed from state by the time an async
+    // action resolves (e.g. an aborted query dispatching CHART_UPDATE_STOPPED
+    // after navigating away). Skip the handler to avoid dereferencing
+    // undefined state. ADD_CHART is exempt since it creates the entry.
+    if (action.type !== actions.ADD_CHART && !charts[action.key]) {
+      return charts;
+    }
     return {
       ...charts,
       [action.key]: actionHandlers[action.type](charts[action.key]),

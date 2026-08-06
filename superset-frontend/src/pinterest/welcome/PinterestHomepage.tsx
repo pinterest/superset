@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { styled, t } from '@superset-ui/core';
+import { styled } from '@apache-superset/core/theme';
+import { t } from '@apache-superset/core/translation';
 import { Dashboard } from 'src/views/CRUD/types';
 
 import SubMenu from 'src/features/home/SubMenu';

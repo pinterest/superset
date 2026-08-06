@@ -1,4 +1,4 @@
-import { supersetTheme } from '@superset-ui/core';
+import { supersetTheme } from '@apache-superset/core/theme';
 import {
   ANOMALY_POINT_CONFIG,
   DEFAULT_ANOMALY_SCORE,
@@ -24,23 +24,23 @@ const mockTooltipFormatter = (value: string | number) => String(value);
 
 describe('anomalyDetection utils', () => {
   describe('isSeriesAboutAnomaly', () => {
-    it('should return true for anomaly flag series', () => {
+    test('should return true for anomaly flag series', () => {
       expect(isSeriesAboutAnomaly('metric1_is_anomaly')).toBe(true);
     });
 
-    it('should return true for anomaly score series', () => {
+    test('should return true for anomaly score series', () => {
       expect(isSeriesAboutAnomaly('metric1_anomaly_score')).toBe(true);
     });
 
-    it('should return false for regular series', () => {
+    test('should return false for regular series', () => {
       expect(isSeriesAboutAnomaly('metric1')).toBe(false);
     });
 
-    it('should return true for anomaly explanation series', () => {
+    test('should return true for anomaly explanation series', () => {
       expect(isSeriesAboutAnomaly('metric1_anomaly_explanation')).toBe(true);
     });
 
-    it('should return false for series that partially match suffixes', () => {
+    test('should return false for series that partially match suffixes', () => {
       expect(isSeriesAboutAnomaly('metric1_is_anomaly_extra')).toBe(false);
       expect(isSeriesAboutAnomaly('metric1_anomaly_score_extra')).toBe(false);
       expect(isSeriesAboutAnomaly('metric1_anomaly_explanation_extra')).toBe(
@@ -50,7 +50,7 @@ describe('anomalyDetection utils', () => {
   });
 
   describe('createAnomalyLookup', () => {
-    it('should create empty lookup when no anomaly series exist', () => {
+    test('should create empty lookup when no anomaly series exist', () => {
       const rawSeries: RawSeriesEntry[] = [
         {
           name: 'metric1',
@@ -66,7 +66,7 @@ describe('anomalyDetection utils', () => {
       expect(lookup).toEqual({});
     });
 
-    it('should create lookup for series with anomalies', () => {
+    test('should create lookup for series with anomalies', () => {
       const rawSeries: RawSeriesEntry[] = [
         {
           name: 'metric1',
@@ -124,7 +124,7 @@ describe('anomalyDetection utils', () => {
       expect(lookup.metric2.size).toBe(0);
     });
 
-    it('should use default anomaly score when score series is missing', () => {
+    test('should use default anomaly score when score series is missing', () => {
       const rawSeries: RawSeriesEntry[] = [
         {
           name: 'metric1',
@@ -153,7 +153,7 @@ describe('anomalyDetection utils', () => {
       });
     });
 
-    it('should attach explanation when anomaly_explanation series has text', () => {
+    test('should attach explanation when anomaly_explanation series has text', () => {
       const rawSeries: RawSeriesEntry[] = [
         {
           name: 'metric1',
@@ -209,7 +209,7 @@ describe('anomalyDetection utils', () => {
       metric2: new Map(),
     };
 
-    it('should create scatter series with correct data', () => {
+    test('should create scatter series with correct data', () => {
       const series = createAnomalyScatterSeries(
         'metric1',
         anomalyLookup,
@@ -245,7 +245,7 @@ describe('anomalyDetection utils', () => {
       expect(dataPoint3.symbolSize).toBe(6 + 0.1 * 4);
     });
 
-    it('should handle empty map in anomaly lookup', () => {
+    test('should handle empty map in anomaly lookup', () => {
       const series = createAnomalyScatterSeries(
         'metric2',
         anomalyLookup,
@@ -258,7 +258,7 @@ describe('anomalyDetection utils', () => {
       expect(series.data).toEqual([]);
     });
 
-    it('should handle empty anomaly lookup', () => {
+    test('should handle empty anomaly lookup', () => {
       const series = createAnomalyScatterSeries(
         'metric1',
         {},
@@ -303,7 +303,7 @@ describe('anomalyDetection utils', () => {
       { name: 'metric4', data: [] }, // empty data series
       { name: 'metric5', data: [['2025-01-01', 500]] }, // no associated anomaly series
     ];
-    it('should correctly process multiple series with anomalies', () => {
+    test('should correctly process multiple series with anomalies', () => {
       const scatterSeries = processAnomaliesForChart(
         rawSeries,
         {},
@@ -321,7 +321,7 @@ describe('anomalyDetection utils', () => {
   });
 
   describe('getAnomalyExplanationSummary', () => {
-    it('returns the leading paragraph before the first blank line', () => {
+    test('returns the leading paragraph before the first blank line', () => {
       const summary = 'Short summary sentence.';
       const detail = 'Detailed model breakdown.\n\nMore detail.';
       expect(getAnomalyExplanationSummary(`${summary}\n\n${detail}`)).toBe(
@@ -329,14 +329,14 @@ describe('anomalyDetection utils', () => {
       );
     });
 
-    it('returns the whole string when there is only one paragraph', () => {
+    test('returns the whole string when there is only one paragraph', () => {
       const text = 'Just a summary, no detail.';
       expect(getAnomalyExplanationSummary(text)).toBe(text);
     });
   });
 
   describe('buildAnomalyExplanationBlock', () => {
-    it('shows the summary with no hint when there is no detail', () => {
+    test('shows the summary with no hint when there is no detail', () => {
       const text = 'This point is unusual.';
       const html = buildAnomalyExplanationBlock(text, mockTheme);
 
@@ -346,7 +346,7 @@ describe('anomalyDetection utils', () => {
       );
     });
 
-    it('shows only the summary and hints to click for the full text', () => {
+    test('shows only the summary and hints to click for the full text', () => {
       const summary = 'Short summary sentence.';
       const detail = 'Detailed model breakdown line.';
       const html = buildAnomalyExplanationBlock(
@@ -362,7 +362,7 @@ describe('anomalyDetection utils', () => {
       expect(html).toContain('Click the anomaly point for full explanation');
     });
 
-    it('HTML-escapes the explanation text', () => {
+    test('HTML-escapes the explanation text', () => {
       const html = buildAnomalyExplanationBlock(
         '<script>alert(1)</script>',
         mockTheme,
@@ -374,7 +374,7 @@ describe('anomalyDetection utils', () => {
   });
 
   describe('getAnomalyExplanationFromClick', () => {
-    it('returns detail when an anomaly point with an explanation is clicked', () => {
+    test('returns detail when an anomaly point with an explanation is clicked', () => {
       const detail = getAnomalyExplanationFromClick({
         seriesName: `metric1${ANOMALY_SERIES_NAME_SUFFIX}`,
         data: {
@@ -392,7 +392,7 @@ describe('anomalyDetection utils', () => {
       });
     });
 
-    it('returns null for a non-anomaly series', () => {
+    test('returns null for a non-anomaly series', () => {
       expect(
         getAnomalyExplanationFromClick({
           seriesName: 'metric1',
@@ -401,7 +401,7 @@ describe('anomalyDetection utils', () => {
       ).toBeNull();
     });
 
-    it('returns null when there is no explanation text', () => {
+    test('returns null when there is no explanation text', () => {
       expect(
         getAnomalyExplanationFromClick({
           seriesName: `metric1${ANOMALY_SERIES_NAME_SUFFIX}`,
