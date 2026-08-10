@@ -65,8 +65,8 @@ export function chartUpdateSucceeded(queriesResponse, key) {
 }
 
 export const CHART_UPDATE_STOPPED = 'CHART_UPDATE_STOPPED';
-export function chartUpdateStopped(key) {
-  return { type: CHART_UPDATE_STOPPED, key };
+export function chartUpdateStopped(key, queryController) {
+  return { type: CHART_UPDATE_STOPPED, key, queryController };
 }
 
 export const CHART_UPDATE_FAILED = 'CHART_UPDATE_FAILED';
@@ -456,6 +456,15 @@ export function exploreJSON(
         handleChartDataResponse(response, json, useLegacyApi),
       )
       .then(queriesResponse => {
+        // Drop stale responses: if a newer query has started for this chart,
+        // its controller will have replaced ours in state, so ignore this
+        // response to avoid clobbering newer data with older results.
+        if (key != null) {
+          const currentController = getState().charts?.[key]?.queryController;
+          if (currentController && currentController !== controller) {
+            return undefined;
+          }
+        }
         queriesResponse.forEach(resultItem =>
           dispatch(
             logEvent(LOG_ACTIONS_LOAD_CHART, {
@@ -497,9 +506,20 @@ export function exploreJSON(
           );
         };
 
-        if (response.name === 'AbortError') {
+        const isAbort =
+          response?.name === 'AbortError' || response?.statusText === 'abort';
+        if (isAbort) {
           appendErrorLog('abort');
-          return dispatch(chartUpdateStopped(key));
+          return dispatch(chartUpdateStopped(key, controller));
+        }
+
+        // Drop stale failures the same way we drop stale successes,
+        // so a slow earlier request can't mark a newer one as failed.
+        if (key != null) {
+          const currentController = getState().charts?.[key]?.queryController;
+          if (currentController && currentController !== controller) {
+            return undefined;
+          }
         }
 
         const logAndFail = (parsedResponse, overrideErrorDetails) => {
