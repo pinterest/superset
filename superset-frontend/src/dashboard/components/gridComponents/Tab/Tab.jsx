@@ -16,14 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Fragment, useCallback, memo, useEffect } from 'react';
+import { Fragment, useCallback, memo, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { useDispatch, useSelector } from 'react-redux';
 import { styled, t } from '@superset-ui/core';
 
 import { EditableTitle, EmptyState } from '@superset-ui/core/components';
-import { setEditMode, onRefresh } from 'src/dashboard/actions/dashboardState';
+import { setEditMode, fetchCharts } from 'src/dashboard/actions/dashboardState';
 import getChartIdsFromComponent from 'src/dashboard/util/getChartIdsFromComponent';
 import DashboardComponent from 'src/dashboard/containers/DashboardComponent';
 import AnchorLink from 'src/dashboard/components/AnchorLink';
@@ -126,19 +126,25 @@ const Tab = props => {
     state => state.dashboardState.tabActivationTimes?.[props.id] || 0,
   );
   const dashboardInfo = useSelector(state => state.dashboardInfo);
+  const handledRefreshTimeRef = useRef(0);
 
   useEffect(() => {
     if (props.renderType === RENDER_TAB_CONTENT && props.isComponentVisible) {
       if (
         lastRefreshTime &&
         tabActivationTime &&
-        lastRefreshTime > tabActivationTime
+        lastRefreshTime > tabActivationTime &&
+        lastRefreshTime > handledRefreshTimeRef.current
       ) {
+        handledRefreshTimeRef.current = lastRefreshTime;
         const chartIds = getChartIdsFromComponent(props.id, dashboardLayout);
         if (chartIds.length > 0) {
           requestAnimationFrame(() => {
             setTimeout(() => {
-              dispatch(onRefresh(chartIds, true, 0, dashboardInfo.id));
+              // Dispatch fetchCharts rather than onRefresh: onRefresh sets
+              // lastRefreshTime, which this effect depends on, so it would
+              // re-trigger itself indefinitely.
+              dispatch(fetchCharts(chartIds, true, 0, dashboardInfo.id));
             }, CHART_MOUNT_DELAY);
           });
         }
