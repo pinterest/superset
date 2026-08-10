@@ -543,9 +543,8 @@ test('Should not refresh charts when tab becomes active if no dashboard refresh 
 
 test('Should not cause infinite refresh loop with nested tabs - regression test', async () => {
   jest.clearAllMocks();
-  const getChartIdsFromComponent = require('src/dashboard/util/getChartIdsFromComponent');
-  getChartIdsFromComponent.mockReset();
-  getChartIdsFromComponent.mockReturnValue([201, 202]);
+  jest.mocked(getChartIdsFromComponent).mockReset();
+  jest.mocked(getChartIdsFromComponent).mockReturnValue([201, 202]);
 
   const props = createProps();
   props.renderType = 'RENDER_TAB_CONTENT';
@@ -588,19 +587,18 @@ test('Should not cause infinite refresh loop with nested tabs - regression test'
 
   // REGRESSION TEST: Multiple re-renders should NOT trigger additional refreshes
   // This simulates the infinite loop scenario that was happening with nested tabs
-  for (let i = 0; i < 5; i++) {
+  Array.from({ length: 5 }).forEach(() => {
     rerender(<Tab {...props} isComponentVisible />);
-    await new Promise(resolve => setTimeout(resolve, 20));
-  }
+  });
+  await new Promise(resolve => setTimeout(resolve, 100));
 
   expect(onRefresh).not.toHaveBeenCalled();
 });
 
 test('Should use isLazyLoad flag for tab refreshes', async () => {
   jest.clearAllMocks();
-  const getChartIdsFromComponent = require('src/dashboard/util/getChartIdsFromComponent');
-  getChartIdsFromComponent.mockReset();
-  getChartIdsFromComponent.mockReturnValue([401, 402]);
+  jest.mocked(getChartIdsFromComponent).mockReset();
+  jest.mocked(getChartIdsFromComponent).mockReturnValue([401, 402]);
 
   const props = createProps();
   props.renderType = 'RENDER_TAB_CONTENT';

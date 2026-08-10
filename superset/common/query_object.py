@@ -356,11 +356,14 @@ class QueryObject:  # pylint: disable=too-many-instance-attributes
                             )
                         ) from ex
                     engine = database.db_engine_spec.engine
+                    # The clause is only rendered here so that it can be parsed; the
+                    # context is partial, so the rendered SQL is not what will run.
                     sanitized_clause = sanitize_clause(rendered_clause, engine)
-                    # The clause is only rendered so that it can be parsed. A templated
-                    # clause has to be re-rendered when the query is built, where the
-                    # full Jinja context is available, so only a plain SQL clause can be
-                    # replaced with its sanitized form.
+                    # A templated clause is re-rendered and sanitized again when the
+                    # query is built, in `_process_sql_expression`, so replacing it
+                    # here would only discard the template. Only a plain SQL clause is
+                    # replaced with its sanitized form, which keeps the cache key
+                    # stable across formatting differences.
                     is_templated = any(
                         delimiter in clause for delimiter in ("{{", "{%", "{#")
                     )
