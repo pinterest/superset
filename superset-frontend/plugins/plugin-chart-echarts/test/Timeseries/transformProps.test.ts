@@ -634,6 +634,7 @@ describe('Does transformProps transform series correctly', () => {
         groupby: [],
         time_compare: ['1 year ago', '2 years ago'],
         comparison_type: ComparisonType.Values,
+        timeShiftColor: true,
       },
       queriesData: [
         {
@@ -653,6 +654,7 @@ describe('Does transformProps transform series correctly', () => {
     ).echartOptions.series as unknown as {
       name?: string;
       lineStyle?: { type?: unknown };
+      symbol?: string;
     }[];
 
     const originalSeries = transformedSeries.find(
@@ -664,11 +666,12 @@ describe('Does transformProps transform series correctly', () => {
 
     expect(originalSeries?.lineStyle?.type).toBeUndefined();
     expect(shiftedSeries).toHaveLength(2);
-    shiftedSeries.forEach(series => {
-      expect(Array.isArray(series.lineStyle?.type)).toBe(true);
-    });
+    expect(shiftedSeries[0].lineStyle?.type).toBe('dotted');
+    expect(shiftedSeries[1].lineStyle?.type).toEqual([6, 15]);
     expect(shiftedSeries[0].lineStyle?.type).not.toEqual(
       shiftedSeries[1].lineStyle?.type,
     );
+    expect(shiftedSeries[0].symbol).toBe('triangle');
+    expect(shiftedSeries[1].symbol).toBe('diamond');
   });
 });
