@@ -283,7 +283,7 @@ function TableCollection<T extends object>({
       // record?.id === highlightRowId ? 'table-row-highlighted' : '',
       highlightRowId !== undefined && record?.id === highlightRowId
         ? 'table-row-highlighted'
-        : undefined,
+        : '',
     [highlightRowId],
   );
 
