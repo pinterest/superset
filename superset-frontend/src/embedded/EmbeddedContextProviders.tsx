@@ -28,6 +28,7 @@ import { SupersetThemeProvider } from 'src/theme/ThemeProvider';
 import { ThemeController } from 'src/theme/ThemeController';
 import type { ThemeStorage } from '@superset-ui/core';
 import { store } from 'src/views/store';
+import { QueryClientProviderWrapper } from 'src/views/QueryClientProvider';
 import getBootstrapData from 'src/utils/getBootstrapData';
 
 /**
@@ -67,26 +68,28 @@ export const EmbeddedContextProviders: React.FC = ({ children }) => {
   return (
     <SupersetThemeProvider themeController={themeController}>
       <ReduxProvider store={store}>
-        <DndProvider backend={HTML5Backend}>
-          <FlashProvider messages={common.flash_messages}>
-            <EmbeddedUiConfigProvider>
-              <DynamicPluginProvider>
-                <QueryParamProvider
-                  ReactRouterRoute={Route}
-                  stringifyOptions={{ encode: false }}
-                >
-                  {RootContextProviderExtension ? (
-                    <RootContextProviderExtension>
-                      {children}
-                    </RootContextProviderExtension>
-                  ) : (
-                    children
-                  )}
-                </QueryParamProvider>
-              </DynamicPluginProvider>
-            </EmbeddedUiConfigProvider>
-          </FlashProvider>
-        </DndProvider>
+        <QueryClientProviderWrapper>
+          <DndProvider backend={HTML5Backend}>
+            <FlashProvider messages={common.flash_messages}>
+              <EmbeddedUiConfigProvider>
+                <DynamicPluginProvider>
+                  <QueryParamProvider
+                    ReactRouterRoute={Route}
+                    stringifyOptions={{ encode: false }}
+                  >
+                    {RootContextProviderExtension ? (
+                      <RootContextProviderExtension>
+                        {children}
+                      </RootContextProviderExtension>
+                    ) : (
+                      children
+                    )}
+                  </QueryParamProvider>
+                </DynamicPluginProvider>
+              </EmbeddedUiConfigProvider>
+            </FlashProvider>
+          </DndProvider>
+        </QueryClientProviderWrapper>
       </ReduxProvider>
     </SupersetThemeProvider>
   );
