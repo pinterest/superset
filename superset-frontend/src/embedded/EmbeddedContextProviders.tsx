@@ -28,6 +28,7 @@ import { SupersetThemeProvider } from 'src/theme/ThemeProvider';
 import { ThemeController } from 'src/theme/ThemeController';
 import { type ThemeStorage, ThemeMode } from '@apache-superset/core/theme';
 import { store } from 'src/views/store';
+import { QueryClientProviderWrapper } from 'src/views/QueryClientProvider';
 import querystring from 'query-string';
 
 /**
@@ -67,28 +68,30 @@ export const EmbeddedContextProviders: React.FC = ({ children }) => {
   return (
     <SupersetThemeProvider themeController={themeController}>
       <ReduxProvider store={store}>
-        <DndProvider backend={HTML5Backend}>
-          <EmbeddedUiConfigProvider>
-            <DynamicPluginProvider>
-              <QueryParamProvider
-                adapter={ReactRouter5Adapter}
-                options={{
-                  searchStringToObject: querystring.parse,
-                  objectToSearchString: (object: Record<string, any>) =>
-                    querystring.stringify(object, { encode: false }),
-                }}
-              >
-                {RootContextProviderExtension ? (
-                  <RootContextProviderExtension>
-                    {children}
-                  </RootContextProviderExtension>
-                ) : (
-                  children
-                )}
-              </QueryParamProvider>
-            </DynamicPluginProvider>
-          </EmbeddedUiConfigProvider>
-        </DndProvider>
+        <QueryClientProviderWrapper>
+          <DndProvider backend={HTML5Backend}>
+            <EmbeddedUiConfigProvider>
+              <DynamicPluginProvider>
+                <QueryParamProvider
+                  adapter={ReactRouter5Adapter}
+                  options={{
+                    searchStringToObject: querystring.parse,
+                    objectToSearchString: (object: Record<string, any>) =>
+                      querystring.stringify(object, { encode: false }),
+                  }}
+                >
+                  {RootContextProviderExtension ? (
+                    <RootContextProviderExtension>
+                      {children}
+                    </RootContextProviderExtension>
+                  ) : (
+                    children
+                  )}
+                </QueryParamProvider>
+              </DynamicPluginProvider>
+            </EmbeddedUiConfigProvider>
+          </DndProvider>
+        </QueryClientProviderWrapper>
       </ReduxProvider>
     </SupersetThemeProvider>
   );
