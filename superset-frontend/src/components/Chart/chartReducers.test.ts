@@ -67,6 +67,26 @@ describe('chart reducers', () => {
     );
   });
 
+  test('should ignore stopped updates from stale controllers', () => {
+    const controller = new AbortController();
+    const staleController = new AbortController();
+    const chartsWithController = {
+      [chartKey]: {
+        ...testChart,
+        chartStatus: 'loading',
+        queryController: controller,
+      },
+    };
+
+    const newState = chartReducer(
+      chartsWithController,
+      actions.chartUpdateStopped(chartKey, staleController),
+    );
+
+    expect(newState[chartKey].chartStatus).toEqual('loading');
+    expect(newState[chartKey].queryController).toBe(controller);
+  });
+
   test('should ignore per-key actions for charts no longer in state', () => {
     // Async action (e.g. aborted query dispatching chartUpdateStopped) can
     // resolve after the chart was removed from state on navigation.

@@ -232,6 +232,80 @@ describe('chart actions', () => {
     }
   });
 
+  test('should drop stale success dispatches when a newer controller has replaced ours in state', async () => {
+    const chartKey = 'stale_success_test';
+    const formData: Partial<QueryFormData> = {
+      slice_id: 456,
+      datasource: 'table__1',
+      viz_type: 'table',
+    };
+    // A controller belonging to a newer in-flight request, already stored
+    // in state by the time this thunk's response resolves.
+    const newerController = new AbortController();
+    const state: MockState = {
+      charts: {
+        [chartKey]: {
+          queryController: newerController,
+        },
+      },
+      common: {
+        conf: {
+          SUPERSET_WEBSERVER_TIMEOUT: 60,
+        },
+      },
+    };
+    const getState = jest.fn(() => state);
+    const dispatchMock = jest.fn();
+    const getChartDataRequestSpy = jest
+      .spyOn(actions, 'getChartDataRequest')
+      .mockResolvedValue({
+        response: { status: 200 } as Response,
+        json: { result: [{ data: [{ stale: true }] }] },
+      });
+    const handleChartDataResponseSpy = jest
+      .spyOn(actions, 'handleChartDataResponse')
+      .mockResolvedValue([{ data: [{ stale: true }] }] as Awaited<
+        ReturnType<typeof handleChartDataResponse>
+      >);
+    const updateDataMaskSpy = jest
+      .spyOn(dataMaskActions, 'updateDataMask')
+      .mockReturnValue({ type: 'UPDATE_DATA_MASK' } as ReturnType<
+        typeof dataMaskActions.updateDataMask
+      >);
+    const getQuerySettingsStub = jest
+      .spyOn(exploreUtils, 'getQuerySettings')
+      .mockReturnValue([false, () => {}] as unknown as ReturnType<
+        typeof exploreUtils.getQuerySettings
+      >);
+
+    try {
+      const thunkAction = actions.exploreJSON(
+        formData as QueryFormData,
+        false,
+        undefined,
+        chartKey,
+      );
+      await thunkAction(
+        dispatchMock as unknown as actions.ChartThunkDispatch,
+        getState as unknown as () => actions.RootState,
+        undefined,
+      );
+
+      // CHART_UPDATE_STARTED is fine (it ran before the gate),
+      // but CHART_UPDATE_SUCCEEDED must not fire with stale data.
+      const dispatchedTypes = dispatchMock.mock.calls.map(
+        ([action]) => action?.type,
+      );
+      expect(dispatchedTypes).toContain(actions.CHART_UPDATE_STARTED);
+      expect(dispatchedTypes).not.toContain(actions.CHART_UPDATE_SUCCEEDED);
+    } finally {
+      getChartDataRequestSpy.mockRestore();
+      handleChartDataResponseSpy.mockRestore();
+      updateDataMaskSpy.mockRestore();
+      getQuerySettingsStub.mockRestore();
+    }
+  });
+
   afterEach(() => {
     getExploreUrlStub.mockRestore();
     getChartDataUriStub.mockRestore();

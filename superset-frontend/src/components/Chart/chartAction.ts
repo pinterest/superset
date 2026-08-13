@@ -786,6 +786,15 @@ export function exploreJSON(
         handleChartDataResponse(response, json, useLegacyApi),
       )
       .then(queriesResponse => {
+        // Drop stale responses: if a newer query has started for this chart,
+        // its controller will have replaced ours in state, so ignore this
+        // response to avoid clobbering newer data with older results.
+        if (key != null) {
+          const currentController = getState().charts?.[key]?.queryController;
+          if (currentController && currentController !== controller) {
+            return undefined;
+          }
+        }
         (queriesResponse as QueryData[]).forEach(
           (resultItem: QueryData & { applied_filters?: JsonObject[] }) =>
             dispatch(
@@ -850,6 +859,15 @@ export function exploreJSON(
             );
           }
 
+          // Drop stale failures the same way we drop stale successes,
+          // so a slow earlier request can't mark a newer one as failed.
+          if (key != null) {
+            const currentController = getState().charts?.[key]?.queryController;
+            if (currentController && currentController !== controller) {
+              return undefined;
+            }
+          }
+
           const logAndFail = (
             parsedResponse: JsonObject,
             overrideErrorDetails?: string,
@@ -868,7 +886,10 @@ export function exploreJSON(
                 typeof parsedResponse === 'object' &&
                 !parsedResponse?.error
               ) {
-                responseForDispatch = { ...parsedResponse, error: errorDetails };
+                responseForDispatch = {
+                  ...parsedResponse,
+                  error: errorDetails,
+                };
               }
             } catch (e) {
               // best-effort logging, ignore secondary errors
@@ -892,9 +913,7 @@ export function exploreJSON(
             // Raw Response object (HTTP errors like 504) - parse it first
             return getClientErrorObject(
               response as unknown as Parameters<typeof getClientErrorObject>[0],
-            ).then((parsedResponse: JsonObject) =>
-              logAndFail(parsedResponse),
-            );
+            ).then((parsedResponse: JsonObject) => logAndFail(parsedResponse));
           }
 
           return logAndFail(response as JsonObject);
