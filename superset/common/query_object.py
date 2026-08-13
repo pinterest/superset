@@ -348,7 +348,7 @@ class QueryObject:  # pylint: disable=too-many-instance-attributes
                         database=database, table=self.datasource
                     )
                     try:
-                        clause = processor.process_template(clause, force=True)
+                        rendered_clause = processor.process_template(clause, force=True)
                     except TemplateError as ex:
                         raise QueryObjectValidationError(
                             _(
@@ -360,10 +360,20 @@ class QueryObject:  # pylint: disable=too-many-instance-attributes
                     engine = database.db_engine_spec.engine
 
                     if needs_transpilation:
-                        clause = transpile_to_dialect(clause, engine)
+                        rendered_clause = transpile_to_dialect(rendered_clause, engine)
 
-                    sanitized_clause = sanitize_clause(clause, engine)
-                    if sanitized_clause != clause:
+                    # The clause is only rendered here so that it can be parsed; the
+                    # context is partial, so the rendered SQL is not what will run.
+                    sanitized_clause = sanitize_clause(rendered_clause, engine)
+                    # A templated clause is re-rendered and sanitized again when the
+                    # query is built, in `_process_sql_expression`, so replacing it
+                    # here would only discard the template. Only a plain SQL clause is
+                    # replaced with its sanitized form, which keeps the cache key
+                    # stable across formatting differences.
+                    is_templated = any(
+                        delimiter in clause for delimiter in ("{{", "{%", "{#")
+                    )
+                    if not is_templated and sanitized_clause != clause:
                         self.extras[param] = sanitized_clause
                 except QueryClauseValidationException as ex:
                     raise QueryObjectValidationError(ex.message) from ex
