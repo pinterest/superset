@@ -161,21 +161,21 @@ describe('DashboardList Card View Tests', () => {
     const sortCombobox = within(sortContainer).getByRole('combobox');
     await userEvent.click(sortCombobox);
 
-    // Select "Alphabetical" from the dropdown
-    const alphabeticalOption = await waitFor(() =>
+    // Select "Recently modified" from the dropdown
+    const recentlyModifiedOption = await waitFor(() =>
       within(
         // eslint-disable-next-line testing-library/no-node-access
         document.querySelector('.rc-virtual-list')!,
-      ).getByText('Alphabetical'),
+      ).getByText('Recently modified'),
     );
-    await userEvent.click(alphabeticalOption);
+    await userEvent.click(recentlyModifiedOption);
 
     await waitFor(() => {
       const latest = getLatestDashboardApiCall();
       expect(latest).not.toBeNull();
       expect(latest!.query).toMatchObject({
-        order_column: 'dashboard_title',
-        order_direction: 'asc',
+        order_column: 'changed_on_delta_humanized',
+        order_direction: 'desc',
       });
     });
   });
