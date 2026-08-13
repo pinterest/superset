@@ -109,7 +109,7 @@ export const Styles = styled.div<{ isDashboardEditMode: boolean }>`
     }
 
     table.pvtTable tbody tr td {
-      color: ${theme.colorPrimaryText};
+      /* color: ${theme.colorPrimaryText}; */
       padding: ${theme.sizeUnit}px;
       background-color: ${theme.colorBgBase};
       border-top: 1px solid ${theme.colorSplit};
