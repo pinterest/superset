@@ -1,5 +1,5 @@
 /**
- * Stub for dashboard list extensions (search filters, extra columns).
+ * Stub for dashboard list extensions (search filters, search mode, extra columns).
  * Internal build replaces this with the real implementation.
  */
 import type { ListViewFilter } from 'src/components/ListView/types';
@@ -15,6 +15,26 @@ export function getDashboardListSearchFilters(
   _options: DashboardListSearchFilterOptions = {},
 ): ListViewFilter[] {
   return [];
+}
+
+export interface DashboardSearchModeOptions {
+  /** Headers from the most recent dashboard list response. */
+  responseHeaders?: Headers;
+}
+
+export interface DashboardSearchMode {
+  /** Resolve the name-search operator without rebuilding the filter list. */
+  getSearchOperator?: () => ListViewFilter['operator'];
+  /** Filter-bar entry holding the search-mode toggle, if the build has one. */
+  searchModeFilter?: ListViewFilter;
+}
+
+/** Search-mode control for the dashboard list's name search. */
+export function useDashboardSearchMode(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _options: DashboardSearchModeOptions = {},
+): DashboardSearchMode {
+  return { getSearchOperator: undefined, searchModeFilter: undefined };
 }
 
 export type DashboardListExtraColumnsOptions = {

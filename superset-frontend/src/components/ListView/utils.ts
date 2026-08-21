@@ -99,11 +99,16 @@ type QueryFilterState = {
 };
 
 function mergeCreateFilterValues(list: Filter[], updateObj: QueryFilterState) {
-  return list.map(({ id, urlDisplay, operator }) => {
+  return list.map(({ id, urlDisplay, operator, getOperator }) => {
     const currentFilterId = urlDisplay || id;
     const update = updateObj[currentFilterId];
 
-    return { id, urlDisplay, operator, value: update };
+    return {
+      id,
+      urlDisplay,
+      operator: getOperator?.() ?? operator,
+      value: update,
+    };
   });
 }
 
@@ -166,7 +171,7 @@ export function convertFiltersRison(
     const filter = refs[currentFilterId];
 
     if (filter) {
-      filter.operator = value.operator;
+      filter.operator = value.getOperator?.() ?? value.operator;
       filter.id = value.id;
     }
   });
@@ -299,15 +304,43 @@ export function useListViewState({
       : [],
   );
 
-  useEffect(() => {
+  const refreshFilterConfigs = () => {
     if (initialFilters.length) {
-      setInternalFilters(
-        mergeCreateFilterValues(
+      setInternalFilters(currentFilters => {
+        const currentValues = Object.fromEntries(
+          currentFilters.map(({ id, urlDisplay, value }) => [
+            urlDisplay || id,
+            value,
+          ]),
+        );
+        const nextFilters = mergeCreateFilterValues(
           initialFilters,
-          query.filters ? query.filters : {},
-        ),
-      );
+          currentValues,
+        );
+        const currentActiveFilters = convertFilters(currentFilters).filter(
+          ({ value }) => value !== '',
+        );
+        const nextActiveFilters = convertFilters(nextFilters).filter(
+          ({ value }) => value !== '',
+        );
+
+        // A filter config can change independently of its value (for example,
+        // when a search control switches operators). Keep react-table's filters
+        // in sync so the current query is immediately submitted in the new mode.
+        if (!isEqual(currentActiveFilters, nextActiveFilters)) {
+          setAllFilters(nextActiveFilters);
+          gotoPage(0);
+          return nextFilters;
+        }
+        return isEqual(currentFilters, nextFilters)
+          ? currentFilters
+          : nextFilters;
+      });
     }
+  };
+
+  useEffect(() => {
+    refreshFilterConfigs();
   }, [initialFilters]);
 
   useEffect(() => {
@@ -361,7 +394,13 @@ export function useListViewState({
         return currentInternalFilters;
       }
 
-      const update = { ...currentInternalFilters[index], value };
+      const update = {
+        ...currentInternalFilters[index],
+        operator:
+          initialFilters[index].getOperator?.() ??
+          currentInternalFilters[index].operator,
+        value,
+      };
       const updatedFilters = updateInList(
         currentInternalFilters,
         index,
@@ -390,6 +429,7 @@ export function useListViewState({
     state: { pageIndex, pageSize, sortBy, filters, internalFilters, viewMode },
     toggleAllRowsSelected,
     applyFilterValue,
+    refreshFilterConfigs,
     setViewMode,
     query,
   };

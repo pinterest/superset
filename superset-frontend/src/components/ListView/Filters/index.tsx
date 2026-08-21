@@ -19,6 +19,7 @@
 import {
   createRef,
   forwardRef,
+  Fragment,
   useImperativeHandle,
   useMemo,
   RefObject,
@@ -42,10 +43,16 @@ interface UIFiltersProps {
   filters: Filters;
   internalFilters: InternalFilter[];
   updateFilterValue: (id: number, value: FilterValue['value']) => void;
+  refreshFilterConfigs: () => void;
 }
 
 function UIFilters(
-  { filters, internalFilters = [], updateFilterValue }: UIFiltersProps,
+  {
+    filters,
+    internalFilters = [],
+    updateFilterValue,
+    refreshFilterConfigs,
+  }: UIFiltersProps,
   ref: RefObject<{ clearFilters: () => void }>,
 ) {
   const filterRefs = useMemo(
@@ -73,6 +80,7 @@ function UIFilters(
             id,
             input,
             optionFilterProps,
+            render,
             paginate,
             selects,
             toolTipDescription,
@@ -88,6 +96,11 @@ function UIFilters(
           index,
         ) => {
           const initialValue = internalFilters?.[index]?.value;
+          if (input === 'custom') {
+            return (
+              <Fragment key={key}>{render?.(refreshFilterConfigs)}</Fragment>
+            );
+          }
           if (input === 'select') {
             return (
               <SelectFilter

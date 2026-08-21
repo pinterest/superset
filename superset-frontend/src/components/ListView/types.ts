@@ -43,6 +43,8 @@ export interface ListViewFilter {
   toolTipDescription?: string;
   urlDisplay?: string;
   operator?: ListViewFilterOperator;
+  /** Resolve an operator at submission time without rebuilding the filter list. */
+  getOperator?: () => ListViewFilterOperator | undefined;
   input?:
     | 'text'
     | 'textarea'
@@ -50,8 +52,13 @@ export interface ListViewFilter {
     | 'checkbox'
     | 'search'
     | 'datetime_range'
-    | 'numerical_range';
+    | 'numerical_range'
+    | 'custom';
   unfilteredLabel?: string;
+  /** Control for an `input: 'custom'` filter. Such a filter owns its own state
+   * and submits nothing through the filter bar, so it suits controls that
+   * change how the other filters are matched rather than what is matched. */
+  render?: (onFilterConfigChange: () => void) => ReactNode;
   selects?: SelectOption[];
   onFilterOpen?: () => void;
   onFilterUpdate?: (value?: any) => void;

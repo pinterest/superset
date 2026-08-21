@@ -90,6 +90,7 @@ import {
   getDashboardListExtraColumnsToFetch,
   getDashboardListExtraListColumns,
   getDashboardListSearchFilters,
+  useDashboardSearchMode,
   // @ts-ignore
   // eslint-disable-next-line import/no-unresolved
 } from '@pinterest-plugins/src/features/dashboards/dashboardListExtensions';
@@ -213,6 +214,7 @@ function DashboardList(props: DashboardListProps) {
       resourceCount: dashboardCount,
       resourceCollection: dashboards,
       bulkSelectEnabled,
+      lastResponseHeaders,
     },
     setResourceCollection: setDashboards,
     hasPerm,
@@ -627,6 +629,10 @@ function DashboardList(props: DashboardListProps) {
     [],
   );
 
+  const { getSearchOperator, searchModeFilter } = useDashboardSearchMode({
+    responseHeaders: lastResponseHeaders,
+  });
+
   const filters: ListViewFilters = useMemo(() => {
     const filtersList = [
       {
@@ -635,6 +641,7 @@ function DashboardList(props: DashboardListProps) {
         id: 'dashboard_title',
         input: 'search',
         operator: FilterOperator.TitleOrSlug,
+        getOperator: getSearchOperator,
       },
       {
         Header: t('Status'),
@@ -722,6 +729,7 @@ function DashboardList(props: DashboardListProps) {
       ...(showGovernanceExtras
         ? getDashboardListSearchFilters({ canPromoteTier1 })
         : []),
+      ...(searchModeFilter ? [searchModeFilter] : []),
     ] as ListViewFilters;
     return filtersList;
   }, [
@@ -729,6 +737,8 @@ function DashboardList(props: DashboardListProps) {
     canReadTag,
     canPromoteTier1,
     favoritesFilter,
+    getSearchOperator,
+    searchModeFilter,
     user,
     showGovernanceExtras,
   ]);

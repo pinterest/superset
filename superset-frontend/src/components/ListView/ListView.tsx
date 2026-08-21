@@ -303,6 +303,7 @@ export function ListView<T extends object = any>({
     pageCount = 1,
     gotoPage,
     applyFilterValue,
+    refreshFilterConfigs,
     setSortBy,
     selectedFlatRows,
     toggleAllRowsSelected,
@@ -384,6 +385,7 @@ export function ListView<T extends object = any>({
                 ref={filterControlsRef}
                 filters={filters}
                 internalFilters={internalFilters}
+                refreshFilterConfigs={refreshFilterConfigs}
                 updateFilterValue={applyFilterValue}
               />
             )}
