@@ -58,7 +58,12 @@ export interface ListViewFilter {
   /** Control for an `input: 'custom'` filter. Such a filter owns its own state
    * and submits nothing through the filter bar, so it suits controls that
    * change how the other filters are matched rather than what is matched. */
-  render?: (onFilterConfigChange: () => void) => ReactNode;
+  render?: (
+    onFilterConfigChange: (
+      filterId: string,
+      operator: ListViewFilterOperator,
+    ) => void,
+  ) => ReactNode;
   selects?: SelectOption[];
   onFilterOpen?: () => void;
   onFilterUpdate?: (value?: any) => void;

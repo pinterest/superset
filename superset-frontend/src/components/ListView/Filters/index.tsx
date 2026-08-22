@@ -29,6 +29,7 @@ import { withTheme } from '@apache-superset/core/theme';
 
 import type {
   ListViewFilterValue as FilterValue,
+  ListViewFilterOperator,
   ListViewFilters as Filters,
   InternalFilter,
   SelectOption,
@@ -43,7 +44,10 @@ interface UIFiltersProps {
   filters: Filters;
   internalFilters: InternalFilter[];
   updateFilterValue: (id: number, value: FilterValue['value']) => void;
-  refreshFilterConfigs: () => void;
+  updateFilterOperator: (
+    filterId: string,
+    operator: ListViewFilterOperator,
+  ) => void;
 }
 
 function UIFilters(
@@ -51,7 +55,7 @@ function UIFilters(
     filters,
     internalFilters = [],
     updateFilterValue,
-    refreshFilterConfigs,
+    updateFilterOperator,
   }: UIFiltersProps,
   ref: RefObject<{ clearFilters: () => void }>,
 ) {
@@ -98,7 +102,7 @@ function UIFilters(
           const initialValue = internalFilters?.[index]?.value;
           if (input === 'custom') {
             return (
-              <Fragment key={key}>{render?.(refreshFilterConfigs)}</Fragment>
+              <Fragment key={key}>{render?.(updateFilterOperator)}</Fragment>
             );
           }
           if (input === 'select') {

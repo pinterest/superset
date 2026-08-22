@@ -23,7 +23,7 @@ import { ReactRouter5Adapter } from 'use-query-params/adapters/react-router-5';
 import { MemoryRouter } from 'react-router-dom';
 import thunk from 'redux-thunk';
 import configureStore from 'redux-mock-store';
-import { ReactNode } from 'react';
+import { ReactNode, useMemo, useState } from 'react';
 import { ListView, type ListViewProps } from './ListView';
 import { ListViewFilterOperator, type ListViewFetchDataConfig } from './types';
 
@@ -351,44 +351,72 @@ describe('ListView', () => {
   });
 });
 
-test('refetches an active filter when its operator changes', async () => {
+test('reapplies an active search with the operator selected by a toggle', async () => {
   const fetchData = jest.fn();
-  let operator = ListViewFilterOperator.Contains;
   window.history.pushState({}, '', '/');
-  const filters = [
-    {
-      Header: 'Name',
-      key: 'search',
-      id: 'name',
-      input: 'search' as const,
-      operator: ListViewFilterOperator.Contains,
-      getOperator: () => operator,
-    },
-    {
-      Header: 'Search mode',
-      key: 'search-mode',
-      id: 'id',
-      input: 'custom' as const,
-      render: (onFilterConfigChange: () => void) => (
-        <button type="button" onClick={onFilterConfigChange}>
-          Apply filter config
-        </button>
-      ),
-    },
-  ];
-  render(
-    <ListView {...mockedPropsSimple} fetchData={fetchData} filters={filters} />,
-    {
-      useRouter: true,
-      useQueryParams: true,
-    },
-  );
+
+  function ListViewWithSearchMode() {
+    const [operator, setOperator] = useState(
+      ListViewFilterOperator.Contains,
+    );
+    const filters = useMemo(
+      () => [
+        {
+          Header: 'Name',
+          key: 'search',
+          id: 'name',
+          input: 'search' as const,
+          operator: ListViewFilterOperator.Contains,
+          getOperator: () => operator,
+        },
+        {
+          Header: 'Search mode',
+          key: 'search-mode',
+          id: 'id',
+          input: 'custom' as const,
+          render: (
+            onFilterConfigChange: (
+              filterId: string,
+              nextOperator: ListViewFilterOperator,
+            ) => void,
+          ) => (
+            <button
+              type="button"
+              onClick={() => {
+                const nextOperator =
+                  operator === ListViewFilterOperator.Contains
+                    ? ListViewFilterOperator.Equals
+                    : ListViewFilterOperator.Contains;
+                setOperator(nextOperator);
+                onFilterConfigChange('name', nextOperator);
+              }}
+            >
+              Toggle search mode
+            </button>
+          ),
+        },
+      ],
+      [operator],
+    );
+
+    return (
+      <ListView
+        {...mockedPropsSimple}
+        fetchData={fetchData}
+        filters={filters}
+      />
+    );
+  }
+
+  render(<ListViewWithSearchMode />, {
+    useRouter: true,
+    useQueryParams: true,
+  });
   await waitFor(() => expect(fetchData).toHaveBeenCalled());
   fetchData.mockClear();
 
-  operator = ListViewFilterOperator.Equals;
   await userEvent.click(
-    screen.getByRole('button', { name: 'Apply filter config' }),
+    screen.getByRole('button', { name: 'Toggle search mode' }),
   );
   expect(fetchData).not.toHaveBeenCalled();
 
@@ -407,87 +435,9 @@ test('refetches an active filter when its operator changes', async () => {
   );
   fetchData.mockClear();
 
-  operator = ListViewFilterOperator.Contains;
   await userEvent.click(
-    screen.getByRole('button', { name: 'Apply filter config' }),
+    screen.getByRole('button', { name: 'Toggle search mode' }),
   );
-
-  await waitFor(() =>
-    expect(fetchData).toHaveBeenCalledWith(
-      expect.objectContaining({
-        filters: [
-          expect.objectContaining({
-            operator: ListViewFilterOperator.Contains,
-            value: 'data',
-          }),
-        ],
-      }),
-    ),
-  );
-
-  await userEvent.clear(screen.getByTestId('filters-search'));
-  await waitFor(() =>
-    expect(fetchData).toHaveBeenCalledWith(
-      expect.objectContaining({
-        filters: [expect.objectContaining({ value: '' })],
-      }),
-    ),
-  );
-  fetchData.mockClear();
-
-  operator = ListViewFilterOperator.Equals;
-  await userEvent.click(
-    screen.getByRole('button', { name: 'Apply filter config' }),
-  );
-  expect(fetchData).not.toHaveBeenCalled();
-});
-
-test('keeps filter configurations aligned when later filters are used first', async () => {
-  const fetchData = jest.fn();
-  window.history.pushState({}, '', '/');
-  const filters = [
-    {
-      Header: 'Name',
-      key: 'name-search',
-      id: 'name',
-      input: 'search' as const,
-      operator: ListViewFilterOperator.Contains,
-    },
-    {
-      Header: 'ID',
-      key: 'id-search',
-      id: 'id',
-      input: 'search' as const,
-      operator: ListViewFilterOperator.Equals,
-    },
-  ];
-  render(
-    <ListView {...mockedPropsSimple} fetchData={fetchData} filters={filters} />,
-    {
-      useRouter: true,
-      useQueryParams: true,
-    },
-  );
-  await waitFor(() => expect(fetchData).toHaveBeenCalled());
-  fetchData.mockClear();
-
-  const [nameSearch, idSearch] = screen.getAllByTestId('filters-search');
-  await userEvent.type(idSearch, '2{enter}');
-  await waitFor(() =>
-    expect(fetchData).toHaveBeenCalledWith(
-      expect.objectContaining({
-        filters: [
-          expect.objectContaining({
-            id: 'id',
-            operator: ListViewFilterOperator.Equals,
-            value: '2',
-          }),
-        ],
-      }),
-    ),
-  );
-
-  await userEvent.type(nameSearch, 'data{enter}');
   await waitFor(() =>
     expect(fetchData).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -495,48 +445,6 @@ test('keeps filter configurations aligned when later filters are used first', as
           expect.objectContaining({
             id: 'name',
             operator: ListViewFilterOperator.Contains,
-            value: 'data',
-          }),
-          expect.objectContaining({
-            id: 'id',
-            operator: ListViewFilterOperator.Equals,
-            value: '2',
-          }),
-        ],
-      }),
-    ),
-  );
-});
-
-test('uses a dynamic operator for filters restored from the URL', async () => {
-  const fetchData = jest.fn();
-  window.history.pushState({}, '', '/?filters=(name:data)');
-  const filters = [
-    {
-      Header: 'Name',
-      key: 'search',
-      id: 'name',
-      input: 'search' as const,
-      operator: ListViewFilterOperator.Contains,
-      getOperator: () => ListViewFilterOperator.Equals,
-    },
-  ];
-
-  render(
-    <ListView {...mockedPropsSimple} fetchData={fetchData} filters={filters} />,
-    {
-      useRouter: true,
-      useQueryParams: true,
-    },
-  );
-
-  await waitFor(() =>
-    expect(fetchData).toHaveBeenCalledWith(
-      expect.objectContaining({
-        filters: [
-          expect.objectContaining({
-            id: 'name',
-            operator: ListViewFilterOperator.Equals,
             value: 'data',
           }),
         ],

@@ -38,6 +38,7 @@ import { isEqual } from 'lodash';
 import {
   ListViewFetchDataConfig as FetchDataConfig,
   ListViewFilter as Filter,
+  ListViewFilterOperator,
   ListViewFilterValue as FilterValue,
   InnerFilterValue,
   InternalFilter,
@@ -304,44 +305,39 @@ export function useListViewState({
       : [],
   );
 
-  const refreshFilterConfigs = () => {
+  useEffect(() => {
     if (initialFilters.length) {
-      setInternalFilters(currentFilters => {
-        const currentValues = Object.fromEntries(
-          currentFilters.map(({ id, urlDisplay, value }) => [
-            urlDisplay || id,
-            value,
-          ]),
-        );
-        const nextFilters = mergeCreateFilterValues(
+      setInternalFilters(
+        mergeCreateFilterValues(
           initialFilters,
-          currentValues,
-        );
-        const currentActiveFilters = convertFilters(currentFilters).filter(
-          ({ value }) => value !== '',
-        );
-        const nextActiveFilters = convertFilters(nextFilters).filter(
-          ({ value }) => value !== '',
-        );
+          query.filters ? query.filters : {},
+        ),
+      );
+    }
+  }, [initialFilters]);
 
-        // A filter config can change independently of its value (for example,
-        // when a search control switches operators). Keep react-table's filters
-        // in sync so the current query is immediately submitted in the new mode.
-        if (!isEqual(currentActiveFilters, nextActiveFilters)) {
-          setAllFilters(nextActiveFilters);
-          gotoPage(0);
-          return nextFilters;
-        }
-        return isEqual(currentFilters, nextFilters)
-          ? currentFilters
-          : nextFilters;
-      });
+  const updateFilterOperator = (
+    filterId: string,
+    operator: ListViewFilterOperator,
+  ) => {
+    const index = internalFilters.findIndex(({ id }) => id === filterId);
+    const currentFilter = internalFilters[index];
+    if (!currentFilter || currentFilter.operator === operator) {
+      return;
+    }
+
+    const updatedFilters = updateInList(internalFilters, index, {
+      ...currentFilter,
+      operator,
+    });
+    setInternalFilters(updatedFilters);
+
+    const { value } = currentFilter;
+    if (value !== '' && value !== null && value !== undefined) {
+      setAllFilters(convertFilters(updatedFilters));
+      gotoPage(0);
     }
   };
-
-  useEffect(() => {
-    refreshFilterConfigs();
-  }, [initialFilters]);
 
   useEffect(() => {
     // From internalFilters, produce a simplified obj
@@ -429,7 +425,7 @@ export function useListViewState({
     state: { pageIndex, pageSize, sortBy, filters, internalFilters, viewMode },
     toggleAllRowsSelected,
     applyFilterValue,
-    refreshFilterConfigs,
+    updateFilterOperator,
     setViewMode,
     query,
   };
