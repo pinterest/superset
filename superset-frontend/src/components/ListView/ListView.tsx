@@ -393,7 +393,6 @@ export function ListView<T extends object = any>({
                 ref={filterControlsRef}
                 filters={filters}
                 internalFilters={internalFilters}
-                updateFilterOperator={updateFilterOperator}
                 updateFilterValue={applyFilterValue}
               />
             )}

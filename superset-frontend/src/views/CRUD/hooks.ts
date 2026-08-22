@@ -59,9 +59,6 @@ interface ListViewResourceState<D extends object = any> {
   lastFetchDataConfig: FetchDataConfig | null;
   bulkSelectEnabled: boolean;
   lastFetched?: string;
-  /** Headers from the most recent list response, for out-of-band signals a
-   * filter cannot express in the result body. */
-  lastResponseHeaders?: Headers;
 }
 
 const parsedErrorMessage = (
@@ -198,12 +195,11 @@ export function useListViewResource<D extends object = any>(
         endpoint: `/api/v1/${resource}/?q=${queryParams}`,
       })
         .then(
-          ({ json = {}, response }) => {
+          ({ json = {} }) => {
             updateState({
               collection: json.result,
               count: json.count,
               lastFetched: new Date().toISOString(),
-              lastResponseHeaders: response?.headers,
             });
           },
           createErrorHandler(errMsg =>
@@ -250,9 +246,6 @@ export function useListViewResource<D extends object = any>(
       resourceCollection: state.collection,
       bulkSelectEnabled: state.bulkSelectEnabled,
       lastFetched: state.lastFetched,
-      ...(state.lastResponseHeaders
-        ? { lastResponseHeaders: state.lastResponseHeaders }
-        : {}),
     },
     setResourceCollection: (update: D[]) =>
       updateState({

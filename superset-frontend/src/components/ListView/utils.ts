@@ -100,16 +100,11 @@ type QueryFilterState = {
 };
 
 function mergeCreateFilterValues(list: Filter[], updateObj: QueryFilterState) {
-  return list.map(({ id, urlDisplay, operator, getOperator }) => {
+  return list.map(({ id, urlDisplay, operator }) => {
     const currentFilterId = urlDisplay || id;
     const update = updateObj[currentFilterId];
 
-    return {
-      id,
-      urlDisplay,
-      operator: getOperator?.() ?? operator,
-      value: update,
-    };
+    return { id, urlDisplay, operator, value: update };
   });
 }
 
@@ -172,7 +167,7 @@ export function convertFiltersRison(
     const filter = refs[currentFilterId];
 
     if (filter) {
-      filter.operator = value.getOperator?.() ?? value.operator;
+      filter.operator = value.operator;
       filter.id = value.id;
     }
   });
@@ -390,13 +385,7 @@ export function useListViewState({
         return currentInternalFilters;
       }
 
-      const update = {
-        ...currentInternalFilters[index],
-        operator:
-          initialFilters[index].getOperator?.() ??
-          currentInternalFilters[index].operator,
-        value,
-      };
+      const update = { ...currentInternalFilters[index], value };
       const updatedFilters = updateInList(
         currentInternalFilters,
         index,

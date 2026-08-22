@@ -19,7 +19,6 @@
 import {
   createRef,
   forwardRef,
-  Fragment,
   useImperativeHandle,
   useMemo,
   RefObject,
@@ -29,7 +28,6 @@ import { withTheme } from '@apache-superset/core/theme';
 
 import type {
   ListViewFilterValue as FilterValue,
-  ListViewFilterOperator,
   ListViewFilters as Filters,
   InternalFilter,
   SelectOption,
@@ -44,19 +42,10 @@ interface UIFiltersProps {
   filters: Filters;
   internalFilters: InternalFilter[];
   updateFilterValue: (id: number, value: FilterValue['value']) => void;
-  updateFilterOperator: (
-    filterId: string,
-    operator: ListViewFilterOperator,
-  ) => void;
 }
 
 function UIFilters(
-  {
-    filters,
-    internalFilters = [],
-    updateFilterValue,
-    updateFilterOperator,
-  }: UIFiltersProps,
+  { filters, internalFilters = [], updateFilterValue }: UIFiltersProps,
   ref: RefObject<{ clearFilters: () => void }>,
 ) {
   const filterRefs = useMemo(
@@ -84,7 +73,6 @@ function UIFilters(
             id,
             input,
             optionFilterProps,
-            render,
             paginate,
             selects,
             toolTipDescription,
@@ -100,11 +88,6 @@ function UIFilters(
           index,
         ) => {
           const initialValue = internalFilters?.[index]?.value;
-          if (input === 'custom') {
-            return (
-              <Fragment key={key}>{render?.(updateFilterOperator)}</Fragment>
-            );
-          }
           if (input === 'select') {
             return (
               <SelectFilter
