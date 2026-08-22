@@ -356,9 +356,7 @@ test('reapplies an active search with the operator selected by a toggle', async 
   window.history.pushState({}, '', '/');
 
   function ListViewWithSearchMode() {
-    const [operator, setOperator] = useState(
-      ListViewFilterOperator.Contains,
-    );
+    const [operator, setOperator] = useState(ListViewFilterOperator.Contains);
     const filters = useMemo(
       () => [
         {
@@ -367,36 +365,9 @@ test('reapplies an active search with the operator selected by a toggle', async 
           id: 'name',
           input: 'search' as const,
           operator: ListViewFilterOperator.Contains,
-          getOperator: () => operator,
-        },
-        {
-          Header: 'Search mode',
-          key: 'search-mode',
-          id: 'id',
-          input: 'custom' as const,
-          render: (
-            onFilterConfigChange: (
-              filterId: string,
-              nextOperator: ListViewFilterOperator,
-            ) => void,
-          ) => (
-            <button
-              type="button"
-              onClick={() => {
-                const nextOperator =
-                  operator === ListViewFilterOperator.Contains
-                    ? ListViewFilterOperator.Equals
-                    : ListViewFilterOperator.Contains;
-                setOperator(nextOperator);
-                onFilterConfigChange('name', nextOperator);
-              }}
-            >
-              Toggle search mode
-            </button>
-          ),
         },
       ],
-      [operator],
+      [],
     );
 
     return (
@@ -404,6 +375,21 @@ test('reapplies an active search with the operator selected by a toggle', async 
         {...mockedPropsSimple}
         fetchData={fetchData}
         filters={filters}
+        renderExtraFilterControls={updateFilterOperator => (
+          <button
+            type="button"
+            onClick={() => {
+              const nextOperator =
+                operator === ListViewFilterOperator.Contains
+                  ? ListViewFilterOperator.Equals
+                  : ListViewFilterOperator.Contains;
+              setOperator(nextOperator);
+              updateFilterOperator('name', nextOperator);
+            }}
+          >
+            Toggle search mode
+          </button>
+        )}
       />
     );
   }

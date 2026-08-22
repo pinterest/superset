@@ -214,7 +214,6 @@ function DashboardList(props: DashboardListProps) {
       resourceCount: dashboardCount,
       resourceCollection: dashboards,
       bulkSelectEnabled,
-      lastResponseHeaders,
     },
     setResourceCollection: setDashboards,
     hasPerm,
@@ -629,9 +628,7 @@ function DashboardList(props: DashboardListProps) {
     [],
   );
 
-  const { getSearchOperator, searchModeFilter } = useDashboardSearchMode({
-    responseHeaders: lastResponseHeaders,
-  });
+  const { searchOperator, renderSearchModeControl } = useDashboardSearchMode();
 
   const filters: ListViewFilters = useMemo(() => {
     const filtersList = [
@@ -640,8 +637,7 @@ function DashboardList(props: DashboardListProps) {
         key: 'search',
         id: 'dashboard_title',
         input: 'search',
-        operator: FilterOperator.TitleOrSlug,
-        getOperator: getSearchOperator,
+        operator: searchOperator,
       },
       {
         Header: t('Status'),
@@ -729,7 +725,6 @@ function DashboardList(props: DashboardListProps) {
       ...(showGovernanceExtras
         ? getDashboardListSearchFilters({ canPromoteTier1 })
         : []),
-      ...(searchModeFilter ? [searchModeFilter] : []),
     ] as ListViewFilters;
     return filtersList;
   }, [
@@ -737,8 +732,7 @@ function DashboardList(props: DashboardListProps) {
     canReadTag,
     canPromoteTier1,
     favoritesFilter,
-    getSearchOperator,
-    searchModeFilter,
+    searchOperator,
     user,
     showGovernanceExtras,
   ]);
@@ -918,6 +912,7 @@ function DashboardList(props: DashboardListProps) {
                 fetchData={fetchData}
                 refreshData={refreshData}
                 filters={filters}
+                renderExtraFilterControls={renderSearchModeControl}
                 initialSort={initialSort}
                 loading={loading}
                 pageSize={PAGE_SIZE}

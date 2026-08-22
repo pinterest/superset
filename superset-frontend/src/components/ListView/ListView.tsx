@@ -38,6 +38,7 @@ import FilterControls from './Filters';
 import { CardSortSelect } from './CardSortSelect';
 import {
   ListViewFetchDataConfig as FetchDataConfig,
+  ListViewFilterOperator,
   ListViewFilters as Filters,
   SortColumn,
   CardSortSelectOption,
@@ -247,6 +248,12 @@ export interface ListViewProps<T extends object = any> {
   className?: string;
   initialSort?: SortColumn[];
   filters?: Filters;
+  renderExtraFilterControls?: (
+    updateFilterOperator: (
+      filterId: string,
+      operator: ListViewFilterOperator,
+    ) => void,
+  ) => ReactNode;
   bulkActions?: Array<{
     key: string;
     name: ReactNode;
@@ -278,6 +285,7 @@ export function ListView<T extends object = any>({
   initialSort = [],
   className = '',
   filters = [],
+  renderExtraFilterControls,
   bulkActions = [],
   bulkSelectEnabled = false,
   disableBulkSelect = () => {},
@@ -389,6 +397,7 @@ export function ListView<T extends object = any>({
                 updateFilterValue={applyFilterValue}
               />
             )}
+            {renderExtraFilterControls?.(updateFilterOperator)}
             {viewMode === 'card' && cardSortSelectOptions && (
               <CardSortSelect
                 initialSort={sortBy}
