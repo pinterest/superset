@@ -21,7 +21,11 @@ import { useUnsavedChangesPrompt } from 'src/hooks/useUnsavedChangesPrompt';
 import { screen, userEvent, within, waitFor } from '@superset-ui/core/spec';
 import { ActionCreators as UndoActionCreators } from 'redux-undo';
 import fetchMock from 'fetch-mock';
-import { getExtensionsRegistry, JsonObject } from '@superset-ui/core';
+import {
+  FeatureFlag,
+  getExtensionsRegistry,
+  JsonObject,
+} from '@superset-ui/core';
 import setupCodeOverrides from 'src/setup/setupCodeOverrides';
 import getOwnerName from 'src/utils/getOwnerName';
 import { render, createStore } from 'spec/helpers/testing-library';
@@ -597,6 +601,11 @@ test('should refresh the charts', async () => {
 test('auto-refresh uses onRefresh with skipped filters and toggles refresh state', async () => {
   jest.useFakeTimers();
   onRefresh.mockResolvedValue(undefined);
+  const originalFeatureFlags = window.featureFlags;
+  window.featureFlags = {
+    ...originalFeatureFlags,
+    [FeatureFlag.EnableDashboardAutoRefresh]: true,
+  };
 
   const originalRequestAnimationFrame = window.requestAnimationFrame;
   window.requestAnimationFrame = callback => {
@@ -629,6 +638,7 @@ test('auto-refresh uses onRefresh with skipped filters and toggles refresh state
     expect(setRefreshInFlight).toHaveBeenCalledWith(false);
     expect(endAutoRefresh).toHaveBeenCalled();
   } finally {
+    window.featureFlags = originalFeatureFlags;
     window.requestAnimationFrame = originalRequestAnimationFrame;
     jest.useRealTimers();
   }
