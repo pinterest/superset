@@ -377,7 +377,11 @@ class Chart extends PureComponent<ChartProps, {}> {
 
     if (chartStatus === 'failed') {
       return (
-        <ErrorContainer height={height}>
+        <ErrorContainer
+          className="chart-container"
+          data-test="chart-container"
+          height={height}
+        >
           {queriesResponse?.map(item =>
             this.renderErrorMessage(item as ChartErrorType),
           )}

@@ -600,14 +600,22 @@ class WebDriverSelenium(WebDriverProxy):
         logger.debug("Sleeping for %i seconds", selenium_headstart)
         sleep(selenium_headstart)
 
+        # "standalone" (used for dashboards) is a sentinel, not a real CSS class --
+        # a standalone dashboard renders its content under ".grid-container". Wait
+        # for that real element so a login/error page (which has neither the grid
+        # nor a chart) fails loudly instead of being silently captured, then
+        # screenshot the whole chrome-less standalone page.
+        capture_full_page = element_name == "standalone"
+        locate_class = "grid-container" if capture_full_page else element_name
+
         try:
             try:
                 # page didn't load
                 logger.debug(
-                    "Wait for the presence of %s at url: %s", element_name, url
+                    "Wait for the presence of %s at url: %s", locate_class, url
                 )
                 element = WebDriverWait(driver, self._screenshot_locate_wait).until(
-                    EC.presence_of_element_located((By.CLASS_NAME, element_name))
+                    EC.presence_of_element_located((By.CLASS_NAME, locate_class))
                 )
             except TimeoutException:
                 logger.warning(
@@ -684,7 +692,11 @@ class WebDriverSelenium(WebDriverProxy):
                         unexpected_errors,
                     )
 
-            img = element.screenshot_as_png
+            img = (
+                driver.get_screenshot_as_png()
+                if capture_full_page
+                else element.screenshot_as_png
+            )
         except TimeoutException:
             # Already logged at WARNING in the inner handlers above
             raise
