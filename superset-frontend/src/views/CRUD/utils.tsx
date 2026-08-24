@@ -292,7 +292,12 @@ export const createFetchDistinct = createFetchResourceMethod('distinct');
 export const createFetchOwners = (
   resource: string,
   handleError: (error: Response) => void,
-  user?: { userId: string | number; firstName: string; lastName: string },
+  user?: {
+    userId: string | number;
+    firstName: string;
+    lastName: string;
+    username: string;
+  },
 ) => {
   const fetchRelated = createFetchRelated(
     resource,

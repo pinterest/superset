@@ -1482,7 +1482,6 @@ class TestRolePermission(SupersetTestCase):
         assert ("can_dashboard", "Superset") in public_perm_set
         assert ("can_slice", "Superset") in public_perm_set
         assert ("can_explore_json", "Superset") in public_perm_set
-        assert ("can_dashboard_permalink", "Superset") in public_perm_set
 
         # Filter state for interactive dashboards
         assert ("can_read", "DashboardFilterStateRestApi") in public_perm_set

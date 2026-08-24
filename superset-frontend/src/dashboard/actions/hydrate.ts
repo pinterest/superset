@@ -83,6 +83,7 @@ interface HydrateChartData {
   owners: { id: number }[];
   modified: string;
   changed_on: string;
+  deleted_on?: string | null;
 }
 
 interface HydrateDashboardData extends Dashboard {

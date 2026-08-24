@@ -575,7 +575,7 @@ describe('PropertiesModal', () => {
 
     await open();
 
-    const options = await findAllSelectOptions(5);
+    const options = await findAllSelectOptions();
 
     expect(options).toHaveLength(5);
     expect(options[0]).toHaveTextContent('Admin');
@@ -635,7 +635,7 @@ describe('PropertiesModal', () => {
 
     await open();
 
-    const options = await findAllSelectOptions(1);
+    const options = await findAllSelectOptions();
 
     expect(options).toHaveLength(1);
     expect(options[0]).toHaveTextContent('Superset Admin');
@@ -688,7 +688,7 @@ describe('PropertiesModal', () => {
 
     await open();
 
-    const options = await findAllSelectOptions(1);
+    const options = await findAllSelectOptions();
 
     expect(options).toHaveLength(1);
     expect(options[0]).toHaveTextContent('Superset Admin');

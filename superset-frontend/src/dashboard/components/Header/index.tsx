@@ -327,7 +327,7 @@ const Header = (): JSX.Element => {
   const ctrlYTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const ctrlZTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const previousThemeRef = useRef(dashboardInfo.theme);
-  const prevIsLoadingRef = useRef();
+  const prevIsLoadingRef = useRef<boolean | undefined>(undefined);
 
   const dashboardTitle = layout[DASHBOARD_HEADER_ID]?.meta?.text ?? '';
   const slug = dashboardInfo.slug ?? '';
@@ -629,11 +629,6 @@ const Header = (): JSX.Element => {
     isFeatureEnabled(FeatureFlag.EmbeddedSuperset) &&
     findPermission('can_set_embedded', 'Dashboard', user.roles);
   const userCanExport = !!dashboardInfo.dash_export_perm;
-  const refreshLimit =
-    dashboardInfo.common?.conf?.SUPERSET_DASHBOARD_PERIODICAL_REFRESH_LIMIT;
-  const refreshWarning =
-    dashboardInfo.common?.conf
-      ?.SUPERSET_DASHBOARD_PERIODICAL_REFRESH_WARNING_MESSAGE;
   const isEmbedded = !dashboardInfo?.userId;
   const isDashboardOwner = (dashboardInfo.owners || []).some(
     owner => owner.id === user?.userId,

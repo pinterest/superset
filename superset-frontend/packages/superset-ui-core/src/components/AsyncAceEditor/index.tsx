@@ -41,6 +41,7 @@ export type {
   JsonValidationAnnotation,
   UseJsonValidationOptions,
 } from './useJsonValidation';
+export type AceEditorInstance = AceEditor;
 
 export interface AceCompleterKeywordData {
   name: string;

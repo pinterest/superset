@@ -34,7 +34,6 @@ import {
   useMemo,
   type Ref,
 } from 'react';
-import type AceEditor from 'react-ace';
 import type { editors } from '@apache-superset/core';
 import {
   FullSQLEditor,
@@ -44,9 +43,11 @@ import {
   ConfigEditor,
   JSEditor,
   type AceCompleterKeyword,
+  type AceEditorInstance,
 } from '@superset-ui/core/components';
 import { Disposable } from '../models';
 
+type AceEditor = AceEditorInstance;
 type EditorKeyword = editors.EditorKeyword;
 type EditorProps = editors.EditorProps;
 type EditorHandle = editors.EditorHandle;

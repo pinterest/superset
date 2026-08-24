@@ -70,7 +70,7 @@ describe('chart reducers', () => {
   test('should ignore stopped updates from stale controllers', () => {
     const controller = new AbortController();
     const staleController = new AbortController();
-    const chartsWithController = {
+    const chartsWithController: Record<number, ChartState> = {
       [chartKey]: {
         ...testChart,
         chartStatus: 'loading',
