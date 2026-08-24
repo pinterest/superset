@@ -10,7 +10,7 @@ import { DeltaTableColumn } from './types';
 import { PINTEREST_DEFAULT_FORM_DATA } from './constants';
 
 export const pinterestCustomConfig: ControlSetRow[] = [
-  [<ControlSubSectionHeader>Pinterest Settings</ControlSubSectionHeader>],
+  [<ControlSubSectionHeader>{t('Pinterest Settings')}</ControlSubSectionHeader>],
   [
     {
       name: 'pinterestDeltaTable',
