@@ -18,6 +18,7 @@
  */
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useTheme } from '@apache-superset/core/theme';
+import { safeHtmlSpan } from '@superset-ui/core';
 import { Icons } from '@superset-ui/core/components';
 import { Alert } from '@apache-superset/core/components';
 import { useLocation } from 'react-router-dom';
@@ -128,9 +129,7 @@ const AnnouncementBanner = () => {
           banner
           closable
           icon={getIcon(announcement.type)}
-          message={
-            <div dangerouslySetInnerHTML={{ __html: announcement.message }} />
-          }
+          message={safeHtmlSpan(announcement.message)}
           onClose={() => handleClose(announcement.id)}
           role="banner"
           showIcon

@@ -130,6 +130,7 @@ import {
 } from '../utils/formatters';
 import { safeParseEChartOptions } from '../utils/safeEChartOptionsParser';
 import { mergeCustomEChartOptions } from '../utils/mergeCustomEChartOptions';
+import { getDeltaTableTooltipFormatter } from '../pinterest-utils/tooltip';
 
 const visibleDashPatterns: ([number, number] | 'dashed' | 'dotted')[] = [
   'dashed',
@@ -184,7 +185,6 @@ function getSymbolMarker(symbol: string, color: string) {
         border-radius:50%;background:${color};margin-right:5px"></span>`;
   }
 }
-import { getDeltaTableTooltipFormatter } from '../pinterest-utils/tooltip';
 
 export default function transformProps(
   chartProps: EchartsTimeseriesChartProps,
