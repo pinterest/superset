@@ -17,7 +17,7 @@
 import logging
 import re
 from datetime import datetime, timedelta
-from typing import Any, Optional, Union
+from typing import Any, Optional, TYPE_CHECKING, Union
 from uuid import UUID
 
 import pandas as pd
@@ -37,6 +37,7 @@ from superset.commands.report.exceptions import (
     ReportScheduleDataFrameFailedError,
     ReportScheduleDataFrameTimeout,
     ReportScheduleExecuteUnexpectedError,
+    ReportScheduleExecutorNotFoundError,
     ReportScheduleNotFoundError,
     ReportSchedulePreviousWorkingError,
     ReportScheduleScreenshotFailedError,
@@ -82,7 +83,34 @@ from superset.utils.screenshots import ChartScreenshot, DashboardScreenshot
 from superset.utils.slack import get_channels_with_search, SlackChannelTypes
 from superset.utils.urls import get_url_path
 
+if TYPE_CHECKING:
+    from flask_appbuilder.security.sqla.models import User
+
 logger = logging.getLogger(__name__)
+
+
+def resolve_executor_user(model: ReportSchedule) -> tuple["User", str]:
+    """
+    Resolve the executor user for a report schedule.
+
+    Determines the configured executor username via ``get_executor`` and looks up
+    the corresponding user. A deleted/disabled user or a misconfigured
+    ``ALERT_REPORTS_EXECUTORS`` makes ``security_manager.find_user`` return
+    ``None``; rather than passing ``None`` into the webdriver/auth flow (which
+    fails with an opaque NoneType error), raise a dedicated, actionable error.
+
+    :returns: the ``(user, username)`` pair — the username is returned alongside
+        the user because several call sites log it after resolution.
+    :raises ReportScheduleExecutorNotFoundError: if the executor user is missing.
+    """
+    _, username = get_executor(
+        executors=app.config["ALERT_REPORTS_EXECUTORS"],
+        model=model,
+    )
+    user = security_manager.find_user(username)
+    if user is None:
+        raise ReportScheduleExecutorNotFoundError(username)
+    return user, username
 
 
 class BaseReportState:
@@ -181,9 +209,17 @@ class BaseReportState:
         V2 uses ids instead of names for channels.
         DMs (starting with @) are migrated to email recipients.
         """
+        # Track each recipient mutated in this pass with its original (type,
+        # config) so a partial failure can revert ALL of them — not just the
+        # loop variable. Restoring the in-memory values to their loaded state
+        # keeps a later commit from persisting a half-migrated set.
+        mutated: list[tuple[ReportRecipients, ReportRecipientType, str]] = []
         try:
             for recipient in self._report_schedule.recipients:
                 if recipient.type == ReportRecipientType.SLACK:
+                    mutated.append(
+                        (recipient, recipient.type, recipient.recipient_config_json)
+                    )
                     slack_recipients = json.loads(recipient.recipient_config_json)
                     original_target = slack_recipients["target"]
 
@@ -241,8 +277,15 @@ class BaseReportState:
                     # Ensure recipient type updated after new recipient config is set
                     recipient.type = ReportRecipientType.SLACKV2
         except Exception as ex:
-            # Revert to v1 to preserve configuration (requires manual fix)
-            recipient.type = ReportRecipientType.SLACK
+            # Revert every mutated recipient to v1 (both type AND config) to
+            # preserve configuration (requires manual fix). Reverting the full
+            # set — not just the loop variable — keeps earlier recipients
+            # consistent; iterating the snapshot also avoids the UnboundLocalError
+            # that a bare loop-variable reference raises on a pre-iteration
+            # failure (which would mask the real error).
+            for reverted_recipient, original_type, original_config in mutated:
+                reverted_recipient.type = original_type
+                reverted_recipient.recipient_config_json = original_config
             msg = f"Failed to update slack recipients to v2: {str(ex)}"
             logger.exception(msg)
             raise UpdateFailedError(msg) from ex
@@ -360,17 +403,28 @@ class BaseReportState:
                 except json.JSONDecodeError:
                     logger.debug("Anchor value is not a list, Fall back to single tab")
 
-            return [
-                self._get_tab_url(
-                    {
-                        "urlParams": [
-                            ["native_filters", native_filter_params]  # type: ignore
-                        ],
-                        **dashboard_state,
-                    },
-                    user_friendly=user_friendly,
-                )
-            ]
+            # Skip the permalink when there is nothing meaningful to encode —
+            # an empty dashboard_state falls through to the plain URL below.
+            # A non-empty anchor means a single tab was selected (it failed
+            # JSON list parsing above) and still needs a permalink. Non-filter
+            # state such as urlParams (e.g. standalone=true) must also be
+            # preserved via a permalink.
+            if (
+                anchor
+                or dashboard_state.get("urlParams")
+                or (native_filter_params and native_filter_params != "()")
+            ):
+                return [
+                    self._get_tab_url(
+                        {
+                            "urlParams": [
+                                ["native_filters", native_filter_params]  # type: ignore
+                            ],
+                            **dashboard_state,
+                        },
+                        user_friendly=user_friendly,
+                    )
+                ]
 
         native_filter_params, filter_warnings = (
             self._report_schedule.get_native_filters_params()
@@ -464,11 +518,7 @@ class BaseReportState:
         """
         start_time = datetime.utcnow()
 
-        _, username = get_executor(
-            executors=app.config["ALERT_REPORTS_EXECUTORS"],
-            model=self._report_schedule,
-        )
-        user = security_manager.find_user(username)
+        user, _ = resolve_executor_user(self._report_schedule)
 
         max_width = app.config["ALERT_REPORTS_MAX_CUSTOM_SCREENSHOT_WIDTH"]
 
@@ -507,8 +557,12 @@ class BaseReportState:
         try:
             imges = []
             for screenshot in screenshots:
-                if imge := screenshot.get_screenshot(user=user):
-                    imges.append(imge)
+                imge = screenshot.get_screenshot(user=user)
+                if imge is None:
+                    raise ReportScheduleScreenshotFailedError(
+                        "Screenshot failed; aborting to avoid sending a partial report"
+                    )
+                imges.append(imge)
             elapsed_seconds = (datetime.utcnow() - start_time).total_seconds()
             logger.info(
                 "Screenshot capture took %.2fs - execution_id: %s",
@@ -550,11 +604,7 @@ class BaseReportState:
     def _get_csv_data(self) -> bytes:
         start_time = datetime.utcnow()
         url = self._get_url(result_format=ChartDataResultFormat.CSV)
-        _, username = get_executor(
-            executors=app.config["ALERT_REPORTS_EXECUTORS"],
-            model=self._report_schedule,
-        )
-        user = security_manager.find_user(username)
+        user, username = resolve_executor_user(self._report_schedule)
         auth_cookies = machine_auth_provider_factory.instance.get_auth_cookies(user)
 
         if self._report_schedule.chart.query_context is None:
@@ -562,7 +612,11 @@ class BaseReportState:
             self._update_query_context()
 
         try:
-            csv_data = get_chart_csv_data(chart_url=url, auth_cookies=auth_cookies)
+            csv_data = get_chart_csv_data(
+                chart_url=url,
+                auth_cookies=auth_cookies,
+                timeout=app.config["ALERT_REPORTS_CSV_REQUEST_TIMEOUT"],
+            )
             elapsed_seconds = (datetime.utcnow() - start_time).total_seconds()
             logger.info(
                 "CSV data generation from %s as user %s took %.2fs - execution_id: %s",
@@ -600,11 +654,7 @@ class BaseReportState:
         start_time = datetime.utcnow()
 
         url = self._get_url(result_format=ChartDataResultFormat.JSON)
-        _, username = get_executor(
-            executors=app.config["ALERT_REPORTS_EXECUTORS"],
-            model=self._report_schedule,
-        )
-        user = security_manager.find_user(username)
+        user, username = resolve_executor_user(self._report_schedule)
         auth_cookies = machine_auth_provider_factory.instance.get_auth_cookies(user)
 
         if self._report_schedule.chart.query_context is None:
@@ -612,7 +662,11 @@ class BaseReportState:
             self._update_query_context()
 
         try:
-            dataframe = get_chart_dataframe(url, auth_cookies)
+            dataframe = get_chart_dataframe(
+                url,
+                auth_cookies,
+                timeout=app.config["ALERT_REPORTS_CSV_REQUEST_TIMEOUT"],
+            )
             elapsed_seconds = (datetime.utcnow() - start_time).total_seconds()
             logger.info(
                 "DataFrame generation from %s as user %s took %.2fs - execution_id: %s",
@@ -1165,13 +1219,23 @@ class AsyncExecuteReportScheduleCommand(BaseCommand):
         self._scheduled_dttm = scheduled_dttm
         self._execution_id = UUID(task_id)
 
-    @transaction()
     def run(self) -> None:
         try:
             self.validate()
             if not self._model:
                 raise ReportScheduleExecuteUnexpectedError()
 
+            # Resolve the executor at the run() boundary, tolerating a missing
+            # user (find_user -> None) so the state machine still runs and its
+            # error envelope writes the ERROR execution-log row and sends the
+            # owner notification. The dedicated ReportScheduleExecutorNotFoundError
+            # guard lives at the content sites (_get_screenshots / _get_csv_data /
+            # _get_embedded_data), which raise inside that envelope. Guarding here
+            # instead would surface the executor error above the state machine,
+            # suppressing both the log row and the owner notification. The
+            # alert-query path (AlertCommand) is intentionally left unchanged — a
+            # missing executor there surfaces as a query error, not the dedicated
+            # executor error; tightening it is out of scope here.
             _, username = get_executor(
                 executors=app.config["ALERT_REPORTS_EXECUTORS"],
                 model=self._model,
@@ -1180,6 +1244,19 @@ class AsyncExecuteReportScheduleCommand(BaseCommand):
 
             start_time = datetime.utcnow()
             with override_user(user):
+                # Pre-commit any permalink rows before the state machine's
+                # @transaction() opens. When called inside a transaction,
+                # CreateDashboardPermalinkCommand only flushes (not commits),
+                # leaving the row invisible to Playwright's separate DB
+                # connection. Running get_dashboard_urls() here — outside any
+                # transaction — lets the command commit normally. The state
+                # machine's inner call to get_dashboard_urls() hits get_entry()
+                # for the same deterministic UUID and returns the
+                # already-committed row without a second INSERT.
+                if self._model.dashboard_id:
+                    BaseReportState(
+                        self._model, self._scheduled_dttm, self._execution_id
+                    ).get_dashboard_urls()
                 ReportScheduleStateMachine(
                     self._execution_id, self._model, self._scheduled_dttm
                 ).run()

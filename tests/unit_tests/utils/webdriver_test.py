@@ -29,7 +29,7 @@ from superset.utils.webdriver import (
 )
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_app():
     """Mock Flask app with webdriver configuration."""
     app = MagicMock()
@@ -272,6 +272,61 @@ class TestWebDriverSelenium:
 
         # Should create driver without errors
         mock_driver_class.assert_called_once()
+
+    @patch("superset.utils.webdriver.app")
+    @patch("superset.utils.webdriver.chrome")
+    def test_create_sets_page_load_timeout(
+        self, mock_chrome, mock_app_patch: MagicMock
+    ) -> None:
+        """driver.get() must be bounded so it can't block forever (#40047)."""
+        mock_app_patch.config = {
+            "WEBDRIVER_TYPE": "chrome",
+            "WEBDRIVER_OPTION_ARGS": [],
+            "SCREENSHOT_LOCATE_WAIT": 10,
+            "SCREENSHOT_LOAD_WAIT": 10,
+            "SCREENSHOT_PAGE_LOAD_WAIT": 120,
+            "WEBDRIVER_WINDOW": {},
+            "WEBDRIVER_CONFIGURATION": {},
+        }
+        mock_driver = MagicMock()
+        mock_chrome.webdriver.WebDriver = MagicMock(return_value=mock_driver)
+        mock_chrome.service.Service = MagicMock()
+        mock_options = MagicMock()
+        mock_options.add_argument = MagicMock()
+        mock_chrome.options.Options = MagicMock(return_value=mock_options)
+
+        driver = WebDriverSelenium(driver_type="chrome")
+        created = driver.create()
+
+        assert created is mock_driver
+        mock_driver.set_page_load_timeout.assert_called_once_with(120)
+
+    @patch("superset.utils.webdriver.app")
+    @patch("superset.utils.webdriver.chrome")
+    def test_create_skips_page_load_timeout_when_none(
+        self, mock_chrome, mock_app_patch: MagicMock
+    ) -> None:
+        """Setting SCREENSHOT_PAGE_LOAD_WAIT to None disables the bound."""
+        mock_app_patch.config = {
+            "WEBDRIVER_TYPE": "chrome",
+            "WEBDRIVER_OPTION_ARGS": [],
+            "SCREENSHOT_LOCATE_WAIT": 10,
+            "SCREENSHOT_LOAD_WAIT": 10,
+            "SCREENSHOT_PAGE_LOAD_WAIT": None,
+            "WEBDRIVER_WINDOW": {},
+            "WEBDRIVER_CONFIGURATION": {},
+        }
+        mock_driver = MagicMock()
+        mock_chrome.webdriver.WebDriver = MagicMock(return_value=mock_driver)
+        mock_chrome.service.Service = MagicMock()
+        mock_options = MagicMock()
+        mock_options.add_argument = MagicMock()
+        mock_chrome.options.Options = MagicMock(return_value=mock_options)
+
+        driver = WebDriverSelenium(driver_type="chrome")
+        driver.create()
+
+        mock_driver.set_page_load_timeout.assert_not_called()
 
 
 class TestPlaywrightAvailabilityCheck:
@@ -701,4 +756,75 @@ class TestWebDriverPlaywrightErrorHandling:
         assert exc_info.value is timeout
         mock_logger.exception.assert_any_call(
             "Timed out requesting url %s", "http://example.com"
+        )
+
+    @patch("superset.utils.webdriver.PLAYWRIGHT_AVAILABLE", True)
+    @patch("superset.utils.webdriver.sync_playwright")
+    @patch("superset.utils.webdriver.logger")
+    @patch("superset.utils.webdriver.take_tiled_screenshot")
+    def test_tiled_screenshot_failure_falls_back_to_standard_screenshot(
+        self, mock_take_tiled, mock_logger, mock_sync_playwright
+    ) -> None:
+        """When take_tiled_screenshot returns None, fall back to standard screenshot."""
+        mock_user = MagicMock()
+        mock_user.username = "test_user"
+
+        mock_playwright_instance = MagicMock()
+        mock_browser = MagicMock()
+        mock_context = MagicMock()
+        mock_page = MagicMock()
+        mock_element = MagicMock()
+
+        mock_sync_playwright.return_value.__enter__.return_value = (
+            mock_playwright_instance
+        )
+        mock_playwright_instance.chromium.launch.return_value = mock_browser
+        mock_browser.new_context.return_value = mock_context
+        mock_context.new_page.return_value = mock_page
+        mock_page.locator.return_value = mock_element
+        mock_element.wait_for.return_value = None
+        # page.screenshot is used by _get_screenshot for the "standalone" element
+        mock_page.screenshot.return_value = b"fallback_screenshot"
+
+        def evaluate_side_effect(script):
+            if "querySelectorAll" in script:
+                return 25  # chart_count >= threshold
+            if "scrollHeight" in script:
+                return 6000  # dashboard_height > height_threshold and > tile_height
+            return None
+
+        mock_page.evaluate.side_effect = evaluate_side_effect
+        mock_take_tiled.return_value = None  # tiled screenshot returns None
+
+        with patch("superset.utils.webdriver.app") as mock_app:
+            mock_app.config = {
+                "WEBDRIVER_OPTION_ARGS": [],
+                "WEBDRIVER_WINDOW": {"pixel_density": 1},
+                "SCREENSHOT_PLAYWRIGHT_DEFAULT_TIMEOUT": 30000,
+                "SCREENSHOT_PLAYWRIGHT_WAIT_EVENT": "networkidle",
+                "SCREENSHOT_SELENIUM_HEADSTART": 0,
+                "SCREENSHOT_SELENIUM_ANIMATION_WAIT": 0,
+                "SCREENSHOT_LOCATE_WAIT": 10,
+                "SCREENSHOT_LOAD_WAIT": 10,
+                "SCREENSHOT_WAIT_FOR_ERROR_MODAL_VISIBLE": 10,
+                "SCREENSHOT_WAIT_FOR_ERROR_MODAL_INVISIBLE": 10,
+                "SCREENSHOT_REPLACE_UNEXPECTED_ERRORS": False,
+                "SCREENSHOT_TILED_ENABLED": True,
+                "SCREENSHOT_TILED_CHART_THRESHOLD": 20,
+                "SCREENSHOT_TILED_HEIGHT_THRESHOLD": 5000,
+                "SCREENSHOT_TILED_VIEWPORT_HEIGHT": 600,
+            }
+
+            with patch.object(WebDriverPlaywright, "auth") as mock_auth:
+                mock_auth.return_value = mock_context
+
+                driver = WebDriverPlaywright("chrome")
+                result = driver.get_screenshot(
+                    "http://example.com", "standalone", mock_user
+                )
+
+        assert result == b"fallback_screenshot"
+        mock_take_tiled.assert_called_once()
+        mock_logger.warning.assert_any_call(
+            ("Tiled screenshot failed, falling back to standard screenshot"),
         )
