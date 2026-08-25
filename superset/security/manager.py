@@ -414,7 +414,6 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
         ("can_dashboard", "Superset"),
         ("can_slice", "Superset"),
         ("can_explore_json", "Superset"),
-        ("can_dashboard_permalink", "Superset"),
         ("can_read", "DashboardPermalinkRestApi"),
         # Dashboard filter interactions
         ("can_read", "DashboardFilterStateRestApi"),

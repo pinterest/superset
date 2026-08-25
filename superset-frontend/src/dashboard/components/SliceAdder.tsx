@@ -167,9 +167,9 @@ function getFilteredSortedSlices(
   userId: number,
 ) {
   return filterSoftDeletedSlices<Slice>(Object.values(slices))
-    .filter(slice =>
+    .filter((slice: Slice) =>
       showOnlyMyCharts
-        ? slice?.owners?.find(owner => owner.id === userId) ||
+        ? slice?.owners?.find((owner: { id: number }) => owner.id === userId) ||
           slice?.created_by?.id === userId
         : true,
     )

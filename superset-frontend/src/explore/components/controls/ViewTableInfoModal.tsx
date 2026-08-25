@@ -1,5 +1,6 @@
 import { FC, useState, useCallback, useEffect } from 'react';
 
+import { t } from '@apache-superset/core/translation';
 import { SupersetClient } from '@superset-ui/core';
 import { styled, css, SupersetTheme } from '@apache-superset/core/theme';
 import { Collapse, Loading } from '@superset-ui/core/components';
@@ -94,7 +95,7 @@ const ViewTableInfoModal: FC<ViewTableInfoModalProps> = ({ datasetId }) => {
           <Collapse.Panel
             header={
               <div css={TableMetadataHeader}>
-                <span>Table: </span>
+                <span>{t('Table:')} </span>
                 <span className="table-name">{table_name}</span>
               </div>
             }
@@ -118,7 +119,7 @@ const ViewTableInfoModal: FC<ViewTableInfoModalProps> = ({ datasetId }) => {
                 ))
               ) : (
                 <div className="no-metadata">
-                  No additional table information available
+                  {t('No additional table information available')}
                 </div>
               )}
             </div>

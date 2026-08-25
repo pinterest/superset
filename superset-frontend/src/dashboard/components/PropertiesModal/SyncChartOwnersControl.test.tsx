@@ -37,12 +37,12 @@ const props: SyncChartOwnersControlProps = {
   },
 };
 
-const setup = (overrides?: any) => (
+const setup = (overrides?: Partial<SyncChartOwnersControlProps>) => (
   <SyncChartOwnersControl {...props} {...overrides} />
 );
 
 describe('SyncChartOwnersControl', () => {
-  it('renders a checkbox', async () => {
+  test('renders a checkbox', async () => {
     const rendered = render(setup());
 
     const checkbox = await within(
@@ -54,7 +54,7 @@ describe('SyncChartOwnersControl', () => {
     expect(label).toBeInTheDocument();
   });
 
-  it('calls onChange when checkbox is clicked', async () => {
+  test('calls onChange when checkbox is clicked', async () => {
     const onChange = jest.fn();
     const rendered = render(setup({ autoSyncChartsEnabled: false, onChange }));
 
@@ -65,7 +65,7 @@ describe('SyncChartOwnersControl', () => {
     expect(onChange).toHaveBeenCalledWith(true);
   });
 
-  it('shows a tooltip for unsupported charts', async () => {
+  test('shows a tooltip for unsupported charts', async () => {
     const rendered = render(setup());
 
     const tooltip = await rendered.findByLabelText(
@@ -75,7 +75,7 @@ describe('SyncChartOwnersControl', () => {
     expect(tooltip).toBeInTheDocument();
   });
 
-  it('truncates unsupported chart list to 1 singular', async () => {
+  test('truncates unsupported chart list to 1 singular', async () => {
     const rendered = render(setup({ dashboardOwnerIds: [1] }));
 
     const tooltip = await rendered.findByLabelText(
@@ -85,7 +85,7 @@ describe('SyncChartOwnersControl', () => {
     expect(tooltip).toBeInTheDocument();
   });
 
-  it('truncates unsupported chart list to 2 plural', async () => {
+  test('truncates unsupported chart list to 2 plural', async () => {
     const rendered = render(setup({ dashboardOwnerIds: [] }));
 
     const tooltip = await rendered.findByLabelText(
@@ -95,7 +95,7 @@ describe('SyncChartOwnersControl', () => {
     expect(tooltip).toBeInTheDocument();
   });
 
-  it('does not show tooltip when there are no unsupported charts', () => {
+  test('does not show tooltip when there are no unsupported charts', () => {
     const rendered = render(
       setup({
         dashboardOwnerIds: [1, 2, 3, 4, 5],
@@ -109,7 +109,7 @@ describe('SyncChartOwnersControl', () => {
     expect(tooltip).not.toBeInTheDocument();
   });
 
-  it('does not show tooltip when autoSyncChartsEnabled is false', () => {
+  test('does not show tooltip when autoSyncChartsEnabled is false', () => {
     const rendered = render(setup({ autoSyncChartsEnabled: false }));
 
     const tooltip = rendered.queryByLabelText(

@@ -1,5 +1,5 @@
 import type { ScatterSeriesOption } from 'echarts';
-import type { SupersetTheme } from '@superset-ui/core';
+import type { SupersetTheme } from '@apache-superset/core/theme';
 import { getDefaultTooltip } from './tooltip';
 import { sanitizeHtml } from './series';
 import type {

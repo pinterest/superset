@@ -208,7 +208,7 @@ test('canUserSaveAsDashboard always returns false for undefined user', () => {
 
 // The usage of the RBAC feature flag was removed from canUserSaveAsDashboard.
 // Skipping the old test cases for future rebases.
-// eslint-disable-next-line no-restricted-globals -- TODO: Migrate from describe blocks
+// eslint-disable-next-line no-restricted-globals, jest/no-disabled-tests -- Retained for future rebases
 describe.skip('canUserSaveAsDashboard with RBAC feature flag disabled', () => {
   beforeAll(() => {
     mockedIsFeatureEnabled.mockImplementation(
@@ -233,7 +233,7 @@ describe.skip('canUserSaveAsDashboard with RBAC feature flag disabled', () => {
   });
 });
 
-// eslint-disable-next-line no-restricted-globals -- TODO: Migrate from describe blocks
+// eslint-disable-next-line no-restricted-globals, jest/no-disabled-tests -- Retained for future rebases
 describe.skip('canUserSaveAsDashboard with RBAC feature flag enabled', () => {
   beforeAll(() => {
     mockedIsFeatureEnabled.mockImplementation(

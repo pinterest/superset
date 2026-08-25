@@ -24,7 +24,6 @@ import { JsonObject } from '@superset-ui/core';
 import { Constants, Loading } from '@superset-ui/core/components';
 import { PluginContext } from 'src/components';
 import type { PluginContextType } from 'src/components/DynamicPlugins/types';
-import { FAST_DEBOUNCE } from 'src/constants';
 import getBootstrapData from 'src/utils/getBootstrapData';
 import type { Slice } from 'src/dashboard/types';
 import getChartIdsFromLayout from '../util/getChartIdsFromLayout';

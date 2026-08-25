@@ -1994,8 +1994,7 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
           : undefined,
         owners: (resource.owners || []).map(owner => {
           const ownerName =
-            (owner as MetaObject).label ||
-            getOwnerDisplayName(owner as Owner);
+            (owner as MetaObject).label || getOwnerDisplayName(owner as Owner);
           return {
             value: (owner as MetaObject).value || owner.id,
             label: OwnerSelectLabel({

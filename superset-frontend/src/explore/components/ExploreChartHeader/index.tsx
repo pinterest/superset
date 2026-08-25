@@ -346,9 +346,10 @@ export const ExploreChartHeader: FC<ExploreChartHeaderProps> = ({
                   currentFormData={currentFormData as QueryFormData}
                 />
               ) : null}
-              {formData && isMatrixifyEnabled(formData as MatrixifyFormData) && (
-                <Tag name="Matrixified" color="purple" />
-              )}
+              {formData &&
+                isMatrixifyEnabled(formData as MatrixifyFormData) && (
+                  <Tag name="Matrixified" color="purple" />
+                )}
               {metadataBar}
             </div>
           </div>

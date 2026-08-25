@@ -73,7 +73,7 @@ export interface Props {
   onChange: (annotations: Annotation[]) => void;
   refreshAnnotationData: (payload: Payload) => void;
   theme: SupersetTheme;
-  chartKey: string;
+  chartKey: number;
 }
 
 export interface PopoverState {
@@ -285,6 +285,8 @@ function mapStateToProps({
   explore,
 }: Pick<ExplorePageState, 'charts' | 'explore'>) {
   const chartKey = getChartKey(explore);
+  const colorScheme = explore.controls?.color_scheme?.value;
+  const vizType = explore.controls?.viz_type.value;
 
   const defaultChartState: Partial<ChartState> = {
     annotationError: {},
@@ -296,10 +298,10 @@ function mapStateToProps({
 
   return {
     // eslint-disable-next-line camelcase
-    colorScheme: explore.controls?.color_scheme?.value,
+    colorScheme: typeof colorScheme === 'string' ? colorScheme : '',
     annotationError: chart.annotationError ?? {},
     annotationQuery: chart.annotationQuery ?? {},
-    vizType: explore.controls?.viz_type.value,
+    vizType: typeof vizType === 'string' ? vizType : '',
     chartKey,
   };
 }

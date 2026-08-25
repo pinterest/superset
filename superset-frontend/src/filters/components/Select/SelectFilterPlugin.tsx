@@ -299,11 +299,11 @@ export default function PluginFilterSelect(props: PluginFilterSelectProps) {
   }, [filterState.validateMessage, filterState.validateStatus]);
 
   const uniqueOptions = useMemo(() => {
-    const allOptions = new Set([
-      ...data.map(el =>
+    const allOptions = new Set(
+      data.map(el =>
         el[col] instanceof BigNumber ? JSONbig.stringify(el[col]) : el[col],
       ),
-    ]);
+    );
     return [...allOptions].map((value: string) => ({
       label: labelFormatter(value, datatype),
       value,

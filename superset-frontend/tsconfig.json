@@ -63,6 +63,12 @@
       "echarts/types/src/*": ["./node_modules/echarts/types/src/*"],
       // Needed to resolve @pinterest-plugins/ from superset-frontend/
       "@superset-frontend/src": ["./src"],
+      "@pinterest-plugins/src/components/Chart/pinterestChartContainer": [
+        "./pinterest-plugins/src/components/Chart/pinterestChartContainer.stub.tsx"
+      ],
+      "@pinterest-plugins/src/visualizations": [
+        "./pinterest-plugins/src/visualizations.stub.ts"
+      ],
       "@pinterest-plugins/src": ["./pinterest-plugins/src"],
       "@pinterest-plugins/src/*": ["./pinterest-plugins/src/*"],
       "superset-plugin-chart-dex": ["./pinterest-plugins/superset-plugin-chart-dex/src"],

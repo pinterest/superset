@@ -280,7 +280,8 @@ test('Should render a submenu extension component if one is supplied', async () 
   expect(screen.getByText('submenu extension')).toBeInTheDocument();
 });
 
-// Skipping because Pinterest custom homepage still make data calls
+// Skipping because the Pinterest custom homepage still makes data calls.
+/* oxlint-disable-next-line jest/no-disabled-tests */
 test.skip('Should not make data fetch calls if `welcome.main.replacement` is defined', async () => {
   const extensionsRegistry = getExtensionsRegistry();
 

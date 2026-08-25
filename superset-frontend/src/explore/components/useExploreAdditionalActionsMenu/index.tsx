@@ -1012,26 +1012,30 @@ export const useExploreAdditionalActionsMenu = (
       onClick: () => setIsDropdownVisible(false),
     });
 
-    menuItems.push({
-      key: MENU_KEYS.VIEW_TABLE_INFO,
-      label: (
-        <ModalTrigger
-          triggerNode={
-            <span data-test="view-table-info-menu-item">
-              {t('View table info')}
-            </span>
-          }
-          modalTitle={t('View table info')}
-          modalBody={
-            <ViewTableInfoModal datasetId={Number(datasource.split('__')[0])} />
-          }
-          draggable
-          resizable
-          responsive
-        />
-      ),
-      onClick: () => setIsDropdownVisible(false),
-    });
+    if (datasource) {
+      menuItems.push({
+        key: MENU_KEYS.VIEW_TABLE_INFO,
+        label: (
+          <ModalTrigger
+            triggerNode={
+              <span data-test="view-table-info-menu-item">
+                {t('View table info')}
+              </span>
+            }
+            modalTitle={t('View table info')}
+            modalBody={
+              <ViewTableInfoModal
+                datasetId={Number(datasource.split('__')[0])}
+              />
+            }
+            draggable
+            resizable
+            responsive
+          />
+        ),
+        onClick: () => setIsDropdownVisible(false),
+      });
+    }
 
     // Run in SQL Lab
     if (datasource) {

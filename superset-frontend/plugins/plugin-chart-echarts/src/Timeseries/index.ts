@@ -23,10 +23,13 @@ import controlPanel from './Regular/Line/controlPanel';
 import transformProps from './transformProps';
 import thumbnail from './images/thumbnail.png';
 import thumbnailDark from './images/thumbnail-dark.png';
+import example from './images/Time-series_Chart.jpg';
+import exampleDark from './images/Time-series_Chart-dark.jpg';
 import {
   EchartsTimeseriesChartProps,
   EchartsTimeseriesFormData,
 } from './types';
+import { EchartsChartPlugin } from '../types';
 
 // Re-export enums (runtime values)
 export { EchartsTimeseriesSeriesType, OrientationType } from './types';
@@ -35,9 +38,6 @@ export { EchartsTimeseriesSeriesType, OrientationType } from './types';
 export type { EchartsTimeseriesChartProps } from './types';
 export type { EchartsTimeseriesFormData } from './types';
 export type { TimeseriesChartTransformedProps } from './types';
-import example from './images/Time-series_Chart.jpg';
-import exampleDark from './images/Time-series_Chart-dark.jpg';
-import { EchartsChartPlugin } from '../types';
 
 export default class EchartsTimeseriesChartPlugin extends EchartsChartPlugin<
   EchartsTimeseriesFormData,

@@ -48,6 +48,7 @@ export {
   type AsyncAceEditorProps,
   type Editor,
   type AceCompleterKeyword,
+  type AceEditorInstance,
 } from './AsyncAceEditor';
 export { AutoComplete, type AutoCompleteProps } from './AutoComplete';
 export {
