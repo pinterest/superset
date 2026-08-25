@@ -334,9 +334,7 @@ class DashboardRestApi(CustomTagsOptimizationMixin, BaseSupersetModelRestApi):
             if order_column == "relevance_score":
                 # Clear any existing ordering
                 query = query.order_by(None)
-                relevance_score = cast(
-                    ColumnElement[float], Dashboard.relevance_score
-                )
+                relevance_score = cast(ColumnElement[float], Dashboard.relevance_score)
 
                 # Apply custom ordering based on relevance_score
                 if order_direction == "desc":
