@@ -933,49 +933,49 @@ function ExploreViewContainer(props: ExploreViewContainerProps) {
         />
         {!minimalChartMode && (
           <Resizable
-          onResizeStop={(evt, direction, ref, d) => {
-            setWidth(ref.getBoundingClientRect().width);
-            setSidebarWidths(LocalStorageKeys.DatasourceWidth, d);
-          }}
-          defaultSize={{
-            width: getSidebarWidths(LocalStorageKeys.DatasourceWidth),
-            height: '100%',
-          }}
-          minWidth={defaultSidebarsWidth[LocalStorageKeys.DatasourceWidth]}
-          maxWidth="33%"
-          enable={{ right: true }}
-          className={
-            isCollapsed ? 'no-show' : 'explore-column data-source-selection'
-          }
-        >
-          <div className="title-container">
-            <span className="horizontal-text">{t('Chart Source')}</span>
-            <span
-              role="button"
-              tabIndex={0}
-              className="action-button"
-              onClick={toggleCollapse}
-            >
-              <Icons.VerticalAlignTopOutlined
-                iconSize="xl"
-                css={css`
-                  transform: rotate(-90deg);
-                `}
-                className="collapse-icon"
-                iconColor={theme.colorPrimary}
-              />
-            </span>
-          </div>
-          {/* eslint-disable @typescript-eslint/no-explicit-any -- DataSourcePanel uses narrower types that are compatible at runtime */}
-          <DataSourcePanel
-            formData={props.form_data}
-            datasource={props.datasource as any}
-            controls={props.controls as any}
-            actions={props.actions as any}
-            width={width}
-          />
-          {/* eslint-enable @typescript-eslint/no-explicit-any */}
-        </Resizable>
+            onResizeStop={(evt, direction, ref, d) => {
+              setWidth(ref.getBoundingClientRect().width);
+              setSidebarWidths(LocalStorageKeys.DatasourceWidth, d);
+            }}
+            defaultSize={{
+              width: getSidebarWidths(LocalStorageKeys.DatasourceWidth),
+              height: '100%',
+            }}
+            minWidth={defaultSidebarsWidth[LocalStorageKeys.DatasourceWidth]}
+            maxWidth="33%"
+            enable={{ right: true }}
+            className={
+              isCollapsed ? 'no-show' : 'explore-column data-source-selection'
+            }
+          >
+            <div className="title-container">
+              <span className="horizontal-text">{t('Chart Source')}</span>
+              <span
+                role="button"
+                tabIndex={0}
+                className="action-button"
+                onClick={toggleCollapse}
+              >
+                <Icons.VerticalAlignTopOutlined
+                  iconSize="xl"
+                  css={css`
+                    transform: rotate(-90deg);
+                  `}
+                  className="collapse-icon"
+                  iconColor={theme.colorPrimary}
+                />
+              </span>
+            </div>
+            {/* eslint-disable @typescript-eslint/no-explicit-any -- DataSourcePanel uses narrower types that are compatible at runtime */}
+            <DataSourcePanel
+              formData={props.form_data}
+              datasource={props.datasource as any}
+              controls={props.controls as any}
+              actions={props.actions as any}
+              width={width}
+            />
+            {/* eslint-enable @typescript-eslint/no-explicit-any */}
+          </Resizable>
         )}
         {isCollapsed ? (
           <div

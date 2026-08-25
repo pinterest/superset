@@ -763,7 +763,6 @@ const Header = (): JSX.Element => {
       handlePauseToggle,
       forceRefresh,
       governanceUiEnabled,
-
     ],
   );
 
