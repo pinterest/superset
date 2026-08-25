@@ -66,7 +66,9 @@ test('admin users see all UI elements', async () => {
   expect(await screen.findByText('Datasets')).toBeInTheDocument();
 
   // Admin should see create button
-  expect(screen.getByTestId('create-dataset')).toBeInTheDocument();
+  expect(
+    screen.getByRole('button', { name: /(?:plus\s*)?Dataset$/i }),
+  ).toBeInTheDocument();
 
   // Admin should see import button
   // Note: Using testId - import button lacks accessible text content
@@ -74,12 +76,16 @@ test('admin users see all UI elements', async () => {
   expect(screen.getByTestId('import-button')).toBeInTheDocument();
 
   // Admin should see bulk select button
-  expect(screen.getByTestId('bulk-select')).toBeInTheDocument();
+  expect(
+    screen.getByRole('button', { name: /bulk select/i }),
+  ).toBeInTheDocument();
 
   // Admin should see actions column - wait for table first, then check column
   const table = await screen.findByTestId('listview-table');
   await waitFor(() => {
-    expect(table.querySelector('th[title="Actions"]')).toBeInTheDocument();
+    expect(
+      within(table).getByRole('columnheader', { name: /Actions/i }),
+    ).toBeInTheDocument();
   });
 }, 45000);
 
@@ -111,7 +117,9 @@ test('read-only users cannot see bulk select button', async () => {
   });
 
   // Bulk select should not be visible
-  expect(screen.queryByTestId('bulk-select')).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole('button', { name: /bulk select/i }),
+  ).not.toBeInTheDocument();
 });
 
 test('read-only users cannot see Create/Import buttons', async () => {
@@ -125,7 +133,9 @@ test('read-only users cannot see Create/Import buttons', async () => {
   });
 
   // Create button should not be visible
-  expect(screen.queryByTestId('create-dataset')).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole('button', { name: /(?:plus\s*)?Dataset$/i }),
+  ).not.toBeInTheDocument();
 
   // Import button should not be visible
   // Note: Using testId - import button lacks accessible text content
@@ -145,7 +155,9 @@ test('write users see Actions column', async () => {
 
   await waitFor(() => {
     const table = screen.getByTestId('listview-table');
-    expect(table.querySelector('th[title="Actions"]')).toBeInTheDocument();
+    expect(
+      within(table).getByRole('columnheader', { name: /Actions/i }),
+    ).toBeInTheDocument();
   });
 });
 
@@ -159,7 +171,9 @@ test('write users see bulk select button', async () => {
     expect(screen.getByText('Datasets')).toBeInTheDocument();
   });
 
-  expect(screen.getByTestId('bulk-select')).toBeInTheDocument();
+  expect(
+    screen.getByRole('button', { name: /bulk select/i }),
+  ).toBeInTheDocument();
 });
 
 test('write users see Create/Import buttons', async () => {
@@ -173,7 +187,9 @@ test('write users see Create/Import buttons', async () => {
   });
 
   // Create button should be visible
-  expect(screen.getByTestId('create-dataset')).toBeInTheDocument();
+  expect(
+    screen.getByRole('button', { name: /(?:plus\s*)?Dataset$/i }),
+  ).toBeInTheDocument();
 
   // Import button should be visible
   // Note: Using testId - import button lacks accessible text content
@@ -192,7 +208,9 @@ test('export-only users see bulk select (for export only)', async () => {
   });
 
   // Export users should see bulk select for export functionality
-  expect(screen.getByTestId('bulk-select')).toBeInTheDocument();
+  expect(
+    screen.getByRole('button', { name: /bulk select/i }),
+  ).toBeInTheDocument();
 });
 
 test('export-only users cannot see Create/Import buttons', async () => {
@@ -206,7 +224,9 @@ test('export-only users cannot see Create/Import buttons', async () => {
   });
 
   // Create and Import should not be visible for export-only users
-  expect(screen.queryByTestId('create-dataset')).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole('button', { name: /(?:plus\s*)?Dataset$/i }),
+  ).not.toBeInTheDocument();
   // Note: Using testId - import button lacks accessible text content
   // TODO: Add aria-label or text to import button
   expect(screen.queryByTestId('import-button')).not.toBeInTheDocument();
