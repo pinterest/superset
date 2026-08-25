@@ -38,6 +38,8 @@ from flask_appbuilder.models.filters import Filters
 from flask_appbuilder.models.sqla.interface import SQLAInterface
 from flask_babel import gettext, ngettext
 from marshmallow import ValidationError
+from sqlalchemy.orm import Query
+from sqlalchemy.sql.elements import ColumnElement
 from werkzeug.wrappers import Response as WerkzeugResponse
 from werkzeug.wsgi import FileWrapper
 
@@ -321,20 +323,28 @@ class DashboardRestApi(CustomTagsOptimizationMixin, BaseSupersetModelRestApi):
         original_apply_order_by = self.datamodel.apply_order_by
 
         # Override the apply_order_by method to handle relevance_score ordering
-        def custom_apply_order_by(query, order_column, order_direction, **kwargs):
+        def custom_apply_order_by(
+            query: Query[Any],
+            order_column: str,
+            order_direction: str,
+            **kwargs: Any,
+        ) -> Query[Any]:
             if order_column == "relevance_score":
                 # Clear any existing ordering
                 query = query.order_by(None)
+                relevance_score = cast(
+                    ColumnElement[float], Dashboard.relevance_score
+                )
 
                 # Apply custom ordering based on relevance_score
                 if order_direction == "desc":
                     return query.order_by(
-                        Dashboard.relevance_score.desc(),
+                        relevance_score.desc(),
                         Dashboard.published.desc(),
                         Dashboard.dashboard_title.asc(),
                     )
                 return query.order_by(
-                    Dashboard.relevance_score.asc(),
+                    relevance_score.asc(),
                     Dashboard.published.asc(),
                     Dashboard.dashboard_title.asc(),
                 )

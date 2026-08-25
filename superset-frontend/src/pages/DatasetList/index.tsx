@@ -684,6 +684,7 @@ const DatasetList: FunctionComponent<DatasetListProps> = ({
       name: t('Bulk select'),
       onClick: toggleBulkSelect,
       buttonStyle: 'secondary',
+      'data-test': 'bulk-select',
     });
   }
 
@@ -691,6 +692,7 @@ const DatasetList: FunctionComponent<DatasetListProps> = ({
     buttonArr.push({
       icon: <Icons.PlusOutlined iconSize="m" />,
       name: t('Dataset'),
+      'data-test': 'create-dataset',
       onClick: () => {
         history.push('/dataset/add/');
       },
