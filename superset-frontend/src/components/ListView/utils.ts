@@ -38,6 +38,7 @@ import { isEqual } from 'lodash';
 import {
   ListViewFetchDataConfig as FetchDataConfig,
   ListViewFilter as Filter,
+  ListViewFilterOperator,
   ListViewFilterValue as FilterValue,
   InnerFilterValue,
   InternalFilter,
@@ -310,6 +311,29 @@ export function useListViewState({
     }
   }, [initialFilters]);
 
+  const updateFilterOperator = (
+    filterId: string,
+    operator: ListViewFilterOperator,
+  ) => {
+    const index = internalFilters.findIndex(({ id }) => id === filterId);
+    const currentFilter = internalFilters[index];
+    if (!currentFilter || currentFilter.operator === operator) {
+      return;
+    }
+
+    const updatedFilters = updateInList(internalFilters, index, {
+      ...currentFilter,
+      operator,
+    });
+    setInternalFilters(updatedFilters);
+
+    const { value } = currentFilter;
+    if (value !== '' && value !== null && value !== undefined) {
+      setAllFilters(convertFilters(updatedFilters));
+      gotoPage(0);
+    }
+  };
+
   useEffect(() => {
     // From internalFilters, produce a simplified obj
     const filterObj: Record<string, InnerFilterValue> = {};
@@ -390,6 +414,7 @@ export function useListViewState({
     state: { pageIndex, pageSize, sortBy, filters, internalFilters, viewMode },
     toggleAllRowsSelected,
     applyFilterValue,
+    updateFilterOperator,
     setViewMode,
     query,
   };

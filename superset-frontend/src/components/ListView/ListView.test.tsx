@@ -23,7 +23,7 @@ import { ReactRouter5Adapter } from 'use-query-params/adapters/react-router-5';
 import { MemoryRouter } from 'react-router-dom';
 import thunk from 'redux-thunk';
 import configureStore from 'redux-mock-store';
-import { ReactNode } from 'react';
+import { ReactNode, useMemo, useState } from 'react';
 import { ListView, type ListViewProps } from './ListView';
 import { ListViewFilterOperator, type ListViewFetchDataConfig } from './types';
 
@@ -349,4 +349,92 @@ describe('ListView', () => {
 
     expect(mockedPropsComprehensive.fetchData).toHaveBeenCalled();
   });
+});
+
+test('reapplies an active search with the operator selected by a toggle', async () => {
+  const fetchData = jest.fn();
+  window.history.pushState({}, '', '/');
+
+  function ListViewWithSearchMode() {
+    const [operator, setOperator] = useState(ListViewFilterOperator.Contains);
+    const filters = useMemo(
+      () => [
+        {
+          Header: 'Name',
+          key: 'search',
+          id: 'name',
+          input: 'search' as const,
+          operator: ListViewFilterOperator.Contains,
+        },
+      ],
+      [],
+    );
+
+    return (
+      <ListView
+        {...mockedPropsSimple}
+        fetchData={fetchData}
+        filters={filters}
+        renderExtraFilterControls={updateFilterOperator => (
+          <button
+            type="button"
+            onClick={() => {
+              const nextOperator =
+                operator === ListViewFilterOperator.Contains
+                  ? ListViewFilterOperator.Equals
+                  : ListViewFilterOperator.Contains;
+              setOperator(nextOperator);
+              updateFilterOperator('name', nextOperator);
+            }}
+          >
+            Toggle search mode
+          </button>
+        )}
+      />
+    );
+  }
+
+  render(<ListViewWithSearchMode />, {
+    useRouter: true,
+    useQueryParams: true,
+  });
+  await waitFor(() => expect(fetchData).toHaveBeenCalled());
+  fetchData.mockClear();
+
+  await userEvent.click(
+    screen.getByRole('button', { name: 'Toggle search mode' }),
+  );
+  expect(fetchData).not.toHaveBeenCalled();
+
+  await userEvent.type(screen.getByTestId('filters-search'), 'data{enter}');
+  await waitFor(() =>
+    expect(fetchData).toHaveBeenCalledWith(
+      expect.objectContaining({
+        filters: [
+          expect.objectContaining({
+            operator: ListViewFilterOperator.Equals,
+            value: 'data',
+          }),
+        ],
+      }),
+    ),
+  );
+  fetchData.mockClear();
+
+  await userEvent.click(
+    screen.getByRole('button', { name: 'Toggle search mode' }),
+  );
+  await waitFor(() =>
+    expect(fetchData).toHaveBeenCalledWith(
+      expect.objectContaining({
+        filters: [
+          expect.objectContaining({
+            id: 'name',
+            operator: ListViewFilterOperator.Contains,
+            value: 'data',
+          }),
+        ],
+      }),
+    ),
+  );
 });

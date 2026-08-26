@@ -1,8 +1,12 @@
 /**
- * Stub for dashboard list extensions (search filters, extra columns).
+ * Stub for dashboard list extensions (search filters, search mode, extra columns).
  * Internal build replaces this with the real implementation.
  */
-import type { ListViewFilter } from 'src/components/ListView/types';
+import type { ReactNode } from 'react';
+import {
+  ListViewFilterOperator,
+  type ListViewFilter,
+} from 'src/components/ListView/types';
 
 export interface DashboardListSearchFilterOptions {
   /** Show the Tier 1 Candidate filter (requires can_promote_tier_1 permission). */
@@ -15,6 +19,26 @@ export function getDashboardListSearchFilters(
   _options: DashboardListSearchFilterOptions = {},
 ): ListViewFilter[] {
   return [];
+}
+
+export interface DashboardSearchMode {
+  /** Initial operator for the dashboard name search. */
+  searchOperator: ListViewFilterOperator;
+  /** Control rendered beside the standard list filters. */
+  renderSearchModeControl: (
+    updateFilterOperator: (
+      filterId: string,
+      operator: ListViewFilterOperator,
+    ) => void,
+  ) => ReactNode;
+}
+
+/** Search-mode control for the dashboard list's name search. */
+export function useDashboardSearchMode(): DashboardSearchMode {
+  return {
+    searchOperator: ListViewFilterOperator.TitleOrSlug,
+    renderSearchModeControl: () => null,
+  };
 }
 
 export type DashboardListExtraColumnsOptions = {

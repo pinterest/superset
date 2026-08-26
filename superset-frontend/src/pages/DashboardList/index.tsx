@@ -90,6 +90,7 @@ import {
   getDashboardListExtraColumnsToFetch,
   getDashboardListExtraListColumns,
   getDashboardListSearchFilters,
+  useDashboardSearchMode,
   // @ts-ignore
   // eslint-disable-next-line import/no-unresolved
 } from '@pinterest-plugins/src/features/dashboards/dashboardListExtensions';
@@ -627,6 +628,8 @@ function DashboardList(props: DashboardListProps) {
     [],
   );
 
+  const { searchOperator, renderSearchModeControl } = useDashboardSearchMode();
+
   const filters: ListViewFilters = useMemo(() => {
     const filtersList = [
       {
@@ -634,7 +637,7 @@ function DashboardList(props: DashboardListProps) {
         key: 'search',
         id: 'dashboard_title',
         input: 'search',
-        operator: FilterOperator.TitleOrSlug,
+        operator: searchOperator,
       },
       {
         Header: t('Status'),
@@ -729,6 +732,7 @@ function DashboardList(props: DashboardListProps) {
     canReadTag,
     canPromoteTier1,
     favoritesFilter,
+    searchOperator,
     user,
     showGovernanceExtras,
   ]);
@@ -908,6 +912,7 @@ function DashboardList(props: DashboardListProps) {
                 fetchData={fetchData}
                 refreshData={refreshData}
                 filters={filters}
+                renderExtraFilterControls={renderSearchModeControl}
                 initialSort={initialSort}
                 loading={loading}
                 pageSize={PAGE_SIZE}

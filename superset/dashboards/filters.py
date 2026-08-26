@@ -37,35 +37,43 @@ from superset.views.base import BaseFilter
 from superset.views.base_api import BaseFavoriteFilter
 
 
+def title_or_slug_predicate(value: str) -> Optional[Any]:
+    """Build the match behind the dashboard list's name search.
+
+    Split out of :class:`DashboardTitleOrSlugFilter` so another filter can
+    compose the same match into a larger predicate instead of reimplementing
+    the term-splitting rules. Returns ``None`` when the value holds no search
+    terms, which callers should read as "do not constrain the query".
+    """
+    search_terms = (value or "").strip().split()
+    if not search_terms:
+        return None
+
+    # Create a list of conditions for title and slug
+    titles, slugs = [], []
+
+    for term in search_terms:
+        ilike_value = f"%{term}%"
+        titles.append(Dashboard.dashboard_title.ilike(ilike_value))
+        slugs.append(Dashboard.slug.ilike(ilike_value))
+
+    return or_(
+        and_(*titles),
+        and_(*slugs),
+    )
+
+
 class DashboardTitleOrSlugFilter(BaseFilter):  # pylint: disable=too-few-public-methods
     name = _("Title or Slug")
     arg_name = "title_or_slug"
 
     def apply(self, query: Query, value: Any) -> Query:
-        value = value.strip()
+        predicate = title_or_slug_predicate(value)
 
-        if not value:
+        if predicate is None:
             return query
 
-        # Split the value into search terms
-        search_terms = value.split()
-        if not search_terms:
-            return query
-
-        # Create a list of conditions for title and slug
-        titles, slugs = [], []
-
-        for term in search_terms:
-            ilike_value = f"%{term}%"
-            titles.append(Dashboard.dashboard_title.ilike(ilike_value))
-            slugs.append(Dashboard.slug.ilike(ilike_value))
-
-        return query.filter(
-            or_(
-                and_(*titles),
-                and_(*slugs),
-            )
-        )
+        return query.filter(predicate)
 
 
 class DashboardCreatedByMeFilter(BaseFilter):  # pylint: disable=too-few-public-methods
