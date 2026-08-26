@@ -43,10 +43,6 @@ import {
   UndefinedUser,
   UserWithPermissionsAndRoles,
 } from 'src/types/bootstrapTypes';
-import {
-  OWNER_TEXT_LABEL_PROP,
-  OWNER_EMAIL_PROP,
-} from 'src/features/owners/OwnerSelectLabel';
 import { fetchTags, OBJECT_TYPES } from 'src/features/tags/tags';
 import {
   applyColors,
