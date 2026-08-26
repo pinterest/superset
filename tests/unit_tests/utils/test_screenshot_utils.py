@@ -247,8 +247,9 @@ class TestTakeTiledScreenshot:
             assert result is None
             # The exception object is passed, not the string
             call_args = mock_logger.exception.call_args
-            assert call_args[0][0] == "Tiled screenshot failed: %s"
+            assert call_args[0][0] == "Tiled screenshot failed: %s%s"
             assert str(call_args[0][1]) == "Unexpected error"
+            assert call_args[0][2] == ""
 
     def test_screenshot_clip_parameters(self, mock_page):
         """Test that screenshot clipping parameters are correct."""

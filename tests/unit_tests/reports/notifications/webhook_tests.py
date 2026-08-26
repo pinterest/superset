@@ -226,6 +226,7 @@ def test_send_http_only_https_check(monkeypatch, mock_header_data) -> None:
     with pytest.raises(NotificationParamException, match="HTTPS is required by config"):
         webhook_notification.send()
 
+
 def _make_webhook(mock_header_data) -> WebhookNotification:
     from superset.reports.models import ReportRecipients, ReportRecipientType
     from superset.reports.notifications.base import NotificationContent

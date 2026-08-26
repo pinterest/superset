@@ -190,7 +190,6 @@ class TestCacheOnlyOnSuccess:
         assert cached_value is not None
         assert cached_value["status"] == "Updated"
 
-
     def test_cache_error_status_when_screenshot_returns_empty_bytes(
         self,
         mocker: MockerFixture,

@@ -407,7 +407,7 @@ def test_get_dashboard_urls_url_params_only_creates_permalink(
             "anchor": "",
             "dataMask": None,
             "activeTabs": None,
-            "urlParams": [["standalone", "true"]],
+            "urlParams": [("standalone", "true")],
         }
     }
     mock_report_schedule.get_native_filters_params.return_value = ("()", [])  # type: ignore
@@ -425,7 +425,7 @@ def test_get_dashboard_urls_url_params_only_creates_permalink(
 
     mock_permalink_cls.assert_called_once()
     state = mock_permalink_cls.call_args.kwargs["state"]
-    assert ["standalone", "true"] in state["urlParams"]
+    assert ("standalone", "true") in state["urlParams"]
     assert len(result) == 1
     assert "/dashboard/p/" in result[0]
 
@@ -858,6 +858,7 @@ def test_update_recipient_to_slack_v2_missing_channels(mocker: MockerFixture):
     )
     with pytest.raises(UpdateFailedError):
         mock_cmmd.update_report_schedule_slack_v2()
+
 
 def test_update_recipient_to_slack_v2_reverts_all_on_partial_failure(
     mocker: MockerFixture,
