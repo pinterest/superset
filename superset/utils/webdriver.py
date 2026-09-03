@@ -439,18 +439,6 @@ class WebDriverPlaywright(WebDriverProxy):
                         url,
                     )
                     raise
-                try:
-                    # charts took too long to load
-                    logger.debug(
-                        "Wait for loading element of charts to be gone at url: %s", url
-                    )
-                    for loading_element in page.locator(".loading").all():
-                        loading_element.wait_for(state="detached")
-                except PlaywrightTimeout:
-                    logger.warning(
-                        "Timed out waiting for charts to load at url %s", url
-                    )
-                    raise
 
                 selenium_animation_wait = app.config[
                     "SCREENSHOT_SELENIUM_ANIMATION_WAIT"
