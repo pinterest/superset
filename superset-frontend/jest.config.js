@@ -95,6 +95,8 @@ module.exports = {
       '<rootDir>/pinterest-plugins/src/governance/chartGovernancePermissions.stub.ts',
     '^@pinterest-plugins/src/governance/pinterestChartTitlePanelAdditionalItems$':
       '<rootDir>/pinterest-plugins/src/governance/pinterestChartTitlePanelAdditionalItems.stub.tsx',
+    '^@pinterest-plugins/src/features/alerts/SlackChannelSelectExtension$':
+      '<rootDir>/pinterest-plugins/src/features/alerts/SlackChannelSelectExtension.stub.tsx',
     // general mapping for other @pinterest-plugins modules
     '^@pinterest-plugins/(.*)$': '<rootDir>/pinterest-plugins/$1',
   },
