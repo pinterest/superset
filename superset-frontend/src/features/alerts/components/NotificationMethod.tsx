@@ -36,6 +36,9 @@ import { styled, useTheme } from '@apache-superset/core/theme';
 import { Icons } from '@superset-ui/core/components/Icons';
 import { Input, Select } from '@superset-ui/core/components';
 import RefreshLabel from '@superset-ui/core/components/RefreshLabel';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import { SlackChannelSelectExtension } from '@pinterest-plugins/src/features/alerts/SlackChannelSelectExtension';
 import {
   NotificationMethodOption,
   NotificationSetting,
@@ -322,6 +325,10 @@ export const NotificationMethod: FunctionComponent<NotificationMethodProps> = ({
         option === NotificationMethodOption.Slack ||
         option === NotificationMethodOption.SlackV2,
     );
+    if (SlackChannelSelectExtension) {
+      setMethodOptionsLoading(false);
+      return;
+    }
     if (slackEnabled && !slackOptions[0]?.options.length) {
       updateSlackOptions();
     }
@@ -385,6 +392,17 @@ export const NotificationMethod: FunctionComponent<NotificationMethodProps> = ({
       };
 
       onUpdate(index, updatedSetting);
+    }
+  };
+
+  const onSlackRecipientValueChange = (value: string) => {
+    setRecipientValue(value);
+
+    if (onUpdate) {
+      onUpdate(index, {
+        ...setting,
+        recipients: value,
+      });
     }
   };
 
@@ -545,24 +563,35 @@ export const NotificationMethod: FunctionComponent<NotificationMethodProps> = ({
                   ) : (
                     // for SlackV2
                     <div className="input-container">
-                      <Select
-                        ariaLabel={t('Select channels')}
-                        mode="multiple"
-                        name="recipients"
-                        value={slackRecipients}
-                        options={slackOptions}
-                        onChange={onSlackRecipientsChange}
-                        allowClear
-                        data-test="recipients"
-                        loading={isSlackChannelsLoading}
-                        allowSelectAll={false}
-                        labelInValue
-                      />
-                      <RefreshLabel
-                        onClick={() => updateSlackOptions({ force: true })}
-                        tooltipContent={t('Force refresh Slack channels list')}
-                        disabled={isSlackChannelsLoading}
-                      />
+                      {SlackChannelSelectExtension ? (
+                        <SlackChannelSelectExtension
+                          value={recipientValue}
+                          onChange={onSlackRecipientValueChange}
+                        />
+                      ) : (
+                        <>
+                          <Select
+                            ariaLabel={t('Select channels')}
+                            mode="multiple"
+                            name="recipients"
+                            value={slackRecipients}
+                            options={slackOptions}
+                            onChange={onSlackRecipientsChange}
+                            allowClear
+                            data-test="recipients"
+                            loading={isSlackChannelsLoading}
+                            allowSelectAll={false}
+                            labelInValue
+                          />
+                          <RefreshLabel
+                            onClick={() => updateSlackOptions({ force: true })}
+                            tooltipContent={t(
+                              'Force refresh Slack channels list',
+                            )}
+                            disabled={isSlackChannelsLoading}
+                          />
+                        </>
+                      )}
                     </div>
                   )}
                 </div>

@@ -451,6 +451,13 @@ if (process.env.USE_PINTEREST_PLUGINS !== 'true') {
         'pinterest-plugins/src/governance/chartGovernancePermissions.stub.ts',
       ),
     ),
+    new webpack.NormalModuleReplacementPlugin(
+      /@pinterest-plugins\/src\/features\/alerts\/SlackChannelSelectExtension$/,
+      path.resolve(
+        __dirname,
+        'pinterest-plugins/src/features/alerts/SlackChannelSelectExtension.stub.tsx',
+      ),
+    ),
   );
 }
 
