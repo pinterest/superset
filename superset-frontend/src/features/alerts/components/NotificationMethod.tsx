@@ -36,6 +36,7 @@ import { styled, useTheme } from '@apache-superset/core/theme';
 import { Icons } from '@superset-ui/core/components/Icons';
 import { Input, Select } from '@superset-ui/core/components';
 import RefreshLabel from '@superset-ui/core/components/RefreshLabel';
+// @ts-ignore
 // eslint-disable-next-line import/no-unresolved
 import { SlackChannelSelectExtension } from '@pinterest-plugins/src/features/alerts/SlackChannelSelectExtension';
 import {
