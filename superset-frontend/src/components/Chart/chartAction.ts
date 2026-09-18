@@ -51,6 +51,10 @@ import {
 } from 'src/logger/LogUtils';
 import { allowCrossDomain as domainShardingEnabled } from 'src/utils/hostNamesConfig';
 import { updateDataMask } from 'src/dataMask/actions';
+import type {
+  AsyncEvent,
+  AsyncEventProgressCallback,
+} from 'src/middleware/asyncEvent';
 import { waitForAsyncData } from 'src/middleware/asyncEvent';
 import { ensureAppRoot } from 'src/utils/pathUtils';
 import { safeStringify } from 'src/utils/safeStringify';
@@ -58,7 +62,7 @@ import { extendedDayjs } from '@superset-ui/core/utils/dates';
 import type { Dispatch, Action, AnyAction } from 'redux';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import type { History } from 'history';
-import type { ChartState } from 'src/explore/types';
+import type { AsyncQueryStatus, ChartState } from 'src/explore/types';
 
 // Types for the Redux state
 export interface ChartsState {
@@ -102,6 +106,8 @@ export const CHART_UPDATE_STARTED = 'CHART_UPDATE_STARTED' as const;
 export const CHART_UPDATE_SUCCEEDED = 'CHART_UPDATE_SUCCEEDED' as const;
 export const CHART_UPDATE_STOPPED = 'CHART_UPDATE_STOPPED' as const;
 export const CHART_UPDATE_FAILED = 'CHART_UPDATE_FAILED' as const;
+export const CHART_ASYNC_QUERY_STATUS_CHANGED =
+  'CHART_ASYNC_QUERY_STATUS_CHANGED' as const;
 export const CHART_RENDERING_FAILED = 'CHART_RENDERING_FAILED' as const;
 export const CHART_RENDERING_SUCCEEDED = 'CHART_RENDERING_SUCCEEDED' as const;
 export const REMOVE_CHART = 'REMOVE_CHART' as const;
@@ -140,6 +146,13 @@ export interface ChartUpdateFailedAction {
   type: typeof CHART_UPDATE_FAILED;
   queriesResponse: QueryData[] | JsonObject[];
   key: string | number;
+}
+
+export interface ChartAsyncQueryStatusChangedAction {
+  type: typeof CHART_ASYNC_QUERY_STATUS_CHANGED;
+  asyncQueryStatus?: AsyncQueryStatus;
+  key: string | number;
+  queryController: AbortController;
 }
 
 export interface ChartRenderingFailedAction {
@@ -221,6 +234,7 @@ export type ChartAction =
   | ChartUpdateSucceededAction
   | ChartUpdateStoppedAction
   | ChartUpdateFailedAction
+  | ChartAsyncQueryStatusChangedAction
   | ChartRenderingFailedAction
   | ChartRenderingSucceededAction
   | RemoveChartAction
@@ -342,6 +356,19 @@ export function chartUpdateFailed(
   key: string | number,
 ): ChartUpdateFailedAction {
   return { type: CHART_UPDATE_FAILED, queriesResponse, key };
+}
+
+export function chartAsyncQueryStatusChanged(
+  asyncQueryStatus: AsyncQueryStatus | undefined,
+  key: string | number,
+  queryController: AbortController,
+): ChartAsyncQueryStatusChangedAction {
+  return {
+    type: CHART_ASYNC_QUERY_STATUS_CHANGED,
+    asyncQueryStatus,
+    key,
+    queryController,
+  };
 }
 
 export function chartRenderingFailed(
@@ -701,6 +728,7 @@ export function handleChartDataResponse(
   response: Response,
   json: { result: QueryData[] },
   useLegacyApi?: boolean,
+  onProgress?: AsyncEventProgressCallback,
 ): Promise<QueryData[]> | QueryData[] {
   if (isFeatureEnabled(FeatureFlag.GlobalAsyncQueries)) {
     // deal with getChartDataRequest transforming the response data
@@ -716,10 +744,12 @@ export function handleChartDataResponse(
         if (useLegacyApi) {
           return waitForAsyncData(
             result[0] as unknown as Parameters<typeof waitForAsyncData>[0],
+            onProgress,
           ) as Promise<QueryData[]>;
         }
         return waitForAsyncData(
           result as unknown as Parameters<typeof waitForAsyncData>[0],
+          onProgress,
         ) as Promise<QueryData[]>;
       default:
         // throw new Error(
@@ -781,9 +811,28 @@ export function exploreJSON(
     });
 
     const [useLegacyApi] = getQuerySettings(formData);
+    const handleAsyncProgress = (asyncEvent: AsyncEvent): void => {
+      if (asyncEvent.stage !== 'superset_queue' || key == null) {
+        return;
+      }
+      const currentController = getState().charts?.[key]?.queryController;
+      if (currentController !== controller) {
+        return;
+      }
+      if (asyncEvent.status === 'pending') {
+        dispatch(chartAsyncQueryStatusChanged('queued', key, controller));
+      } else if (asyncEvent.status === 'running') {
+        dispatch(chartAsyncQueryStatusChanged(undefined, key, controller));
+      }
+    };
     const chartDataRequestCaught = chartDataRequest
       .then(({ response, json }) =>
-        handleChartDataResponse(response, json, useLegacyApi),
+        handleChartDataResponse(
+          response,
+          json,
+          useLegacyApi,
+          handleAsyncProgress,
+        ),
       )
       .then(queriesResponse => {
         // Drop stale responses: if a newer query has started for this chart,

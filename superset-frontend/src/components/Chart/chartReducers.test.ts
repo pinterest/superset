@@ -99,6 +99,70 @@ describe('chart reducers', () => {
     expect(newState[missingKey]).toBeUndefined();
   });
 
+  test('should set and clear async queue status for the active request', () => {
+    const controller = new AbortController();
+    const loadingCharts = chartReducer(
+      charts,
+      actions.chartUpdateStarted(controller, {}, chartKey),
+    );
+    const queuedCharts = chartReducer(
+      loadingCharts,
+      actions.chartAsyncQueryStatusChanged('queued', chartKey, controller),
+    );
+    expect(queuedCharts[chartKey].asyncQueryStatus).toBe('queued');
+    expect(queuedCharts[chartKey].chartStatus).toBe('loading');
+
+    const runningCharts = chartReducer(
+      queuedCharts,
+      actions.chartAsyncQueryStatusChanged(undefined, chartKey, controller),
+    );
+    expect(runningCharts[chartKey].asyncQueryStatus).toBeUndefined();
+    expect(runningCharts[chartKey].chartStatus).toBe('loading');
+  });
+
+  test('should ignore async queue status from a stale request', () => {
+    const controller = new AbortController();
+    const staleController = new AbortController();
+    const chartsWithController: Record<number, ChartState> = {
+      [chartKey]: {
+        ...testChart,
+        queryController: controller,
+      },
+    };
+
+    const newState = chartReducer(
+      chartsWithController,
+      actions.chartAsyncQueryStatusChanged('queued', chartKey, staleController),
+    );
+    expect(newState[chartKey]).toBe(chartsWithController[chartKey]);
+    expect(newState[chartKey].asyncQueryStatus).toBeUndefined();
+  });
+
+  test('should clear async queue status on replacement and terminal actions', () => {
+    const queuedChart: ChartState = {
+      ...testChart,
+      asyncQueryStatus: 'queued',
+    };
+    const terminalActions = [
+      actions.chartUpdateSucceeded([], chartKey),
+      actions.chartUpdateFailed([], chartKey),
+      actions.chartUpdateStopped(chartKey),
+      actions.chartRenderingSucceeded(chartKey),
+      actions.chartRenderingFailed('error', chartKey, null),
+    ];
+
+    terminalActions.forEach(action => {
+      const newState = chartReducer({ [chartKey]: queuedChart }, action);
+      expect(newState[chartKey].asyncQueryStatus).toBeUndefined();
+    });
+
+    const replacementState = chartReducer(
+      { [chartKey]: queuedChart },
+      actions.chartUpdateStarted(new AbortController(), {}, chartKey),
+    );
+    expect(replacementState[chartKey].asyncQueryStatus).toBeUndefined();
+  });
+
   test('should update endtime on timeout', () => {
     const newState = chartReducer(
       charts,

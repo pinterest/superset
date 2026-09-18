@@ -60,6 +60,7 @@ export default function chartReducer(
     [actions.CHART_UPDATE_SUCCEEDED](state) {
       return {
         ...state,
+        asyncQueryStatus: undefined,
         chartStatus: 'success',
         chartAlert: null,
         queriesResponse: action.queriesResponse,
@@ -69,6 +70,7 @@ export default function chartReducer(
     [actions.CHART_UPDATE_STARTED](state) {
       return {
         ...state,
+        asyncQueryStatus: undefined,
         chartStatus: 'loading',
         chartStackTrace: null,
         chartAlert: null,
@@ -87,18 +89,34 @@ export default function chartReducer(
       }
       return {
         ...state,
+        asyncQueryStatus: undefined,
         chartStatus: 'stopped',
         chartAlert: t('Updating chart was stopped'),
         chartUpdateEndTime: now(),
         queryController: null,
       };
     },
+    [actions.CHART_ASYNC_QUERY_STATUS_CHANGED](state) {
+      if (action.queryController !== state.queryController) {
+        return state;
+      }
+      return {
+        ...state,
+        asyncQueryStatus: action.asyncQueryStatus,
+      };
+    },
     [actions.CHART_RENDERING_SUCCEEDED](state) {
-      return { ...state, chartStatus: 'rendered', chartUpdateEndTime: now() };
+      return {
+        ...state,
+        asyncQueryStatus: undefined,
+        chartStatus: 'rendered',
+        chartUpdateEndTime: now(),
+      };
     },
     [actions.CHART_RENDERING_FAILED](state) {
       return {
         ...state,
+        asyncQueryStatus: undefined,
         chartStatus: 'failed',
         chartStackTrace: action.stackTrace,
         chartAlert: t(
@@ -121,6 +139,7 @@ export default function chartReducer(
 
       return {
         ...state,
+        asyncQueryStatus: undefined,
         chartStatus: 'failed',
         // chartAlert: action.queriesResponse
         //   ? action.queriesResponse?.[0]?.error
