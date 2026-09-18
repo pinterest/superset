@@ -404,6 +404,7 @@ describe('chart actions', () => {
       ).featureFlags = {
         [FeatureFlag.GlobalAsyncQueries]: true,
       };
+      const onProgress = jest.fn();
       const result = await handleChartDataResponse(
         { status: 202 } as Response,
         {
@@ -411,8 +412,97 @@ describe('chart actions', () => {
             1, 2, 3,
           ] as unknown as actions.ChartDataRequestResponse['json']['result'],
         },
+        false,
+        onProgress,
       );
       expect(result).toEqual([1, 2, 3]);
+      expect(waitForAsyncDataStub).toHaveBeenCalledWith([1, 2, 3], onProgress);
+    });
+
+    test('should dispatch async queue progress for the active chart request', async () => {
+      (
+        global as unknown as { featureFlags: Record<string, boolean> }
+      ).featureFlags = {
+        [FeatureFlag.GlobalAsyncQueries]: true,
+      };
+      const chartKey = 'async_queue_test';
+      let queryController: AbortController | null = null;
+      const getState = jest.fn(() => ({
+        charts: {
+          [chartKey]: {
+            queryController,
+          },
+        },
+        common: { conf: {} },
+      }));
+      const dispatchMock = jest.fn(action => {
+        if (action.type === actions.CHART_UPDATE_STARTED) {
+          ({ queryController } = action);
+        }
+        return action;
+      });
+      fetchMock.removeRoute(MOCK_URL);
+      fetchMock.post(
+        `glob:*${MOCK_URL}*`,
+        {
+          status: 202,
+          body: {
+            result: {
+              status: 'pending',
+              result_url: null,
+              job_id: 'job-id',
+              channel_id: 'channel-id',
+            },
+          },
+        },
+        { name: MOCK_URL },
+      );
+      waitForAsyncDataStub.mockImplementation(
+        (
+          _data: unknown,
+          onProgress?: asyncEvent.AsyncEventProgressCallback,
+        ) => {
+          onProgress?.({
+            status: 'pending',
+            stage: 'superset_queue',
+            result_url: null,
+            job_id: 'job-id',
+            channel_id: 'channel-id',
+          });
+          onProgress?.({
+            status: 'running',
+            stage: 'superset_queue',
+            result_url: null,
+            job_id: 'job-id',
+            channel_id: 'channel-id',
+          });
+          return Promise.resolve([]);
+        },
+      );
+
+      await actions.exploreJSON(
+        {
+          datasource: 'table__1',
+          viz_type: 'table',
+        } as QueryFormData,
+        false,
+        undefined,
+        chartKey,
+      )(
+        dispatchMock as unknown as actions.ChartThunkDispatch,
+        getState as unknown as () => actions.RootState,
+        undefined,
+      );
+
+      const progressActions = dispatchMock.mock.calls
+        .map(([action]) => action)
+        .filter(
+          action => action.type === actions.CHART_ASYNC_QUERY_STATUS_CHANGED,
+        );
+      expect(progressActions.map(action => action.asyncQueryStatus)).toEqual([
+        'queued',
+        undefined,
+      ]);
     });
   });
 
