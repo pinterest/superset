@@ -35,16 +35,14 @@ class CreateAsyncChartDataJobCommand:
         )
         self._tracking_context = {}
 
-        dashboard_id = request.args.get("dashboard_id")
-        if dashboard_id is not None:
+        if (dashboard_id := request.args.get("dashboard_id")) is not None:
             self._tracking_context["dashboard_id"] = dashboard_id
 
         try:
             request_form_data = json.loads(request.args.get("form_data", "{}"))
         except (TypeError, json.JSONDecodeError):
             request_form_data = {}
-        slice_id = request_form_data.get("slice_id")
-        if slice_id is not None:
+        if (slice_id := request_form_data.get("slice_id")) is not None:
             self._tracking_context["slice_id"] = slice_id
 
     def run(self, form_data: dict[str, Any], user_id: Optional[int]) -> dict[str, Any]:
