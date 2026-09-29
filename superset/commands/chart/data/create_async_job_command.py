@@ -14,13 +14,13 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-import json
 import logging
 from typing import Any, Optional
 
 from flask import Request
 
 from superset.extensions import async_query_manager
+from superset.utils import json
 
 logger = logging.getLogger(__name__)
 
