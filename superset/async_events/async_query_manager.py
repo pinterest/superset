@@ -250,6 +250,7 @@ class AsyncQueryManager:
         channel_id: str,
         form_data: dict[str, Any],
         user_id: Optional[int] = None,
+        tracking_context: Optional[dict[str, Any]] = None,
     ) -> dict[str, Any]:
         # pylint: disable=import-outside-toplevel
         from superset import security_manager
@@ -259,10 +260,11 @@ class AsyncQueryManager:
         # this way we can keep the cache key consistent between sync and async command
         # so that it can be looked up consistently
         job_metadata = self.init_job(channel_id, user_id)
+        task_metadata = {**job_metadata, **(tracking_context or {})}
         self._load_chart_data_into_cache_job.delay(
-            {**job_metadata, "guest_token": guest_user.guest_token}
+            {**task_metadata, "guest_token": guest_user.guest_token}
             if (guest_user := security_manager.get_current_guest_user_if_guest())
-            else job_metadata,
+            else task_metadata,
             form_data,
         )
         return job_metadata

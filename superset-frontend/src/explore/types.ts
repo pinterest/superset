@@ -47,11 +47,14 @@ export type ChartStatus =
   | 'stopped'
   | 'success';
 
+export type AsyncQueryStatus = 'queued';
+
 export interface ChartState {
   id: number;
   annotationData?: AnnotationData;
   annotationError?: Record<string, string>;
   annotationQuery?: Record<string, AbortController>;
+  asyncQueryStatus?: AsyncQueryStatus;
   chartAlert: string | null;
   chartStatus: ChartStatus | null;
   chartStackTrace?: string | null;

@@ -20,19 +20,35 @@ from typing import Any, Optional
 from flask import Request
 
 from superset.extensions import async_query_manager
+from superset.utils import json
 
 logger = logging.getLogger(__name__)
 
 
 class CreateAsyncChartDataJobCommand:
     _async_channel_id: str
+    _tracking_context: dict[str, Any]
 
     def validate(self, request: Request) -> None:
         self._async_channel_id = async_query_manager.parse_channel_id_from_request(
             request
         )
+        self._tracking_context = {}
+
+        if (dashboard_id := request.args.get("dashboard_id")) is not None:
+            self._tracking_context["dashboard_id"] = dashboard_id
+
+        try:
+            request_form_data = json.loads(request.args.get("form_data", "{}"))
+        except (TypeError, json.JSONDecodeError):
+            request_form_data = {}
+        if (slice_id := request_form_data.get("slice_id")) is not None:
+            self._tracking_context["slice_id"] = slice_id
 
     def run(self, form_data: dict[str, Any], user_id: Optional[int]) -> dict[str, Any]:
         return async_query_manager.submit_chart_data_job(
-            self._async_channel_id, form_data, user_id
+            self._async_channel_id,
+            form_data,
+            user_id,
+            tracking_context=self._tracking_context,
         )

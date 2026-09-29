@@ -119,18 +119,21 @@ def test_submit_chart_data_job_as_guest_user(
     job_meta = async_query_manager.submit_chart_data_job(
         channel_id="test_channel_id",
         form_data={},
+        tracking_context={"dashboard_id": "42", "slice_id": 9},
     )
 
     job_mock.delay.assert_called_once_with(
         {
             "channel_id": "test_channel_id",
             "errors": [],
+            "dashboard_id": "42",
             "guest_token": {
                 "resources": [{"id": "some-uuid", "type": "dashboard"}],
                 "user": {},
             },
             "job_id": ANY,
             "result_url": None,
+            "slice_id": 9,
             "status": "pending",
             "user_id": None,
         },

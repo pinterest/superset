@@ -37,6 +37,15 @@ describe('asyncEvent middleware', () => {
     channel_id: '999',
     errors: [],
   };
+  const asyncQueuePendingEvent = {
+    ...asyncPendingEvent,
+    stage: 'superset_queue',
+  };
+  const asyncQueueRunningEvent = {
+    ...asyncPendingEvent,
+    status: 'running',
+    stage: 'superset_queue',
+  };
   const asyncDoneEvent = {
     id: '1518951480106-0',
     status: 'done',
@@ -212,6 +221,28 @@ describe('asyncEvent middleware', () => {
 
       expect(fetchMock.callHistory.calls(CACHED_DATA_ENDPOINT)).toHaveLength(1);
       expect(fetchMock.callHistory.calls(EVENTS_ENDPOINT)).toHaveLength(0);
+    });
+
+    test('reports progress events and keeps listening until done', async () => {
+      await wsServer.connected;
+      const onProgress = jest.fn();
+      const promise = asyncEvent.waitForAsyncData(
+        asyncPendingEvent,
+        onProgress,
+      );
+      expect(onProgress).toHaveBeenCalledWith(asyncPendingEvent);
+
+      wsServer.send(JSON.stringify(asyncQueuePendingEvent));
+      wsServer.send(JSON.stringify(asyncQueueRunningEvent));
+      wsServer.send(JSON.stringify(asyncDoneEvent));
+
+      await expect(promise).resolves.toEqual([chartData]);
+      expect(onProgress).toHaveBeenNthCalledWith(2, asyncQueuePendingEvent);
+      expect(onProgress).toHaveBeenNthCalledWith(3, asyncQueueRunningEvent);
+
+      wsServer.send(JSON.stringify(asyncQueuePendingEvent));
+      await Promise.resolve();
+      expect(onProgress).toHaveBeenCalledTimes(3);
     });
 
     test('rejects on event error status', async () => {

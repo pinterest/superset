@@ -29,12 +29,13 @@ import {
 import { logging } from '@apache-superset/core/utils';
 import getBootstrapData from 'src/utils/getBootstrapData';
 
-type AsyncEvent = {
+export type AsyncEvent = {
   id?: string | null;
   channel_id: string;
   job_id: string;
   user_id?: string;
   status: string;
+  stage?: string;
   errors?: SupersetError[];
   result_url: string | null;
 };
@@ -45,6 +46,7 @@ type CachedDataResponse = {
 };
 type AppConfig = Record<string, any>;
 type ListenerFn = (asyncEvent: AsyncEvent) => Promise<any>;
+export type AsyncEventProgressCallback = (asyncEvent: AsyncEvent) => void;
 
 const TRANSPORT_POLLING = 'polling';
 const TRANSPORT_WS = 'ws';
@@ -94,12 +96,16 @@ const fetchCachedData = async (
   return { status, data };
 };
 
-export const waitForAsyncData = async (asyncResponse: AsyncEvent) =>
+export const waitForAsyncData = async (
+  asyncResponse: AsyncEvent,
+  onProgress?: AsyncEventProgressCallback,
+) =>
   new Promise((resolve, reject) => {
     const jobId = asyncResponse.job_id;
     const listener = async (asyncEvent: AsyncEvent) => {
       switch (asyncEvent.status) {
         case JOB_STATUS.DONE: {
+          removeListener(jobId);
           let { data, status } = await fetchCachedData(asyncEvent); // eslint-disable-line prefer-const
           data = ensureIsArray(data);
           if (status === 'success') {
@@ -110,17 +116,27 @@ export const waitForAsyncData = async (asyncResponse: AsyncEvent) =>
           break;
         }
         case JOB_STATUS.ERROR: {
+          removeListener(jobId);
           const err = parseErrorJson(asyncEvent);
           reject(err);
           break;
         }
+        case JOB_STATUS.PENDING:
+        case JOB_STATUS.RUNNING:
+          onProgress?.(asyncEvent);
+          break;
         default: {
           logging.warn('received event with status', asyncEvent.status);
         }
       }
-      removeListener(jobId);
     };
     addListener(jobId, listener);
+    if (
+      asyncResponse.status === JOB_STATUS.PENDING ||
+      asyncResponse.status === JOB_STATUS.RUNNING
+    ) {
+      onProgress?.(asyncResponse);
+    }
   });
 
 const fetchEvents = makeApi<
