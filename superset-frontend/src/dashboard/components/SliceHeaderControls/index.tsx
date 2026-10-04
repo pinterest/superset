@@ -197,9 +197,7 @@ const SliceHeaderControls = (
   const canExplore = props.supersetCanExplore;
   const { canDrillToDetail, canViewQuery, canViewTable } = usePermissions();
   const user = useSelector<RootState, RootState['user']>(state => state.user);
-  const showVerifyChartAction =
-    isFeatureEnabled(FeatureFlag.PinterestChartGovernanceUi) &&
-    canVerifyChart(user);
+  const showVerifyChartAction = canVerifyChart(user);
 
   const datasetResource = useDatasetDrillInfo(
     props.slice.datasource,

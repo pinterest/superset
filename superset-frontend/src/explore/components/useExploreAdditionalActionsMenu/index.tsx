@@ -230,9 +230,7 @@ export const useExploreAdditionalActionsMenu = (
   const user = useSelector<ExploreState, UserWithPermissionsAndRoles>(
     state => state.user,
   );
-  const showVerifyChartAction =
-    isFeatureEnabled(FeatureFlag.PinterestChartGovernanceUi) &&
-    canVerifyChart(user);
+  const showVerifyChartAction = canVerifyChart(user);
   const streamingThreshold = useSelector<ExploreState, number>(
     state =>
       state.common?.conf?.CSV_STREAMING_ROW_THRESHOLD ||

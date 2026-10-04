@@ -58,8 +58,6 @@ export enum FeatureFlag {
   GlobalTaskFramework = 'GLOBAL_TASK_FRAMEWORK',
   ListviewsDefaultCardView = 'LISTVIEWS_DEFAULT_CARD_VIEW',
   Matrixify = 'MATRIXIFY',
-  PinterestDashboardGovernanceUi = 'PINTEREST_DASHBOARD_GOVERNANCE_UI',
-  PinterestChartGovernanceUi = 'PINTEREST_CHART_GOVERNANCE_UI',
   ScheduledQueries = 'SCHEDULED_QUERIES',
   SqllabBackendPersistence = 'SQLLAB_BACKEND_PERSISTENCE',
   SqlValidatorsByEngine = 'SQL_VALIDATORS_BY_ENGINE',

@@ -82,7 +82,6 @@ import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
 import { findPermission } from 'src/utils/findPermission';
 import { navigateTo } from 'src/utils/navigationUtils';
 import { WIDER_DROPDOWN_WIDTH } from 'src/components/ListView/utils';
-import { isUserAdmin } from 'src/dashboard/util/permissionUtils';
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
 import PinterestNewDashboardTierModal from '@pinterest-plugins/src/governance/pinterestNewDashboardTierModal';
@@ -185,27 +184,14 @@ function DashboardList(props: DashboardListProps) {
     roles,
   );
 
-  const reduxUser = useSelector<any, UserWithPermissionsAndRoles>(
-    state => state.user,
-  );
-  // Show after governance UI is rolled out
-  const showGovernanceExtras =
-    isUserAdmin(reduxUser) ||
-    isFeatureEnabled(FeatureFlag.PinterestDashboardGovernanceUi);
-
-  // Always-on extras (e.g. soft-deletion columns) are fetched for every
-  // user; governance-only display columns are gated on `showGovernanceExtras`
-  // and folded in by the same helper. Memoized so the reference stays stable
-  // across renders - otherwise it re-creates fetchData each render and the
-  // ListView fetch effect loops.
+  // Memoized so the reference stays stable across renders - otherwise it
+  // re-creates fetchData each render and the ListView fetch effect loops.
   const dashboardColumnsToFetch = useMemo(
     () => [
       ...DASHBOARD_COLUMNS_TO_FETCH,
-      ...getDashboardListExtraColumnsToFetch({
-        includeGovernance: showGovernanceExtras,
-      }),
+      ...getDashboardListExtraColumnsToFetch({ includeGovernance: true }),
     ],
-    [showGovernanceExtras],
+    [],
   );
 
   const {
@@ -440,7 +426,7 @@ function DashboardList(props: DashboardListProps) {
         id: 'published',
         className: 'no-ellipsis',
       },
-      ...(showGovernanceExtras ? getDashboardListExtraListColumns() : []),
+      ...getDashboardListExtraListColumns(),
       {
         Cell: ({
           row: {
@@ -607,7 +593,6 @@ function DashboardList(props: DashboardListProps) {
       addDangerToast,
       handleBulkDashboardExport,
       openDashboardEditModal,
-      showGovernanceExtras,
     ],
   );
 
@@ -722,9 +707,7 @@ function DashboardList(props: DashboardListProps) {
         paginate: true,
         dropdownStyle: { minWidth: WIDER_DROPDOWN_WIDTH },
       },
-      ...(showGovernanceExtras
-        ? getDashboardListSearchFilters({ canPromoteTier1 })
-        : []),
+      ...getDashboardListSearchFilters({ canPromoteTier1 }),
     ] as ListViewFilters;
     return filtersList;
   }, [
@@ -734,7 +717,6 @@ function DashboardList(props: DashboardListProps) {
     favoritesFilter,
     searchOperator,
     user,
-    showGovernanceExtras,
   ]);
 
   const sortTypes = [
@@ -823,13 +805,7 @@ function DashboardList(props: DashboardListProps) {
       icon: <Icons.PlusOutlined iconSize="m" />,
       name: t('Dashboard'),
       buttonStyle: 'primary',
-      onClick: () => {
-        if (showGovernanceExtras) {
-          setShowTierModal(true);
-        } else {
-          navigateTo('/dashboard/new', { assign: true });
-        }
-      },
+      onClick: () => setShowTierModal(true),
     });
   }
   return (
