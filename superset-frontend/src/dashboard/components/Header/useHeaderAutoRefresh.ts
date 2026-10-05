@@ -249,7 +249,10 @@ export const useHeaderAutoRefresh = ({
     (intervalMs: number) => {
       stopPeriodicRender();
 
-      if (intervalMs <= 0) {
+      if (
+        intervalMs <= 0 ||
+        !isFeatureEnabled(FeatureFlag.EnableDashboardAutoRefresh)
+      ) {
         return;
       }
 
