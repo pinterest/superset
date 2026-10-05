@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { FeatureFlag } from '@superset-ui/core';
 import {
   selectIsRealTimeDashboard,
   selectEffectiveRefreshStatus,
@@ -35,10 +36,36 @@ const createMockState = (overrides = {}) => ({
   },
 });
 
+const originalFeatureFlags = window.featureFlags;
+
+beforeEach(() => {
+  window.featureFlags = {
+    ...originalFeatureFlags,
+    [FeatureFlag.EnableDashboardAutoRefresh]: true,
+  };
+});
+
+afterEach(() => {
+  window.featureFlags = originalFeatureFlags;
+});
+
 // Tests for selectIsRealTimeDashboard
 test('selectIsRealTimeDashboard returns true when refreshFrequency > 0', () => {
   const state = createMockState({ refreshFrequency: 5 });
   expect(selectIsRealTimeDashboard(state)).toBe(true);
+});
+
+test('selectIsRealTimeDashboard returns false when auto-refresh flag is disabled', () => {
+  window.featureFlags = {
+    ...originalFeatureFlags,
+    [FeatureFlag.EnableDashboardAutoRefresh]: false,
+  };
+  const state = createMockState({
+    refreshFrequency: 5,
+    autoRefreshStatus: AutoRefreshStatus.Success,
+  });
+  expect(selectIsRealTimeDashboard(state)).toBe(false);
+  expect(selectEffectiveRefreshStatus(state)).toBe(AutoRefreshStatus.Idle);
 });
 
 test('selectIsRealTimeDashboard returns false when refreshFrequency is 0', () => {
