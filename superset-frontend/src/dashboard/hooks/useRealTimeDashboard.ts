@@ -18,6 +18,7 @@
  */
 import { useCallback, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { FeatureFlag, isFeatureEnabled } from '@superset-ui/core';
 import { AutoRefreshStatus } from '../types/autoRefresh';
 import { DashboardState, RootState } from '../types';
 import {
@@ -36,9 +37,11 @@ type DashboardStateRoot = {
 
 /**
  * Selector: Determines if this is a "real-time" dashboard.
- * A dashboard is real-time if it has an auto-refresh frequency > 0.
+ * A dashboard is real-time if auto-refresh is enabled and it has an
+ * auto-refresh frequency > 0.
  */
 export const selectIsRealTimeDashboard = (state: DashboardStateRoot): boolean =>
+  isFeatureEnabled(FeatureFlag.EnableDashboardAutoRefresh) &&
   (state.dashboardState?.refreshFrequency ?? 0) > 0;
 
 /**
@@ -72,8 +75,7 @@ export const selectEffectiveRefreshStatus = (
 ): AutoRefreshStatus => {
   const { dashboardState } = state;
 
-  // Not a real-time dashboard
-  if ((dashboardState?.refreshFrequency ?? 0) <= 0) {
+  if (!selectIsRealTimeDashboard(state)) {
     return AutoRefreshStatus.Idle;
   }
 

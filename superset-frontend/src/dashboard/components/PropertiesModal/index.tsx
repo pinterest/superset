@@ -852,23 +852,29 @@ const PropertiesModal = ({
                 />
               ),
             },
-            {
-              key: 'refresh',
-              label: (
-                <CollapseLabelInModal
-                  title={t('Refresh settings')}
-                  subtitle={t('Configure automatic dashboard refresh')}
-                  validateCheckStatus={!validationStatus.refresh?.hasErrors}
-                  testId="refresh-section"
-                />
-              ),
-              children: (
-                <RefreshSection
-                  refreshFrequency={refreshFrequency}
-                  onRefreshFrequencyChange={handleRefreshFrequencyChange}
-                />
-              ),
-            },
+            ...(isFeatureEnabled(FeatureFlag.EnableDashboardAutoRefresh)
+              ? [
+                  {
+                    key: 'refresh',
+                    label: (
+                      <CollapseLabelInModal
+                        title={t('Refresh settings')}
+                        subtitle={t('Configure automatic dashboard refresh')}
+                        validateCheckStatus={
+                          !validationStatus.refresh?.hasErrors
+                        }
+                        testId="refresh-section"
+                      />
+                    ),
+                    children: (
+                      <RefreshSection
+                        refreshFrequency={refreshFrequency}
+                        onRefreshFrequencyChange={handleRefreshFrequencyChange}
+                      />
+                    ),
+                  },
+                ]
+              : []),
             {
               key: 'certification',
               label: (

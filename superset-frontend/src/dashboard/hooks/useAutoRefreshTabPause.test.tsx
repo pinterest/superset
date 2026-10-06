@@ -20,6 +20,7 @@ import { renderHook, act } from '@testing-library/react-hooks';
 import { Provider } from 'react-redux';
 import { createStore, AnyAction } from 'redux';
 import { ReactNode } from 'react';
+import { FeatureFlag } from '@superset-ui/core';
 import { useAutoRefreshTabPause } from './useAutoRefreshTabPause';
 import {
   AUTO_REFRESH_STATE_DEFAULTS,
@@ -90,8 +91,13 @@ const fireVisibilityChange = () => {
 
 // Store original visibility state
 let originalVisibilityState: PropertyDescriptor | undefined;
+const originalFeatureFlags = window.featureFlags;
 
 beforeEach(() => {
+  window.featureFlags = {
+    ...originalFeatureFlags,
+    [FeatureFlag.EnableDashboardAutoRefresh]: true,
+  };
   originalVisibilityState = Object.getOwnPropertyDescriptor(
     document,
     'visibilityState',
@@ -100,6 +106,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  window.featureFlags = originalFeatureFlags;
   if (originalVisibilityState) {
     Object.defineProperty(document, 'visibilityState', originalVisibilityState);
   }

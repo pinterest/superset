@@ -212,7 +212,7 @@ describe('PropertiesModal', () => {
     expect(screen.getByText('General information')).toBeInTheDocument();
     expect(screen.getByText('Access & ownership')).toBeInTheDocument();
     expect(screen.getByText('Styling')).toBeInTheDocument();
-    expect(screen.getByText('Refresh settings')).toBeInTheDocument();
+    expect(screen.queryByText('Refresh settings')).not.toBeInTheDocument();
     expect(screen.getByText('Advanced settings')).toBeInTheDocument();
     expect(screen.getByText('Certification')).toBeInTheDocument();
 
@@ -244,6 +244,7 @@ describe('PropertiesModal', () => {
     mockedIsFeatureEnabled.mockImplementation((flag: any) => {
       if (flag === FeatureFlag.DashboardRbac) return true;
       if (flag === FeatureFlag.TaggingSystem) return true;
+      if (flag === FeatureFlag.EnableDashboardAutoRefresh) return true;
       return false;
     });
     const props = createProps();
