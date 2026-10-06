@@ -163,7 +163,7 @@ describe('ChartList', () => {
       expect(infoCalls).toHaveLength(1);
       expect(dataCalls).toHaveLength(1);
       expect(dataCalls[0].url).toContain(
-        'order_column:changed_on_delta_humanized,order_direction:desc,page:0,page_size:25',
+        'order_column:metric_grade,order_direction:asc,page:0,page_size:25',
       );
     });
   });
