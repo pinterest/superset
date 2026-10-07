@@ -802,6 +802,12 @@ function ChartList(props: ChartListProps) {
   const sortTypes = [
     {
       desc: false,
+      id: 'metric_grade',
+      label: t('Metric grade'),
+      value: 'metric_grade',
+    },
+    {
+      desc: false,
       id: 'slice_name',
       label: t('Alphabetical'),
       value: 'alphabetical',
