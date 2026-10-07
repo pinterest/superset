@@ -24,7 +24,6 @@ import {
   interceptUpdate,
   interceptDelete,
   interceptFiltering,
-  interceptFavoriteStatus,
 } from '../explore/utils';
 
 function orderAlphabetical() {
@@ -47,10 +46,8 @@ function confirmDelete() {
 
 function visitChartList() {
   interceptFiltering();
-  interceptFavoriteStatus();
   cy.visit(CHART_LIST);
   cy.wait('@filtering');
-  cy.wait('@favoriteStatus');
 }
 
 describe('Charts list', () => {
