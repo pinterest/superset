@@ -52,12 +52,9 @@ function visitChartList() {
 
 describe('Charts list', () => {
   describe('common actions', () => {
-    beforeEach(() => {
-      visitChartList();
-    });
-
     it('should bulk delete correctly', () => {
       cy.createSampleCharts([0, 1, 2, 3]);
+      visitChartList();
 
       interceptBulkDelete();
       toggleBulkSelect();
@@ -97,6 +94,7 @@ describe('Charts list', () => {
 
     it('should delete correctly in card mode', () => {
       cy.createSampleCharts([0, 1]);
+      visitChartList();
       interceptDelete();
 
       // deletes in card-view
@@ -115,6 +113,7 @@ describe('Charts list', () => {
 
     it('should delete correctly in list mode', () => {
       cy.createSampleCharts([2, 3]);
+      visitChartList();
       interceptDelete();
       cy.getBySel('sort-header').contains('Name').click();
 
@@ -132,6 +131,7 @@ describe('Charts list', () => {
 
     it('should edit correctly', () => {
       cy.createSampleCharts([0]);
+      visitChartList();
       interceptUpdate();
 
       // edits in card-view
