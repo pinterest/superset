@@ -46,7 +46,9 @@ function confirmDelete() {
 
 function visitChartList() {
   interceptFiltering();
-  cy.visit(CHART_LIST);
+  cy.visit(
+    `${CHART_LIST}?sortColumn=changed_on_delta_humanized&sortOrder=desc`,
+  );
   cy.wait('@filtering');
 }
 
