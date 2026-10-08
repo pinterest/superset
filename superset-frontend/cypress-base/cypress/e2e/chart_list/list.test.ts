@@ -123,13 +123,14 @@ describe('Charts list', () => {
       cy.getBySel('sort-header').contains('Name').click();
       cy.wait('@filtering');
 
-      cy.getBySel('table-row').eq(0).contains('3 - Sample chart');
-      cy.getBySel('delete').eq(0).click();
+      cy.contains('[data-test="table-row"]', '3 - Sample chart')
+        .find('[data-test="delete"]')
+        .click();
       confirmDelete();
       cy.wait('@delete');
       cy.get('.loading').should('exist');
       cy.get('.loading').should('not.exist');
-      cy.getBySel('table-row').eq(0).should('not.contain', '3 - Sample chart');
+      cy.getBySel('table-row').should('not.contain', '3 - Sample chart');
     });
 
     it('should edit correctly', () => {
