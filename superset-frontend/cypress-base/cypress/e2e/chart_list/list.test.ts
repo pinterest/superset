@@ -120,8 +120,6 @@ describe('Charts list', () => {
       cy.createSampleCharts([2, 3]);
       visitChartList();
       interceptDelete();
-      cy.getBySel('sort-header').contains('Name').click();
-      cy.wait('@filtering');
 
       cy.contains('[data-test="table-row"]', '3 - Sample chart')
         .find('[data-test="delete"]')
