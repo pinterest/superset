@@ -48,19 +48,18 @@ function confirmDelete() {
 function visitChartList() {
   interceptFiltering();
   interceptFavoriteStatus();
-  cy.visit(CHART_LIST);
+  cy.visit(
+    `${CHART_LIST}?sortColumn=changed_on_delta_humanized&sortOrder=desc`,
+  );
   cy.wait('@filtering');
   cy.wait('@favoriteStatus');
 }
 
 describe('Charts list', () => {
   describe('common actions', () => {
-    beforeEach(() => {
-      visitChartList();
-    });
-
     it('should bulk delete correctly', () => {
       cy.createSampleCharts([0, 1, 2, 3]);
+      visitChartList();
 
       interceptBulkDelete();
       toggleBulkSelect();
@@ -100,6 +99,7 @@ describe('Charts list', () => {
 
     it('should delete correctly in card mode', () => {
       cy.createSampleCharts([0, 1]);
+      visitChartList();
       interceptDelete();
 
       // deletes in card-view
@@ -118,23 +118,22 @@ describe('Charts list', () => {
 
     it('should delete correctly in list mode', () => {
       cy.createSampleCharts([2, 3]);
+      visitChartList();
       interceptDelete();
-      cy.getBySel('sort-header').contains('Name').click();
 
-      // Modal closes immediately without this
-      cy.wait(2000);
-
-      cy.getBySel('table-row').eq(0).contains('3 - Sample chart');
-      cy.getBySel('delete').eq(0).click();
+      cy.contains('[data-test="table-row"]', '3 - Sample chart')
+        .find('[data-test="delete"]')
+        .click();
       confirmDelete();
       cy.wait('@delete');
       cy.get('.loading').should('exist');
       cy.get('.loading').should('not.exist');
-      cy.getBySel('table-row').eq(0).should('not.contain', '3 - Sample chart');
+      cy.getBySel('table-row').should('not.contain', '3 - Sample chart');
     });
 
     it('should edit correctly', () => {
       cy.createSampleCharts([0]);
+      visitChartList();
       interceptUpdate();
 
       // edits in card-view

@@ -543,12 +543,6 @@ CURRENCIES = ["USD", "EUR", "GBP", "INR", "MXN", "JPY", "CNY"]
 #   - deprecated: Will be removed in a future major release
 
 DEFAULT_FEATURE_FLAGS: dict[str, bool] = {
-    # [pinterest-specific]: Gate all dashboard governance UIs (tiering, promote, list
-    # filters).
-    "PINTEREST_DASHBOARD_GOVERNANCE_UI": False,
-    # [pinterest-specific]: Gate all chart governance UIs (verify, tiering,
-    # promote, list filters).
-    "PINTEREST_CHART_GOVERNANCE_UI": False,
     # [pinterest-specific]: Allows embedding by dashboard id or slug
     "PINTEREST_EMBEDDED_SUPERSET_BY_ID_OR_SLUG": False,
     # =================================================================

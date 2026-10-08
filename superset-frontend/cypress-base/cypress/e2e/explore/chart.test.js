@@ -97,7 +97,9 @@ describe('Cross-referenced dashboards', () => {
 
     cy.createSampleDashboards(SAMPLE_DASHBOARDS_INDEXES);
     cy.createSampleCharts([0]);
-    cy.visit(CHART_LIST);
+    cy.visit(
+      `${CHART_LIST}?sortColumn=changed_on_delta_humanized&sortOrder=desc`,
+    );
     cy.wait('@filtering');
   });
 

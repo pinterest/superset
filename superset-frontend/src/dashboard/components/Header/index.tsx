@@ -633,14 +633,7 @@ const Header = (): JSX.Element => {
   const isDashboardOwner = (dashboardInfo.owners || []).some(
     owner => owner.id === user?.userId,
   );
-  const governanceUiEnabled =
-    isFeatureEnabled(FeatureFlag.PinterestDashboardGovernanceUi) ||
-    isUserAdmin(user);
-
-  // Update to below after governanceUiEnabled feature flag removed
-  // const userCanEditTieringInfo = ((isDashboardOwner || isUserAdmin(user))
-  const userCanEditTieringInfo =
-    (isDashboardOwner || isUserAdmin(user)) && governanceUiEnabled;
+  const userCanEditTieringInfo = isDashboardOwner || isUserAdmin(user);
   const userCanPromoteTier1 = findPermission(
     'can_promote_tier_1',
     'DashboardGovernanceRestApi',
@@ -746,7 +739,7 @@ const Header = (): JSX.Element => {
           userCanSave={userCanSaveAs}
         />
       ),
-      !editMode && !isEmbedded && governanceUiEnabled && (
+      !editMode && !isEmbedded && (
         <PinterestTitlePanelAdditionalItems dashboardId={dashboardInfo.id} />
       ),
       !editMode && !isEmbedded && metadataBar,
@@ -762,7 +755,6 @@ const Header = (): JSX.Element => {
       userCanSaveAs,
       handlePauseToggle,
       forceRefresh,
-      governanceUiEnabled,
     ],
   );
 
@@ -917,7 +909,6 @@ const Header = (): JSX.Element => {
     userCanCurate,
     userCanExport,
     userCanEditTieringInfo,
-    showPromoteTier1: governanceUiEnabled,
     userCanPromoteTier1,
     userCanPushToDataHub,
     isLoading,
@@ -939,7 +930,7 @@ const Header = (): JSX.Element => {
       data-test-id={dashboardInfo.id}
       className="dashboard-header-container"
     >
-      {!editMode && !isEmbedded && governanceUiEnabled && (
+      {!editMode && !isEmbedded && (
         <PinterestDashboardBanners
           dashboardId={dashboardInfo.id}
           onEditTier={showPinterestTieringInfoModal}
@@ -956,7 +947,7 @@ const Header = (): JSX.Element => {
         titlePanelAdditionalItems={titlePanelAdditionalItems}
         rightPanelAdditionalItems={rightPanelAdditionalItems}
         headerSecondRow={
-          !editMode && !isEmbedded && governanceUiEnabled ? (
+          !editMode && !isEmbedded ? (
             <PinterestDashboardSecondRowTags dashboardId={dashboardInfo.id} />
           ) : null
         }

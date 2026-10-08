@@ -57,7 +57,6 @@ export const useHeaderActionsMenu = ({
   userCanExport,
   userCanEditTieringInfo,
   userCanPromoteTier1,
-  showPromoteTier1,
   userCanPushToDataHub,
   isLoading,
   lastModifiedTime,
@@ -308,13 +307,11 @@ export const useHeaderActionsMenu = ({
       });
     }
 
-    if (showPromoteTier1) {
-      menuItems.push({
-        key: MenuKeys.PinterestPromoteTier1,
-        label: t('Promote to Tier 1'),
-        disabled: !userCanPromoteTier1,
-      });
-    }
+    menuItems.push({
+      key: MenuKeys.PinterestPromoteTier1,
+      label: t('Promote to Tier 1'),
+      disabled: !userCanPromoteTier1,
+    });
 
     if (userCanPushToDataHub) {
       menuItems.push({
@@ -382,7 +379,6 @@ export const useHeaderActionsMenu = ({
     userCanEdit,
     userCanEditTieringInfo,
     userCanPromoteTier1,
-    showPromoteTier1,
     userCanPushToDataHub,
     userCanSave,
     userCanShare,

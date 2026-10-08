@@ -192,9 +192,6 @@ function ChartList(props: ChartListProps) {
   } = props;
 
   const history = useHistory();
-  const showGovernanceExtras = isFeatureEnabled(
-    FeatureFlag.PinterestChartGovernanceUi,
-  );
 
   const {
     state: {
@@ -269,9 +266,7 @@ function ChartList(props: ChartListProps) {
   const canEdit = hasPerm('can_write');
   const canDelete = hasPerm('can_write');
   const canExport = hasPerm('can_export');
-  const initialSort = showGovernanceExtras
-    ? [{ id: 'metric_grade', desc: false }]
-    : [{ id: 'changed_on_delta_humanized', desc: true }];
+  const initialSort = [{ id: 'metric_grade', desc: false }];
 
   const handleBulkChartExport = useCallback(
     async (chartsToExport: Chart[]) => {
@@ -386,7 +381,7 @@ function ChartList(props: ChartListProps) {
           } = original;
           const link = (
             <Link to={url} data-test={`${sliceName}-list-chart-title`}>
-              {showGovernanceExtras && getChartListTitleIndicators(original)}
+              {getChartListTitleIndicators(original)}
               {certifiedBy && (
                 <>
                   <CertifiedBadge
@@ -479,7 +474,7 @@ function ChartList(props: ChartListProps) {
         size: 'xl',
         id: 'dashboards',
       },
-      ...(showGovernanceExtras ? getChartListExtraListColumns() : []),
+      ...getChartListExtraListColumns(),
       {
         Cell: ({
           row: {
@@ -644,7 +639,6 @@ function ChartList(props: ChartListProps) {
       addDangerToast,
       handleBulkChartExport,
       openChartEditModal,
-      showGovernanceExtras,
     ],
   );
 
@@ -793,7 +787,7 @@ function ChartList(props: ChartListProps) {
         paginate: true,
         dropdownStyle: { minWidth: WIDER_DROPDOWN_WIDTH },
       },
-      ...(showGovernanceExtras ? getChartListSearchFilters() : []),
+      ...getChartListSearchFilters(),
     ] as ListViewFilters;
     return filtersList;
   }, [
@@ -803,10 +797,15 @@ function ChartList(props: ChartListProps) {
     fetchDashboards,
     props.user,
     userId,
-    showGovernanceExtras,
   ]);
 
   const sortTypes = [
+    {
+      desc: false,
+      id: 'metric_grade',
+      label: t('Metric grade'),
+      value: 'metric_grade',
+    },
     {
       desc: false,
       id: 'slice_name',

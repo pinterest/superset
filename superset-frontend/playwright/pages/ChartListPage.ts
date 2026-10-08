@@ -49,10 +49,13 @@ export class ChartListPage {
   /**
    * Navigate to the chart list page.
    * Forces table view via URL parameter to avoid card view default
-   * (ListviewsDefaultCardView feature flag may enable card view).
+   * (ListviewsDefaultCardView feature flag may enable card view), and uses a
+   * backend-supported sort so chart CRUD tests do not depend on list defaults.
    */
   async goto(): Promise<void> {
-    await this.page.goto(`${URL.CHART_LIST}?viewMode=table`);
+    await this.page.goto(
+      `${URL.CHART_LIST}?viewMode=table&sortColumn=changed_on_delta_humanized&sortOrder=desc`,
+    );
   }
 
   /**
