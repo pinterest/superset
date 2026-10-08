@@ -24,6 +24,7 @@ import {
   interceptUpdate,
   interceptDelete,
   interceptFiltering,
+  interceptFavoriteStatus,
 } from '../explore/utils';
 
 function orderAlphabetical() {
@@ -46,10 +47,12 @@ function confirmDelete() {
 
 function visitChartList() {
   interceptFiltering();
+  interceptFavoriteStatus();
   cy.visit(
     `${CHART_LIST}?sortColumn=changed_on_delta_humanized&sortOrder=desc`,
   );
   cy.wait('@filtering');
+  cy.wait('@favoriteStatus');
 }
 
 describe('Charts list', () => {
@@ -118,9 +121,7 @@ describe('Charts list', () => {
       visitChartList();
       interceptDelete();
       cy.getBySel('sort-header').contains('Name').click();
-
-      // Modal closes immediately without this
-      cy.wait(2000);
+      cy.wait('@filtering');
 
       cy.getBySel('table-row').eq(0).contains('3 - Sample chart');
       cy.getBySel('delete').eq(0).click();
