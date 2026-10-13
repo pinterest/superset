@@ -20,6 +20,7 @@ import {
   AnnotationStyle,
   AnnotationType,
   AnnotationSourceType,
+  ComparisonType,
   DataRecord,
   FormulaAnnotationLayer,
   IntervalAnnotationLayer,
@@ -497,4 +498,163 @@ test('should add a formula annotation when X-axis column has dataset-level label
   expect(formulaSeries?.data).toBeDefined();
   expect(Array.isArray(formulaSeries?.data)).toBe(true);
   expect((formulaSeries!.data as unknown[]).length).toBeGreaterThan(0);
+});
+
+test('should apply a dashed lineStyle to derived (time comparison) series only', () => {
+  const queryAData = createTestQueryData(
+    [
+      {
+        sum__num: 100,
+        'sum__num__1 week ago': 80,
+        ds: 599616000000,
+      },
+      {
+        sum__num: 150,
+        'sum__num__1 week ago': 120,
+        ds: 599916000000,
+      },
+    ],
+    {
+      label_map: {
+        ds: ['ds'],
+        sum__num: ['sum__num'],
+        'sum__num__1 week ago': ['sum__num__1 week ago'],
+      },
+    },
+  );
+
+  const chartProps = createEchartsTimeseriesTestChartProps<
+    EchartsMixedTimeseriesFormData,
+    EchartsMixedTimeseriesProps
+  >({
+    ...MIXED_TIMESERIES_CHART_PROPS_DEFAULTS,
+    defaultQueriesData: [queryAData, queriesData[1]],
+    formData: {
+      ...formData,
+      metrics: ['sum__num'],
+      groupby: [],
+      time_compare: ['1 week ago'],
+      comparison_type: ComparisonType.Values,
+      timeShiftColor: true,
+    },
+    queriesData: [queryAData, queriesData[1]],
+  });
+
+  const transformed = transformProps(chartProps);
+  const series = (transformed.echartOptions.series as SeriesOption[]) || [];
+
+  const mainSeries = series.find(s => s.name === 'sum__num') as
+    | (SeriesOption & { lineStyle?: { type?: number[] | string } })
+    | undefined;
+  const derivedSeries = series.find(s => s.name === 'sum__num__1 week ago') as
+    | (SeriesOption & { lineStyle?: { type?: number[] | string } })
+    | undefined;
+
+  expect(mainSeries).toBeDefined();
+  expect(derivedSeries).toBeDefined();
+  // The primary (non-derived) series should not receive a dash pattern
+  expect(mainSeries?.lineStyle?.type).toBeUndefined();
+  // The derived (time comparison) series should receive a dash pattern array
+  expect(Array.isArray(derivedSeries?.lineStyle?.type)).toBe(true);
+});
+
+test('should not apply a dashed lineStyle when comparison_type is not Values', () => {
+  const queryAData = createTestQueryData(
+    [
+      {
+        sum__num: 100,
+        'sum__num__1 week ago': 80,
+        ds: 599616000000,
+      },
+      {
+        sum__num: 150,
+        'sum__num__1 week ago': 120,
+        ds: 599916000000,
+      },
+    ],
+    {
+      label_map: {
+        ds: ['ds'],
+        sum__num: ['sum__num'],
+        'sum__num__1 week ago': ['sum__num__1 week ago'],
+      },
+    },
+  );
+
+  const chartProps = createEchartsTimeseriesTestChartProps<
+    EchartsMixedTimeseriesFormData,
+    EchartsMixedTimeseriesProps
+  >({
+    ...MIXED_TIMESERIES_CHART_PROPS_DEFAULTS,
+    defaultQueriesData: [queryAData, queriesData[1]],
+    formData: {
+      ...formData,
+      metrics: ['sum__num'],
+      groupby: [],
+      time_compare: ['1 week ago'],
+      comparison_type: ComparisonType.Difference,
+    },
+    queriesData: [queryAData, queriesData[1]],
+  });
+
+  const transformed = transformProps(chartProps);
+  const series = (transformed.echartOptions.series as SeriesOption[]) || [];
+
+  const derivedSeries = series.find(s => s.name === 'sum__num__1 week ago') as
+    | (SeriesOption & { lineStyle?: { type?: number[] | string } })
+    | undefined;
+
+  expect(derivedSeries).toBeDefined();
+  expect(derivedSeries?.lineStyle?.type).toBeUndefined();
+});
+
+test('should not apply a dashed lineStyle when timeShiftColor is disabled', () => {
+  const queryAData = createTestQueryData(
+    [
+      {
+        sum__num: 100,
+        'sum__num__1 week ago': 80,
+        ds: 599616000000,
+      },
+      {
+        sum__num: 150,
+        'sum__num__1 week ago': 120,
+        ds: 599916000000,
+      },
+    ],
+    {
+      label_map: {
+        ds: ['ds'],
+        sum__num: ['sum__num'],
+        'sum__num__1 week ago': ['sum__num__1 week ago'],
+      },
+    },
+  );
+
+  const chartProps = createEchartsTimeseriesTestChartProps<
+    EchartsMixedTimeseriesFormData,
+    EchartsMixedTimeseriesProps
+  >({
+    ...MIXED_TIMESERIES_CHART_PROPS_DEFAULTS,
+    defaultQueriesData: [queryAData, queriesData[1]],
+    formData: {
+      ...formData,
+      metrics: ['sum__num'],
+      groupby: [],
+      time_compare: ['1 week ago'],
+      comparison_type: ComparisonType.Values,
+      timeShiftColor: false,
+    },
+    queriesData: [queryAData, queriesData[1]],
+  });
+
+  const transformed = transformProps(chartProps);
+  const series = (transformed.echartOptions.series as SeriesOption[]) || [];
+
+  const derivedSeries = series.find(s => s.name === 'sum__num__1 week ago') as
+    | (SeriesOption & { lineStyle?: { type?: number[] | string } })
+    | undefined;
+
+  expect(derivedSeries).toBeDefined();
+  expect(derivedSeries?.lineStyle?.type).toBeUndefined();
 });
