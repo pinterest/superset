@@ -433,13 +433,23 @@ export default function transformProps(
     const seriesName = inverted[entryName] || entryName;
     const colorScaleKey = getOriginalSeries(seriesName, array);
 
+    const labelMapValues = labelMap?.[seriesName];
+
     let displayName: string;
 
     if (groupby.length > 0) {
-      // When we have groupby, format as "metric, dimension"
+      // When we have groupby, format as "metric, dimension". Each series
+      // belongs to the metric recorded in its label-map tuple
+      // ([metric, ...dimensions]) — always using the first metric would
+      // prepend it to every other metric's series (#37921). Tuples without
+      // a metric part fall back to the first metric as before.
+      const metricDisplayName =
+        labelMapValues && labelMapValues.length > 1
+          ? getMetricDisplayName(labelMapValues[0], verboseMap)
+          : MetricDisplayNameA;
       const metricPart: string = showQueryIdentifiers
-        ? `${MetricDisplayNameA} (Query A)`
-        : MetricDisplayNameA;
+        ? `${metricDisplayName} (Query A)`
+        : metricDisplayName;
       displayName = entryName.includes(metricPart)
         ? entryName
         : `${metricPart}, ${entryName}`;
@@ -506,13 +516,23 @@ export default function transformProps(
     const seriesName = `${seriesEntry} (1)`;
     const colorScaleKey = getOriginalSeries(seriesEntry, array);
 
+    const labelMapValuesB = labelMapB?.[seriesName];
+
     let displayName: string;
 
     if (groupbyB.length > 0) {
-      // When we have groupby, format as "metric, dimension"
+      // When we have groupby, format as "metric, dimension". Each series
+      // belongs to the metric recorded in its label-map tuple
+      // ([metric, ...dimensions]) — always using the first metric would
+      // prepend it to every other metric's series (#37921). Tuples without
+      // a metric part fall back to the first metric as before.
+      const metricDisplayName =
+        labelMapValuesB && labelMapValuesB.length > 1
+          ? getMetricDisplayName(labelMapValuesB[0], verboseMap)
+          : MetricDisplayNameB;
       const metricPart: string = showQueryIdentifiers
-        ? `${MetricDisplayNameB} (Query B)`
-        : MetricDisplayNameB;
+        ? `${metricDisplayName} (Query B)`
+        : metricDisplayName;
       displayName = entryName.includes(metricPart)
         ? entryName
         : `${metricPart}, ${entryName}`;
