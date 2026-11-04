@@ -1443,6 +1443,35 @@ class UpdateChartPreviewRequest(FormDataCacheControl):
         return _coerce_config_to_dict(v)
 
 
+class SaveChartRequest(BaseModel):
+    """Request to save a previewed chart exactly as it was previewed."""
+
+    form_data_key: str = Field(
+        ...,
+        min_length=1,
+        description=(
+            "form_data_key of the approved preview, as returned by generate_chart "
+            "(save_chart=False) or update_chart_preview"
+        ),
+    )
+    chart_name: str | None = Field(
+        default=None,
+        max_length=250,
+        description=(
+            "Name for the saved chart. Defaults to the preview's chart name, if any."
+        ),
+    )
+
+
+class SaveChartResponse(BaseModel):
+    """Result of saving a previewed chart."""
+
+    chart: ChartInfo | None = Field(None, description="The saved chart")
+    chart_url: str | None = Field(None, description="Explore URL of the saved chart")
+    error: str | None = Field(None, description="Error message, if saving failed")
+    success: bool = Field(False, description="Whether the chart was saved")
+
+
 class GetChartDataRequest(QueryCacheControl):
     """Request for chart data with cache control.
 
@@ -1488,6 +1517,24 @@ class GetChartDataRequest(QueryCacheControl):
             "chart's configured row limit."
         ),
     )
+    offset: int | None = Field(
+        default=None,
+        ge=0,
+        description=(
+            "Number of rows to skip, for paging through results with limit. "
+            "Check pagination.has_more and advance offset by limit for the next "
+            "page."
+        ),
+    )
+    time_range: str | None = Field(
+        default=None,
+        description=(
+            "Time range to query instead of the chart's own, in Superset syntax "
+            "(e.g. 'Last week', 'Last 90 days', '2024-01-01 : 2024-03-31'). "
+            "Requires a chart with a time range filter. Omit to use the chart's "
+            "time range."
+        ),
+    )
     extra_form_data: dict[str, Any] | None = Field(
         default=None,
         description=(
@@ -1518,6 +1565,18 @@ class DataColumn(BaseModel):
     )
 
 
+class ChartDataPagination(BaseModel):
+    """Position of the returned rows within the chart's results."""
+
+    offset: int = Field(description="Rows skipped before the returned rows")
+    limit: int | None = Field(description="Requested page size")
+    returned: int = Field(description="Rows returned in this page")
+    has_more: bool = Field(
+        description="True when a full page was returned; request the next page "
+        "with offset + limit to continue"
+    )
+
+
 class ChartData(BaseModel):
     """Rich chart data response with statistical insights."""
 
@@ -1533,6 +1592,9 @@ class ChartData(BaseModel):
     # Data insights
     row_count: int = Field(description="Rows returned")
     total_rows: int | None = Field(description="Total available rows")
+    pagination: ChartDataPagination | None = Field(
+        None, description="Paging details, when limit or offset was requested"
+    )
     data_freshness: datetime | None = Field(description="When data was last updated")
 
     # LLM-friendly summaries
@@ -1623,6 +1685,18 @@ class GetChartPreviewRequest(QueryCacheControl):
     )
     ascii_height: int | None = Field(
         default=20, description="ASCII chart height in lines (for ascii format)"
+    )
+
+
+class GetChartScreenshotRequest(BaseModel):
+    """Request for a PNG screenshot of a saved chart."""
+
+    identifier: int | str = Field(..., description="Chart identifier (ID, UUID)")
+    width: int = Field(
+        default=800, ge=100, le=4000, description="Screenshot width in pixels"
+    )
+    height: int = Field(
+        default=600, ge=100, le=4000, description="Screenshot height in pixels"
     )
 
 

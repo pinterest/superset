@@ -49,6 +49,37 @@ MCP_DEBUG = False
 # against the FAB security_manager before execution.
 MCP_RBAC_ENABLED = True
 
+# MCP Required Permission - optional ``(permission, view_menu)`` pair that every
+# MCP tool requires in addition to its own RBAC permission, e.g.
+# ("can_access", "MCP") to limit the server to roles granted that permission.
+# Applies only when MCP_RBAC_ENABLED is True.
+MCP_REQUIRED_PERMISSION: tuple[str, str] | None = None
+
+# MCP User Resolver - optional callable ``(app) -> username | None`` that
+# identifies the user for each tool call, e.g. from a header set by a trusted
+# reverse proxy that has already authenticated the request. When set it is
+# authoritative: a None result denies the request and MCP_DEV_USERNAME is not
+# used as a fallback.
+MCP_USER_RESOLVER = None
+
+# MCP Disabled Tools - names of registered tools to remove at server startup,
+# so they are neither listed nor callable. Unknown names fail startup.
+MCP_DISABLED_TOOLS: set[str] = set()
+
+# MCP Instructions - optional replacement for the default server instructions
+# sent to MCP clients. Set it when the deployment changes the available tools
+# (e.g. via MCP_DISABLED_TOOLS) so the instructions only describe tools that
+# exist.
+MCP_INSTRUCTIONS: str | None = None
+
+# MCP Chart Save Requires Preview - when True, generate_chart refuses
+# save_chart=True, so charts can only be saved with save_chart from a preview's
+# form_data_key, i.e. after the user has reviewed exactly what will be saved.
+MCP_CHART_SAVE_REQUIRES_PREVIEW = False
+
+# MCP Chart Screenshot Max Bytes - largest PNG get_chart_screenshot returns.
+MCP_CHART_SCREENSHOT_MAX_BYTES = 20_000_000
+
 # MCP JWT Debug Errors - controls server-side JWT debug logging.
 # When False (default), uses the default JWTVerifier with minimal logging.
 # When True, uses DetailedJWTVerifier with tiered logging:
@@ -225,6 +256,8 @@ MCP_RESPONSE_SIZE_CONFIG: Dict[str, Any] = {
     "excluded_tools": [  # Tools to skip size checking
         "health_check",  # Always small
         "get_chart_preview",  # Returns URLs, not data
+        # Image content; size capped by MCP_CHART_SCREENSHOT_MAX_BYTES instead
+        "get_chart_screenshot",
         "generate_explore_link",  # Returns URLs
         "open_sql_lab_with_context",  # Returns URLs
         "search_tools",  # Returns tool schemas for discovery (intentionally large)

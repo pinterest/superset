@@ -175,6 +175,16 @@ class ChartErrorBuilder:
             ],
         },
         # Chart generation errors
+        "save_requires_preview": {
+            "message": "Charts must be previewed before they are saved",
+            "details": "This server does not save charts directly from generate_chart.",
+            "suggestions": [
+                "Call generate_chart with save_chart=false and show the user the "
+                "returned explore URL",
+                "After the user approves the preview, call save_chart with its "
+                "form_data_key",
+            ],
+        },
         "generation_failed": {
             "message": "Chart generation failed: {reason}",
             "details": "Failed to create {chart_type} chart for dataset {dataset_id}. "

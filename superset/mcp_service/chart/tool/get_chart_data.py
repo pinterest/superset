@@ -35,6 +35,10 @@ from superset.commands.explore.form_data.parameters import CommandParameters
 from superset.exceptions import OAuth2Error, OAuth2RedirectError, SupersetException
 from superset.extensions import event_logger
 from superset.mcp_service.chart.chart_utils import validate_chart_dataset
+from superset.mcp_service.chart.query_overrides import (
+    apply_query_overrides,
+    build_pagination,
+)
 from superset.mcp_service.chart.schemas import (
     ChartData,
     ChartError,
@@ -326,6 +330,9 @@ async def get_chart_data(  # noqa: C901
                 cached_adhoc = cached_form_data_dict.get("adhoc_filters")
                 if cached_adhoc:
                     cached_query["adhoc_filters"] = cached_adhoc
+                apply_query_overrides(
+                    cached_query, request.limit, request.offset, request.time_range
+                )
 
                 query_context = factory.create(
                     datasource={
@@ -529,6 +536,9 @@ async def get_chart_data(  # noqa: C901
                 fallback_adhoc = form_data.get("adhoc_filters")
                 if fallback_adhoc:
                     fallback_query["adhoc_filters"] = fallback_adhoc
+                apply_query_overrides(
+                    fallback_query, request.limit, request.offset, request.time_range
+                )
 
                 query_context = factory.create(
                     datasource={
@@ -543,10 +553,11 @@ async def get_chart_data(  # noqa: C901
                 # Apply request overrides to the saved query_context
                 query_context_json["force"] = request.force_refresh
 
-                # Apply row limit if specified (respects chart's configured limits)
-                if request.limit:
-                    for query in query_context_json.get("queries", []):
-                        query["row_limit"] = request.limit
+                # Apply request paging and time range to each saved query
+                for query in query_context_json.get("queries", []):
+                    apply_query_overrides(
+                        query, request.limit, request.offset, request.time_range
+                    )
 
                 # Merge dashboard native filters into query_context's form_data
                 qc_form_data = query_context_json.setdefault("form_data", {})
@@ -777,6 +788,7 @@ async def get_chart_data(  # noqa: C901
                 data=data[: request.limit] if request.limit else data,
                 row_count=len(data),
                 total_rows=query_result.get("rowcount"),
+                pagination=build_pagination(request.limit, request.offset, len(data)),
                 summary=summary,
                 insights=insights,
                 data_quality={"completeness": data_completeness},
@@ -876,17 +888,18 @@ async def _query_from_form_data(
 
     try:
         factory = QueryContextFactory()
+        query: dict[str, Any] = {
+            "filters": form_data.get("filters", []),
+            "columns": groupby,
+            "metrics": metrics,
+            "row_limit": row_limit,
+            "order_desc": form_data.get("order_desc", True),
+            "adhoc_filters": form_data.get("adhoc_filters") or [],
+        }
+        apply_query_overrides(query, request.limit, request.offset, request.time_range)
         query_context = factory.create(
             datasource={"id": datasource_id, "type": datasource_type},
-            queries=[
-                {
-                    "filters": form_data.get("filters", []),
-                    "columns": groupby,
-                    "metrics": metrics,
-                    "row_limit": row_limit,
-                    "order_desc": form_data.get("order_desc", True),
-                }
-            ],
+            queries=[query],
             form_data=form_data,
             force=request.force_refresh,
         )
@@ -953,6 +966,7 @@ async def _query_from_form_data(
             data=data[: request.limit] if request.limit else data,
             row_count=len(data),
             total_rows=query_result.get("rowcount"),
+            pagination=build_pagination(request.limit, request.offset, len(data)),
             summary=summary,
             insights=["This is an unsaved chart queried from cached form_data."],
             data_quality={

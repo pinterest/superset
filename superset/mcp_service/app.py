@@ -61,6 +61,7 @@ Database Connections:
 Dataset Management:
 - list_datasets: List datasets with advanced filters (1-based pagination)
 - get_dataset_info: Get detailed dataset information by ID (includes columns/metrics)
+- create_dataset: Register a physical table as a dataset against an existing DB connection (requires write access)
 - create_virtual_dataset: Save a SQL query as a virtual dataset for charting
 
 Chart Management:
@@ -68,7 +69,9 @@ Chart Management:
 - get_chart_info: Get detailed chart information by ID
 - get_chart_preview: Get a visual preview of a chart with image URL
 - get_chart_data: Get underlying chart data in text-friendly format
+- get_chart_screenshot: Get a PNG screenshot of a saved chart
 - generate_chart: Create and save a new chart permanently
+- save_chart: Save a previewed chart exactly as previewed (by form_data_key)
 - generate_explore_link: Create an interactive explore URL (preferred for exploration)
 - update_chart: Update existing saved chart configuration
 - update_chart_preview: Update cached chart preview without saving
@@ -418,9 +421,9 @@ def create_mcp_app(
 # Create default MCP instance for backward compatibility
 mcp = create_mcp_app()
 
-# Initialize MCP dependency injection BEFORE importing tools/prompts
-# This replaces the abstract @tool and @prompt decorators in superset_core.api.mcp
-# with concrete implementations that can register with the mcp instance
+# Initialize MCP dependency injection BEFORE importing tools/prompts.
+# Replaces the stub @tool/@prompt decorators in superset_core.mcp.decorators
+# with concrete implementations bound to this mcp instance.
 from superset.core.mcp.core_mcp_injection import (  # noqa: E402
     initialize_core_mcp_dependencies,
 )
@@ -445,6 +448,7 @@ warnings.filterwarnings(
     module=r"google\..*",
 )
 
+
 # Import all MCP tools to register them with the mcp instance
 # NOTE: Always add new tool imports here when creating new MCP tools.
 # Tools use the @tool decorator from `superset-core` and register automatically
@@ -461,8 +465,10 @@ from superset.mcp_service.chart.tool import (  # noqa: F401, E402
     get_chart_data,
     get_chart_info,
     get_chart_preview,
+    get_chart_screenshot,
     get_chart_type_schema,
     list_charts,
+    save_chart,
     update_chart,
     update_chart_preview,
 )
@@ -477,6 +483,7 @@ from superset.mcp_service.database.tool import (  # noqa: F401, E402
     list_databases,
 )
 from superset.mcp_service.dataset.tool import (  # noqa: F401, E402
+    create_dataset,
     create_virtual_dataset,
     get_dataset_info,
     list_datasets,
@@ -528,8 +535,9 @@ def init_fastmcp_server(
     Returns:
         The global FastMCP instance configured with the provided settings
     """
-    # Read branding from Flask config's APP_NAME
-    from superset.mcp_service.flask_singleton import app as flask_app
+    # circular import: flask_singleton imports from superset.extensions which
+    # re-enters mcp_service during startup; must stay lazy inside the function.
+    from superset.mcp_service.flask_singleton import app as flask_app  # noqa: PLC0415
 
     # Derive branding from Superset's APP_NAME config (defaults to "Superset")
     app_name = flask_app.config.get("APP_NAME", "Superset")
@@ -540,7 +548,9 @@ def init_fastmcp_server(
     if name is None:
         name = default_name
     if instructions is None:
-        instructions = get_default_instructions(branding)
+        instructions = flask_app.config.get(
+            "MCP_INSTRUCTIONS"
+        ) or get_default_instructions(branding)
 
     # Configure the global mcp instance with provided settings.
     # Tools are already registered on this instance via @tool decorator imports above.
@@ -565,6 +575,13 @@ def init_fastmcp_server(
 
     if exclude_tags is not None:
         mcp.exclude_tags = exclude_tags
+
+    # Remove tools named in MCP_DISABLED_TOOLS so they are neither listed nor
+    # callable. An unknown name raises KeyError, so a typo fails startup
+    # instead of silently leaving the tool enabled.
+    for tool_name in sorted(flask_app.config.get("MCP_DISABLED_TOOLS", set())):
+        mcp.local_provider.remove_tool(tool_name)
+        logger.info("Disabled MCP tool via MCP_DISABLED_TOOLS: %s", tool_name)
 
     # Apply any additional configuration
     _apply_config(mcp, config)
