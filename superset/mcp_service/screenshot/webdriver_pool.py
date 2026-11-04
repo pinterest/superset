@@ -48,6 +48,26 @@ def _timeout_handler(signum: int, frame: Any) -> None:
     raise WebDriverCreationError("WebDriver creation timed out")
 
 
+@contextmanager
+def _creation_timeout(seconds: int) -> Generator[None, None, None]:
+    """Raise WebDriverCreationError if the block runs longer than *seconds*.
+
+    SIGALRM handlers can only be installed from the main thread, so in a worker
+    thread (e.g. a sync MCP tool) this relies on Selenium's own startup
+    timeouts instead.
+    """
+    if threading.current_thread() is not threading.main_thread():
+        yield
+        return
+    old_handler = signal.signal(signal.SIGALRM, _timeout_handler)
+    signal.alarm(seconds)
+    try:
+        yield
+    finally:
+        signal.alarm(0)
+        signal.signal(signal.SIGALRM, old_handler)
+
+
 @dataclass
 class PooledWebDriver:
     """Wrapper for pooled WebDriver instance with metadata"""
@@ -120,22 +140,14 @@ class WebDriverPool:
     ) -> PooledWebDriver:
         """Create a new WebDriver instance with timeout protection"""
         driver = None
-        old_handler = None
 
         try:
             # SECURITY FIX: Set up timeout protection for driver creation
-            old_handler = signal.signal(signal.SIGALRM, _timeout_handler)
-            signal.alarm(self.creation_timeout_seconds)
-
-            driver_type = current_app.config.get("WEBDRIVER_TYPE", "firefox")
-            selenium_driver = WebDriverSelenium(driver_type, window_size)
-
-            # Create the actual WebDriver with timeout protection
-            driver = selenium_driver.create()
-            driver.set_window_size(*window_size)
-
-            # Clear the alarm - creation successful
-            signal.alarm(0)
+            with _creation_timeout(self.creation_timeout_seconds):
+                driver_type = current_app.config.get("WEBDRIVER_TYPE", "firefox")
+                selenium_driver = WebDriverSelenium(driver_type, window_size)
+                driver = selenium_driver.create()
+                driver.set_window_size(*window_size)
 
             pooled_driver = PooledWebDriver(
                 driver=driver,
@@ -173,12 +185,6 @@ class WebDriverPool:
                 except Exception:
                     logger.debug("Failed to cleanup driver during error")
             raise
-
-        finally:
-            # Restore original signal handler and clear alarm
-            signal.alarm(0)
-            if old_handler is not None:
-                signal.signal(signal.SIGALRM, old_handler)
 
     def _is_driver_valid(self, pooled_driver: PooledWebDriver) -> bool:
         """Check if a pooled driver is still valid for use"""

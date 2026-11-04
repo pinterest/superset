@@ -81,6 +81,11 @@ def check_tool_permission(func: Callable[..., Any]) -> bool:
     Controlled by the ``MCP_RBAC_ENABLED`` config flag (default True).
     Set to False in superset_config.py to disable RBAC checking.
 
+    When ``MCP_REQUIRED_PERMISSION`` is set to a ``(permission, view_menu)``
+    pair, every tool additionally requires it, including tools without their
+    own RBAC metadata. A user without it gets an ``MCPPermissionDeniedError``
+    naming that permission.
+
     Args:
         func: The tool function with optional permission attributes.
 
@@ -100,6 +105,22 @@ def check_tool_permission(func: Callable[..., Any]) -> bool:
                 "No user context for permission check on tool: %s", func.__name__
             )
             return False
+
+        if required := current_app.config.get("MCP_REQUIRED_PERMISSION"):
+            if not security_manager.can_access(*required):
+                logger.warning(
+                    "Permission denied for user %s: %s on %s required for all "
+                    "MCP tools (tool: %s)",
+                    g.user.username,
+                    *required,
+                    func.__name__,
+                )
+                raise MCPPermissionDeniedError(
+                    permission_name=required[0],
+                    view_name=required[1],
+                    user=g.user.username,
+                    tool_name=func.__name__,
+                )
 
         class_permission_name = getattr(func, CLASS_PERMISSION_ATTR, None)
         if not class_permission_name:
@@ -179,7 +200,9 @@ def get_user_from_request() -> User:
 
     Priority order:
     1. g.user if already set (by Preset workspace middleware)
-    2. MCP_DEV_USERNAME from configuration (for development/testing)
+    2. MCP_USER_RESOLVER from configuration, if set. It is authoritative:
+       when it returns no username the request is denied, with no fallback.
+    3. MCP_DEV_USERNAME from configuration (for development/testing)
 
     Returns:
         User object with roles and groups eagerly loaded
@@ -192,6 +215,15 @@ def get_user_from_request() -> User:
     # First check if user is already set by Preset workspace middleware
     if hasattr(g, "user") and g.user:
         return g.user
+
+    if user_resolver := current_app.config.get("MCP_USER_RESOLVER"):
+        username = user_resolver(current_app)
+        if not username:
+            raise ValueError("No authenticated user found: MCP_USER_RESOLVER")
+        user = load_user_with_relationships(username)
+        if not user:
+            raise ValueError(f"User '{username}' not found.")
+        return user
 
     # Fall back to configured username for development/single-user deployments
     username = current_app.config.get("MCP_DEV_USERNAME")
@@ -351,6 +383,9 @@ def _setup_user_context() -> User | None:
             raise
 
     g.user = user
+    # Mark the app context as an MCP tool call so security managers, ORM
+    # listeners, and other hooks can apply MCP-specific policy.
+    g.mcp_request = True
     return user
 
 

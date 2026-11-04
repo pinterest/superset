@@ -69,7 +69,9 @@ Chart Management:
 - get_chart_info: Get detailed chart information by ID
 - get_chart_preview: Get a visual preview of a chart with image URL
 - get_chart_data: Get underlying chart data in text-friendly format
+- get_chart_screenshot: Get a PNG screenshot of a saved chart
 - generate_chart: Create and save a new chart permanently
+- save_chart: Save a previewed chart exactly as previewed (by form_data_key)
 - generate_explore_link: Create an interactive explore URL (preferred for exploration)
 - update_chart: Update existing saved chart configuration
 - update_chart_preview: Update cached chart preview without saving
@@ -463,8 +465,10 @@ from superset.mcp_service.chart.tool import (  # noqa: F401, E402
     get_chart_data,
     get_chart_info,
     get_chart_preview,
+    get_chart_screenshot,
     get_chart_type_schema,
     list_charts,
+    save_chart,
     update_chart,
     update_chart_preview,
 )
@@ -544,7 +548,9 @@ def init_fastmcp_server(
     if name is None:
         name = default_name
     if instructions is None:
-        instructions = get_default_instructions(branding)
+        instructions = flask_app.config.get(
+            "MCP_INSTRUCTIONS"
+        ) or get_default_instructions(branding)
 
     # Configure the global mcp instance with provided settings.
     # Tools are already registered on this instance via @tool decorator imports above.
@@ -569,6 +575,13 @@ def init_fastmcp_server(
 
     if exclude_tags is not None:
         mcp.exclude_tags = exclude_tags
+
+    # Remove tools named in MCP_DISABLED_TOOLS so they are neither listed nor
+    # callable. An unknown name raises KeyError, so a typo fails startup
+    # instead of silently leaving the tool enabled.
+    for tool_name in sorted(flask_app.config.get("MCP_DISABLED_TOOLS", set())):
+        mcp.local_provider.remove_tool(tool_name)
+        logger.info("Disabled MCP tool via MCP_DISABLED_TOOLS: %s", tool_name)
 
     # Apply any additional configuration
     _apply_config(mcp, config)

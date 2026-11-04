@@ -172,6 +172,10 @@ class ValidationPipeline:
             if request is None:
                 return ValidationResult(is_valid=False, error=error)
 
+            # Deployment policy: saving may require a reviewed preview
+            if error := ValidationPipeline._validate_save_policy(request):
+                return ValidationResult(is_valid=False, request=request, error=error)
+
             # Parse the raw config dict into a typed ChartConfig for
             # downstream validators that need typed access.
             typed_config = parse_chart_config(request.config)
@@ -220,6 +224,26 @@ class ValidationPipeline:
                 error_code="VALIDATION_PIPELINE_ERROR",
             )
             return ValidationResult(is_valid=False, error=error)
+
+    @staticmethod
+    def _validate_save_policy(
+        request: GenerateChartRequest,
+    ) -> ChartGenerationError | None:
+        """Reject direct saves when MCP_CHART_SAVE_REQUIRES_PREVIEW is set."""
+        from flask import current_app
+
+        if not request.save_chart or not current_app.config.get(
+            "MCP_CHART_SAVE_REQUIRES_PREVIEW", False
+        ):
+            return None
+
+        from superset.mcp_service.utils.error_builder import ChartErrorBuilder
+
+        return ChartErrorBuilder.build_error(
+            error_type="save_requires_preview",
+            template_key="save_requires_preview",
+            error_code="SAVE_REQUIRES_PREVIEW",
+        )
 
     @staticmethod
     def _get_dataset_context(
