@@ -681,13 +681,13 @@ test('delta table tooltip shows values for every series when groupby renames ser
       ...formData,
       x_axis: 'ds',
       xAxis: 'ds',
-      metrics: [{ label: 'Value' }, { label: "Last year's value" }],
-      metricsB: [{ label: 'Y/Y' }],
+      metrics: ['Value', "Last year's value"],
+      metricsB: ['Y/Y'],
       groupby: ['region'],
       groupbyB: ['region'],
       richTooltip: true,
       pinterestDeltaTable: true,
-    } as EchartsMixedTimeseriesFormData,
+    },
     queriesData: queriesDataWithGroupby,
   });
   const { echartOptions } = transformProps(chartProps);
@@ -738,13 +738,13 @@ test('delta table tooltip handles Query B dates and columns missing from Query A
       ...formData,
       x_axis: 'ds',
       xAxis: 'ds',
-      metrics: [{ label: 'Value' }],
-      metricsB: [{ label: 'Y/Y' }],
+      metrics: ['Value'],
+      metricsB: ['Y/Y'],
       groupby: ['region'],
       groupbyB: ['region'],
       richTooltip: true,
       pinterestDeltaTable: true,
-    } as EchartsMixedTimeseriesFormData,
+    },
     queriesData: queriesDataWithGaps,
   });
   const { echartOptions } = transformProps(chartProps);
