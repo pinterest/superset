@@ -75,6 +75,8 @@ class DeltaTableTooltipFormatter {
 
   dataByTimestamp: Record<number, TimeseriesDataRecord>;
 
+  dataKeys: Set<string>;
+
   deltaTableColumns: DeltaTableColumn[];
 
   columnNameByVerboseName: Record<string, string>;
@@ -86,7 +88,6 @@ class DeltaTableTooltipFormatter {
   constructor(
     chartProps: EchartsTimeseriesChartProps | EchartsMixedTimeseriesProps,
     getFocusedSeries: () => string | null,
-    seriesAKeys?: Set<string>,
   ) {
     this.getFocusedSeries = getFocusedSeries;
     const { datasource, queriesData, theme } = chartProps;
@@ -104,6 +105,8 @@ class DeltaTableTooltipFormatter {
       verboseMap[xAxisOrig] || getColumnLabel(xAxisOrig || DTTM_ALIAS);
 
     this.dataByTimestamp = {} as Record<number, TimeseriesDataRecord>;
+    this.dataKeys = new Set<string>();
+    const queryAKeys = new Set<string>();
     queriesData.forEach((queryData, queryIdx) => {
       const { data = [] } = queryData as TimeseriesChartDataResponseResult;
       this.dataByTimestamp = data.reduce((accum, curr) => {
@@ -111,13 +114,22 @@ class DeltaTableTooltipFormatter {
         if (queryIdx === 0) {
           // eslint-disable-next-line no-param-reassign
           accum[timestamp] = { ...curr };
+          Object.keys(curr).forEach(key => queryAKeys.add(key));
+          Object.keys(curr)
+            .filter(key => key !== xAxisColName)
+            .forEach(key => this.dataKeys.add(key));
         } else {
-          Object.entries(curr).forEach(([key, value]) => {
-            const currKey = seriesAKeys?.has(key)
-              ? `${key} (${queryIdx})`
-              : key;
+          if (!accum[timestamp]) {
             // eslint-disable-next-line no-param-reassign
-            accum[timestamp][currKey] = curr[key];
+            accum[timestamp] = {};
+          }
+          Object.entries(curr).forEach(([key, value]) => {
+            const currKey = queryAKeys.has(key) ? `${key} (${queryIdx})` : key;
+            // eslint-disable-next-line no-param-reassign
+            accum[timestamp][currKey] = value;
+            if (key !== xAxisColName) {
+              this.dataKeys.add(currKey);
+            }
           });
         }
         return accum;
@@ -164,13 +176,13 @@ class DeltaTableTooltipFormatter {
     return style;
   }
 
-  getDataColumn = (seriesName: string) => {
-    const sampleChartData = Object.values(this.dataByTimestamp)[0];
-    if (!(seriesName in sampleChartData)) {
-      return this.columnNameByVerboseName[seriesName];
-    }
-    return seriesName;
-  };
+  getDataColumn = (seriesName: string) =>
+    this.dataKeys.has(seriesName)
+      ? seriesName
+      : ([...this.dataKeys]
+          .sort((a, b) => b.length - a.length)
+          .find(key => seriesName.endsWith(`, ${key}`)) ??
+        this.columnNameByVerboseName[seriesName]);
 
   getDataPercentChange(
     columnName: string,
@@ -346,12 +358,10 @@ class DeltaTableTooltipFormatter {
 export const getDeltaTableTooltipFormatter = (
   chartProps: EchartsTimeseriesChartProps | EchartsMixedTimeseriesProps,
   getFocusedSeries: () => string | null,
-  seriesAKeys?: Set<string>,
 ) => {
   const tooltipFormatter = new DeltaTableTooltipFormatter(
     chartProps,
     getFocusedSeries,
-    seriesAKeys,
   );
   return tooltipFormatter.getTooltipFormatter();
 };
