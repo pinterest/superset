@@ -121,7 +121,7 @@ class DeltaTableTooltipFormatter {
         } else {
           if (!accum[timestamp]) {
             // eslint-disable-next-line no-param-reassign
-            accum[timestamp] = {};
+            accum[timestamp] = { __timestamp: timestamp };
           }
           Object.entries(curr).forEach(([key, value]) => {
             const currKey = queryAKeys.has(key) ? `${key} (${queryIdx})` : key;
