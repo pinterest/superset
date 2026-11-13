@@ -658,3 +658,107 @@ test('should not apply a dashed lineStyle when timeShiftColor is disabled', () =
   expect(derivedSeries).toBeDefined();
   expect(derivedSeries?.lineStyle?.type).toBeUndefined();
 });
+
+test('delta table tooltip shows values for every series when groupby renames series ids', () => {
+  const timestamp = Date.UTC(2026, 3, 29);
+  const queriesDataWithGroupby = [
+    createTestQueryData([
+      {
+        ds: timestamp,
+        'Value, UCAN': 0.268,
+        "Last year's value, UCAN": 0.303,
+      },
+    ]),
+    createTestQueryData([{ ds: timestamp, UCAN: -11.4 }]),
+  ];
+  const chartProps = createEchartsTimeseriesTestChartProps<
+    EchartsMixedTimeseriesFormData,
+    EchartsMixedTimeseriesProps
+  >({
+    ...MIXED_TIMESERIES_CHART_PROPS_DEFAULTS,
+    defaultQueriesData: queriesDataWithGroupby,
+    formData: {
+      ...formData,
+      x_axis: 'ds',
+      xAxis: 'ds',
+      metrics: ['Value', "Last year's value"],
+      metricsB: ['Y/Y'],
+      groupby: ['region'],
+      groupbyB: ['region'],
+      richTooltip: true,
+      pinterestDeltaTable: true,
+    },
+    queriesData: queriesDataWithGroupby,
+  });
+  const { echartOptions } = transformProps(chartProps);
+  const series = echartOptions.series as SeriesOption[];
+  expect(series.map(s => s.id)).toEqual([
+    'Value, UCAN',
+    "Value, Last year's value, UCAN",
+    'Y/Y, UCAN',
+  ]);
+
+  const { formatter } = echartOptions.tooltip as { formatter: Function };
+  const html: string = formatter(
+    series.map(s => ({
+      seriesId: s.id,
+      value: [timestamp, 0],
+      marker: '',
+    })),
+  );
+
+  expect(html).toContain('0.268');
+  expect(html).toContain('0.303');
+  expect(html).toContain('-11.4');
+  expect(html).not.toContain('>null<');
+});
+
+test('delta table tooltip handles Query B dates and columns missing from Query A', () => {
+  const day = 24 * 60 * 60 * 1000;
+  const t0 = Date.UTC(2026, 0, 1);
+  const t1 = t0 + day;
+  const t2 = t1 + day;
+  const queriesDataWithGaps = [
+    createTestQueryData([
+      { ds: t0, 'Value, UCAN': 0.31 },
+      { ds: t1, 'Value, UCAN': 0.32 },
+    ]),
+    createTestQueryData([
+      { ds: t1, 'Y/Y, UCAN': -11.4 },
+      { ds: t2, 'Y/Y, UCAN': -9.2 },
+    ]),
+  ];
+  const chartProps = createEchartsTimeseriesTestChartProps<
+    EchartsMixedTimeseriesFormData,
+    EchartsMixedTimeseriesProps
+  >({
+    ...MIXED_TIMESERIES_CHART_PROPS_DEFAULTS,
+    defaultQueriesData: queriesDataWithGaps,
+    formData: {
+      ...formData,
+      x_axis: 'ds',
+      xAxis: 'ds',
+      metrics: ['Value'],
+      metricsB: ['Y/Y'],
+      groupby: ['region'],
+      groupbyB: ['region'],
+      richTooltip: true,
+      pinterestDeltaTable: true,
+    },
+    queriesData: queriesDataWithGaps,
+  });
+  const { echartOptions } = transformProps(chartProps);
+  const series = echartOptions.series as SeriesOption[];
+  const { formatter } = echartOptions.tooltip as { formatter: Function };
+  const tooltipAt = (timestamp: number): string =>
+    formatter(
+      series.map(s => ({
+        seriesId: s.id,
+        value: [timestamp, 0],
+        marker: '',
+      })),
+    );
+
+  expect(tooltipAt(t1)).toContain('-11.4');
+  expect(tooltipAt(t2)).toContain('-9.2');
+});
